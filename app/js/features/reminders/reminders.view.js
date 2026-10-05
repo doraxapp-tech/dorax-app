@@ -3,7 +3,7 @@
 
 const LEADS = () => [[0, t('On the day')], [1, t('1 day before')], [3, t('3 days before')], [7, t('A week before')]];
 const remindCfg = () => { const u = S.user; u.remind = u.remind || { lead: 3, snoozed: {} }; u.remind.snoozed = u.remind.snoozed || {}; return u.remind; };
-const remindOpt = () => ({ ...S.user.notify, goals: S.user.notify.goals !== false, lead: remindCfg().lead, askDue: remindCfg().askDue !== false, closeDay: S.settings.closeDay });
+const remindOpt = () => { remindCfg(); return reminderOptions(S); };      // reminderOptions: reminder-messages.js, shared with the server's job
 const allReminders = () => reminders(S, S.today, CUR, remindOpt());
 const snoozedNow = r => remindCfg().snoozed[r.id] === S.today;
 const activeReminders = () => allReminders().filter(r => !snoozedNow(r));
@@ -13,7 +13,6 @@ const billLines = () => S.plan.lines.filter(l => l.pay !== 'budget' && !(l.end &
 const cards = () => personal().filter(a => a.type === 'credit' && a.currency === CUR);
 const cardLines = a => S.plan.lines.filter(l => l.accountId === a.id && !(l.end && l.end < ymOf(S.today)));
 const dueMissing = () => billLines().filter(l => !l.due).length;
-const whenText = r => r.days < 0 ? tn(-r.days, '{n} day late', '{n} days late') : r.days === 0 ? t('due today') : tn(r.days, 'in {n} day', 'in {n} days');
 
 function bellButton() {
   const n = activeReminders().length;
@@ -81,28 +80,29 @@ function dueDaysDrawer(d) {
 }
 
 // ---------- profile: what to remind, and how early ----------
-/** What the day's reminder email says: its subject and one line per reminder. Nothing sends it yet (that takes a job on the server, which
-    is not built); the wording is kept here, next to the reminders it is made from, so the job has it ready. */
-function mailToday() {
-  const rs = activeReminders().filter(r => r.kind !== 'nodue'); if (!rs.length) return null;
-  const lines = rs.map(r => r.kind === 'bill' ? t('{name}: {amount}, due {date} ({when}).', { name: r.name, amount: (r.pay === 'variable' ? '≈ ' : '') + fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
-    : r.kind === 'card' ? t('{name}: invoice of {amount}, due {date} ({when}).', { name: r.name, amount: (r.estimate ? '≈ ' : '') + fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
-    : r.kind === 'past' ? tn(r.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(r.ym) }) + ': ' + r.lines.map(x => x.name).join(', ') + '.'
-    : r.kind === 'handout' ? t('Savings for {month}: {amount} still to hand out.', { month: fmt.month(r.ym), amount: fmt.money(r.amount, CUR) })
-    : r.kind === 'close' ? t('{name}: the {month} statements are due by {date} ({when}). {sent} of {total} sent.', { name: platLabel(), month: fmt.month(r.ym), date: fmt.date(r.date, true), when: whenText(r), sent: r.sent, total: r.total })
-      : r.saved >= 0 ? t('{month} closed with {amount} left over.', { month: fmt.month(r.ym), amount: fmt.money(r.saved, CUR) }) : t('{month} closed with spending {amount} above income.', { month: fmt.month(r.ym), amount: fmt.money(-r.saved, CUR) }));
-  const bills = rs.filter(r => r.kind === 'bill' || r.kind === 'card'), subject = rs.length === 1 && bills.length ? `${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today');
-  return { subject, lines };
-}
 function remindersCard() {
   const u = S.user, cfg = remindCfg(), bills = billLines(), withDay = bills.filter(l => l.due).length, next = reminderSchedule(S, S.today, CUR, cfg.lead, 45).slice(0, 5), n = activeReminders().length;
   const notify = (k, title, text, extra) => `<div class="setting"><div><b style="font-weight:500">${title}</b><p>${text}</p>${extra || ''}</div>${sw('nf-' + k, k === 'goals' ? u.notify.goals !== false : !!u.notify[k], 'user-notify', `data-k="${k}"`)}</div>`;
   const billExtra = !u.notify.bills ? '' : `<div class="row" style="margin-top:10px"><div class="field inline"><label for="nf-lead">${t('How early')}</label><select id="nf-lead" data-c="user-lead">${options(LEADS(), cfg.lead)}</select></div>
       <span class="chip ${bills.length && withDay === bills.length ? 'good' : withDay < bills.length ? 'warn' : ''}">${bills.length && withDay ? '<i></i>' : ''}${bills.length ? t('{a} of {b} bills have a due day', { a: withDay, b: bills.length }) : t('No bills to time yet')}</span><button class="btn sm" data-a="due-days">${icon('calendar')}${t('Due days')}</button>${cfg.askDue === false && withDay < bills.length ? `<button class="btn sm ghost" data-a="remind-ask-due" data-v="1">${t('Ask me about the missing days')}</button>` : ''}</div>`;
+  // Outside the app: this device (a notification, even with the app closed) and email. What this device can do is asked of the browser once,
+  // when the card is first drawn; until the answer is in, the card offers to switch it on.
+  const push = UI.push || {}, busy = !!push.busy, emailOn = !u.channels || u.channels.email !== false;
+  if (!push.known && !push.asked) { UI.push = { ...push, asked: true }; pushRefresh(); }
+  const st = push.status || 'off', stop = busy ? ' disabled' : '';
+  const deviceText = st === 'blocked' ? t('Notifications for Dorax are blocked in this browser. Allow them in the browser’s settings for this site, then reload the page.')
+    : st === 'install' ? t('On an iPhone or iPad, add Dorax to the Home Screen first: tap Share, then “Add to Home Screen”. Open Dorax from there and turn notifications on.')
+    : st === 'unsupported' ? t('This browser cannot show notifications from a website.') : st === 'preview' ? t('This preview sends nothing: no notifications and no emails.')
+    : t('A notification on this phone or computer, even when Dorax is closed.');
+  const deviceTools = st === 'on' ? `<div class="row" style="margin-top:10px"><span class="chip good"><i></i>${t('On for this device')}</span><button class="btn sm" data-a="push-test"${stop}>${t('Send a test')}</button><button class="btn sm ghost" data-a="push-off"${stop}>${t('Turn off')}</button></div>` : '';
+  const deviceBtn = st === 'off' ? `<button class="btn" data-a="push-on"${stop}>${icon('bell')}${busy ? t('One moment…') : t('Turn on')}</button>` : '';
+  const outside = `<div class="setting out" id="push-setting"><div><b style="font-weight:500">${t('Notifications on this device')}</b><p>${deviceText}</p>${deviceTools}</div>${deviceBtn}</div>
+      <div class="setting" id="mail-setting"><div><b style="font-weight:500">${t('By email')}</b><p>${t('To {email}. One message when a bill is coming up, one on its day, and one if it is late.', { email: `<b>${esc(u.email)}</b>` })}</p>${emailOn ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-a="mail-test"${stop}>${t('Send a test')}</button></div>` : ''}</div>${sw('nf-email', emailOn, 'user-channel', 'data-k="email"')}</div>`;
   return `<section class="card" id="reminders-card"><div class="card-h"><h2>${t('Reminders')}</h2>${hint('proRemind')}<button class="right btn sm" data-a="reminders">${icon('bell')}${n ? t('{n} today', { n }) : t('Nothing today')}</button></div><div class="card-b">
       ${notify('bills', t('Bills that are due'), t('Before the due day, on the day, and when a bill is late. Only bills with a due day can be timed.'), billExtra)}${notify('goals', t('Savings to hand out'), t('When the money for savings has arrived, or the month is about to end, and the month’s contributions are not recorded.'))}${notify('close', t('Statements for the accountant'), t('From day 1 of the month until last month’s statements of the accounts on your monthly list are sent.'))}${notify('summary', t('Monthly summary'), t('How the month closed, in the first days of the next one.'))}
       ${next.length ? `<div class="rem-next"><b style="font-weight:500">${t('Next reminders')}</b><div class="list">${next.map(x => `<div class="li"><span class="when">${fmt.date(x.sendDate)}</span><span class="grow">${esc(x.name)} <span class="muted">· ${t('due {date}', { date: fmt.date(x.date) })}</span></span><span class="num">${fmt.money(x.amount, CUR)}</span></div>`).join('')}</div></div>` : ''}
-      <div class="setting cal"><div><b style="font-weight:500">${t('Reminders outside the app')}</b><p>${t('Download a calendar file with every due day and add it to your phone’s or computer’s calendar. The calendar reminds you even when the app is closed. If you change a due day, download it again.')}</p></div><button class="btn" data-a="calendar-file" ${calendarEvents().length ? '' : 'disabled'}>${icon('download')}${t('Calendar file')}</button></div></div></section>`;
+      ${outside}
+      <div class="setting"><div><b style="font-weight:500">${t('Reminders outside the app')}</b><p>${t('Download a calendar file with every due day and add it to your phone’s or computer’s calendar. The calendar reminds you even when the app is closed. If you change a due day, download it again.')}</p></div><button class="btn" data-a="calendar-file" ${calendarEvents().length ? '' : 'disabled'}>${icon('download')}${t('Calendar file')}</button></div></div></section>`;
 }
 
 // ---------- calendar file: reminders that work with the app closed ----------

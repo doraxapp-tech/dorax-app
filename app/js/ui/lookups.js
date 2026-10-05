@@ -6,8 +6,7 @@ const personal = () => S.accounts.filter(a => a.scope !== 'business');
 const business = () => S.accounts.filter(a => a.scope === 'business');
 /** The accounts whose statement is sent every month, as the person said for each one. With a month: those that already counted in that month. */
 const needStatements = ym => S.accounts.filter(a => owesStatement(a, ym));
-/** The accounting platform or accountant, as the person named it in Settings. The app assumes none: without a name it says "Accounting". */
-const platLabel = () => (S.settings.platform || '').trim() || t('Accounting');
+// platLabel (the accounting platform's name) lives in features/reminders/reminder-messages.js, which the server's reminder job shares.
 /** Accounts in the order the converter offers them: the ones on the monthly list, then the other company accounts, then the household's. */
 const convAccounts = () => { const m = needStatements(); return [...m, ...business().filter(a => !m.includes(a)), ...personal().filter(a => !m.includes(a))]; };
 function catOf(id) { for (const c of S.categories) { if (c.id === id) return { cat: c }; const s = c.subs.find(x => x.id === id); if (s) return { cat: c, sub: s }; } return null; }

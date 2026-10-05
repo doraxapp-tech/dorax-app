@@ -32,6 +32,7 @@ let LIVE = null;
   // 1. the form: every field says what is wrong
   await page.click('.lp-actions [data-v="signup"]');
   ok(await vis('#au-name') && await vis('#au-email') && await vis('#au-pass') && await vis('#au-accept') && await vis('[data-a="auth-google"]'), 'sign-up has name, email, password, terms, Google');
+  eq(await page.locator('.g-mark, .gbtn.g-dark').count(), 0, 'on the stand-in server Google is only simulated: the button carries no Google mark');
   eq(await page.locator('.proto, .chip.warn').count(), 0, 'sign-up: no prototype box');
   eq(await page.getAttribute('#au-pass', 'type'), 'password', 'password hidden by default');
   eq([await page.getAttribute('#au-name', 'autocomplete'), await page.getAttribute('#au-email', 'autocomplete'), await page.getAttribute('#au-pass', 'autocomplete')], ['name', 'username', 'new-password'], 'autocomplete names for password managers');
@@ -276,6 +277,10 @@ let LIVE = null;
   await logout(); await visit(page, FILE + '#error=access_denied&error_code=access_denied&error_description=The+user+denied+access');
   ok(/Google was cancelled/.test(await txt('.banner')) && await vis('#au-pass') && !(await vis('.banner.crit')), 'Google cancelled: the login, with a calm notice');
   eq(await page.evaluate(() => location.hash), '', 'and a clean address');
+  // Google (or the server) could not complete the login: said as what it is, not as an old link (found on the live site: a wrong client secret read "that link no longer works")
+  await visit(page, FILE + '?error=server_error&error_code=unexpected_failure&error_description=Unable+to+exchange+external+code#error=server_error&error_code=unexpected_failure&error_description=Unable+to+exchange+external+code');
+  ok(/login could not be completed/.test(await txt('.banner.crit')) && !/link no longer works/.test(await txt('.auth-card')) && await vis('#au-pass'), 'a login Google could not complete: the login says so, and does not talk about a link');
+  eq(await page.evaluate(() => location.hash + location.search), '', 'and the address is clean');
   // a sign-up never confirmed, then Google with the same email: Google proves the address; the unproven password does not become a way in
   await page.evaluate(() => DORAX_PREVIEW.set({ google: { email: 'pend@example.org', name: 'Pend G' } }));
   await go('signup'); await page.fill('#au-name', 'Pend'); await page.fill('#au-email', 'pend@example.org'); await page.fill('#au-pass', 'Pendente2026'); await page.check('#au-accept'); await page.click('[data-a="auth-signup"]'); await idle();
@@ -415,6 +420,31 @@ let LIVE = null;
     eq(o.errors, [], `${lang}: no console errors`); await o.browser.close();
   }
 
+  // 14b. a first visit opens in the browser's language (v42); a language picked by hand is remembered; the account's language wins once logged in
+  {
+    const br = await require('playwright').chromium.launch();
+    const visit1 = async (locale) => { const ctx = await br.newContext({ locale, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' }); const o = await open({ browser: br, ctx, lang: 'auto' }); await o.page.waitForSelector('.lp-actions'); return o; };
+    const seen = p => p.evaluate(() => [S.settings.lang, document.documentElement.lang, document.querySelector('[data-a="pub-go"][data-v="login"]').textContent.trim()]);
+    for (const [locale, lang, word] of [['pt-BR', 'pt', 'Entrar'], ['pt-PT', 'pt', 'Entrar'], ['es-MX', 'es', 'Entrar'], ['es-419', 'es', 'Entrar'], ['en-GB', 'en', 'Log in'], ['en-US', 'en', 'Log in'], ['fr-FR', 'pt', 'Entrar'], ['de-DE', 'pt', 'Entrar'], ['ja-JP', 'pt', 'Entrar']]) {
+      const o = await visit1(locale); eq(await seen(o.page), [lang, lang, word], `a browser in ${locale} opens the home page in ${lang}`); eq(o.errors, [], `${locale}: no console errors`); await o.ctx.close();
+    }
+    // the person's own order of preference: the first language the app speaks
+    { const ctx = await br.newContext({ locale: 'fr-FR', reducedMotion: 'reduce' }); await ctx.addInitScript(() => Object.defineProperty(navigator, 'languages', { get: () => ['fr-FR', 'fr', 'es-AR', 'en'] }));
+      const o = await open({ browser: br, ctx, lang: 'auto' }); await o.page.waitForSelector('.lp-actions'); eq((await seen(o.page))[0], 'es', 'several languages in the browser: the first one the app speaks'); await ctx.close(); }
+    // picked by hand: kept on the next visit, whatever the browser says
+    { const o = await visit1('pt-BR'); const p = o.page; await p.selectOption('#lp-lang', 'en'); await p.waitForFunction(() => S.settings.lang === 'en'); await p.reload(); await p.waitForSelector('.lp-actions');
+      eq(await seen(p), ['en', 'en', 'Log in'], 'a language picked by hand is the one the next visit opens in');
+      // sign-up carries it, and a new account starts in it
+      await p.evaluate(() => A['pub-go']({ v: 'signup' })); await p.fill('#au-name', 'Kim'); await p.fill('#au-email', 'kim@example.org'); await p.fill('#au-pass', 'KimSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]');
+      await p.waitForFunction(() => UI.pub.screen === 'sent'); await openMail(p, 'signup'); await p.waitForSelector('#ob-name'); eq(await p.evaluate(() => S.settings.lang), 'en', 'a new account starts in the language of the visit');
+      await p.click('[data-a="onboard-save"]'); await p.click('[data-a="ob-finish"]'); await p.waitForFunction(() => !!UI.session);
+      // the account's language wins over the device's once logged in
+      await p.evaluate(() => { S.settings.lang = 'es'; return saveNow(); }); await p.evaluate(() => localStorage.setItem('dorax.lang', 'pt')); await p.reload(); await p.waitForFunction(() => !!UI.session);
+      eq(await p.evaluate(() => [S.settings.lang, document.documentElement.lang, localStorage.getItem('dorax.lang')]), ['es', 'es', 'es'], 'logged in: the language kept with the account wins, and the device remembers it');
+      eq(o.errors, [], 'languages: no console errors'); await o.ctx.close(); }
+    await br.close();
+  }
+
   // 15. phones: fits, 16px fields, large enough targets
   for (const w of [320, 390]) {
     const o = await open({ lang: 'pt', viewport: { width: w, height: 760 }, touch: true, mobile: true, dpr: 2 }); const p = o.page; await p.waitForSelector('.lp-actions');
@@ -428,9 +458,28 @@ let LIVE = null;
         return out;
       });
       eq([m.overflow <= 0, m.fonts, m.small, m.cardFits], [true, [], [], true], `phone ${w}px ${v}: fits, 16px fields, targets`);
+      eq(await p.evaluate(() => [document.querySelectorAll('.auth-side').length, [...document.querySelectorAll('.auth .logo')].filter(l => l.getClientRects().length).length]), [0, 1], `phone ${w}px ${v}: one block under one logo, no side panel`);
     }
     await p.evaluate(() => showGate('offline', { error: serverSays('network') })); eq(await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth <= 0), true, `phone ${w}px "could not be opened" fits`);
     eq(o.errors, [], `phone ${w}: no console errors`); await o.browser.close();
+  }
+
+  // 15b. wide screens: one block, centred, no panel beside it (owner, 2026-10-05: "remove the 2 block design of the sign-up and login")
+  for (const [w, h] of [[1440, 900], [1000, 760], [921, 700]]) {
+    const o = await open({ lang: 'pt', viewport: { width: w, height: h } }); const p = o.page; await p.waitForSelector('.lp-actions');
+    const look = () => p.evaluate(() => {
+      const card = document.querySelector('.auth-card').getBoundingClientRect(), cs = getComputedStyle(document.querySelector('.auth-card')), h1 = document.querySelector('.auth h1').getBoundingClientRect(), b = document.querySelector('.auth-back');
+      return { panel: document.querySelectorAll('.auth-side, .as-steps').length, centred: Math.abs((card.left + card.right) / 2 - document.documentElement.clientWidth / 2) <= 1, wide: Math.round(card.width), noBox: cs.borderTopWidth === '0px' && cs.backgroundColor === 'rgba(0, 0, 0, 0)',
+        logos: [...document.querySelectorAll('.auth .logo')].filter(l => l.getClientRects().length).length, logoAbove: document.querySelector('.auth .logo').getBoundingClientRect().bottom <= h1.top, pattern: document.querySelectorAll('.auth .weave').length,
+        overflow: document.documentElement.scrollWidth - innerWidth, back: !b || (b.getBoundingClientRect().bottom <= h1.top && b.getBoundingClientRect().left < card.left) };
+    });
+    const want = { panel: 0, centred: true, wide: 400, noBox: true, logos: 1, logoAbove: true, pattern: 0, overflow: 0, back: true };
+    await p.evaluate(() => A['pub-go']({ v: 'signup' })); eq(await look(), want, `${w}px sign-up: one block, centred, the logo over the form, no panel and no box`);
+    await p.evaluate(() => A['pub-go']({ v: 'login' })); eq(await look(), want, `${w}px login: the same block`);
+    await p.evaluate(() => A['pub-go']({ v: 'forgot' })); eq(await look(), want, `${w}px forgot password: the same block`);
+    await p.evaluate(() => { UI.pub = { ...freshPub(), screen: 'sent', sent: 'signup', email: 'a@example.org' }; renderNow(); }); eq(await look(), want, `${w}px confirm your email: the same block`);
+    await p.evaluate(() => showGate('offline', { error: serverSays('network') })); eq(await look(), want, `${w}px "could not be opened": the same block`);
+    eq(o.errors, [], `one block ${w}: no console errors`); await o.browser.close();
   }
 
   // 16. the one-file preview inside a frame that allows scripts only (how a published preview runs): no storage, and it still works in memory

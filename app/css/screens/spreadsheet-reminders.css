@@ -38,7 +38,8 @@ input.day { -moz-appearance: textfield; appearance: textfield; width: 68px; min-
 .due-group h3 .dot { width: 7px; height: 7px; border-radius: 50%; }
 .due-group h3 svg { width: 14px; height: 14px; flex: none; }
 .due-group > p.note { margin-top: 10px; }
-.setting.cal { border-top: 1px solid var(--line); margin-top: 14px; }
+/* the first of the "outside the app" rows (this device, email, the calendar file) starts a new group under the list of next reminders */
+.setting.out { border-top: 1px solid var(--line); margin-top: 14px; }
 .setting + .setting.cal { border-top: 0; margin-top: 0; }       /* straight after another setting, that one's own line is the divider */
 .rem { border: 1px solid var(--line); border-radius: var(--r-mid); background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
 .rem.crit { border-color: color-mix(in srgb, var(--crit) 50%, var(--line)); }

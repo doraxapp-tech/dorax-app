@@ -19,7 +19,6 @@ function weave(key, cols, rows, seed, rings) {
   const g = want.map(([c, r]) => `M${c * C - R} ${r * C}A36 36 0 0 1 ${c * C} ${r * C - R}`).join('');
   return WEAVES[key] = `<div class="weave-bg wv-${key}" aria-hidden="true"><svg class="weave" style="--cols:${cols}" viewBox="0 0 ${cols * C} ${rows * C}" focusable="false"><g fill="none" stroke-width="18"><path class="wv-line" d="${d}"/><path class="wv-q" d="${g}"/></g></svg></div>`;
 }
-// the three places it is used: beside the home page's headline (round the phone, clear of the text), in the closing panel, and round the card of the login, sign-up and first-time setup
-const weaveHero = () => weave('hero', 34, 14, 20261004, [[25, 3], [27, 6]]);
-const weaveEnd = () => weave('end', 28, 10, 7, [[3, 4], [25, 6]]);
+// Where it is used: round the card of the first-time setup, and behind the short wait before an account opens.
+// (v42, owner: none in the hero, none on login and sign-up, and none in the home page's closing call to action, which is plain words and two buttons.)
 const weaveAuth = () => weave('auth', 36, 22, 31, [[12, 8], [26, 6], [24, 15]]);

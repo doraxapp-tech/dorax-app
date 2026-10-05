@@ -13,8 +13,8 @@
 :root {
   color-scheme: dark;
   /* surfaces and ink */
-  --bg: #000000; --surface: #121212; --surface-2: #171717; --surface-3: #242424; --well: #1C1C1C; --lift: #171717; --badge: #242424; --pit: #0D0D0D;
-  --line: #2E2E2E; --line-strong: #393939; --graphite: #4D4D4D; --field: #666666;
+  --bg: #000000; --surface: #070707; --surface-2: #171717; --surface-3: #242424; --well: #1C1C1C; --lift: #171717; --badge: #242424; --pit: #0D0D0D;
+  --line: #1A1A1A; --line-strong: #393939; --graphite: #4D4D4D; --field: #666666;
   --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090;
   /* roles */
   --primary: #006239; --primary-hover: #00754A; --primary-ink: #FAFAFA; --primary-line: rgba(62, 207, 142, .45);

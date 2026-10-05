@@ -4,7 +4,8 @@
 const { spawnSync } = require('child_process'), path = require('path');
 // qc-schema.js runs supabase/schema.sql on a real PostgreSQL where one is installed (and says "skipped" where not);
 // qc-deploy.js serves the app with the headers of vercel.json and runs it on the real Supabase library, its requests answered locally.
-const node = ['check-i18n.js', 'engine-qc.js', 'converter-qc.js', 'qc-schema.js'], browser = ['flows-auth.js', 'qc-screens.js', 'qc-flows.js', 'qc-sweep.js', 'qc-files.js'];
+// qc-reminders.js runs the server's reminders function here, with stand-ins for the database, the clock and the network.
+const node = ['check-i18n.js', 'engine-qc.js', 'converter-qc.js', 'qc-schema.js', 'qc-reminders.js'], browser = ['flows-auth.js', 'qc-screens.js', 'qc-flows.js', 'qc-sweep.js', 'qc-files.js'];
 const runs = [...node.map(s => [s, null]), ['qc-deploy.js', null], ...browser.map(s => [s, 'app']), ...browser.map(s => [s, 'bundle'])];
 let failed = 0;
 for (const [s, target] of runs) {

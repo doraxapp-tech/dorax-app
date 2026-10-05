@@ -1,6 +1,8 @@
 /* Dorax Finance — the page listens once: clicks, keys, fields, drag and drop, hints, pulling a sheet down. */
 // ---------- events ----------
 document.addEventListener('click', e => {
+  const q = e.target.closest('.lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
+  if (q && q.parentElement.animate && !reducedMotion()) { e.preventDefault(); faqToggle(q.parentElement); return; }
   const link = e.target.closest('a[href^="#"]');
   if (link) {
     e.preventDefault();

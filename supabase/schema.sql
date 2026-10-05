@@ -7,6 +7,10 @@
 --   2. contact_messages     what people send through the contact form. Anyone can write one (up to 30 an hour in all); nobody can read
 --                           them through the app.
 --   3. delete_my_account()  lets a logged-in person delete themselves, and with them everything kept for them.
+--   4. reminders             what the reminder job needs: the devices that asked for notifications (push_subscriptions), what was
+--                           already sent to whom (reminder_log), and the server's own secrets (reminder_secrets). The job itself is
+--                           the Edge Function in supabase/functions/reminders; its daily schedule is in supabase/reminders-schedule.sql.
+--   5. the contact notice   when a contact message is written, the database asks that same function to email it to the owner.
 --
 -- What protects the data: ROW-LEVEL SECURITY. The app's public key lets a browser talk to the database, and these rules decide what
 -- it may do: a logged-in person reads and writes their own row of user_data and nothing else. Without the rules below, the tables
@@ -118,3 +122,138 @@ comment on function public.delete_my_account() is 'Dorax Finance: deletes the pe
 
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- 4. reminders: notifications on a device, and reminder emails
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- push_subscriptions: one row per device on which a person switched notifications on. A browser hands the app three values (an address at
+-- its push service and two keys); the server needs them to send that device a message. They are of no use to anyone who does not also
+-- hold the server's signing key, but they are kept private all the same: a person sees their own devices only.
+create table if not exists public.push_subscriptions (
+  id         uuid        primary key default gen_random_uuid(),
+  user_id    uuid        not null references auth.users (id) on delete cascade,     -- deleting the person forgets their devices
+  endpoint   text        not null unique check (endpoint like 'https://%' and char_length(endpoint) <= 2000),
+  p256dh     text        not null check (char_length(p256dh) between 80 and 100),
+  auth       text        not null check (char_length(auth) between 16 and 60),
+  agent      text        check (agent is null or char_length(agent) <= 300),         -- which browser it was, to tell devices apart
+  created_at timestamptz not null default now()
+);
+comment on table public.push_subscriptions is 'Dorax Finance: devices that asked for notifications. Written through save_push_subscription(); read by the reminders function.';
+create index if not exists push_subscriptions_user on public.push_subscriptions (user_id);
+
+alter table public.push_subscriptions enable row level security;
+drop policy if exists "push_subscriptions: read own devices" on public.push_subscriptions;
+create policy "push_subscriptions: read own devices" on public.push_subscriptions for select to authenticated using ((select auth.uid()) = user_id);
+-- No policy for insert, update or delete: a device is added and removed only through the two functions below.
+revoke all on public.push_subscriptions from anon, authenticated;
+grant select (id, endpoint, agent, created_at) on public.push_subscriptions to authenticated;
+
+-- Adds this device for the person calling. A device belongs to whoever switched it on last: if somebody else was using this browser before
+-- (a shared computer), their row for it goes, so nobody receives another person's bills. At most 10 devices per person.
+create or replace function public.save_push_subscription(p_endpoint text, p_p256dh text, p_auth text, p_agent text default null)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := (select auth.uid());
+begin
+  if me is null then raise exception 'not logged in' using errcode = '28000'; end if;
+  delete from public.push_subscriptions where endpoint = p_endpoint;
+  if (select count(*) from public.push_subscriptions where user_id = me) >= 10 then
+    delete from public.push_subscriptions where id = (select id from public.push_subscriptions where user_id = me order by created_at limit 1);
+  end if;
+  insert into public.push_subscriptions (user_id, endpoint, p256dh, auth, agent) values (me, p_endpoint, p_p256dh, p_auth, left(p_agent, 300));
+end;
+$$;
+comment on function public.save_push_subscription(text, text, text, text) is 'Dorax Finance: switches notifications on for the caller on one device.';
+revoke all on function public.save_push_subscription(text, text, text, text) from public, anon;
+grant execute on function public.save_push_subscription(text, text, text, text) to authenticated;
+
+-- Removes this device for the person calling (notifications switched off, or logging out of this browser).
+create or replace function public.remove_push_subscription(p_endpoint text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if (select auth.uid()) is null then raise exception 'not logged in' using errcode = '28000'; end if;
+  delete from public.push_subscriptions where endpoint = p_endpoint and user_id = (select auth.uid());
+end;
+$$;
+comment on function public.remove_push_subscription(text) is 'Dorax Finance: switches notifications off for the caller on one device.';
+revoke all on function public.remove_push_subscription(text) from public, anon;
+grant execute on function public.remove_push_subscription(text) to authenticated;
+
+-- reminder_log: what the job already told each person, so a bill is announced once when it comes into view, once on its day and once when
+-- it is late, and not every morning. A key reads like "bill:<line>:2026-10|today". Nobody reaches this table through the app.
+create table if not exists public.reminder_log (
+  user_id uuid        not null references auth.users (id) on delete cascade,
+  key     text        not null check (char_length(key) <= 200),
+  sent_at timestamptz not null default now(),
+  primary key (user_id, key)
+);
+comment on table public.reminder_log is 'Dorax Finance: reminders already sent. Only the reminders function reads and writes it.';
+alter table public.reminder_log enable row level security;      -- and no policy: closed to the app
+revoke all on public.reminder_log from anon, authenticated;
+
+-- reminder_secrets: two values that never leave the server. "vapid" is the key pair that signs notifications (the function makes it the
+-- first time it is needed). "cron" is what the daily schedule presents to the function so that nobody else can start a run; it is made
+-- here, by the database, and is not shown anywhere.
+create table if not exists public.reminder_secrets (
+  key   text  primary key,
+  value jsonb not null
+);
+comment on table public.reminder_secrets is 'Dorax Finance: secrets of the reminders function. Closed to the app; do not copy the values anywhere.';
+alter table public.reminder_secrets enable row level security;  -- and no policy: closed to the app
+revoke all on public.reminder_secrets from anon, authenticated;
+insert into public.reminder_secrets (key, value)
+  values ('cron', to_jsonb(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')))
+  on conflict (key) do nothing;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- 5. the contact form tells the owner
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- A message used to wait in the table until somebody looked. Now, when one is written, the database asks the reminders function to
+-- email it to the owner (the address in the function's secret CONTACT_TO), who answers by replying to that email.
+-- notified_at: when that email went out. Empty means nobody was emailed yet; the morning run sends one summary of those.
+-- The app cannot set it: it may still fill in only the four columns granted in section 2.
+alter table public.contact_messages add column if not exists notified_at timestamptz;
+
+-- Where the function lives. Not a secret, kept with the server's own values so the trigger below reads both from one place.
+-- Another project: change the address here before running the file, or update the row afterwards.
+insert into public.reminder_secrets (key, value)
+  values ('url', to_jsonb('https://uhvfkyblfojcpqupmlbg.supabase.co/functions/v1/reminders'::text))
+  on conflict (key) do nothing;
+
+-- The request is made by the extension pg_net (the same one the daily schedule uses; supabase/reminders-schedule.sql switches it on).
+-- It leaves after the message is saved and does not hold the form up. Whatever goes wrong here (the extension is not on, the function
+-- is not deployed, the address is missing) is swallowed: a message is never refused because the notice about it could not be sent.
+create or replace function public.contact_messages_notify()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare target text; secret text;
+begin
+  select value #>> '{}' into target from public.reminder_secrets where key = 'url';
+  select value #>> '{}' into secret from public.reminder_secrets where key = 'cron';
+  if target is not null and secret is not null then
+    perform net.http_post(
+      url     := target,
+      headers := jsonb_build_object('Content-Type', 'application/json', 'x-reminders-secret', secret),
+      body    := jsonb_build_object('action', 'contact', 'id', new.id),
+      timeout_milliseconds := 20000);
+  end if;
+  return null;
+exception when others then
+  return null;
+end;
+$$;
+revoke all on function public.contact_messages_notify() from public, anon, authenticated;
+
+drop trigger if exists contact_messages_notify on public.contact_messages;
+create trigger contact_messages_notify after insert on public.contact_messages
+  for each row execute function public.contact_messages_notify();

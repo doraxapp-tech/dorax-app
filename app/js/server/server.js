@@ -19,7 +19,11 @@ const SERVER = (() => {
   const hash = new URLSearchParams((location.hash || '').replace(/^#/, '')), query = new URLSearchParams((location.search || '').replace(/^\?/, ''));
   const tokenOwner = tok => { try { return JSON.parse(atob(String(tok).split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).sub || null; } catch (e) { return null; } };
   const arrived = { recovery: hash.get('type') === 'recovery' && !!hash.get('access_token'), owner: hash.get('access_token') ? tokenOwner(hash.get('access_token')) : null,
-    error: hash.get('error_code') || hash.get('error') || query.get('error_code') || query.get('error') || null, halfway: !hash.get('access_token') && /proceed to confirm/i.test(hash.get('message') || '') };
+    error: hash.get('error_code') || hash.get('error') || query.get('error_code') || query.get('error') || null,
+    // what kind of failure it was: a link from an email that is too old or was used ('link'), the person saying no on Google's page
+    // ('cancelled'), or anything else, which is a login that the server or Google could not complete ('failed')
+    failure: (codes => !codes.length ? null : codes.includes('otp_expired') ? 'link' : codes.includes('access_denied') ? 'cancelled' : 'failed')([hash.get('error_code'), hash.get('error'), query.get('error_code'), query.get('error')].filter(Boolean)),
+    halfway: !hash.get('access_token') && /proceed to confirm/i.test(hash.get('message') || '') };
   if (arrived.error || arrived.halfway) try { history.replaceState(null, '', location.pathname); } catch (e) { /* a sandboxed frame keeps its address */ }
 
   // A stand-in can be handed over before the app starts (window.DORAX_SUPABASE): the tests do, and so does the preview build. It speaks the
@@ -101,6 +105,15 @@ const SERVER = (() => {
       return !r.ok ? r : r.data && r.data.length ? { ok: true, rev: rev + 1 } : { ok: false, code: 'conflict' };
     },
     async revision(id) { const r = await ask(() => client.from('user_data').select('rev').eq('user_id', id).maybeSingle()); return r.ok ? { ok: true, rev: r.data ? r.data.rev : null } : r; },
+
+    // ----- reminders outside the app: notifications on a device, and the "send me a test" buttons (supabase/functions/reminders)
+    /** The app's public push key. The server makes it; a browser needs it to make a subscription for this device. */
+    async pushKey() { const r = await ask(() => client.functions.invoke('reminders', { body: { action: 'key' } })); return !r.ok ? r : r.data && r.data.publicKey ? { ok: true, key: r.data.publicKey } : { ok: false, code: 'unknown' }; },
+    /** This device, for the person logged in. A device belongs to whoever switched it on last (see save_push_subscription in schema.sql). */
+    pushSave: d => ask(() => client.rpc('save_push_subscription', { p_endpoint: d.endpoint, p_p256dh: d.p256dh, p_auth: d.auth, p_agent: d.agent || null })),
+    pushRemove: endpoint => ask(() => client.rpc('remove_push_subscription', { p_endpoint: endpoint })),
+    /** channel: 'push' (a notification to the person's devices) or 'email'. The server sends it to the person logged in, nobody else. */
+    async remindTest(channel) { const r = await ask(() => client.functions.invoke('reminders', { body: { action: 'test', channel } })); return !r.ok ? r : r.data && r.data.ok ? { ok: true } : { ok: false, code: (r.data && r.data.code) || 'unknown' }; },
 
     // ----- the contact form: anyone can write, nobody can read through the app
     sendContact: ({ email, topic, message, lang }) => ask(() => client.from('contact_messages').insert({ email, topic, message, lang })),

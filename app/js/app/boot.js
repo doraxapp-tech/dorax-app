@@ -22,6 +22,7 @@ UI.pub = freshPub();
     const mine = SERVER.arrived.recovery && SERVER.arrived.owner === r.session.user.id;
     if (mine) return startRecovery();
     await openAccount();
+    pushArrival();                                   // a notification was tapped while the app was closed: open the reminders
     if (SERVER.arrived.recovery && UI.session) toast(serverSays('otp_expired')); else if (SERVER.arrived.halfway && UI.session) toast(halfway);
     return;
   }
@@ -29,8 +30,10 @@ UI.pub = freshPub();
   // somebody was logged in here, but the server could not be asked (no connection): say so instead of showing the home page as if nobody were
   if (!r.ok && waiting) return showGate('offline', { error: serverSays(r.code), reload: true });
   // nobody is logged in. A link that did not work (too old, used before) or a cancelled Google says so on the login.
-  const why = SERVER.arrived.error;
-  if (why) { UI.pub = { ...freshPub(), screen: 'auth', mode: 'login', [why === 'access_denied' ? 'notice' : 'error']: serverSays(why === 'access_denied' || why === 'otp_expired' ? why : 'otp_expired') }; renderNow(); return; }
+  // Three different things, three different sentences: an old link, a "no" on Google's page, and a login that could not be completed
+  // (Google or the server refused it: a setup problem, nothing the person did).
+  const why = SERVER.arrived.failure;
+  if (why) { UI.pub = { ...freshPub(), screen: 'auth', mode: 'login', [why === 'cancelled' ? 'notice' : 'error']: serverSays(why === 'cancelled' ? 'access_denied' : why === 'link' ? 'otp_expired' : 'login_failed') }; renderNow(); return; }
   if (SERVER.arrived.halfway) { UI.pub = { ...freshPub(), screen: 'auth', mode: 'login', notice: halfway }; renderNow(); return; }
   if (waiting) { UI.pub = freshPub(); renderNow(); enterView(); }
 })();

@@ -5,25 +5,48 @@
 /* the wordmark: five letters built from rings and bars; the top-left quarter of the d is the one green part */
 .logo { display: block; height: 22px; width: auto; color: var(--ink-strong); flex: none; } .logo .ac { stroke: var(--brand); }
 .brand.tag { flex-direction: column; align-items: flex-start; gap: 6px; } .brand small { font-family: var(--mono); font-size: 9.5px; letter-spacing: .32em; color: var(--ink-3); padding-left: 1px; }
-.nav-group { margin-top: 18px; padding: 0 12px 7px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-.nav-group:first-child { margin-top: 0; }
+/* the line between the two groups of the menu: one hairline, as faint as the card borders */
+.nav-rule { height: 1px; margin: 10px 12px; background: var(--line); }
 .nav a { display: flex; align-items: center; gap: 11px; padding: 8px 12px; border-radius: var(--r); color: var(--ink-2); text-decoration: none; font-weight: 400; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
 .nav a:hover { background: var(--surface-3); color: var(--ink-strong); }
 .nav a[aria-current="page"] { background: var(--select); color: var(--select-ink); font-weight: 500; }
 .nav a[aria-current="page"] svg { color: var(--brand); }
 .nav svg, .tabbar svg { width: 17px; height: 17px; flex: none; transition: color var(--t1) ease-out; }
+/* Each icon of the menu moves once when its row is pointed at or reached with the keyboard (owner, 2026-10-05: "add animation to the sidebar icons
+   on hover, make them move one time"). One short movement that suits what the icon is: the gear turns, the arrows travel, the flag waves.
+   It plays once and stops; people who asked their system for less motion get none (the rule at the end of responsive.css). */
+.rail .nav a svg { transform-origin: center; }
+.rail .nav a:is(:hover, :focus-visible) svg { animation: nav-hop 480ms var(--ease) 1; }
+.rail .nav a[href="#dashboard"]:is(:hover, :focus-visible) svg { animation-name: nav-pop; }
+.rail .nav a:is([href="#transactions"], [href="#converter"]):is(:hover, :focus-visible) svg { animation-name: nav-nudge; }
+.rail .nav a:is([href="#goals"], [href="#categories"], [href="#accounts"]):is(:hover, :focus-visible) svg { animation-name: nav-wave; }
+.rail .nav a[href="#goals"] svg { transform-origin: 20% 90%; }
+.rail .nav a[href="#investments"]:is(:hover, :focus-visible) svg { animation-name: nav-rise; }
+.rail .nav a[href="#reports"] svg { transform-origin: center bottom; }
+.rail .nav a[href="#reports"]:is(:hover, :focus-visible) svg { animation-name: nav-grow; }
+.rail .nav a[href="#recurring"]:is(:hover, :focus-visible) svg { animation: nav-turn 560ms var(--ease) 1; --turn: 180deg; }
+.rail .nav a[href="#settings"]:is(:hover, :focus-visible) svg { animation: nav-turn 560ms var(--ease) 1; --turn: 90deg; }
+@keyframes nav-hop { 35% { transform: translateY(-3px); } 70% { transform: translateY(1px); } }
+@keyframes nav-pop { 35% { transform: scale(.86); } 70% { transform: scale(1.06); } }
+@keyframes nav-nudge { 35% { transform: translateX(3px); } 70% { transform: translateX(-1px); } }
+@keyframes nav-wave { 30% { transform: rotate(-12deg); } 65% { transform: rotate(8deg); } }
+@keyframes nav-rise { 40% { transform: translate(2px, -3px); } 75% { transform: translate(-1px, 1px); } }
+@keyframes nav-grow { 35% { transform: scaleY(.78); } 70% { transform: scaleY(1.08); } }
+@keyframes nav-turn { to { transform: rotate(var(--turn, 90deg)); } }
 .nav .count { margin-left: auto; font-family: var(--mono); font-size: 10.5px; font-weight: 500; min-width: 20px; text-align: center; padding: 0 6px; border-radius: var(--pill); background: var(--badge); color: var(--warn); }
 .rail-foot { margin-top: auto; border-radius: var(--r-mid); border: 1px solid var(--line); background: var(--surface); }
 .rail .nav { flex: none; display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
 
-.work { min-width: 0; display: flex; flex-direction: column; }
-.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: calc(18px + var(--safe-t)) 32px 14px; background: color-mix(in srgb, var(--bg) 78%, transparent); -webkit-backdrop-filter: saturate(160%) blur(20px); backdrop-filter: saturate(160%) blur(20px); }
+.work { --col: 1400px; min-width: 0; display: flex; flex-direction: column; }
+/* On a screen wider than the column, the page sits in the middle of the space beside the menu (owner, 2026-10-05: "center the content in the tab
+   view"), and the bar above keeps its title and buttons over the column's two edges; its background still runs the full width. */
+.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: calc(18px + var(--safe-t)) max(32px, calc((100% - var(--col)) / 2 + 32px)) 14px; background: color-mix(in srgb, var(--bg) 78%, transparent); -webkit-backdrop-filter: saturate(160%) blur(20px); backdrop-filter: saturate(160%) blur(20px); }
 /* wide screens: the two groups dissolve into one row; phones give each its own job (see "responsive") */
 .navbar, .pagehead, .bar-tools { display: contents; }
 .bar-title { display: none; }
-.topbar h1 { order: 1; font-family: var(--font); font-size: 26px; font-weight: 500; letter-spacing: -.007em; line-height: 1.15; margin-right: auto; }
+.topbar h1 { order: 1; font-family: var(--font); font-size: 20px; font-weight: 500; letter-spacing: -.007em; line-height: 1.2; margin-right: auto; }
 .topbar .month { order: 2; } .topbar .lang { order: 3; } .topbar .bell { order: 4; } .topbar .save-badge { order: 5; } .topbar .btn.primary { order: 6; }
-.content { padding: 6px 32px 56px; display: flex; flex-direction: column; gap: 20px; max-width: 1400px; width: 100%; }
+.content { padding: 6px 32px 56px; display: flex; flex-direction: column; gap: 20px; max-width: var(--col); width: 100%; margin-inline: auto; }
 .save-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: var(--pill); border: 1px solid var(--line); background: var(--badge); font-family: var(--mono); font-size: 11px; white-space: nowrap; color: var(--ink-2); }
 .save-badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--good); }
 .save-badge.warn::before { background: var(--warn); }

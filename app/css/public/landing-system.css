@@ -1,0 +1,378 @@
+/* ================= The home page, login and sign-up in the owner's style reference =================
+   Source: DESIGN 1.md (owner, 2026-10-05: "update the landing ONLY using this .md file"; then "bring the green buttons, and update login, signup").
+   A dark, almost colourless system: a near-black canvas, a stack of five greys for surfaces, 1px hairlines instead of shadows, Inter at weights
+   400 / 510 / 590 with negative tracking, 8px cards, 4px tags and fields, pills for what is pressed, a 4px spacing rhythm.
+   Scope: the home page (.lp) and the screens of login and sign-up (.auth.single: log in, create account, confirm your email, forgotten
+   password, new password, "could not be opened"). The first-time setup, the legal pages, the contact page and the app keep their own look.
+   How: the page's own colour and shape variables are given the reference's values inside those two roots, so every rule written with them follows;
+   then the things the reference forbids are taken off by name (gradients, glows, drop shadows, the Weave).
+   Where the owner or the product decides instead of the reference:
+   - the main button is Dorax green, filled (owner: "bring the green buttons"). It is the only colour that is not a status. Other actions are plain text;
+   - the logo is drawn as the logo book draws it (its green quarter is the brand's mark, not a page accent);
+   - the data in the product pictures and graphs is Dorax green (owner: "add the green to the data graph and circle");
+   - sections have more room than the reference's 48px, and the rule between them is faint, as wide as the window and fades at both ends (owner);
+   - a section may show a piece of the app, in the app's own look (.shot): there the home page's restyling is undone (owner, with a reference);
+   - status colours stay, small: paid, due soon, a wrong cell in the product pictures; a password rule that is met; an error under a field;
+   - the Google button keeps Google's own colours where it carries Google's G (public/auth.css);
+   - field borders are #62666d, not the reference's #23252a: a field has to be findable (3:1 against the canvas), as everywhere else in the product;
+   - a visible keyboard focus (the reference has none) and 44px pressable areas with 16px fields on phones (the reference is drawn for a mouse). */
+
+/* ---------- the reference's values, in the page's own names ---------- */
+.lp, .auth.single {
+  /* surfaces: canvas, then one step lighter each */
+  --bg: #08090a; --surface: #141516; --surface-2: #1c1c1f; --surface-3: #23252a; --well: #1c1c1f; --lift: #1c1c1f; --badge: #141516; --pit: #08090a;
+  --iron: #2d2e31; --void: #030404;
+  /* hairlines */
+  --line: #23252a; --line-strong: #34343a; --graphite: #3e3e44; --hover-line: #62666d; --field: #62666d; --track: #23252a; --glass: #08090a; --glass-line: #23252a;
+  /* text: snow, mist, fog, steel */
+  --ink-strong: #f7f8f8; --ink: #d0d6e0; --ink-2: #d0d6e0; --ink-3: #8a8f98; --steel: #62666d;
+  /* no accent colour: what was green is the near-white. The one exception is the main button, below */
+  --brand: #f7f8f8; --link: #f7f8f8; --focus: #f7f8f8; --ring: #f7f8f8; --on-brand: #08090a; --brand-edge: #34343a; --brand-deep: #23252a;
+  --primary: #006239; --primary-hover: #00754A; --primary-ink: #f7f8f8; --primary-line: rgba(62, 207, 142, .45);
+  --btn: transparent; --btn-hover: #23252a; --btn-line: #23252a; --select: #23252a; --select-ink: #f7f8f8;
+  --col: #f7f8f8; --col-muted: #3e3e44; --info: #8a8f98;
+  /* shape: 8px cards, 4px tags and fields, pills for what is pressed */
+  --r-card: 8px; --r-lg: 8px; --r-mid: 8px; --r: 4px; --r-sm: 4px; --r-ico: 4.4625px;
+  /* type */
+  --font: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --fig: var(--font);
+  --mono: "Berkeley Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, "Source Code Pro", Consolas, monospace;
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font); font-size: 15px; line-height: 1.5; letter-spacing: -.15px; font-feature-settings: "cv01", "ss03", "calt", "kern", "liga";
+}
+.lp { --gut: clamp(16px, 4vw, 32px); max-width: calc(1080px + 2 * var(--gut)); padding-block: 0 32px; }
+/* the canvas runs to the edges of the window, and under the page when it is pulled */
+html:has(#public:not([hidden]) > :is(.lp, .auth.single)), body:has(#public:not([hidden]) > :is(.lp, .auth.single)) { background: #08090a; }
+:is(.lp, .auth.single) .logo .ac { stroke: #3ECF8E; }      /* the logo, as the logo book draws it */
+:is(.lp, .auth.single) :is(b, strong) { font-weight: 590; }
+/* Inter is loaded with its optical-size axis for the big headings above. Everywhere else the text keeps the cut it always had */
+html { font-optical-sizing: none; }
+:is(.lp, .auth.single) :focus-visible { outline-color: #f7f8f8; }
+
+/* ---------- the bar: full width, solid canvas, a hairline under it, 56px ---------- */
+.lp .lp-nav { min-height: calc(56px + var(--safe-t)); gap: 8px; }
+.lp .lp-nav::before { background: #08090a; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: 1px solid #23252a; }
+/* the section links stand in the middle of the bar, whatever the width of the logo and of the buttons (owner, 2026-10-05) */
+.lp .lp-nav nav { position: absolute; left: 50%; top: var(--safe-t); bottom: 0; transform: translateX(-50%); align-items: center; gap: 0; margin: 0; white-space: nowrap; }
+@media (max-width: 999px) { .lp .lp-nav nav { display: none; } }      /* under 1000px the links would crowd the buttons (English is the longest) */
+.lp .lp-link { padding: 6px 8px; border-radius: 9999px; color: #8a8f98; font-size: 14px; font-weight: 510; letter-spacing: -.011em; }
+.lp .lp-link:hover { color: #f7f8f8; }
+.lp .lp-actions { gap: 4px; }
+/* a vertical rule between the language and the two account buttons */
+.lp .lp-actions .lang-pill { margin-right: 12px; }
+.lp .lp-actions .lang-pill::after { content: ""; position: absolute; right: -9px; top: 50%; width: 1px; height: 16px; margin-top: -8px; background: #23252a; pointer-events: none; }
+.lp .lang-pill { border-color: #23252a; color: #8a8f98; font-weight: 510; letter-spacing: -.011em; }
+.lp .lang-pill:hover { border-color: #34343a; color: #f7f8f8; }
+.lp .lang-pill svg { color: #62666d; }
+
+/* ---------- buttons: the main action is Dorax green, filled (owner); the others are plain text. Pills, no shadow, Inter at 510 ---------- */
+:is(.lp, .auth.single) .btn { border-radius: 9999px; font-family: var(--font); font-size: 14px; font-weight: 510; letter-spacing: -.011em; line-height: 20px; box-shadow: none; background-image: none; transition: background-color var(--t1) ease-out, color var(--t1) ease-out, border-color var(--t1) ease-out; }
+:is(.lp, .auth.single) .btn.primary { background-color: #006239; color: #f7f8f8; border: 1px solid rgba(62, 207, 142, .45); }
+:is(.lp, .auth.single) .btn.primary:hover:not(:disabled) { background-color: #00754A; border-color: #3ECF8E; }
+.lp .btn:not(.primary) { background-color: transparent; border-color: transparent; color: #8a8f98; padding-inline: 8px; }
+.lp .btn:not(.primary):hover:not(:disabled) { background-color: transparent; border-color: transparent; color: #f7f8f8; }
+.lp .btn.lg { min-height: 40px; padding: 9px 20px; font-size: 15px; font-weight: 510; letter-spacing: -.011em; }
+/* the second button beside a main one (hero, closing call to action): a dark pill, as in the owner's reference. In the bar it stays plain text */
+.lp .btn.lg:not(.primary) { padding-inline: 20px; background-color: #141516; border-color: #23252a; color: #f7f8f8; }
+.lp .btn.lg:not(.primary):hover:not(:disabled) { background-color: #1c1c1f; border-color: #34343a; color: #f7f8f8; }
+.lp .lp-actions .btn { font-size: 14px; font-weight: 510; letter-spacing: -.011em; }
+.lp .lp-actions .btn.primary { padding-inline: 16px; }
+
+/* ---------- type: weight 510 for headings; text 15px; small print 12px ---------- */
+.lp h1, .lp h2, .lp h3 { color: #f7f8f8; font-weight: 510; background-image: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: currentColor; text-wrap: balance; }
+/* The two big headings are set as in the owner's reference (2026-10-05: "the same font weight and size for the headings", with a screenshot of it):
+   60px, weight 510, lines set solid (line-height 1), tracking -0.022em, in Inter's display cut. Measured on the screenshot (capital height 44px at 60px,
+   and the width of both lines) rather than read from that site's code. They scale down with the window to 34px on a phone. */
+.lp h1, .lp .lp-hero h1, .lp h2 { font-size: clamp(34px, 6.6vw, 60px); line-height: 1; letter-spacing: -.022em; font-optical-sizing: auto; }
+.lp h1 .hl { color: #8a8f98; background-image: none; -webkit-text-fill-color: currentColor; }
+.lp h3 { font-size: 16px; line-height: 1.5; letter-spacing: -.011em; }
+.lp .lead { font-size: 17px; line-height: 1.5; letter-spacing: -.011em; color: #d0d6e0; }
+.lp .lead.sm { font-size: 16px; line-height: 1.5; letter-spacing: -.011em; color: #8a8f98; }
+.lp .eyebrow { padding: 2px 8px; border-radius: 4px; border: 1px solid #23252a; background: #141516; color: #8a8f98; font-size: 12px; line-height: 1.6; letter-spacing: -.12px; font-weight: 510; }
+.lp #lp-pj .eyebrow { color: #8a8f98; border-color: #23252a; }
+.lp .lp-note, .lp .note { color: #8a8f98; font-size: 13px; line-height: 1.5; letter-spacing: -.01em; }
+.lp .lp-note .linkbtn, .lp a, .lp .linkbtn { color: #f7f8f8; font-weight: 510; text-decoration: none; }
+.lp .lp-note .linkbtn:hover, .lp a:hover, .lp .linkbtn:hover { text-decoration: underline; }
+.lp .lp-meta { font-family: var(--font); font-size: 12px; line-height: 1.6; letter-spacing: -.12px; color: #8a8f98; }
+/* small labels inside the pictures: plain small text, not spaced capitals. The monospace is kept for file names and cells */
+.lp .lp-float small, .lp .ill small, .lp .f-axis, .lp .ph-title span { font-family: var(--font); font-size: 11px; letter-spacing: -.01em; text-transform: none; color: #8a8f98; }
+.lp .num, .lp .ph-card > b { font-family: var(--font); font-variant-numeric: tabular-nums; }
+
+/* ---------- the pictures of the product and the graphs: what is measured is Dorax green, the rest is grey (owner, 2026-10-05: "add the green
+   to the data graph and circle"). One green, as in the app: rings, progress bars, the bar of the current month, the line of a chart, the
+   household's share. Words and figures stay in the text colours; the green is on the mark beside them. ---------- */
+.lp :is(.phone, .lp-float, .ill) { --brand: #3ECF8E; --col: #3ECF8E; --on-brand: #08090a; }
+.lp :is(.phone, .lp-float, .ill) .fl-ico { color: #f7f8f8; }
+
+/* ---------- the hero: no light behind it, no glow under the phone ---------- */
+.lp .lp-hero { padding-block: clamp(48px, 8vw, 104px) clamp(56px, 8vw, 112px); gap: clamp(32px, 5vw, 56px); }
+.lp .lp-hero::before { content: none; }
+.lp .lp-copy { gap: 20px; }
+.lp .lp-copy .row { gap: 8px; }
+.lp .lp-float { padding: 12px; gap: 12px; border-radius: 8px; background: #141516; border: 1px solid #23252a; box-shadow: none; }
+.lp .lp-float b { font-size: 13px; font-weight: 510; color: #f7f8f8; }
+.lp .lp-float .num { color: #8a8f98; }
+.lp .fl-ico { width: 32px; height: 32px; border-radius: var(--r-ico); background: #1c1c1f; border: 1px solid #23252a; color: #f7f8f8; box-shadow: none; }
+.lp .fl-cells i, .lp .mini-cal i { border-radius: 2px; }
+.lp .mcols i { border-radius: 2px 2px 0 0; }
+.lp .ring-fg { stroke-linecap: butt; }
+/* the phone is a picture of the product: flat, a hairline round it */
+.lp .phone { background: #141516; border: 1px solid #34343a; box-shadow: none; }
+.lp .ph-screen { background: #08090a; }
+.lp .ph-island { background: #030404; }
+.lp .ph-card, .lp .ph-list { border-radius: 8px; background: #141516; border-color: #23252a; }
+.lp .ph-title b { font-weight: 510; letter-spacing: -.013em; color: #f7f8f8; }
+.lp .ph-list b, .lp .ph-name { font-weight: 510; color: #f7f8f8; }
+.lp .ph-tab { border-radius: 9999px; background: #141516; border-color: #23252a; }
+.lp .ph-tab span { border-radius: 9999px; color: #8a8f98; }
+.lp .ph-tab span.on { background: #23252a; }
+.lp .ph-ico { background: #1c1c1f; color: #d0d6e0; }
+.lp .chip { border-radius: 4px; border-color: #23252a; font-family: var(--font); letter-spacing: -.01em; color: #8a8f98; }
+.lp .chip.good, .lp .chip.warn, .lp .chip.crit, .lp .chip.info { color: #d0d6e0; }
+
+/* ---------- sections: room to breathe, and a faint rule between them (owner, 2026-10-05: "add space between sections, make the page breathe;
+   the divider lines full width to the edge of the screen, fade out the borders and tune them down"). The reference asks for 48px and a solid
+   hairline; here the owner decides. Two values to tune: --sec-gap (the space above and below each section) and --rule (how strong the line is). ---------- */
+.lp { --sec-gap: clamp(64px, 8.5vw, 120px); --rule: rgba(255, 255, 255, .075); }
+.lp .lp-sec { position: relative; padding-block: var(--sec-gap); gap: clamp(28px, 3.5vw, 44px); }
+.lp .lp-sec + .lp-sec, .lp .lp-two, .lp .lp-foot { border-top: 0; border-image: none; }
+/* the rule: as wide as the window, whatever the width of the column, and fading to nothing towards both edges */
+.lp .lp-sec + .lp-sec::before, .lp .lp-foot::before { content: ""; position: absolute; top: 0; left: calc(50% - 50vw); width: 100vw; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, var(--rule) 22%, var(--rule) 78%, transparent 100%); }
+.lp .lp-sec-t { gap: 16px; max-width: none; } .lp .lp-sec-t h2 { max-width: 17em; } .lp .lp-sec-t .lead { max-width: 62ch; }
+.lp .lp-sec-h.center .lp-sec-t { max-width: none; } .lp .lp-two h2 { max-width: none; }
+.lp .lp-go { margin-top: 0; gap: 8px; }
+.lp .lp-two { gap: clamp(24px, 5vw, 56px); }
+
+/* ---------- cards: the first grey over the canvas, a hairline, 8px, 16px inside; lit by nothing ---------- */
+.lp .bento article {
+  background: #141516; background-image: none; border: 1px solid #23252a; border-radius: 8px; box-shadow: none; }
+.lp .bento article:hover { border-color: #34343a; box-shadow: none; }
+.lp .bento { gap: 16px; }
+.lp .bento .txt { padding: 16px; gap: 4px; }
+.lp .bento p, .lp .lp-plain p, .lp .lp-flow p { color: #8a8f98; font-size: 14px; line-height: 1.5; letter-spacing: -.01em; }
+/* the picture in a card sits one step back, on the canvas; what is inside it is one step forward */
+.lp .ill { background: #08090a; border-bottom-color: #23252a; padding: 20px; }
+.lp .bento article.full .ill { border-right-color: #23252a; }
+.lp .ill b { font-weight: 510; color: #f7f8f8; }
+.lp .mini-sheet, .lp .mini-list, .lp .mini-note, .lp .ill-ofx .file, .lp .ill-flow .node { border-radius: 4px; border-color: #23252a; background: #141516; }
+.lp .ill-ofx .file.out { background: #1c1c1f; border-color: #34343a; }
+.lp .mini-sheet .hd span, .lp .mini-sheet .tot span { background: #1c1c1f; }
+.lp .mini-sheet span:first-child { color: #d0d6e0; }
+.lp .tick { border-radius: var(--r-ico); background: #23252a; color: #f7f8f8; }
+.lp .meter { border-radius: 2px; background: #23252a; } .lp .meter > i { border-radius: 2px; background: #d0d6e0; } .lp .meter.go > i { background: var(--brand); }
+
+/* ---------- a section that shows a piece of the app (owner, 2026-10-05, with a reference): the heading on the left, the words on the right in a
+   larger size, then the app itself: one panel in front, a wider one behind it that fades away to the right and downwards ---------- */
+.lp .lp-split-h { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 24px clamp(32px, 6vw, 96px); align-items: start; }
+.lp .lp-split-h h2 { max-width: none; }
+.lp .lead.big { margin: 0; padding-top: 6px; font-size: clamp(17px, 2vw, 24px); line-height: 1.33; letter-spacing: -.012em; color: #d0d6e0; text-wrap: pretty; }
+/* the six rules under it: plain text in three columns, a faint rule over each; no boxes */
+.lp .lp-plain { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px clamp(20px, 3vw, 40px); }
+.lp .lp-plain > div { display: flex; flex-direction: column; gap: 6px; padding-top: 20px; border-top: 1px solid var(--rule); min-width: 0; }
+.lp .lp-plain h3 { font-size: 15px; font-weight: 590; line-height: 1.5; letter-spacing: -.011em; }
+
+/* The piece of the app. Inside .shot everything is the app: its own colours, radii and type are given back (the values of base/tokens.css),
+   and the home page's restyling of chips, meters, figures and bold text is undone, so what is shown is what a person gets after logging in. */
+.lp .shot {
+  --bg: #000000; --surface: #070707; --surface-2: #171717; --surface-3: #242424; --well: #1C1C1C; --lift: #171717; --badge: #242424; --pit: #0D0D0D;
+  --line: #1A1A1A; --line-strong: #393939; --graphite: #4D4D4D; --field: #666666; --hover-line: #666666; --track: #2E2E2E;
+  --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090;
+  --brand: #3ECF8E; --link: #3ECF8E; --focus: #3ECF8E; --on-brand: #121212; --col: #3ECF8E; --col-muted: #626262; --info: #B4B4B4;
+  --btn: transparent; --btn-line: #393939; --select: #242424;
+  --r-card: 16px; --r-lg: 16px; --r-mid: 16px; --r: 8px; --r-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif; --fig: var(--font);
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Source Code Pro", Consolas, monospace;
+  position: relative; margin: 0; height: 540px; color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.43; letter-spacing: -.016em; font-feature-settings: "calt", "kern", "liga";
+  -webkit-user-select: none; user-select: none; }
+.lp .shot b, .lp .shot strong { font-weight: 500; }
+.lp .shot .chip { border-radius: 9999px; border-color: var(--line); font-family: var(--mono); letter-spacing: 0; color: var(--ink-2); } .lp .shot .chip.good, .lp .shot .chip.warn, .lp .shot .chip.info { color: var(--ink); }
+.lp .shot .meter { height: 6px; border-radius: 99px; background: var(--track); } .lp .shot .meter > i { border-radius: 99px; background: var(--ink); }
+.lp .shot .num, .lp .shot .tbl td.amt-s { font-family: var(--mono); }
+.lp .shot .note { color: var(--ink-3); font-size: 12.5px; line-height: 1.43; letter-spacing: -.016em; }
+.lp .shot .shot-h { font-size: 17px; font-weight: 600; letter-spacing: -.022em; line-height: 1.24; color: var(--ink-strong); }
+.lp .shot .tile .value { font-weight: 600; }
+.lp .shot .hint { cursor: default; } .lp .shot .ln { color: var(--ink-strong); } .lp .shot tr.done .ln { font-weight: 400; color: var(--ink-2); }
+/* behind: the Plan screen, as wide as the rest of the column and a little more, fading out to the right and at the bottom */
+.lp .shot-back { position: absolute; top: 0; bottom: 0; left: 34%; width: 80%; padding: 18px 22px 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden;
+  background: var(--bg); border: 1px solid var(--line); border-bottom: 0; border-radius: 16px 16px 0 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 66%, transparent 99%), linear-gradient(180deg, #000 70%, transparent 100%); -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, #000 66%, transparent 99%), linear-gradient(180deg, #000 70%, transparent 100%); mask-composite: intersect; }
+.lp .shot-bar { display: flex; align-items: center; gap: 12px; }
+.lp .shot-bar > b { font-size: 24px; font-weight: 600; letter-spacing: .009em; line-height: 1.2; color: var(--ink-strong); margin-right: auto; }
+.lp .shot-bar .month { background: var(--bg); } .lp .shot-bar .month i { width: 30px; height: 30px; display: grid; place-items: center; color: var(--ink-2); } .lp .shot-bar .month svg { width: 15px; height: 15px; }
+.lp .shot .tiles { position: relative; gap: 12px; }
+.lp .shot .tile { position: relative; padding: 16px; } .lp .shot .tile .label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.lp .shot .tile .label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* the app's own explanation of a figure, open on one of them: this is how the app says how it counts */
+.lp .shot-tip { position: absolute; z-index: 2; left: 16px; top: calc(100% - 10px); width: max-content; max-width: 250px; padding: 10px 12px; border-radius: 8px; background: var(--lift); border: 1px solid var(--line-strong); color: var(--ink-strong); font-size: 13px; line-height: 1.4; letter-spacing: -.01em; white-space: normal; }
+.lp .shot .tbl th, .lp .shot .tbl td { padding-inline: 18px; }
+.lp .shot .tbl td.first { min-width: 150px; }
+/* in front: the dashboard's "Plan vs actual" card, solid, over the left edge of the screen behind it */
+.lp .shot-front { position: absolute; z-index: 3; left: 0; top: 196px; width: calc(34% + 22px); }
+.lp .shot-front .card { background: var(--surface); border-color: var(--line-strong); }
+.lp .shot .card-h { padding: 18px 20px 0; } .lp .shot .card-b { padding: 14px 20px 20px; } .lp .shot .card-b.flush { padding: 10px 0 4px; }
+[data-reveal].seen:not(.still) .shot-front { animation: rise 700ms var(--ease) 160ms both; }
+/* ---------- for entrepreneurs (owner, 2026-10-05: "you copied the same style … looks repetitive, make it different"). Half and half: the heading,
+   the words, the button and the four points on the left; on the right one picture that says the same: two panes, the household over the company,
+   each whole (no fade, nothing overlapping), joined by a dotted line that carries the first point. ---------- */
+.lp .lp-duo { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); grid-template-areas: "head pic" "list pic"; gap: 40px clamp(32px, 6vw, 72px); align-items: start; }
+.lp .duo-head { grid-area: head; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; min-width: 0; }
+.lp .duo-head h2 { max-width: none; }
+/* the heading is two short sentences, one to a line (owner, 2026-10-05: "too long"). The left half is a little wider than the right so the longest of them (English) has a tenth of the line to spare, and on the narrowest phones the size follows the width */
+@media (max-width: 350px) { .lp .duo-head h2 { font-size: min(34px, 9.6vw); } } .lp .duo-head .lead { margin: 0; max-width: 44ch; } .lp .duo-head .row { margin-top: 4px; }
+.lp .duo-list { grid-area: list; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px clamp(20px, 3vw, 32px); }
+.lp .duo-list li { display: flex; flex-direction: column; gap: 4px; padding-top: 16px; border-top: 1px solid var(--rule); min-width: 0; }
+.lp .duo-list h3 { font-size: 15px; font-weight: 590; line-height: 1.5; letter-spacing: -.011em; }
+.lp .duo-list p { font-size: 14px; line-height: 1.5; }
+.lp .shot.duo { grid-area: pic; align-self: center; height: auto; display: flex; flex-direction: column; gap: 0; }
+.lp .duo-pane { display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; }
+.lp .duo-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lp .shot .duo-h .shot-sec { margin: 0; }
+.lp .duo-t { display: flex; align-items: baseline; gap: 10px; min-width: 0; } .lp .duo-t .note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lp .duo-t b { font-family: var(--mono); font-size: 17px; font-weight: 600; color: var(--ink-strong); white-space: nowrap; }
+/* between the panes: a dotted line down the middle, and on it the point the picture makes */
+.lp .duo-join { position: relative; height: 64px; display: grid; place-items: center; }
+.lp .duo-join::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px dashed var(--line-strong); }
+.lp .duo-join span { position: relative; padding: 5px 12px; border-radius: 9999px; background: #08090a; border: 1px solid var(--line); font-size: 12.5px; font-weight: 500; line-height: 1.43; color: var(--ink-2); white-space: nowrap; }
+.lp .shot.duo .tbl th, .lp .shot.duo .tbl td { padding-inline: 16px; white-space: nowrap; } .lp .shot.duo .tbl .row { flex-wrap: nowrap; }
+.lp .shot.duo .card { background: var(--surface); }
+/* in the half-page layout the picture is about 450px wide: the due day gives its room to the month, the state and the button (Spanish is the longest) */
+@media (min-width: 1141px) { .lp .shot.duo .c2 { display: none; } }
+.lp .shot .shot-sec { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.lp .shot .shot-sec .hint { letter-spacing: 0; }
+.lp .shot .grid { gap: 12px; } .lp .shot .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lp .shot .acct { padding: 16px 18px; gap: 10px; } .lp .shot .acct .bal { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+.lp .shot .acct .row { gap: 10px; flex-wrap: nowrap; } .lp .shot .acct .row .note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .lp .shot .acct .bal { white-space: nowrap; } .lp .shot .acct b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.lp .shot .btn { border-radius: 9999px; padding: 5px 11px; min-height: 30px; font-family: var(--font); font-size: 12.5px; font-weight: 500; letter-spacing: -.016em; line-height: 1.43; background-color: transparent; border: 1px solid var(--btn-line); color: var(--ink-strong); white-space: nowrap; }
+.lp .shot .btn svg { width: 14px; height: 14px; }
+.lp .shot .sub { color: var(--ink-3); font-size: 12.5px; }
+.lp .shot .li.todo b { color: var(--ink-strong); } .lp .shot .li.todo .when { width: auto; min-width: 62px; }
+
+/* ---------- how it works: four steps, each with a small piece of the app over its words (owner, 2026-10-05: "how it works needs an update").
+   Two by two on a wide screen, one under the other on a phone. No numbered path: the pieces of the app are the path. ---------- */
+.lp .lp-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px clamp(24px, 3vw, 40px); }
+.lp .lp-flow li { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.lp .fl-txt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: baseline; }
+.lp .fl-n { grid-row: 1 / span 2; font-size: 13px; font-weight: 510; letter-spacing: -.01em; color: #62666d; font-variant-numeric: tabular-nums; }
+.lp .lp-flow h3 { font-size: 17px; font-weight: 590; line-height: 1.4; letter-spacing: -.012em; }
+.lp .lp-flow p { max-width: 46ch; }
+/* a small piece of the app: on the app's own black, inside a hairline, cut off at the bottom with a fade */
+.lp .shot.mini { height: 236px; display: block; padding: 20px 20px 0; overflow: hidden; background: var(--bg); border: 1px solid var(--line); border-bottom: 0; border-radius: 16px 16px 0 0;
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%); mask-image: linear-gradient(180deg, #000 62%, transparent 100%); }
+.lp .shot.mini .tbl th, .lp .shot.mini .tbl td { padding-inline: 18px; } .lp .shot.mini .tbl td.first { min-width: 0; }
+@media (max-width: 1100px) { .lp .shot .c4 { display: none; } }
+/* for entrepreneurs, one column, as soon as half the page is too narrow for the heading: the heading and the words, then the picture, then the four points */
+@media (max-width: 1140px) { .lp .lp-duo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "pic" "list"; gap: 32px; } .lp .duo-head .lead { max-width: 60ch; } .lp .duo-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .lp .duo-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+  .lp .lp-split-h { grid-template-columns: minmax(0, 1fr); } .lp .lp-split-h h2 { max-width: none; }
+  .lp .lp-plain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* the same two pieces, one under the other: the card first, then the screen, cut off with a fade */
+  .lp .shot { height: auto; display: flex; flex-direction: column; gap: 12px; }
+  .lp .shot-front { position: static; width: auto; order: -1; }
+  .lp .shot-back { position: relative; left: 0; width: auto; height: 400px; padding: 16px 14px 0; border-radius: 16px 16px 0 0;
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
+  .lp .shot .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .lp .shot .c2, .lp .shot .c3 { display: none; }
+  .lp .shot .tbl th, .lp .shot .tbl td { padding-inline: 14px; } .lp .shot .tbl td.first { min-width: 0; }
+  .lp .shot-tip { max-width: 200px; }
+  .lp .lp-flow { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .lp .shot.duo .c2 { display: revert; } .lp .duo-pane { padding: 14px; }
+  .lp .shot.mini { height: 220px; padding: 16px 14px 0; }
+}
+@media (max-width: 560px) { .lp .lp-plain { grid-template-columns: minmax(0, 1fr); gap: 24px; } .lp .shot.mini .li.todo .lbl { display: none; } .lp .shot .acct .bal { font-size: 17px; } .lp .shot-bar > b { font-size: 20px; } .lp .shot .tile { padding: 12px; } .lp .shot .tile .value { font-size: 17px; } }
+@media (max-width: 560px) { .lp .shot .g-2 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 400px) { .lp .shot.mini .d2 { display: none; } }
+@media (max-width: 560px) { .lp .duo-list { grid-template-columns: minmax(0, 1fr); gap: 20px; } .lp .shot.duo .c2 { display: none; } .lp .duo-t .note { display: none; } .lp .duo-join { height: 52px; } .lp .shot.duo .tbl th { white-space: normal; } }
+@media (max-width: 400px) { .lp .shot.duo .tbl th, .lp .shot.duo .tbl td { padding-inline: 12px; } .lp .shot.duo .tbl .row { flex-wrap: wrap; } .lp .shot.duo .tbl td:first-child { white-space: normal; } }
+@media (max-width: 400px) { .lp .shot .budget { grid-template-columns: minmax(0, 1fr); } .lp .shot .tile .value { font-size: 15px; } .lp .shot .card-h { padding-inline: 16px; } .lp .shot .card-b { padding-inline: 16px; } }
+
+/* ---------- questions ---------- */
+.lp .lp-faq details, .lp .lp-faq details:first-child { border-color: #23252a; }
+.lp .lp-faq summary { padding: 16px 0; font-size: 15px; font-weight: 510; letter-spacing: -.011em; color: #f7f8f8; }
+.lp .lp-faq summary svg { color: #8a8f98; }
+.lp .lp-faq details p { padding-bottom: 16px; font-size: 15px; line-height: 1.5; letter-spacing: -.15px; color: #d0d6e0; max-width: 640px; }
+
+/* ---------- the closing call to action: no box (owner, 2026-10-05, with a reference). One short sentence on two lines and two buttons in the middle of an open
+   stretch of canvas, with the same faint rule above it as the sections ---------- */
+.lp .lp-cta { position: relative; overflow: visible; margin: 0; padding: calc(var(--sec-gap) * 1.15) 0; gap: 32px; border: 0; border-radius: 0; background: none; box-shadow: none; isolation: auto; }
+.lp .lp-cta::before { content: ""; position: absolute; top: 0; left: calc(50% - 50vw); width: 100vw; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent 0%, var(--rule) 22%, var(--rule) 78%, transparent 100%); }
+.lp .lp-cta h2 { max-width: 22ch; text-wrap: balance; }
+/* two lines at most, at every width and in the three languages (owner, 2026-10-05: "way too long, 2 line max"): on a narrow phone the size follows the width */
+@media (max-width: 430px) { .lp .lp-cta h2 { font-size: min(34px, 8.4vw); } }
+.lp .lp-cta .row { gap: 12px; margin: 0; }
+
+/* ---------- the footer ---------- */
+.lp .lp-foot { position: relative; gap: 32px; padding: 64px 0 8px; }
+.lp .ft-top { gap: 32px 56px; }
+.lp .ft-brand p, .lp .ft-cols p { color: #8a8f98; font-size: 14px; line-height: 1.5; letter-spacing: -.01em; }
+.lp .ft-cols h3 { font-size: 13px; font-weight: 510; line-height: 1.5; letter-spacing: -.01em; color: #f7f8f8; margin-bottom: 8px; }
+.lp .ft-cols ul { gap: 0; }
+.lp .ft-cols .lp-link { padding: 4px 0; border-radius: 4px; font-size: 14px; font-weight: 400; color: #8a8f98; }
+.lp .ft-cols .lp-link:hover { color: #f7f8f8; }
+.lp .ft-bottom { border-top-color: var(--rule); gap: 8px; }
+.lp .ft-lang { color: #62666d; }
+.lp .ft-lang select.lang { border-radius: 4px; border-color: #23252a; background-color: #141516; color: #d0d6e0; font-family: var(--font); }
+
+/* ================= login and sign-up =================
+   One block on the canvas: the logo, then the form. No panel, no box (owner, 2026-10-05). */
+.auth.single { letter-spacing: -.15px; }
+/* the form */
+.auth.single .auth-card { gap: 16px; }
+.auth.single .auth-card h1 { font-size: 24px; font-weight: 510; line-height: 1.33; letter-spacing: -.012em; color: #f7f8f8; }
+.auth.single .auth-card > p { font-size: 15px; line-height: 1.5; letter-spacing: -.15px; color: #8a8f98; }
+.auth.single .auth-card > p b { color: #f7f8f8; }
+.auth.single .auth-card > p.note { font-size: 13px; letter-spacing: -.01em; }
+.auth.single .au-form { gap: 16px; }
+.auth.single .field { gap: 8px; }
+.auth.single .field > label, .auth.single .lbl-row label { font-size: 13px; font-weight: 510; line-height: 1.5; letter-spacing: -.01em; color: #d0d6e0; }
+.auth.single input:not([type=checkbox]) { min-height: 40px; padding: 8px 12px; border-radius: 4px; border: 1px solid #62666d; background: #141516; color: #f7f8f8; font-family: var(--font); letter-spacing: -.011em; box-shadow: none; }
+.auth.single input:not([type=checkbox]):hover { border-color: #8a8f98; }
+.auth.single input:not([type=checkbox]):focus { border-color: #f7f8f8; box-shadow: none; }
+.auth.single input::placeholder { color: #7f7f80; opacity: 1; }
+.auth.single .field.bad input:not([type=checkbox]) { border-color: var(--neg); } .auth.single .field.bad input:not([type=checkbox]):focus { box-shadow: none; border-color: var(--neg); }
+.auth.single input[type=checkbox] { accent-color: #f7f8f8; }
+.auth.single .pw-eye { color: #8a8f98; border-radius: 4px; } .auth.single .pw-eye:hover { color: #f7f8f8; }
+.auth.single .pw-rules { color: #8a8f98; font-size: 12px; line-height: 1.6; letter-spacing: -.12px; }
+.auth.single .pw-rules .tickbox { border-color: #62666d; }
+.auth.single .pw-rules li.ok { color: #d0d6e0; }
+.auth.single .field > label.check.accept { font-size: 13px; line-height: 1.5; letter-spacing: -.01em; color: #8a8f98; }
+.auth.single .linkbtn, .auth.single .auth-alt .linkbtn, .auth.single .auth-card .linkbtn { color: #f7f8f8; font-weight: 510; text-decoration: none; }
+.auth.single .linkbtn:hover:not(:disabled) { color: #f7f8f8; text-decoration: underline; text-underline-offset: 3px; }
+.auth.single .auth-card .linkbtn:disabled { color: #62666d; }
+.auth.single .lbl-row .linkbtn { font-size: 13px; font-weight: 510; }
+.auth.single .auth-alt { color: #8a8f98; font-size: 14px; letter-spacing: -.01em; }
+.auth.single .btn.lg { min-height: 40px; padding: 9px 20px; font-size: 15px; }
+.auth.single .btn:not(.primary):not(.gbtn):not(.ghost) { background-color: transparent; border-color: #34343a; color: #f7f8f8; }
+.auth.single .btn:not(.primary):not(.gbtn):not(.ghost):hover:not(:disabled) { background-color: #23252a; border-color: #3e3e44; }
+.auth.single .btn.ghost { background-color: transparent; border-color: transparent; color: #8a8f98; }
+.auth.single .btn.ghost:hover:not(:disabled) { background-color: transparent; color: #f7f8f8; }
+/* the Google button without Google's G (the preview, where Google is only simulated): a hairline pill. With the G it keeps Google's colours */
+.auth.single .gbtn:not(.g-dark) { background-color: transparent; border-color: #34343a; color: #f7f8f8; }
+.auth.single .gbtn:not(.g-dark):hover:not(:disabled) { background-color: #23252a; border-color: #3e3e44; }
+.auth.single .gbtn.g-dark { font-size: 14px; line-height: 20px; letter-spacing: .25px; }      /* Google's own figures for its button */
+.auth.single .or { font-family: var(--font); font-size: 12px; line-height: 1.6; letter-spacing: -.12px; text-transform: none; color: #8a8f98; }
+.auth.single .or::before, .auth.single .or::after { background: #23252a; }
+.auth.single .modal-icon, .auth.single .modal-icon.neutral { border-radius: var(--r-ico); background: #1c1c1f; border: 1px solid #23252a; color: #f7f8f8; }
+.auth.single .banner { border-radius: 8px; background: #141516; font-size: 13px; line-height: 1.5; letter-spacing: -.01em; color: #d0d6e0; }
+.auth.single .field small.err { font-size: 12px; line-height: 1.5; letter-spacing: -.12px; }
+@media (max-width: 920px) {
+  .auth.single input:not([type=checkbox]) { min-height: 44px; font-size: 16px; }
+  .auth.single .btn.lg { min-height: 44px; }
+}
+
+/* ---------- phones: the same system; what is pressed keeps a 44px area ---------- */
+@media (max-width: 920px) {
+  .lp .btn.lg { min-height: 44px; }
+  .lp .lp-faq summary { min-height: 44px; }
+}
+@media (max-width: 640px) {
+  .lp .lp-sec { gap: 24px; }
+  .lp .lp-hero { padding-block: 32px 56px; }
+  .lp .lead { font-size: 16px; } .lp .lead.sm { font-size: 15px; }
+  .lp h1, .lp .lp-hero h1, .lp h2 { line-height: 1.06; }
+  .lp .ill { padding: 16px; }
+  .lp .ft-cols .lp-link { padding: 10px 0; }
+}
+@media (forced-colors: active) { .lp h1 .hl { color: CanvasText; } }

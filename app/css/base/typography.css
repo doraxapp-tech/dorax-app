@@ -2,7 +2,8 @@
    Type follows Apple's: semibold (600) headings, regular (400) text, and Apple's size / line-height / tracking steps
    (56px -.005em, 48px -.003em, 40px 0, 32px .004em, 28px .007em, 24px .009em, 21px .011em, 19px .012em, 17px -.022em, 14px -.016em, 12px -.01em).
    The app keeps its compact 14px text for tables and grids; the home page reads at 17px and 21px. */
-.topbar h1 { font-size: 28px; font-weight: 600; letter-spacing: .007em; line-height: 1.14; }
+/* the page's title in the bar: 20px on a computer (owner, 2026-10-05). Phones keep their large title, which shrinks into the bar on scroll. */
+.topbar h1 { font-size: 20px; font-weight: 600; letter-spacing: .011em; line-height: 1.2; }
 .card-h h2 { font-size: 17px; font-weight: 600; letter-spacing: -.022em; line-height: 1.24; }
 .drawer header h2, .modal h2 { font-weight: 600; letter-spacing: -.022em; }
 .hello h2, .pf-head h2 { font-size: 21px; font-weight: 600; letter-spacing: .011em; line-height: 1.19; }

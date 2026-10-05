@@ -1,0 +1,7 @@
+# One kind of line ending everywhere (LF), whatever the computer: the tests compare files text for text, and the server's copy of the
+# reminder rules is checked against the app's files.
+* text=auto eol=lf
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.woff2 binary

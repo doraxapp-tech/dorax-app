@@ -34,7 +34,9 @@ function saveBadge() {
 }
 function renderShell() {
   document.documentElement.lang = S.settings.lang;
-  $('nav').innerHTML = `<div class="nav-group">${t('Household')}</div>` + navLinks(ROUTES.slice(0, 7)) + `<div class="nav-group">${t('Data')}</div>` + navLinks(ROUTES.slice(7, 12));
+  // two groups, the household's screens and the tools for bringing data in, with a faint line between them and no names over them
+  // (owner, 2026-10-05: "remove the sidebar section names and add a line to divide them")
+  $('nav').innerHTML = navLinks(ROUTES.slice(0, 7)) + '<div class="nav-rule" role="separator"></div>' + navLinks(ROUTES.slice(7, 12));
   $('rail-foot').innerHTML = userCard();
   const tabs = TABS.map(id => ROUTES.find(r => r[0] === id)), inMore = !TABS.includes(UI.route);
   $('tabbar').innerHTML = tabs.map(([id, ic]) => `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}${tabLabel(id)}</a>`).join('') + `<button data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog">${icon('more')}${t('More')}</button>`;

@@ -67,6 +67,7 @@ async function logOut(message) {
 }
 async function reallyLogOut(message) {
   UI.bye = message || t('Logged out. See you soon.'); UI.session = null;       // from here on nothing more is saved for the account that is leaving
+  await PUSH.off();                          // this browser stops getting this person's reminders: the next one to use it must not see them
   await SERVER.signOut();                    // also when the server cannot be reached: this device forgets the login either way
   if (WHO || UI.session || UI.pub.screen !== 'landing') leaveSession(UI.bye);
 }
@@ -106,5 +107,6 @@ function serverSays(code) {
     user_banned: t('This account is blocked. Write to us through the contact form.'),
     otp_expired: t('That link no longer works. Ask for a new one.'),
     access_denied: t('Google was cancelled. Nothing was created or changed.'),
+    login_failed: t('The login could not be completed. Nothing was created or changed. Try again, or log in another way.'),
   })[code] || t('Something went wrong on the server. Try again in a moment.');
 }

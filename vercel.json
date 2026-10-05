@@ -4,6 +4,14 @@
   "installCommand": "",
   "buildCommand": "node tools/vercel-build.js",
   "outputDirectory": "app",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "dorax-finance.vercel.app" }],
+      "destination": "https://dorax.app/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

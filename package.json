@@ -7,6 +7,8 @@
     "start": "node tools/serve.js",
     "preview": "node tools/serve.js --preview",
     "build": "node tools/build.js",
+    "emails": "node tools/build-emails.js",
+    "functions": "node tools/build-functions.js",
     "test": "node tools/build.js && node tests/run-all.js"
   },
   "devDependencies": {

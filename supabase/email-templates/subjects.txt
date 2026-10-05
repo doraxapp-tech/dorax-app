@@ -1,0 +1,21 @@
+One block per email. Paste the "subject" line (all of it, with the curly braces) into the Subject field of that template in Supabase.
+
+Confirm sign up
+  file:    confirm-signup.html
+  subject: {{ if eq .Data.lang "es" }}Confirma tu correo{{ else if eq .Data.lang "en" }}Confirm your email{{ else }}Confirme o seu e-mail{{ end }}
+
+Reset password
+  file:    reset-password.html
+  subject: {{ if eq .Data.lang "es" }}Elige una contraseña nueva{{ else if eq .Data.lang "en" }}Choose a new password{{ else }}Escolha uma nova senha{{ end }}
+
+Change email address
+  file:    change-email.html
+  subject: {{ if eq .Data.lang "es" }}Confirma el cambio de correo{{ else if eq .Data.lang "en" }}Confirm the change of email{{ else }}Confirme a troca de e-mail{{ end }}
+
+Password changed (under Security)
+  file:    password-changed.html
+  subject: {{ if eq .Data.lang "es" }}Tu contraseña cambió{{ else if eq .Data.lang "en" }}Your password was changed{{ else }}A sua senha foi alterada{{ end }}
+
+Email address changed (under Security)
+  file:    email-changed.html
+  subject: {{ if eq .Data.lang "es" }}Tu correo cambió{{ else if eq .Data.lang "en" }}Your email was changed{{ else }}O seu e-mail foi alterado{{ end }}

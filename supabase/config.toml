@@ -1,0 +1,6 @@
+# Dorax Finance — settings the Supabase command line reads when it deploys the function in supabase/functions.
+# The reminders function checks its callers itself (the app's public key is public; a test needs a person's login, which the function
+# confirms; the daily run needs the schedule's secret), so Supabase's own check of a login is switched off for it. Without this line,
+# "supabase functions deploy" would switch that check on and the daily schedule, which has no login, would be refused.
+[functions.reminders]
+verify_jwt = false

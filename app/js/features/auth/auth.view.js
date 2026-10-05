@@ -18,16 +18,21 @@ function auPassword(label, fresh, extra) {
       ${auErr('au-pass', err)}
       ${fresh ? `<ul class="pw-rules" id="pw-rules">${rule('len', t('At least {n} characters', { n: PW_MIN }))}${rule('letter', t('A letter'))}${rule('digit', t('A number'))}</ul>` : ''}</div>`;
 }
-// The Google button carries no logo: Google's mark is theirs to supply. To show it, use Google's own button asset, as its sign-in branding rules ask.
+// The Google "G" is Google's own artwork, exactly as its "Sign in with Google" button generator gives it (the owner supplied it, 2026-10-05).
+// It is never redrawn, recoloured or resized: Google's sign-in branding rules allow only their file, at 20px, on their light, dark or neutral button
+// (here the dark one: public/auth.css). It is shown where the button really goes to Google. The preview's stand-in server only pretends to, so there
+// the button stays text only.
+const GOOGLE_G = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block;"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>';
 /** A button that asks the server: while any question is on its way every such button waits, and the one that asked says so. */
 const auBtn = (a, label, cls) => { const b = UI.pub.busy; return `<button type="button" class="btn ${cls}${b === a ? ' busy' : ''}" data-a="${a}" ${b ? 'disabled' : ''}${b === a ? ' aria-busy="true"' : ''}>${b === a ? t('One moment…') : label}</button>`; };
-const auGoogle = () => `${auBtn('auth-google', t('Continue with Google'), 'lg gbtn')}<div class="or" role="separator"><span>${t('or')}</span></div>`;
+const auGoogle = () => { const real = !SERVER.preview; return `${auBtn('auth-google', (real ? `<span class="g-mark" aria-hidden="true">${GOOGLE_G}</span>` : '') + t('Continue with Google'), 'lg gbtn' + (real ? ' g-dark' : ''))}<div class="or" role="separator"><span>${t('or')}</span></div>`; };
 
 function viewAuth() {
   const p = UI.pub, signup = p.mode === 'signup';
-  const head = `<button type="button" class="btn ghost sm auth-back" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</button>${brandMark(true)}`;
+  const back = `<button type="button" class="btn ghost sm auth-back" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</button>`;
   const top = `${SERVER.ready ? '' : banner('warn', esc(serverSays('not_connected')))}${p.error ? banner('crit', esc(p.error)) : ''}${p.notice ? banner('', esc(p.notice)) : ''}`;
-  const card = (inner, plain) => `<main class="auth">${weaveAuth()}<div class="auth-card">${plain ? brandMark(true) : head}${inner}</div></main>`;
+  // One block: the logo, then the form, centred on the page with no box round it (owner, 2026-10-05: "remove the 2 block design of the sign-up and login").
+  const card = (inner, plain) => `<main class="auth single"><div class="auth-main"><div class="auth-card">${plain ? '' : back}${brandMark(true)}${inner}</div></div></main>`;
   if (p.screen === 'onboard') return viewOnboard();
 
   // a short wait: the server is being asked who is logged in, or the account is on its way

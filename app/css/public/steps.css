@@ -1,3 +1,4 @@
+/* Not used since 2026-10-05: "How it works" is four steps, each with a piece of the app (.lp-flow in landing-system.css). Kept for the record of v38. */
 /* ---------- v38 (owner: "remove the card design, change it for something different, the landing page is full of cards"):
    "How it works" is a path, so it is drawn as one: four numbered points on a line, the words under each point, no boxes.
    Wide screens: the line runs across. Narrow screens: the line runs down the left and the words sit beside it. */

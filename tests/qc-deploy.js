@@ -83,6 +83,17 @@ async function project(route) {
   }
   if (p === '/rest/v1/contact_messages' && method === 'POST') { M.contact.push({ ...body, user_id: me ? me.id : null }); return route.fulfill({ status: 201, headers: CORS }); }
   if (p === '/rest/v1/rpc/delete_my_account') { if (!me) return refuse(401, '42501', 'permission denied for function delete_my_account'); M.users.delete(me.id); M.rows.delete(me.id); return route.fulfill({ status: 204, headers: CORS }); }
+  // ----- reminders: the two device functions of schema.sql, and the function that sends (supabase/functions/reminders)
+  if (p === '/rest/v1/rpc/save_push_subscription' || p === '/rest/v1/rpc/remove_push_subscription') {
+    if (!me) return refuse(401, '42501', 'permission denied for function');
+    M.push = (M.push || []).filter(d => d.endpoint !== body.p_endpoint); if (p.endsWith('save_push_subscription')) M.push.push({ user: me.id, endpoint: body.p_endpoint, p256dh: body.p_p256dh, auth: body.p_auth, agent: body.p_agent });
+    return route.fulfill({ status: 204, headers: CORS });
+  }
+  if (p === '/functions/v1/reminders') {
+    if (body.action === 'key') return json(200, { ok: true, publicKey: 'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8' });
+    if (body.action === 'test') return !me ? json(401, { ok: false, code: 'not_logged_in' }) : M.tooSoon ? json(200, { ok: false, code: 'too_soon' }) : json(200, { ok: true, code: '' });
+    return json(400, { ok: false, code: 'unknown_action' });
+  }
   return refuse(404, 'not_found', 'the test has no answer for ' + method + ' ' + p);
 }
 
@@ -90,6 +101,8 @@ async function project(route) {
   // the two things a deploy rests on, before any browser
   const vercel = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8')), csp = headersFor('/')['Content-Security-Policy'] || '';
   eq([vercel.outputDirectory, vercel.framework, fs.existsSync(path.join(__dirname, '..', vercel.buildCommand.replace('node ', '')))], ['app', null, true], 'vercel.json: plain files from app/, built by a script that exists');
+  // one address (owner, 2026-10-05: "my app has a valid domain not the vercel one"): the old vercel.app address sends every path on to dorax.app
+  eq((vercel.redirects || []).map(r => [r.source, (r.has || []).map(h => h.type + ':' + h.value).join(), r.destination, r.permanent]), [['/:path*', 'host:dorax-finance.vercel.app', 'https://dorax.app/:path*', true]], 'vercel.json: the vercel.app address forwards every path to dorax.app, for good, and nothing else is redirected');
   ok(/script-src 'self'(;|$)/.test(csp) && !/unsafe-eval/.test(csp) && /connect-src 'self' https:\/\/\*\.supabase\.co/.test(csp) && /frame-ancestors 'none'/.test(csp), 'the policy: scripts only from the site itself, no eval, connections only to Supabase, no framing', csp);
   const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
   const leaked = walk(path.join(__dirname, '..', 'app')).filter(f => /\.(js|html|json|webmanifest)$/.test(f) && !/vendor/.test(f)).filter(f => /sb_secret_[A-Za-z0-9_]{8,}|GOCSPX-[A-Za-z0-9_-]{10,}|service_role['"]?\s*[:=]\s*['"]ey/.test(fs.readFileSync(f, 'utf8')));
@@ -195,7 +208,11 @@ async function project(route) {
   ok(/no longer works/.test(await txt('.banner.crit')) && !/error/.test(await page.evaluate(() => location.hash)), 'an expired link: the login says so, and the address is cleaned');
 
   // 6. Google: out to the project, back with a session
-  await go('signup'); await Promise.all([page.waitForURL(u => !/authorize/.test(u.href) && u.href.startsWith(BASE)), page.click('[data-a="auth-google"]')]); await page.waitForSelector('#ob-name');
+  await go('signup');
+  eq(await page.evaluate(() => { const b = document.querySelector('[data-a="auth-google"]'), g = b.querySelector('.g-mark svg'), cs = getComputedStyle(b), r = g.getBoundingClientRect();
+    return [[...g.querySelectorAll('path')].map(p => p.getAttribute('fill')).join(), g.getAttribute('viewBox'), Math.round(r.width) + 'x' + Math.round(r.height), cs.backgroundColor, cs.borderTopColor, cs.color, b.querySelector('.g-mark').getAttribute('aria-hidden'), b.textContent.trim()]; }),
+    ['#EA4335,#4285F4,#FBBC05,#34A853,none', '0 0 48 48', '20x20', 'rgb(19, 19, 20)', 'rgb(142, 145, 143)', 'rgb(227, 227, 227)', 'true', 'Continue with Google'], 'the Google button: Google’s own G, untouched, at 20px, on Google’s dark button; the name read out is the text');
+  await Promise.all([page.waitForURL(u => !/authorize/.test(u.href) && u.href.startsWith(BASE)), page.click('[data-a="auth-google"]')]); await page.waitForSelector('#ob-name');
   q = [...M.log].reverse().find(l => l.path === '/auth/v1/authorize'); eq([q.query.provider, q.query.redirect_to], ['google', BASE], 'Google: the browser leaves for the project’s Google address, to come back here');
   eq(await page.inputValue('#ob-name'), 'Gina Google', 'back from Google: the setup opens with the name Google gave');
   await page.click('[data-a="onboard-save"]'); await page.click('[data-a="ob-finish"]'); await inApp(); await idle(); await page.evaluate(() => navigate('profile'));
@@ -229,6 +246,44 @@ async function project(route) {
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-a="export-json"]')]); const bk = JSON.parse(fs.readFileSync(await dl.path(), 'utf8'));
   eq([bk.app, bk.state.user.name, /RuiTres2026|access_token|refresh/.test(JSON.stringify(bk))], ['dorax-finance', 'Rui Costa', false], 'the backup downloads, and holds no password and no login token');
   fs.rmSync(tmp, { recursive: true, force: true });
+
+  // 7b. notifications and reminder emails, on the real library and in a real browser
+  {
+    const dev = { endpoint: 'https://fcm.googleapis.com/fcm/send/qc-device', p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4', auth: 'BTBZMqHH6r4Tts7J_aSIgg', agent: 'Chrome, Linux' };
+    eq(await page.evaluate(() => SERVER.pushKey()), { ok: true, key: 'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8' }, 'reminders: the app reads the push key from the function');
+    q = last('POST', '/functions/v1/reminders'); eq([q.body, q.apikey, /^Bearer ey/.test(q.auth || '')], [{ action: 'key' }, KEY, true], 'the function is called with the public key and the person’s login');
+    eq(await page.evaluate(d => SERVER.pushSave(d).then(r => r.ok), dev), true, 'a device is given to the server');
+    q = last('POST', '/rest/v1/rpc/save_push_subscription'); eq([q.body, /^Bearer ey/.test(q.auth || ''), M.push.map(d => d.user)], [{ p_endpoint: dev.endpoint, p_p256dh: dev.p256dh, p_auth: dev.auth, p_agent: dev.agent }, true, [rui.id]], 'through save_push_subscription, with the four values the function of schema.sql takes');
+    eq([await page.evaluate(() => SERVER.remindTest('push')), await page.evaluate(() => SERVER.remindTest('email')), last('POST', '/functions/v1/reminders').body], [{ ok: true }, { ok: true }, { action: 'test', channel: 'email' }], 'a test is asked of the function, for a notification or an email');
+    M.tooSoon = true; const soon = await page.evaluate(() => SERVER.remindTest('push')); M.tooSoon = false;
+    eq(soon, { ok: false, code: 'too_soon' }, 'a refused test is read with its reason, so the app can say why');
+    eq([await page.evaluate(d => SERVER.pushRemove(d.endpoint).then(r => r.ok), dev), last('POST', '/rest/v1/rpc/remove_push_subscription').body, M.push.length], [true, { p_endpoint: dev.endpoint }, 0], 'and a device is taken back through remove_push_subscription');
+    // The background script, served with the site's own headers, in a browser that can show notifications (the full Chromium; the
+    // windowless one the other checks use refuses them): it registers, and a message the server would push becomes a notification.
+    let full = null; try { full = await chromium.launch({ channel: 'chromium' }); } catch (e) { console.log('  note: no full Chromium here; the notification itself was not shown (' + String(e).split('\n')[0].slice(0, 120) + ')'); }
+    if (full) {
+      const c2 = await full.newContext({ locale: 'en-US' }); await c2.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort()); await c2.route(PROJECT + '/**', project);
+      await c2.grantPermissions(['notifications'], { origin: new URL(BASE).origin });
+      const p2 = await c2.newPage(), blocked2 = []; p2.on('console', m => { if (/Content Security Policy|Refused to/.test(m.text())) blocked2.push(m.text().slice(0, 200)); });
+      await p2.goto(BASE); await p2.waitForFunction(() => typeof STARTED !== 'undefined' && STARTED);
+      const reg = await p2.evaluate(async () => { try { const before = await PUSH.status(); const r = await navigator.serviceWorker.register('sw.js'); await navigator.serviceWorker.ready; return { scope: r.scope, perm: Notification.permission, before }; } catch (e) { return { error: String(e) }; } });
+      eq(reg, { scope: BASE, perm: 'granted', before: 'off' }, 'the background script registers for the whole site; a browser with no subscription yet is offered "Turn on"');
+      const cdp = await c2.newCDPSession(p2), regs = []; cdp.on('ServiceWorker.workerRegistrationUpdated', e => regs.push(...e.registrations)); await cdp.send('ServiceWorker.enable'); await p2.waitForTimeout(400);
+      const mine = regs.filter(r => r.scopeURL === BASE && !r.isDeleted).pop();
+      const pushed = async data => { await cdp.send('ServiceWorker.deliverPushMessage', { origin: new URL(BASE).origin, registrationId: mine.registrationId, data }); await p2.waitForTimeout(500);
+        return p2.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); const ns = await r.getNotifications(); const out = ns.map(n => ({ title: n.title, body: n.body, tag: n.tag, lang: n.lang, url: n.data && n.data.url, icon: new URL(n.icon).pathname })); ns.forEach(n => n.close()); return out; }); };
+      const body = 'Rent: R$ 1.800,00, due 05/10 (due today).\nInternet: R$ 110,00, due 12/10 (in 7 days).';
+      eq(await pushed(JSON.stringify({ title: '2 things to look at today', body, url: BASE + '?open=reminders', tag: 'dorax-2026-10-05', lang: 'en' })), [{ title: '2 things to look at today', body, tag: 'dorax-2026-10-05', lang: 'en', url: BASE + '?open=reminders', icon: '/assets/icons/icon-192.png' }],
+        'a pushed message is shown as a notification: its title, its lines, the app’s icon, and where a tap goes');
+      eq((await pushed('not json at all')).map(n => [n.title, n.body]), [['Dorax Finance', 'not json at all']], 'a message in an unexpected shape is still shown as plain words, under the app’s name');
+      // switching on for real needs Google's push service, which a test browser has no account with: the app must say so and keep nothing
+      const on = await p2.evaluate(() => Promise.race([PUSH.on(), new Promise(r => setTimeout(() => r({ timeout: true }), 8000))]));
+      ok(on.timeout || on.ok === true || on.why === 'failed', 'switching on without a push service to subscribe to ends in an answer, not an error', on);
+      if (on.ok !== true) eq((M.push || []).length, 0, 'and no device is kept on the server when the browser could not subscribe');
+      eq(blocked2, [], 'nothing of it is blocked by the content security policy');
+      await full.close();
+    }
+  }
 
   // 8. the contact form, and deleting the account
   await page.evaluate(() => A.contact()); await page.fill('#ct-message', 'A question about my plan, please.'); await page.click('#overlay [data-a="contact-send"]'); await page.waitForSelector('#contact-done');

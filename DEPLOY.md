@@ -39,9 +39,118 @@ Why: the links in the emails, and Google, send people back to the site. Supabase
 **Emails. Read this before testing with other people.** Without your own mail server set up, Supabase's built-in sender only delivers to the email addresses of the project's own team (yours), and at most 2 messages per hour. So:
 
 - Testing alone, with the address your Supabase account uses: works as it is. If "send again" stops working, you hit the hourly limit; the app says "Too many emails were asked for".
-- Testing with any other address, or other people: set up **custom SMTP** first (Authentication > Emails > SMTP Settings). Any provider works; Resend, Postmark and Brevo have free tiers. This is also required before launch.
+- Testing with any other address, or other people: set up **custom SMTP** first. The provider chosen is **Resend** (owner, 2026-10-05): see "Account emails through Resend" just below. This is also required before launch.
 
-The emails themselves (confirm your address, choose a new password, confirm a new address) are Supabase's templates, in English. Translate them under **Authentication > Emails**; keep the `{{ .ConfirmationURL }}` link in each.
+The emails themselves (confirm your address, choose a new password, confirm a new address, and the two security notices "your password was changed" and "your email was changed", which are switched on under **Security** on the same page once pasted) are in `supabase/email-templates/`: the Dorax logo, one button, and the text in Portuguese, Spanish or English according to the language the person signed up in. Supabase starts with its own plain English ones; to replace them, follow `supabase/email-templates/README.md` (paste each file and its subject under **Authentication > Emails > Templates**). The logo in them is a picture the site serves, so the site has to be deployed with `app/assets/email/dorax-logo.png` for it to show. Also set **Sender name** to `Dorax Finance` in the SMTP settings, or the inbox shows the address instead of a name.
+
+### Account emails through Resend
+
+Decided 2026-10-05: the account emails (confirm your address, choose a new password, confirm a new address) go out through Resend. Nothing in the code changes: Supabase sends them, and you tell Supabase to hand them to Resend. Reminder emails and contact-form notices are not part of this (see "What is not built yet").
+
+**The catch: a domain.** Resend only sends to other people from a domain you own and have verified with it. A `vercel.app` address cannot be verified. Until then Resend offers a test sender, `onboarding@resend.dev`, that delivers **only to the email address of your own Resend account**.
+
+So there are two stages.
+
+**Stage A, now, without a domain (testing alone).** What you gain: 30 emails an hour instead of 2. What does not change: only you receive them.
+
+1. In Resend: **API Keys > Create API key**. Name: `Supabase Dorax`. Permission: **Sending access**. Copy the key; Resend shows it once.
+2. In Supabase, project `dorax`: **Authentication > Emails > SMTP Settings**, switch on **Enable custom SMTP** and fill in:
+
+   | Field | Value |
+   | --- | --- |
+   | Sender email | `onboarding@resend.dev` |
+   | Sender name | `Dorax Finance` |
+   | Host | `smtp.resend.com` |
+   | Port | `465` |
+   | Username | `resend` |
+   | Password | the API key from step 1 |
+
+3. Save. Sign up on the site with **the address of your Resend account** and check that the email arrives. In Resend, **Emails** lists every message and why one failed.
+
+- The **API key goes into that Supabase field and nowhere else**: not in this repository, not in `app/config.js`, not in Vercel, not in a chat. If it leaks, delete it in Resend and make a new one.
+- Once custom SMTP is on, Supabase stops using its own sender. If your Supabase account and your Resend account use different addresses, only the Resend one receives from then on.
+- An address that is not yours gets no email in this stage, and the app shows a general error for it.
+
+**Stage B, with a domain (before anyone else signs up with email).** State on 2026-10-05: `dorax.app` is registered (owner). The sending domain **`mail.dorax.app`** is created in Resend, region São Paulo (`sa-east-1`, the same as the Supabase project), click and open tracking off. It was **verified on 2026-10-05**: the four DNS records below are in place at Namecheap (the registrar), and the SMTP settings in Supabase use the sender `no-reply@mail.dorax.app`. The steps are kept for reference.
+
+1. Add these four records where the domain's DNS is managed (the registrar's DNS page). The "Name" is what goes in the host field; if the registrar wants the full name, add `.dorax.app` to it.
+
+   | Type | Name (host) | Value | Priority |
+   | --- | --- | --- | --- |
+   | TXT | `resend._domainkey.mail` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUtFoME/XEJOWQY6r11pg1i8/y3vC/Uu++JljcPmRaAYrtZLnV6ItYE0rPnzPiETDvbcWebMpcnssDCkLQX1vFhg3A1vrZeZLVfWEMuv94/I8SK/Gl+/Pg+o/4P72eTyrvypHYSyQKJDpqTXIlxOcZ9e0hJcvWyvt9Rz/2LYAQiQIDAQAB` | |
+   | MX | `send.mail` | `feedback-smtp.sa-east-1.amazonses.com` | 10 |
+   | TXT | `send.mail` | `v=spf1 include:amazonses.com ~all` | |
+   | CNAME | `rsend.mail` | `send.forge.rmta.net` | |
+
+   These are the records Resend gave when the domain was created. The long value is a public key, not a secret. If Resend's Domains page ever shows different values, its page wins.
+2. In Resend: **Domains > mail.dorax.app > Verify DNS records**. It can take from a few minutes to some hours. Wait for **Verified**.
+3. Keep **click tracking and open tracking off** for this domain (they are). Tracking rewrites links, and Supabase warns that this can break the confirmation link.
+4. In Resend: **API Keys > Create API key**, name `Supabase Dorax`, permission **Sending access**, domain `mail.dorax.app`. If you made a key in stage A you can keep using it, or replace it with this narrower one and delete the old one.
+5. In Supabase's SMTP settings (the table above): **Sender email** `no-reply@mail.dorax.app`, password the API key. The other fields stay.
+6. Test: sign up on the site with an address that is **not** yours on Resend. The email must arrive and its link must open the site logged in.
+7. **Authentication > Rate Limits**: emails per hour starts at 30 with custom SMTP. Raise it before a launch.
+
+**The site on the domain.** On 2026-10-05 `dorax.app` was added to the Vercel project (`www.dorax.app` forwards to it). What makes it answer is on the owner's side: at the registrar, an **A** record for `@` to `76.76.21.21` and a **CNAME** for `www` to `cname.vercel-dns.com` in place of the registrar's parking rows (use the values on Vercel's Domains page if they differ); in Supabase, Site URL `https://dorax.app` and `https://dorax.app/**` among the redirect URLs; in the Google client, `https://dorax.app` among the authorized JavaScript origins. The list is in `YOUR-SETUP.md`, 3c. The `vercel.app` address forwards to `dorax.app` (`redirects` in `vercel.json`, from the first deploy after 2026-10-05); the logo in the emails is fetched from `dorax.app`.
+
+### Reminders: notifications and email
+
+Built on 2026-10-05. What a person gets is what the bell in the app already shows, sent to them where they are:
+
+- **A notification on the phone or computer**, even with Dorax closed. Per device: the person switches it on in **Profile > Reminders > Notifications on this device**, and the browser asks their permission.
+- **An email**, from `no-reply@mail.dorax.app` through Resend. One switch in the same place. It is **on unless the person switches it off** (assumption, yours to reverse: the home page has always said reminders come by email).
+- **One message per stage, not one per day.** A bill is announced when it comes into view (the "how early" the person chose), on its day, and when it turns late. Several things on the same morning go in one message.
+- **Once a day, at 11:00 UTC: 8 in the morning in Brazil.** "Today" is the day in Brazil for everybody. (Assumption: the people you are building for are in Brazil. A person in Portugal gets it at noon.)
+
+**How it works, in four pieces.**
+
+| Piece | Where | What it does |
+| --- | --- | --- |
+| The app | `app/js/features/reminders/push.js`, `app/sw.js` | Asks permission, gets this device's address from the browser, hands it to the server. `sw.js` is the small script the browser keeps for the site so a notification can be shown while the app is closed. It stores nothing. |
+| The database | `supabase/schema.sql`, section 4 | `push_subscriptions` (the devices), `reminder_log` (what was already said to whom), `reminder_secrets` (two values that never leave the server). |
+| The function | `supabase/functions/reminders/` | A Supabase Edge Function. Works out what is new for each person, encrypts and signs the notification, sends the email through Resend. |
+| The schedule | `supabase/reminders-schedule.sql` | Makes the database call the function every morning. |
+
+**The rules are not written twice.** The function must decide "what is due" exactly as the app does, and say it in the app's words. So `npm run functions` copies the app's own calculation and wording files into `supabase/functions/reminders/engine.mjs`. **Whenever a reminder rule, a text of a reminder, or anything in `app/js/core/` changes: run `npm run functions` and deploy the function again.** `npm test` fails if the copy is older than the app.
+
+**To switch it on, in this order.**
+
+1. **Database.** Run `supabase/schema.sql` again in Supabase > SQL Editor (it is written to be run more than once; it only adds section 4).
+2. **Function.** With the Supabase command line, in the project folder:
+   ```
+   npx supabase@latest login
+   npx supabase@latest functions deploy reminders --project-ref uhvfkyblfojcpqupmlbg
+   ```
+   (As far as I know, recent versions need nothing else installed; if it asks for Docker, add `--use-api`.) `supabase/config.toml` tells it that this function checks its callers itself.
+3. **Email key.** Supabase > Edge Functions > Secrets: add `RESEND_API_KEY` with a Resend key that has **Sending access** (a second key, named for this, is cleaner than reusing the SMTP one). Without it notifications work and emails are skipped.
+4. **Check the deploy.** `node tools/build-functions.js --version` prints 16 letters. The deployed function answers the same letters when it runs these very files:
+   ```
+   curl -s -X POST https://uhvfkyblfojcpqupmlbg.supabase.co/functions/v1/reminders -H "Content-Type: application/json" -d "{\"action\":\"version\"}"
+   ```
+5. **Deploy the site** (`npx vercel@latest deploy --prod`), open **Profile > Reminders**, turn notifications on, press **Send a test** for the device and for email.
+6. **Start the mornings.** Only when the tests arrived: run `supabase/reminders-schedule.sql` once in the SQL Editor. To stop: `select cron.unschedule('dorax-reminders');`.
+
+**What to know before promising it to people.**
+
+- **iPhone and iPad**: Apple gives a website notifications only after it is added to the Home Screen (Share > Add to Home Screen), on iOS 16.4 or newer. The profile explains this when it sees an iPhone in a browser tab. Android and computers need nothing.
+- **A device belongs to whoever switched it on last**, and logging out removes it, so a shared computer never shows one person's bills to the next.
+- **Nobody can read a notification on the way**: it is encrypted for the one device (the standard is RFC 8291) and travels through the browser maker's service (Google, Apple, Mozilla, Microsoft). The function refuses to send to any other address.
+- **If nothing could be delivered, it is not marked as said** and goes out the next morning. If the notification arrived and the email did not, the email is not repeated.
+- **Resend's allowance.** As far as I know the free plan is 100 emails a day and 3,000 a month: check their pricing page. A person with a handful of bills gets roughly 10 to 15 reminder emails a month, so the free plan covers about 200 people, account emails included. "Send a test" is limited to one email an hour per person for that reason.
+- **Many accounts.** The function takes ten accounts at a time and hands the rest to itself, so its size does not grow with the number of people. It has been tried with stand-ins, not with thousands of real accounts.
+- **To see what happened**: Supabase > Edge Functions > reminders > Logs shows one line per page with counts only (people, told, notifications, emails, problems). No address, no bill and no device is ever written there.
+
+### The contact form tells you
+
+Built on 2026-10-05. When somebody sends the contact form, the database asks the reminders function to email the message to you, from `no-reply@mail.dorax.app`. **You answer by replying to that email**: the reply goes to the address the person gave. The button in the email opens the table in Supabase, where you tick "handled".
+
+To switch it on:
+
+1. Run `supabase/schema.sql` again in the SQL Editor (it adds section 5: one column, one trigger).
+2. Deploy the function again: `npx supabase@latest functions deploy reminders --project-ref uhvfkyblfojcpqupmlbg`.
+3. Supabase > Edge Functions > Secrets: add `CONTACT_TO` with the address that should get the messages.
+4. Send yourself a message through the form on dorax.app.
+
+What it does when things go wrong: the message is always saved first, and nothing about the email can make the form fail. If the email could not be sent, or 20 contact emails already went out that day (the form is open to anyone, and the email allowance is shared with the sign-up emails), the message waits and the morning run sends one summary. Without `CONTACT_TO` nothing is sent.
 
 ## 3. Google login
 
@@ -59,19 +168,36 @@ In **Supabase > Authentication > Sign In / Providers > Google**: switch it on, p
 - The **client secret goes there and nowhere else**: not in this repository, not in Vercel, not in a chat.
 - While the Google app is in **Testing**, only the Google accounts you list as test users can log in. Publish it (Audience > Publish app) when you want anyone to.
 - Google's screen will say "continue to YOUR-PROJECT-REF.supabase.co", because that is who asks Google. Showing your own domain there needs a Supabase custom domain (a paid add-on). Worth doing before launch: an unfamiliar address on the login screen costs trust.
-- The button in the app is text only. Google's sign-in branding rules ask for their own button artwork if you show their logo; add it then.
+- The button carries Google's "G", taken from Google's own button generator, on Google's dark button colours (`#131314` fill, `#8E918F` line, `#E3E3E3` text). Do not redraw, recolour or resize the G, and do not restyle that button with the app's colours: Google's sign-in branding rules allow the G only on their light, dark or neutral button. Two things differ from their spec: the font is the app's (they name Google Sans) and the button is 44px tall and as wide as the form (theirs is 40px). `npm run preview` shows the button without the G, because Google is only simulated there.
 
 ## 4. The code on GitHub
 
-In a terminal, inside this folder:
+**Why.** Today the code is one folder on one computer. Git keeps every version of every file, so any change can be looked at and undone; GitHub keeps a copy of that history away from the computer; and once Vercel is connected to the repository, a push deploys the site by itself.
+
+**Once.** Install Git for Windows if `git --version` prints nothing (https://git-scm.com/download/win, default answers). On github.com: **New repository**, name `dorax-app`, **Private**, and leave "Add a README", ".gitignore" and "license" unticked (the folder already has its own). Then, in a terminal:
 
 ```
-git init
+cd "D:\Dorax Finance\Dorax-app"
+git init -b main
 git add .
-git commit -m "Dorax Finance v41"
+git commit -m "Dorax Finance: the app, its tests and the Supabase side"
+git remote add origin https://github.com/YOUR-USER/dorax-app.git
+git push -u origin main
 ```
 
-Create an empty **private** repository on github.com, then run the two lines GitHub shows under "push an existing repository". `dist/` and `node_modules/` are left out by `.gitignore`.
+The first push opens a browser window to log in to GitHub. If `git commit` asks who you are, it prints the two `git config` lines to run first.
+
+What is left out, by `.gitignore`: `node_modules/`, `dist/`, `.vercel/`, the Supabase command line's temporary folder, and any `.env` file. **No key or secret is in the folder**: `app/config.js` is empty there (Vercel writes it during a deploy), and the tests check for secret keys on every run. Keep it that way.
+
+**Then, to deploy by pushing:** Vercel > dorax-finance > Settings > Git > **Connect Git Repository** > choose `dorax-app`. From then on a push to `main` goes live. The function on Supabase is not part of that: after changing anything under `supabase/functions/` (or a reminder rule), deploy it with the Supabase command line as before.
+
+**Every day after that**, when a set of changes works:
+
+```
+git add .
+git commit -m "what changed, in a few words"
+git push
+```
 
 ## 5. Vercel
 
@@ -134,9 +260,9 @@ On the live address, in this order:
 
 Flagged so nothing here is mistaken for done:
 
-1. **Reminder emails are not sent.** The bell in the app and the calendar file work. Emails need a scheduled job on the server (a Supabase Edge Function with a cron trigger); the wording is ready in `reminders.view.js`. The home page currently says reminders come "in the app and by email": change that sentence or build the job before launch.
-2. **No payments, no plan limits.** The home page shows three plans and prices; nothing charges or restricts anything. Stripe is not connected.
-3. **Contact messages only land in the table.** Nothing notifies you. Look at `contact_messages` in the Table Editor, or add a Database Webhook that emails you on each new row. The form promises an answer by email: that is you, by hand. The form is capped at 30 messages an hour in all, so a script cannot fill the database; a captcha is the proper answer before launch.
+1. **Reminders outside the app are on since 2026-10-05** (notifications on a device and reminder emails; see "Reminders: notifications and email" above). What they do not do: no SMS or WhatsApp; one fixed hour for everybody (8:00 in Brazil), whatever the person's own time zone; a reminder is said once per stage (coming up, due today, late), not every day. After any change to a reminder rule or text: `npm run functions`, then deploy the function again.
+2. **No payments, no plan limits: the app is free for now** (owner, 2026-10-05). The home page shows no plans and no prices and says "free for now"; the terms draft says the same. The plans section is kept in the code, switched off by `LP_PLANS` in `app/js/features/public/public.shared.js`. Before switching it back on: Stripe, plan limits in the app, and the terms about charging, cancelling and refunds reviewed by a lawyer.
+3. **Contact messages are emailed to you once `CONTACT_TO` is set** (built 2026-10-05; see "The contact form tells you" above). Until then they only land in the table `contact_messages`, as before. The form is capped at 30 messages an hour in all, and at most 20 emails a day reach you; the rest come in one summary with the morning run.
 4. **Privacy policy and terms are drafts** with PLACEHOLDERs (who is legally responsible, the legal wording). They need the owner's facts and a lawyer before real people sign up. The sign-up checkbox says "(drafts)".
 5. **The site asks search engines not to index it** (`noindex` in `index.html` and in `vercel.json`). Right while testing. The public pages get proper addresses, titles and descriptions in the Next.js build; that is the moment to remove it.
 6. **How the data is stored is the simple version**: a person's whole account is one document, sent again on every save. Fine for testing and for the first users. With years of transactions it becomes slow, and two devices changing things in the same minute means the second one reloads and loses its last change (the app says so). Changes not saved yet live in the open page: closing the tab while the top bar says "not saved yet" loses them. The Next.js build should split it into tables.
@@ -151,3 +277,5 @@ Flagged so nothing here is mistaken for done:
 | Supabase **secret** / `service_role` key | Nowhere in this project | Whole database readable. Rotate it in Supabase at once |
 | Database password | Your password manager | Same |
 | Google **client secret** | Supabase dashboard only | Others can pose as your app to Google. Reset it in Google Cloud |
+| Resend **API key** | Supabase only: the SMTP password field, and Edge Functions > Secrets as `RESEND_API_KEY` | Others can send email as `mail.dorax.app`. Delete the key in Resend and make a new one |
+| Push signing key, schedule secret | Made by the server, kept in the table `reminder_secrets`. Never copy them anywhere | Others could send notifications in the app's name, or start a run. Delete the two rows; the function makes a new signing key (people switch notifications on again) and `schema.sql` a new secret |

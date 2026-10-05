@@ -69,7 +69,7 @@ function buildNewState(email, lang, today) {
     categories: [{ id: 'home', name: 'Home', color: 's3', subs: [] }, { id: 'subs', name: 'Subscriptions', color: 's2', subs: [] }, { id: 'fun', name: 'Going out', color: 's1', subs: [] }, { id: 'other', name: 'Other', color: 's4', subs: [] },
       { id: 'income', name: 'Income', color: null, income: true, subs: [{ id: 'salary', name: 'Salary' }] }],
     plan: { lines: [] }, pay: { [year]: [] }, goals: [], goalMoves: [], remainderLabel: 'Left over', fii: { assets: {}, moves: [], sim: {} },
-    user: { name: '', email, tone: 'friend', notify: { bills: true, close: false, summary: false, goals: true }, remind: { lead: 3, snoozed: {} }, since: today, pendingEmail: null },
+    user: { name: '', email, tone: 'friend', notify: { bills: true, close: false, summary: false, goals: true }, channels: { email: true }, remind: { lead: 3, snoozed: {} }, since: today, pendingEmail: null },
     settings: { lang: NAME_LANGS.includes(lang) ? lang : 'en', locale: 'pt-BR', autoAcceptVerified: true, defaultProfile: null, closeDay: 15, platform: '', theme: 'dark' },
     clean: true, isNew: true,
   };

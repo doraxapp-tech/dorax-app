@@ -7,6 +7,19 @@ const REMIND_ACTIONS = {
   'remind-report'(ds) { S.month = ds.ym; UI.drawer = null; navigate('reports'); },
   'remind-go'(ds) { UI.drawer = null; navigate(ds.route); const el = ds.route === 'profile' && $('reminders-card'); if (el) el.scrollIntoView({ block: 'start' }); },
   'remind-month'(ds) { S.month = ds.ym; UI.drawer = null; navigate(ds.route); },
+  // notifications on this device, and the two "send a test" buttons (features/reminders/push.js; the server sends, see supabase/functions/reminders)
+  async 'push-on'() {
+    UI.push = { ...(UI.push || {}), busy: true }; render();
+    const r = await PUSH.on();
+    toast(r.ok ? t('Notifications are on for this device.') : r.why === 'denied' ? t('You did not allow notifications, so nothing was turned on.') : t('Notifications could not be turned on. Try again.'));
+    await pushRefresh();
+  },
+  async 'push-off'() { UI.push = { ...(UI.push || {}), busy: true }; render(); await PUSH.off(); toast(t('Notifications are off for this device.')); await pushRefresh(); },
+  async 'push-test'() { const r = await SERVER.remindTest('push'); toast(r.ok ? t('Test sent. It should arrive in a few seconds.') : r.code === 'too_soon' ? t('A test was sent a moment ago. Give it a few seconds to arrive.') : t('The test could not be sent. Try again in a minute.')); },
+  async 'mail-test'() {
+    if (SERVER.preview) return toast(t('This preview sends nothing: no notifications and no emails.'));
+    const r = await SERVER.remindTest('email'); toast(r.ok ? t('Test sent to {email}.', { email: S.user.email }) : r.code === 'too_soon' ? t('A test email was sent less than an hour ago. Look in your inbox, and in the spam folder.') : t('The test could not be sent. Try again in a minute.'));
+  },
   'calendar-file'() { const ev = calendarEvents(); if (!ev.length) return toast(t('Give at least one bill a due day first.')); saveFile('dorax-finance.ics', calendarText(ev), 'text/calendar'); },
   // paying the card: one movement out of the account that pays and one into the card, so both balances stay right
   'card-pay'(ds) {

@@ -1,6 +1,14 @@
 /* ---------- sign-up and login with a password or Google ---------- */
 .au-form { display: flex; flex-direction: column; gap: 14px; margin: 0; }
 .gbtn { justify-content: center; }
+/* With Google's G on it, the button is Google's dark one, as its sign-in branding rules give it: fill #131314, a 1px #8E918F line, #E3E3E3 text at 14/20,
+   the G at 20px with 10px after it. Over and pressed, the fill is lightened the way Google's own button does it (8% and 12% white); the G itself is never tinted.
+   Do not restyle this one with the app's button colours: the G may only stand on Google's light, dark or neutral fill. */
+.gbtn.g-dark, .gbtn.g-dark:hover:not(:disabled) { background-color: #131314; border-color: #8E918F; color: #E3E3E3; }
+.gbtn.g-dark { gap: 10px; font-size: 14px; line-height: 20px; letter-spacing: .25px; }
+.gbtn.g-dark:hover:not(:disabled) { background-image: linear-gradient(rgba(255, 255, 255, .08), rgba(255, 255, 255, .08)); }
+.gbtn.g-dark:active:not(:disabled) { background-image: linear-gradient(rgba(255, 255, 255, .12), rgba(255, 255, 255, .12)); opacity: 1; }
+.g-mark { flex: none; width: 20px; height: 20px; } .g-mark svg { width: 20px; height: 20px; }
 .or { display: flex; align-items: center; gap: 12px; color: var(--ink-3); font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; }
 .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line-strong); }
 .lbl-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -34,3 +42,23 @@
 @media (max-width: 920px) { .pw-eye { width: 46px; } .check.accept input { width: 20px; height: 20px; margin-top: 0; } .lbl-row .linkbtn { padding: 7px 0; margin: -7px 0; } }
 @media (prefers-reduced-motion: reduce) { .pw-rules li, .pw-rules .tickbox, .pw-eye { transition: none; } .gate-wait { animation: none; } .btn.busy::before, .spinner { animation-duration: 2.4s; } }
 
+
+/* ---------- login and sign-up: one block ----------
+   The logo, then the form, centred on the page with no box round it. (v42 had a brand panel on the left and the form on the right; the owner
+   took the two-block design out on 2026-10-05.) Colours and type come from public/landing-system.css. */
+.auth.single { grid-template-columns: minmax(0, 1fr); place-items: stretch; padding: 0; width: 100%; }
+.auth-main { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 28px 20px 40px; position: relative; }
+.auth.single .auth-card { position: static; width: min(400px, 100%); padding: 0; border: 0; border-radius: 0; background: none; gap: 18px; }
+.auth.single .auth-card h1, .auth.single .auth-card > p { text-align: center; text-wrap: balance; }
+.auth.single .auth-card > .brand { align-self: center; align-items: center; padding: 4px 0 10px; }
+.auth.single .auth-card > .modal-icon { align-self: center; }
+.auth.single .auth-card > .row { justify-content: center; }
+.auth.single .auth-alt { justify-content: center; text-align: center; }
+/* the three links under "confirm your email": spaced apart, with no dots between them, so a line never ends on a dot when they wrap */
+.auth.single .row.auth-alt { gap: 6px 22px; } .auth.single .row.auth-alt > .muted { display: none; }
+.auth.single .auth-back { margin: -6px 0 0 -10px; }
+/* wide screens: "Home" sits in the top corner of the page, out of the way of the form */
+@media (min-width: 921px) {
+  .auth-main { padding: 56px 32px 48px; }
+  .auth.single .auth-back { position: absolute; top: 16px; left: 24px; margin: 0; }
+}

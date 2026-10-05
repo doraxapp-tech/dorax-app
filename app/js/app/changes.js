@@ -58,7 +58,8 @@ const C = {
   'conv-year'(el) { UI.conv.year = el.value.replace(/\D/g, '').slice(0, 4); render(); },
   'conv-file'(el) { if (el.files && el.files[0]) takeFile(el.files[0]); },
   'conv-reprofile'(el) { UI.conv.profileId = el.value; generateForConv(); render(); },
-  setting(el) { S.settings[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; render(); },
+  // a language picked by hand is remembered on this device: the next visit opens in it, not in the browser's (ui/language.js)
+  setting(el) { S.settings[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; if (el.dataset.k === 'lang') rememberLang(el.value); render(); },
   /** A backup file is checked before anything is touched, then replaces the account only after the typed confirmation. */
   'backup-file'(el) {
     const f = el.files && el.files[0]; if (!f) return; UI.backupError = null;
@@ -90,5 +91,7 @@ const C = {
   contact(el) { contactState()[el.dataset.k] = el.value; },
   'user-name'(el) { const v = el.value.trim(); if (!v) toast(t('I need something to call you. A nickname works.')); else if (v !== S.user.name) { S.user.name = v; toast(t('Got it. {name} it is.', { name: v })); } render(); },
   'user-notify'(el) { S.user.notify[el.dataset.k] = el.checked; render(); },
+  // where reminders reach the person besides the app. Email is part of the account (the server reads it); a device is switched on and off in reminders.actions.js.
+  'user-channel'(el) { S.user.channels = { ...(S.user.channels || {}), [el.dataset.k]: el.checked }; render(); },
   'modal-word'(el) { UI.modal.typed = el.value; $('modal-ok').disabled = !modalReady(); },
 };

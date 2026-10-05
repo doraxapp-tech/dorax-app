@@ -152,13 +152,30 @@
     };
     return b;
   }
-  const rpc = name => answer(() => {
+  const rpc = (name, args) => answer(() => {
+    // notifications: this stand-in keeps the devices a person switched on, the way the two functions of schema.sql do, and sends nothing
+    if (name === 'save_push_subscription' || name === 'remove_push_subscription') {
+      const db = load(), me = store.get(SESSION_KEY); if (!me || !db.users[me]) return { data: null, error: { code: '28000', message: 'not logged in', status: 401 } };
+      db.push = (db.push || []).filter(p => p.endpoint !== args.p_endpoint || (name === 'remove_push_subscription' && p.user_id !== me));
+      if (name === 'save_push_subscription') db.push.push({ user_id: me, endpoint: args.p_endpoint, p256dh: args.p_p256dh, auth: args.p_auth, agent: args.p_agent || null });
+      keep(db); return { data: null, error: null };
+    }
     if (name !== 'delete_my_account') return { data: null, error: { code: 'PGRST202', message: 'function not found', status: 404 } };
     const db = load(), me = store.get(SESSION_KEY); if (!me || !db.users[me]) return { data: null, error: { code: '28000', message: 'not logged in', status: 401 } };
     delete db.users[me]; delete db.rows[me]; db.contact = db.contact.filter(m => m.user_id !== me); keep(db); return { data: null, error: null };
   });
 
-  window.DORAX_SUPABASE = { auth, from, rpc };
+  // the reminders function: a key for the browser, and a test that "arrives" when the person has a device (push) or always (email)
+  const functions = { invoke: (name, opt) => answer(() => {
+    const body = (opt && opt.body) || {}, db = load(), me = store.get(SESSION_KEY);
+    if (name !== 'reminders') return { data: null, error: { message: 'function not found', status: 404 } };
+    if (body.action === 'key') return { data: { ok: true, publicKey: 'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8' }, error: null };
+    if (body.action === 'test') { if (!me) return { data: { ok: false, code: 'not_logged_in' }, error: null };
+      const ok = body.channel === 'email' || (db.push || []).some(p => p.user_id === me); (db.tests = db.tests || []).push({ user_id: me, channel: body.channel, ok }); keep(db);
+      return { data: { ok, code: ok ? '' : 'no_device' }, error: null }; }
+    return { data: { ok: false, code: 'unknown_action' }, error: null };
+  }) };
+  window.DORAX_SUPABASE = { auth, from, rpc, functions };
   /** For the tests. */
   window.DORAX_PREVIEW = {
     options: OPT,

@@ -1,8 +1,8 @@
+# Not kept in the repository: what is installed, what is built, and what belongs to this computer only.
 node_modules/
 dist/
 .vercel/
+supabase/.temp/
+supabase/.branches/
 .env
 .env.*
-
-.vercel
-.env*

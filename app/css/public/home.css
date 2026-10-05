@@ -190,6 +190,7 @@
 .lp-faq summary::-webkit-details-marker { display: none; }
 .lp-faq summary svg { width: 15px; height: 15px; color: var(--ink-3); flex: none; transition: transform var(--t2) var(--ease); }
 .lp-faq details[open] summary svg { transform: rotate(45deg); }
+.lp-faq details.closing summary svg { transform: none; }      /* closing: the plus turns back as the answer slides away, not after */
 .lp-faq summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r); }
 .lp-faq details p { padding: 0 0 18px; color: var(--ink-2); font-size: 15px; line-height: 1.6; max-width: 62ch; }
 /* the closing card: the one warm surface */

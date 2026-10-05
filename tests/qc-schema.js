@@ -40,7 +40,10 @@ try {
     -- Supabase gives new tables and functions of the public schema to these roles by default: the script must not rely on that, and must undo it where it matters
     alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
     alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
-    insert into auth.users (id, email) values ('11111111-1111-4111-8111-111111111111', 'a@example.org'), ('22222222-2222-4222-8222-222222222222', 'b@example.org');`, '-v ON_ERROR_STOP=1');
+    insert into auth.users (id, email) values ('11111111-1111-4111-8111-111111111111', 'a@example.org'), ('22222222-2222-4222-8222-222222222222', 'b@example.org');
+    -- the extension that makes web requests from the database (pg_net): here it only writes down what it was asked to send
+    create schema net; create table net.asked (id bigserial primary key, url text, headers jsonb, body jsonb);
+    create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000) returns bigint language sql as $$ insert into net.asked (url, headers, body) values (url, headers, body) returning id $$;`, '-v ON_ERROR_STOP=1');
   eq(r.status, 0, 'the stand-in for a Supabase project is set up'); if (r.status) console.log(r.stderr);
   const SCHEMA = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'schema.sql'), 'utf8');
   r = psql(SCHEMA, '-v ON_ERROR_STOP=1'); eq([r.status, (r.stderr || '').split('\n').filter(l => /ERROR/.test(l))], [0, []], 'schema.sql runs without an error');
@@ -84,10 +87,55 @@ try {
   ok(/check constraint/.test(as('anon', '', `insert into public.contact_messages (email, topic, message) values ('x@example.org', 'other', '${'x'.repeat(5001)}');`).error || ''), 'so is one over 5000 characters');
   ok(/check constraint/.test(as('anon', '', `insert into public.contact_messages (email, topic, message) values ('x@example.org', 'spam', 'A topic the form does not have.');`).error || ''), 'and a topic the form does not have');
 
+  // ----- reminders: devices, what was sent, the server's secrets
+  const K = 'B' + 'k'.repeat(86), AU = 'a'.repeat(22), dev = n => `https://fcm.googleapis.com/fcm/send/device-${n}`;
+  eq(psql(`select relname, relrowsecurity from pg_class where relname in ('push_subscriptions', 'reminder_log', 'reminder_secrets') order by 1;`).stdout.trim().split('\n'), ['push_subscriptions|t', 'reminder_log|t', 'reminder_secrets|t'], 'row-level security is on for the three reminder tables');
+  ok(/permission denied/.test(as('anon', '', `select public.save_push_subscription('${dev(1)}', '${K}', '${AU}');`).error || ''), 'a visitor cannot add a device');
+  eq(as('authenticated', A, `select public.save_push_subscription('${dev(1)}', '${K}', '${AU}', 'Chrome, Windows');`).error, undefined, 'a logged-in person adds their device');
+  eq(as('authenticated', A, `select endpoint, agent from public.push_subscriptions;`), { rows: [`${dev(1)}|Chrome, Windows`] }, 'and sees it in their list');
+  ok(/permission denied/.test(as('authenticated', A, `select p256dh, auth from public.push_subscriptions;`).error || ''), 'the device’s keys cannot be read back through the app');
+  eq(as('authenticated', B, `select count(*) from public.push_subscriptions;`), { rows: ['0'] }, 'another person does not see it');
+  ok(/permission denied/.test(as('anon', '', `select count(*) from public.push_subscriptions;`).error || ''), 'nor does a visitor');
+  ok(/permission denied/.test(as('authenticated', A, `insert into public.push_subscriptions (user_id, endpoint, p256dh, auth) values ('${B}', '${dev(9)}', '${K}', '${AU}');`).error || ''), 'a device cannot be written into the table directly (so not for somebody else either)');
+  ok(/permission denied/.test(as('authenticated', B, `delete from public.push_subscriptions;`).error || ''), 'nor deleted directly');
+  as('authenticated', B, `select public.remove_push_subscription('${dev(1)}');`);
+  eq(psql(`select count(*) from public.push_subscriptions where endpoint = '${dev(1)}';`).stdout.trim(), '1', 'another person cannot remove somebody’s device');
+  ok(/check constraint/.test(as('authenticated', A, `select public.save_push_subscription('http://fcm.googleapis.com/x', '${K}', '${AU}');`).error || ''), 'an address that is not https is refused');
+  ok(/check constraint/.test(as('authenticated', A, `select public.save_push_subscription('${dev(2)}', 'short', '${AU}');`).error || ''), 'and keys that are not a browser’s');
+  // the same browser, another person: the device moves, it is never shared
+  as('authenticated', B, `select public.save_push_subscription('${dev(1)}', '${K}', '${AU}');`);
+  eq(psql(`select user_id from public.push_subscriptions where endpoint = '${dev(1)}';`).stdout.trim(), B, 'a device belongs to whoever switched it on last');
+  for (let i = 10; i < 22; i++) as('authenticated', A, `select public.save_push_subscription('${dev(i)}', '${K}', '${AU}');`);
+  eq(psql(`select count(*), bool_or(endpoint = '${dev(21)}') from public.push_subscriptions where user_id = '${A}';`).stdout.trim(), '10|t', 'a person keeps at most 10 devices, the newest ones');
+  eq(as('authenticated', A, `select public.remove_push_subscription('${dev(21)}');`).error, undefined, 'a person removes their own device');
+  eq(psql(`select count(*) from public.push_subscriptions where endpoint = '${dev(21)}';`).stdout.trim(), '0', 'and it is gone');
+  for (const tbl of ['reminder_log', 'reminder_secrets']) for (const [role, uid] of [['anon', ''], ['authenticated', A]])
+    ok(/permission denied/.test(as(role, uid, `select count(*) from public.${tbl};`).error || ''), `${tbl} is closed to ${role === 'anon' ? 'visitors' : 'logged-in people'}`);
+  ok(/permission denied/.test(as('authenticated', A, `insert into public.reminder_log (user_id, key) values ('${A}', 'x');`).error || ''), 'nobody marks a reminder as sent through the app');
+  eq(psql(`select count(*), min(length(value #>> '{}')) from public.reminder_secrets where key = 'cron';`).stdout.trim(), '1|64', 'the schedule’s secret is made once by the database, 64 characters long (running the script again keeps it)');
+  eq(psql(`select proname, prosecdef, proconfig::text from pg_proc where proname in ('save_push_subscription', 'remove_push_subscription') order by 1;`).stdout.trim().split('\n'), ['remove_push_subscription|t|{"search_path=\\"\\""}', 'save_push_subscription|t|{"search_path=\\"\\""}'], 'both device functions run with a fixed search path');
+  psql(`insert into public.reminder_log (user_id, key) values ('${A}', 'bill:x:2026-10|soon'), ('${B}', 'bill:x:2026-10|soon');`);
+
+  // ----- the contact notice: a new message makes the database ask the reminders function to email the owner
+  psql(`delete from net.asked;`);
+  eq(as('anon', '', `insert into public.contact_messages (email, topic, message, lang) values ('n@example.org', 'question', 'Does the notice go out for this one?', 'en');`), { rows: [] }, 'a visitor writes a contact message');
+  eq(psql(`select a.url, a.headers->>'x-reminders-secret' = (select value #>> '{}' from public.reminder_secrets where key = 'cron'), a.body->>'action', a.body->>'id' = (select id::text from public.contact_messages where email = 'n@example.org') from net.asked a;`).stdout.trim(),
+    'https://uhvfkyblfojcpqupmlbg.supabase.co/functions/v1/reminders|t|contact|t', 'the database asks the function once, with the secret only the two of them know and the id of the message');
+  ok(/permission denied/.test(as('anon', '', `insert into public.contact_messages (email, topic, message, notified_at) values ('x@example.org', 'other', 'Trying to mark it as already told.', now());`).error || ''), 'the app cannot mark a message as already told to the owner');
+  ok(/permission denied/.test(as('authenticated', B, `select public.contact_messages_notify();`).error || '') || /trigger functions can only be called as triggers/.test(as('authenticated', B, `select public.contact_messages_notify();`).error || ''), 'the function behind the notice cannot be called by itself');
+  eq(psql(`select prosecdef, proconfig::text from pg_proc where proname = 'contact_messages_notify';`).stdout.trim(), 't|{"search_path=\\"\\""}', 'it runs with a fixed search path');
+  // whatever goes wrong with the notice, the message is kept
+  psql(`alter function net.http_post(text, jsonb, jsonb, jsonb, int) rename to http_post_off;`);
+  eq(as('anon', '', `insert into public.contact_messages (email, topic, message) values ('o@example.org', 'problem', 'The extension is not there this time.');`), { rows: [] }, 'with the web-request extension missing, a message is still saved');
+  psql(`alter function net.http_post_off(text, jsonb, jsonb, jsonb, int) rename to http_post; update public.reminder_secrets set key = 'url-away' where key = 'url';`);
+  eq([as('anon', '', `insert into public.contact_messages (email, topic, message) values ('p@example.org', 'other', 'No address for the function is set.');`), psql(`select count(*) from public.contact_messages where email in ('n@example.org', 'o@example.org', 'p@example.org'); select count(*) from net.asked;`).stdout.trim().split('\n')], [{ rows: [] }, ['3', '1']], 'and with no address set, it is saved and nothing is asked');
+  psql(`update public.reminder_secrets set key = 'url' where key = 'url-away';`);
+
   // ----- delete_my_account
   ok(/permission denied/.test(as('anon', '', `select public.delete_my_account();`).error || ''), 'a visitor cannot call delete_my_account');
   eq(as('authenticated', A, `select public.delete_my_account();`).error, undefined, 'a logged-in person deletes their account');
   eq(psql(`select (select count(*) from auth.users where id = '${A}'), (select count(*) from public.user_data where user_id = '${A}'), (select count(*) from auth.users), (select count(*) from public.user_data), (select count(*) from public.contact_messages where email = 'a@example.org'), (select count(*) from public.contact_messages where email = 'v@example.org');`).stdout.trim(), '0|0|1|1|0|1', 'the person, their row and the message they sent are gone; the other person and the visitor’s message are untouched');
+  eq(psql(`select (select count(*) from public.push_subscriptions where user_id = '${A}'), (select count(*) from public.reminder_log where user_id = '${A}'), (select count(*) from public.push_subscriptions where user_id = '${B}'), (select count(*) from public.reminder_log where user_id = '${B}');`).stdout.trim(), '0|0|1|1', 'their devices and what was sent to them go with the account; the other person keeps theirs');
   eq(psql(`select prosecdef, proconfig::text from pg_proc where proname = 'delete_my_account';`).stdout.trim(), 't|{"search_path=\\"\\""}', 'the function runs with its owner’s rights and a fixed search path');
 
   // ----- the cap on the open form: 30 messages an hour in all
@@ -102,7 +150,9 @@ try {
   // ----- the app and the script name the same things
   const server = fs.readFileSync(path.join(__dirname, '..', 'app', 'js', 'server', 'server.js'), 'utf8');
   eq([...new Set([...server.matchAll(/\.from\('(\w+)'\)/g)].map(m => m[1]))].sort(), ['contact_messages', 'user_data'], 'the app uses exactly the two tables the script makes');
-  eq([...server.matchAll(/\.rpc\('(\w+)'\)/g)].map(m => m[1]), ['delete_my_account'], 'and the one function');
+  eq([...server.matchAll(/\.rpc\('(\w+)'/g)].map(m => m[1]).sort(), ['delete_my_account', 'remove_push_subscription', 'save_push_subscription'], 'and the three functions');
+  eq([...server.matchAll(/functions\.invoke\('(\w+)'/g)].map(m => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['reminders'], 'and the one server job, which is in supabase/functions');
+  ok(fs.existsSync(path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'index.ts')), 'supabase/functions/reminders/index.ts is there');
 } finally { stop(); }
 console.log(`qc-schema: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

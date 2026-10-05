@@ -75,6 +75,19 @@ function makePdf() {
     eq(errors, [], tag + 'no console errors');
     await browser.close(); if (web) await web.close();
   }
+  // the account emails (owner, 2026-10-05: "I want the logo to be visible, and a better email structure"): three files to paste into Supabase
+  { const dir = path.join(__dirname, '..', 'supabase', 'email-templates'), root = path.join(__dirname, '..', 'app');
+    const mails = ['confirm-signup', 'reset-password', 'change-email'].map(n => fs.readFileSync(path.join(dir, n + '.html'), 'utf8'));
+    const notices = ['password-changed', 'email-changed'].map(n => fs.readFileSync(path.join(dir, n + '.html'), 'utf8'));
+    const imgs = [...new Set([...mails, ...notices].flatMap(m => [...m.matchAll(/<img[^>]+src="([^"]+)"/g)].map(x => x[1])))], logo = imgs[0] ? path.join(root, new URL(imgs[0]).pathname) : '';
+    eq([mails.every(m => (m.match(/\{\{ \.ConfirmationURL \}\}/g) || []).length === 3), mails.every(m => /\.Data\.lang "es"/.test(m) && /\.Data\.lang "en"/.test(m) && /\{\{ else \}\}/.test(m)), mails.every(m => !/<script|<link|<style|@import|url\(/i.test(m)), mails.every(m => /alt="Dorax Finance"/.test(m))],
+      [true, true, true, true], 'emails: each of the three carries the link (button, address as a link and as text), the three languages with Portuguese as the fallback, the logo with its alt text, and no script, stylesheet or other outside file');
+    eq([imgs.length, /^https:\/\/[^/]+\/assets\/email\/dorax-logo\.png$/.test(imgs[0] || ''), fs.existsSync(logo) && fs.readFileSync(logo).subarray(1, 4).toString() === 'PNG'], [1, true, true], 'emails: the only picture is the logo, a PNG the site itself serves from app/assets/email/');
+    // the two security notices tell, they do not ask: no link to confirm, a way out if it was somebody else, and a button that only opens the site
+    eq([notices.every(m => !/ConfirmationURL|\.Token/.test(m)), notices.every(m => (m.match(/href="\{\{ \.SiteURL \}\}"/g) || []).length === 1 && (m.match(/href=/g) || []).length === 1), notices.every(m => /\.Data\.lang "es"/.test(m) && /\.Data\.lang "en"/.test(m) && /alt="Dorax Finance"/.test(m) && !/<script|<link|<style|@import|url\(/i.test(m)), /\{\{ \.OldEmail \}\}/.test(notices[1]) && !/OldEmail|NewEmail/.test(notices[0])],
+      [true, true, true, true], 'emails: "password changed" and "email changed" carry no confirmation link, one button that opens the site, the three languages and the logo; only the second names the old address');
+    const subj = fs.readFileSync(path.join(dir, 'subjects.txt'), 'utf8').split('\n').filter(l => /subject:/.test(l));
+    eq([subj.length, subj.every(l => /\.Data\.lang "es"/.test(l) && /\{\{ end \}\}\s*$/.test(l))], [5, true], 'emails: five subjects, each in the three languages'); }
   fs.rmSync(tmp, { recursive: true, force: true });
   done('qc-files');
 })().catch(e => { console.error(e); process.exit(1); });
