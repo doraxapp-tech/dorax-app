@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dorax Finance</title>
+<!-- Kept out of search engines while it is being tested: the public pages get their own addresses, titles and descriptions in the Next.js build.
+     Remove this line (and the X-Robots-Tag header in vercel.json) only when the site is meant to be found. -->
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dorax">
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap">
+
+<!-- Styles. The order matters: a later file refines an earlier one. -->
+<link rel="stylesheet" href="css/base/tokens.css">
+<link rel="stylesheet" href="css/base/shell.css">
+<link rel="stylesheet" href="css/components/buttons.css">
+<link rel="stylesheet" href="css/components/cards-layout.css">
+<link rel="stylesheet" href="css/components/tables.css">
+<link rel="stylesheet" href="css/components/forms.css">
+<link rel="stylesheet" href="css/components/meters-charts.css">
+<link rel="stylesheet" href="css/components/lists-banners.css">
+<link rel="stylesheet" href="css/screens/accounts-goals.css">
+<link rel="stylesheet" href="css/components/panels.css">
+<link rel="stylesheet" href="css/screens/imports-converter.css">
+<link rel="stylesheet" href="css/screens/profile.css">
+<link rel="stylesheet" href="css/screens/spreadsheet-reminders.css">
+<link rel="stylesheet" href="css/public/home.css">
+<link rel="stylesheet" href="css/base/motion.css">
+<link rel="stylesheet" href="css/base/responsive.css">
+<link rel="stylesheet" href="css/components/inline-select.css">
+<link rel="stylesheet" href="css/public/plans-legal.css">
+<link rel="stylesheet" href="css/public/footer.css">
+<link rel="stylesheet" href="css/screens/dashboard.css">
+<link rel="stylesheet" href="css/public/contact.css">
+<link rel="stylesheet" href="css/public/hero.css">
+<link rel="stylesheet" href="css/base/typography.css">
+<link rel="stylesheet" href="css/public/compare-bento-entrepreneurs.css">
+<link rel="stylesheet" href="css/components/hints.css">
+<link rel="stylesheet" href="css/public/header-controls.css">
+<link rel="stylesheet" href="css/public/depth-plans.css">
+<link rel="stylesheet" href="css/screens/transaction-filters.css">
+<link rel="stylesheet" href="css/screens/converter-extras.css">
+<link rel="stylesheet" href="css/base/theme-light.css">
+<link rel="stylesheet" href="css/screens/categories-pager.css">
+<link rel="stylesheet" href="css/public/weave.css">
+<link rel="stylesheet" href="css/public/steps.css">
+<link rel="stylesheet" href="css/public/auth.css">
+</head>
+<body>
+<noscript><p style="padding:24px;font:16px system-ui;color:#EDEDED;background:#000">O Dorax precisa de JavaScript para funcionar. Ative o JavaScript no navegador e recarregue a página.</p></noscript>
+<div id="public" hidden></div>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><svg class="logo" viewBox="0 10 306 90" role="img" aria-label="Dorax Finance"><g fill="none" stroke="currentColor" stroke-width="15"><circle cx="30" cy="70" r="22.5"/><circle cx="97" cy="70" r="22.5"/><circle cx="214" cy="70" r="22.5"/><path d="M141.5 70a22.5 22.5 0 0 1 33.75-19.49"/><path class="ac" d="M7.5 70a22.5 22.5 0 0 1 22.5-22.5"/></g><g fill="currentColor"><rect x="45" y="10" width="15" height="90"/><rect x="134" y="40" width="15" height="60"/><rect x="229" y="40" width="15" height="60"/><polygon points="288,40 306,40 268,100 250,100"/><polygon points="250,40 268,40 306,100 288,100"/></g></svg></div>
+    <nav class="nav" id="nav" aria-label="Sections"></nav>
+    <div class="rail-foot" id="rail-foot"></div>
+  </aside>
+  <div class="work">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Main sections"></nav>
+<div id="overlay"></div>
+<div id="modal-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+<div id="tip" role="tooltip" hidden></div>
+
+<!-- Scripts. Plain files in dependency order (no bundler, no modules).
+     config.js says which Supabase project this copy talks to; vendor/supabase.js is the library that talks to it. -->
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+
+<!-- Calculations and file readers: no page access, the same code the tests run -->
+<script src="js/core/dates.js"></script>
+<script src="js/core/merchants.js"></script>
+<script src="js/core/reporting.js"></script>
+<script src="js/core/plan.js"></script>
+<script src="js/core/cards.js"></script>
+<script src="js/core/reminders.js"></script>
+<script src="js/core/goals.js"></script>
+<script src="js/core/investments.js"></script>
+<script src="js/core/statements-owed.js"></script>
+<script src="js/core/recurring.js"></script>
+<script src="js/core/observations.js"></script>
+<script src="js/core/ofx.js"></script>
+<script src="js/core/csv.js"></script>
+<script src="js/core/statement-reader.js"></script>
+<script src="js/core/statement-formats.js"></script>
+<script src="js/core/xlsx-reader.js"></script>
+<script src="js/core/sheet-tables.js"></script>
+<script src="js/core/sheet-import.js"></script>
+
+<!-- What a new account starts with, and the names the app writes by itself -->
+<script src="js/data/defaults.js"></script>
+
+<!-- Texts: Spanish and Portuguese, the friendly voice, the (i) hints -->
+<script src="js/i18n/translations.js"></script>
+<script src="js/i18n/voice.js"></script>
+
+<!-- Shared pieces: language, state, formatting, small components -->
+<script src="js/ui/language.js"></script>
+<script src="js/ui/state.js"></script>
+
+<!-- The server: who is logged in, the account's data, the contact form; and keeping the open account saved -->
+<script src="js/server/server.js"></script>
+<script src="js/server/sync.js"></script>
+
+<!-- Shared pieces: formatting, small components -->
+<script src="js/ui/translate.js"></script>
+<script src="js/ui/format.js"></script>
+<script src="js/ui/pager.js"></script>
+<script src="js/ui/icons.js"></script>
+<script src="js/ui/lookups.js"></script>
+<script src="js/ui/components.js"></script>
+<script src="js/ui/feedback.js"></script>
+<script src="js/ui/input.js"></script>
+
+<!-- One folder per screen: its view, its panels, its clicks -->
+<script src="js/features/auth/password-rules.js"></script>
+
+<!-- Texts: Spanish and Portuguese, the friendly voice, the (i) hints -->
+<script src="js/i18n/hints.js"></script>
+
+<!-- Shared pieces: state, saving, formatting, small components -->
+<script src="js/ui/rows.js"></script>
+
+<!-- One folder per screen: its view, its panels, its clicks -->
+<script src="js/features/converter/statements-owed.view.js"></script>
+<script src="js/features/dashboard/dashboard.view.js"></script>
+<script src="js/features/transactions/transactions.view.js"></script>
+<script src="js/features/accounts/accounts.view.js"></script>
+<script src="js/features/plan/income-panel.view.js"></script>
+<script src="js/features/reports/reports.view.js"></script>
+<script src="js/features/recurring/recurring.view.js"></script>
+<script src="js/features/categories/categories.view.js"></script>
+<script src="js/features/imports/review-table.view.js"></script>
+<script src="js/features/imports/imports.view.js"></script>
+<script src="js/features/converter/converter.view.js"></script>
+<script src="js/features/settings/settings.view.js"></script>
+<script src="js/features/goals/goals.view.js"></script>
+<script src="js/features/plan/plan.view.js"></script>
+<script src="js/features/investments/investments.view.js"></script>
+<script src="js/features/profile/profile.view.js"></script>
+<script src="js/features/imports/spreadsheet.view.js"></script>
+<script src="js/features/imports/spreadsheet.actions.js"></script>
+<script src="js/features/reminders/reminders.view.js"></script>
+<script src="js/features/reminders/reminders.actions.js"></script>
+<script src="js/features/onboarding/onboarding.view.js"></script>
+<script src="js/features/onboarding/onboarding.actions.js"></script>
+<script src="js/features/public/public.shared.js"></script>
+<script src="js/features/public/landing.view.js"></script>
+<script src="js/features/public/legal.view.js"></script>
+<script src="js/features/public/contact.view.js"></script>
+<script src="js/features/public/weave.js"></script>
+<script src="js/features/auth/auth.view.js"></script>
+
+<!-- The frame: routes, panels, events, start-up -->
+<script src="js/app/shell.js"></script>
+<script src="js/app/motion.js"></script>
+<script src="js/app/overlay.js"></script>
+<script src="js/app/dialogs.js"></script>
+
+<!-- Shared pieces: state, saving, formatting, small components -->
+<script src="js/ui/form-fields.js"></script>
+
+<!-- One folder per screen: its view, its panels, its clicks -->
+<script src="js/features/transactions/transaction-form.view.js"></script>
+<script src="js/features/accounts/account-form.view.js"></script>
+<script src="js/features/settings/ofx-profile-form.view.js"></script>
+<script src="js/features/imports/import-session.js"></script>
+<script src="js/features/converter/converter-session.js"></script>
+<script src="js/features/converter/file-readers.js"></script>
+<script src="js/features/plan/payments.js"></script>
+
+<!-- The frame: routes, panels, events, start-up -->
+<script src="js/app/session.js"></script>
+
+<!-- One folder per screen: its view, its panels, its clicks -->
+<script src="js/features/auth/auth.actions.js"></script>
+<script src="js/features/imports/imports.actions.js"></script>
+<script src="js/features/transactions/transactions.actions.js"></script>
+
+<!-- The frame: routes, panels, events, start-up -->
+<script src="js/app/shell.actions.js"></script>
+
+<!-- One folder per screen: its view, its panels, its clicks -->
+<script src="js/features/public/public.actions.js"></script>
+<script src="js/features/profile/profile.actions.js"></script>
+<script src="js/features/plan/plan.actions.js"></script>
+<script src="js/features/goals/goals.actions.js"></script>
+<script src="js/features/settings/settings.actions.js"></script>
+<script src="js/features/accounts/accounts.actions.js"></script>
+<script src="js/features/investments/investments.actions.js"></script>
+<script src="js/features/recurring/recurring.actions.js"></script>
+<script src="js/features/categories/categories.actions.js"></script>
+<script src="js/features/converter/converter.actions.js"></script>
+
+<!-- The frame: routes, panels, events, start-up -->
+<script src="js/app/actions.js"></script>
+<script src="js/app/changes.js"></script>
+<script src="js/app/events.js"></script>
+<script src="js/app/boot.js"></script>
+</body>
+</html>

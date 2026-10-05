@@ -1,0 +1,54 @@
+/* ---------- tables ---------- */
+.tbl-wrap, .card-b.flush, #tx-list { overflow-x: auto; position: relative; }
+table.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); padding: 10px 22px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl td { padding: 12px 22px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .r { text-align: right; }
+.tbl td.amt { text-align: right; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; color: var(--ink-strong); }
+.tbl td.amt .btn, .tbl td.amt .linkbtn { font-family: var(--font); }
+.tbl td.amt-s { text-align: right; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl td.sm-row { display: none; }
+.tbl tbody tr { transition: background var(--t1) ease-out; }
+.tbl tbody tr.click { cursor: pointer; }
+.tbl tbody tr.click:hover { background: var(--surface-2); }
+.tbl tbody tr.click:active { background: var(--surface-3); }
+.tbl th button { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+.tbl th button:hover { color: var(--ink-strong); }
+.tx-main { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.tx-main b { font-weight: 500; }
+.tx-main small { color: var(--ink-3); font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere; }
+.cat { display: inline-flex; align-items: center; gap: 8px; }
+tr.ignored td { opacity: .5; }
+tr.ignored .amt { text-decoration: line-through; }
+tr.sumrow.grand > th, tr.sumrow.grand > td { font-weight: 500; background: var(--surface-2); }
+
+/* editable month grid (fixed costs, goals) */
+table.plan { font-variant-numeric: tabular-nums; border-collapse: separate; border-spacing: 0; }
+.plan thead th { padding: 8px 7px; text-align: right; border-bottom: 1px solid var(--line); }
+.plan thead th:first-child { position: sticky; left: 0; background: var(--surface); z-index: 3; }
+.plan thead th button:disabled { opacity: .5; cursor: default; }
+.plan th[scope="row"] { position: sticky; left: 0; z-index: 2; background: var(--surface); text-align: left; font-family: var(--font); font-weight: 400; font-size: 13.5px; text-transform: none; letter-spacing: 0; color: var(--ink); padding: 6px 12px 6px 22px; min-width: 170px; max-width: 215px; white-space: normal; line-height: 1.3; border-bottom: 1px solid var(--line); box-shadow: 1px 0 0 var(--line); }
+.plan td.c, .plan th.c { text-align: right; padding: 3px 2px; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.plan td.c { font-family: var(--mono); font-size: 12px; }
+.plan td.c > span, .plan td.c { color: var(--ink); }
+.plan td.c .z, .plan td.c input.z { color: var(--ink-3); }
+.plan td.c input { width: 54px; min-height: 30px; padding: 3px 4px; text-align: right; border: 1px solid transparent; border-radius: 6px; background: transparent; font-family: var(--mono); font-size: 12px; transition: background var(--t1) ease-out, border-color var(--t1) ease-out; }
+.plan.alloc td.c input { width: 62px; }
+.plan tbody tr:hover td.c input { background: var(--surface-3); }
+.plan td.c input:hover { border-color: var(--line-strong); }
+.plan td.c input:focus { outline: none; border-color: var(--focus); background: var(--surface); box-shadow: 0 0 0 1px var(--focus); opacity: 1; color: var(--ink-strong); }
+.plan td.c:not(:has(input)) { padding: 9px 5px; }
+.plan .cur { background: var(--cur); }
+.plan thead th.cur { color: var(--ink-strong); border-radius: 4px 4px 0 0; }
+.plan td.tot { font-weight: 500; padding-right: 22px !important; color: var(--ink-strong); }
+.plan th.c:last-child { padding-right: 22px; }
+.plan td.due { color: var(--ink-3); font-size: 11.5px; text-align: left; padding-left: 10px !important; }
+.plan tr.grp th { text-align: left; position: sticky; left: 0; background: var(--surface-2); font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); padding: 9px 22px; border-bottom: 1px solid var(--line); }
+.plan tr.sumrow th[scope="row"], .plan tr.sumrow td { font-weight: 500; background: var(--surface-2); color: var(--ink-strong); }
+.plan tr.sumrow td.c { padding: 10px 5px; }
+.plan tr.sumrow td.cur { background: var(--cur-sum); }
+.plan tr.grand th[scope="row"], .plan tr.grand td { border-top: 1px solid var(--line-strong); border-bottom: 0; }
+.plan tr.muted-row th[scope="row"], .plan tr.muted-row td, .plan tr.muted-row input { color: var(--ink-3); }
+.gridbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 22px 0; }
+

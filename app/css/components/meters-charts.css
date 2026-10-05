@@ -1,0 +1,45 @@
+/* ---------- meters, charts ---------- */
+.meter { height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.meter > i { display: block; height: 100%; border-radius: 99px; background: var(--ink); min-width: 3px; transform-origin: left center; }
+.meter.go > i { background: var(--brand); } .meter.warn > i { background: var(--warn); } .meter.crit > i { background: var(--crit); }
+.budget { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.budget:first-child { padding-top: 2px; }
+.budget:last-child { border-bottom: 0; padding-bottom: 0; }
+.budget .meter { grid-column: 1 / -1; }
+.budget .meta { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--ink-3); }
+.stackbar { display: flex; gap: 3px; height: 10px; border-radius: 3px; overflow: hidden; }
+.stackbar > button { all: unset; display: block; height: 100%; min-width: 4px; cursor: pointer; transform-origin: left center; transition: filter var(--t1) ease-out; }
+.stackbar > button:hover { filter: brightness(1.2); }
+.stackbar > button:focus-visible { outline: 2px solid var(--ink-strong); outline-offset: -2px; }
+.stackbar > span { display: block; height: 100%; min-width: 4px; transform-origin: left center; }
+.legend { display: flex; flex-direction: column; }
+div.legend-row.still { cursor: default; }
+div.legend-row.still:hover { background: none; }
+.legend-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 44px; gap: 10px; align-items: center; padding: 9px 6px; margin: 0 -6px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; cursor: pointer; width: calc(100% + 12px); border-radius: 0; transition: background var(--t1) ease-out; }
+.legend-row:last-child { border-bottom: 0; }
+.legend-row:hover { background: var(--surface-2); }
+.legend-row .pct { text-align: right; color: var(--ink-3); font-size: 12px; }
+.hbar { display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 7px 0; }
+.hbar .track { height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.hbar .track i { display: block; height: 100%; background: var(--ink); border-radius: 99px; min-width: 3px; transform-origin: left center; }
+.cols { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 10px; height: 220px; }
+.card:has(> .card-b > .cols) { display: flex; flex-direction: column; }
+.card:has(> .card-b > .cols) > .card-b { flex: 1; display: flex; }
+.card:has(> .card-b > .cols) .cols { flex: 1; height: auto; min-height: 220px; max-height: 340px; }
+.cols .yaxis { display: flex; flex-direction: column-reverse; justify-content: space-between; padding-bottom: 24px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); text-align: right; }
+.cols .yaxis span { transform: translateY(50%); line-height: 1; }
+.cols .plot { position: relative; display: flex; align-items: stretch; gap: 6px; padding-bottom: 24px; }
+.cols .gl { position: absolute; left: 0; right: 0; height: 1px; background: var(--grid); }
+.cols .gl.base { background: var(--line-strong); }
+.colbtn { all: unset; flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; cursor: pointer; }
+.colbtn i { display: block; flex: none; width: min(26px, 58%); background: var(--col-muted); border-radius: 4px 4px 0 0; min-height: 2px; position: relative; z-index: 1; transform-origin: center bottom; transition: background var(--t1) ease-out; }
+.colbtn[aria-pressed="true"] i { background: var(--col); }
+.colbtn:hover i { background: var(--ink-3); }
+.colbtn[aria-pressed="true"]:hover i { background: var(--col); }
+.colbtn .v { flex: none; font-family: var(--mono); font-size: 11px; color: var(--ink-strong); margin-bottom: 6px; white-space: nowrap; position: relative; z-index: 1; }
+.colbtn .x { position: absolute; bottom: -22px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
+.colbtn[aria-pressed="true"] .x { color: var(--ink-strong); }
+.colbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r); }
+#tip.long { pointer-events: auto; }
+#tip { position: fixed; z-index: 100; pointer-events: none; background: var(--lift); color: var(--ink-strong); border: 1px solid var(--line-strong); padding: 6px 10px; border-radius: var(--r); font-family: var(--mono); font-size: 11.5px; line-height: 1.35; max-width: 260px; }
+

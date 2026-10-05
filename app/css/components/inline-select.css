@@ -1,0 +1,4 @@
+/* v13: a select inside a card subtitle (import target) */
+.inline-select { width: auto; min-width: 150px; max-width: 220px; padding: 4px 28px 4px 8px; min-height: 30px; font-size: 13px; }
+@media (max-width: 920px) { .inline-select { font-size: 16px; min-height: 40px; } }
+

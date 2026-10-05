@@ -1,0 +1,27 @@
+/* ---------- v36: categories as a grid of short blocks; the rule form; hints inside tiles and section headings ---------- */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; align-items: start; }
+.cat-card { border: 1px solid var(--line); border-radius: var(--r-mid); padding: 10px 12px 8px; min-width: 0; }
+.cat-card.open { border-color: var(--line-strong); }
+.cat-card .cat-h { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 500; color: var(--ink-strong); }
+.cat-card .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-card .n { margin-left: auto; color: var(--ink-3); font-family: var(--mono); font-size: 11.5px; flex: none; }
+.cat-card input[type=text] { min-height: 30px; padding: 4px 8px; flex: 1 1 90px; min-width: 0; }
+.cat-more { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin: 4px 0 0 -4px; padding: 3px 8px 3px 4px; border-radius: var(--r); color: var(--ink-3); font-size: 12.5px; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
+.cat-more:hover { background: var(--surface-3); color: var(--ink-strong); } .cat-more:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.cat-more svg { width: 14px; height: 14px; }
+.cat-card .subs { display: flex; flex-direction: column; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--line); }
+.cat-card .sub { display: flex; align-items: center; gap: 6px; min-height: 30px; padding-left: 16px; color: var(--ink-2); min-width: 0; }
+.cat-card .sub.add { padding-top: 4px; }
+.rule-new { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-mid); display: flex; flex-direction: column; gap: 10px; }
+.rule-form { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.tile .label { display: flex; align-items: center; gap: 6px; min-width: 0; } .tile .label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+h2.sec { display: flex; align-items: center; gap: 6px; }
+h2.sec .hint, .card-h .hint { text-transform: none; letter-spacing: 0; }
+@media (max-width: 920px) { .cat-card .cat-more, .cat-card .iconbtn { min-height: 36px; } .cat-card input[type=text] { min-height: 40px; font-size: 16px; } #cat-cats .card-h .right { margin-left: 0; width: 100%; } #cat-cats .card-h .right input { flex: 1 1 0; width: auto !important; min-width: 0; } }
+
+/* v36: the pager under a preview inside a card body sits flush with the table above it; a line under the page header (owner) */
+.pv-pager .pager { padding-inline: 0; border-top: 1px solid var(--line); }
+.card-b.flush > .pager, .card-b.flush .pager { border-top: 1px solid var(--line); }
+@media (min-width: 921px) { .topbar { border-bottom: 1px solid var(--line); margin-bottom: 18px; } }
+@media (max-width: 920px) { .pagehead { border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 4px; } }
+

@@ -1,0 +1,21 @@
+/* v24, resized in v26 (owner: "too big on mobile and small screens, they look bigger than the logo"): the three controls in the home page bar are one size,
+   34px on a wide screen and 30px below 1180px, with 13px text, so they sit beside the 22px logo instead of over it. What is drawn is small;
+   what can be pressed is not: each control's pressable area reaches 44px high. */
+.lp-actions .btn, .lang-pill { box-sizing: border-box; position: relative; height: 34px; min-height: 34px; padding-block: 0; font-family: var(--font); font-size: 13px; font-weight: 500; line-height: 1; letter-spacing: -.016em; white-space: nowrap; }
+.lp-actions .btn { padding-inline: 14px; }
+.lp-actions .btn::after { content: ""; position: absolute; inset: -5px 0; }
+.lang-pill { display: inline-flex; align-items: center; gap: 4px; padding-inline: 13px 9px; border-radius: var(--pill); border: 1px solid var(--line-strong); color: var(--ink-strong); transition: border-color var(--t1) ease-out; }
+.lang-pill:hover { border-color: var(--hover-line); }
+.lang-pill:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+.lang-pill svg { width: 12px; height: 12px; transform: rotate(90deg); color: var(--ink-3); flex: none; }
+.lang-pill select.lang { position: absolute; left: 0; top: -6px; width: 100%; height: calc(100% + 12px); min-height: 0; margin: 0; padding: 0; border: 0; opacity: 0; font-size: 16px; cursor: pointer; }
+@media (max-width: 920px) { .lp-nav { min-height: calc(56px + var(--safe-t)); } }
+@media (max-width: 1179px) {
+  .lp-actions .btn, .lang-pill { height: 30px; min-height: 30px; }
+  .lp-actions .btn { padding-inline: 12px; }
+  .lp-actions .btn::after { inset: -7px 0; }
+  .lang-pill { padding-inline: 11px 7px; }
+  .lang-pill select.lang { top: -8px; height: calc(100% + 16px); min-height: 0; font-size: 16px; }
+}
+@media (max-width: 359px) { .lp-actions { gap: 6px; } .lp-actions .btn { padding-inline: 10px; } }
+

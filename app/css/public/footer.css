@@ -1,0 +1,8 @@
+/* v14: responsive footer and small fixes for the flat system */
+@media (max-width: 920px) { .ft-top { grid-template-columns: minmax(0, 1fr); } .lp-nav nav { display: none; } }
+@media (max-width: 640px) { .ft-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ft-cols .lp-link { padding: 9px 0; } .lp-foot { padding-top: 40px; } .lp-actions .lang { display: inline-block; } }
+@media (max-width: 640px) { .lp-actions .btn:not(.primary) { display: none; } .lp-copy .lp-meta { flex-direction: column; gap: 4px; } .lp-copy .lp-meta i { display: none; } select.lang { border-radius: var(--pill); } }
+.lp-sec, .lp-two { scroll-margin-top: 72px; }
+.num, .amt, .tbl td.amt { letter-spacing: 0; }
+@media (max-width: 920px) { .ft-lang select.lang { font-size: 16px; min-height: 44px; } }
+

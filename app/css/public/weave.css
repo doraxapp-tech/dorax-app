@@ -1,0 +1,25 @@
+/* ================= The Weave of the logo book on the public pages (owner, v37; turned down in v41) =================
+   Home page hero, the closing panel, and round the card of login, sign-up and first-time setup. Public pages only: the app has no pattern.
+   v41 (owner: "the pattern is too visible, turn it down"): the logo book draws it #1C1C1C on black; here it is a texture behind a form or
+   a headline, so it is drawn at about half that strength, the green quarters are dimmed with it, and it fades out sooner towards the edges.
+   One place to tune it: --weave-line and --weave-accent below. It is kept clear of running text by a mask (hero, closing panel) or by the card itself. */
+:root { --weave-line: #101010; --weave-accent: .32; }
+.weave-bg { position: absolute; z-index: -1; overflow: hidden; pointer-events: none; }
+.weave { position: absolute; left: 50%; top: 50%; width: calc(var(--cell, 64px) * var(--cols)); height: auto; max-width: none; transform: translate(-50%, -50%); display: block; }
+.wv-line { stroke: var(--weave-line); } .wv-q { stroke: var(--brand); opacity: var(--weave-accent); }
+/* hero: the right half, round the phone and its cards, fading out before the words on the left and dissolving downwards */
+.wv-hero { left: calc(50% - 50vw); right: calc(50% - 50vw); top: -72px; bottom: 0; }
+.wv-hero .weave { top: 0; transform: translateX(-50%); }
+.wv-hero { -webkit-mask-image: linear-gradient(90deg, transparent 46%, #000 68%), linear-gradient(180deg, #000 58%, transparent 92%); -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 46%, #000 68%), linear-gradient(180deg, #000 58%, transparent 92%); mask-composite: intersect; }
+/* closing panel: a black ground, the pattern on both sides, the words in the clear middle */
+.lp-cta { background: radial-gradient(60% 90% at 50% 0%, rgba(62, 207, 142, .14), transparent 70%), #000; isolation: isolate; }
+.wv-end { inset: 0; --cell: 44px; -webkit-mask-image: linear-gradient(90deg, #000 0, transparent 21%, transparent 79%, #000 100%); mask-image: linear-gradient(90deg, #000 0, transparent 21%, transparent 79%, #000 100%); }
+/* login, sign-up, first-time setup: the whole page behind the card, fading out towards the edges of the screen */
+.auth { position: relative; isolation: isolate; }
+.wv-auth { position: fixed; inset: 0; z-index: -1; -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 30%, transparent 100%); mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 30%, transparent 100%); }
+#public.enter .weave-bg { animation: fade-in 900ms ease-out both; }
+@media (max-width: 920px) { .weave { --cell: 52px; } .wv-end { --cell: 36px; -webkit-mask-image: linear-gradient(180deg, #000 0, transparent 26%, transparent 80%, #000 100%); mask-image: linear-gradient(180deg, #000 0, transparent 26%, transparent 80%, #000 100%); }
+  .wv-hero { -webkit-mask-image: linear-gradient(180deg, #000 0, transparent 15%); mask-image: linear-gradient(180deg, #000 0, transparent 15%); -webkit-mask-composite: source-over; mask-composite: add; } }
+@media (prefers-reduced-motion: reduce) { #public.enter .weave-bg { animation: none; } }
+

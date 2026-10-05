@@ -1,0 +1,8 @@
+/* ---------- accounts, goals ---------- */
+.acct { padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.acct .bal, .bal { font-family: var(--fig); font-size: 23px; font-weight: 500; letter-spacing: 0; font-variant-numeric: tabular-nums; color: var(--ink-strong); }
+.acct .inst { width: 36px; height: 36px; border-radius: 50%; background: var(--well); color: var(--ink); display: grid; place-items: center; font-family: var(--mono); font-weight: 500; font-size: 12px; flex: none; }
+.acct > .row > svg { width: 36px; height: 36px; padding: 9px; border-radius: 50%; background: var(--well); color: var(--ink); }
+.goal.off { opacity: .6; }
+.goal > .row:last-child { margin-top: auto; }
+

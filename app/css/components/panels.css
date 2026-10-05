@@ -1,0 +1,36 @@
+/* ---------- drawer, sheet, modal, toast ---------- */
+.scrim { position: fixed; inset: 0; background: var(--scrim); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); z-index: 60; }
+/* wide screens: a floating panel on the right. Phones: a bottom sheet with a handle (see "responsive"). */
+.drawer { position: fixed; top: 12px; right: 12px; bottom: 12px; width: min(500px, calc(100% - 24px)); background: var(--lift); z-index: 61; display: flex; flex-direction: column; border: 1px solid var(--line-strong); border-radius: var(--r-lg);  overflow: hidden; }
+.grab { display: none; }
+.drawer header { display: flex; align-items: center; gap: 10px; padding: 18px 22px 14px; border-bottom: 1px solid var(--line); }
+.drawer header h2 { font-size: 17px; font-weight: 500; letter-spacing: 0; margin-right: auto; }
+.drawer header .btn { width: 30px; min-height: 30px; padding: 0; border-radius: 50%; background: var(--btn); color: var(--ink-2); }
+.drawer .body { padding: 20px 22px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.drawer footer { display: flex; gap: 8px; padding: 14px 22px calc(14px + var(--safe-b)); border-top: 1px solid var(--line); flex-wrap: wrap; }
+.drawer .seg { align-self: flex-start; }
+.split-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; gap: 8px; align-items: center; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 61; background: var(--lift); border-top: 1px solid var(--line-strong); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 0 12px calc(18px + var(--safe-b)); max-height: 82vh; overflow-y: auto; overscroll-behavior: contain; }
+.sheet .grab { display: block; }
+.sheet-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; margin-top: 6px; border-top: 1px solid var(--line); color: var(--ink-2); }
+.sheet-row label { display: flex; align-items: center; gap: 11px; font-weight: 400; }
+.sheet-row svg { width: 17px; height: 17px; }
+.sheet-row select { width: auto; font-family: var(--font); font-size: 16px; min-height: 40px; }
+.sheet .nav a { padding: 13px 12px; }
+/* centred confirmation: every delete passes through here */
+.modal-wrap { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; }
+.modal-wrap .scrim { z-index: 0; }
+.modal { position: relative; z-index: 1; width: min(420px, 100%); background: var(--lift); border: 1px solid var(--line-strong); border-radius: var(--r-lg);  padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.modal-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--crit-bg); display: grid; place-items: center; color: var(--crit); }
+.modal-icon.neutral { background: var(--well); color: var(--ink); }
+.modal-icon svg { width: 17px; height: 17px; }
+.modal h2 { font-size: 17px; font-weight: 500; letter-spacing: 0; }
+.modal p { color: var(--ink-2); font-size: 13.5px; line-height: 1.55; }
+.modal .field { margin-top: 4px; }
+.modal .field label b { font-family: var(--mono); font-weight: 500; color: var(--neg); padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 4px; }
+.modal footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+#toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; background: var(--glass); -webkit-backdrop-filter: saturate(160%) blur(24px); backdrop-filter: saturate(160%) blur(24px); color: var(--ink-strong); border: 1px solid var(--glass-line); padding: 10px 16px; border-radius: 22px; display: flex; gap: 14px; align-items: center; max-width: calc(100% - 32px); font-size: 13px; }
+#toast button { all: unset; cursor: pointer; font-weight: 500; color: var(--link); white-space: nowrap; }
+#toast button:hover { text-decoration: underline; text-underline-offset: 3px; }
+#toast button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+

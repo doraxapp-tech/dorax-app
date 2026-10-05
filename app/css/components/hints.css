@@ -1,0 +1,11 @@
+/* (i): a small button next to a figure that may need explaining. Hover, keyboard focus or a tap shows what the figure means. */
+.hint { all: unset; box-sizing: border-box; position: relative; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: var(--ink-3); cursor: help; flex: none; vertical-align: middle; transition: color var(--t1) ease-out, background var(--t1) ease-out; }
+.hint::after { content: ""; position: absolute; inset: -6px; }
+.hint svg, .kpi .label .hint svg { width: 15px; height: 15px; padding: 0; background: none; border-radius: 0; color: inherit; display: block; }
+.hint:hover, .hint:focus-visible { color: var(--ink-strong); background: var(--well); }
+.hint:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (pointer: coarse) { .hint::after { inset: -12px; } }
+.kpi .label { display: flex; align-items: center; gap: 6px; overflow: visible; }
+.kpi .label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tip.long { font-family: var(--font); font-size: 13px; line-height: 1.4; letter-spacing: -.01em; max-width: min(300px, calc(100vw - 16px)); padding: 10px 12px; white-space: normal; }
+

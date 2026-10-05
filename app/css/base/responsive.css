@@ -1,0 +1,128 @@
+/* ---------- responsive ---------- */
+@media (max-width: 1280px) {
+  .g-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 920px) {
+  html { scroll-padding: calc(60px + var(--safe-t)) 0 calc(104px + var(--safe-b)); }   /* what gets focus is never left under the glass bars */
+  body { font-size: 15px; }
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+  .g-2, .g-even { grid-template-columns: minmax(0, 1fr); }
+  .form-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* iOS navigation: a glass bar that stays (small title once scrolled, tools on the right) and a large title that scrolls away */
+  .topbar { display: contents; }
+  .navbar { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; min-height: calc(48px + var(--safe-t)); padding: var(--safe-t) 12px 0 16px; background: color-mix(in srgb, var(--bg) 74%, transparent); -webkit-backdrop-filter: saturate(180%) blur(22px); backdrop-filter: saturate(180%) blur(22px); border-bottom: 1px solid transparent; transition: border-color var(--t2) ease-out; -webkit-user-select: none; user-select: none; }
+  .scrolled .navbar { border-bottom-color: var(--line); }
+  .bar-title { display: block; font-size: 16px; font-weight: 500; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transform: translateY(4px); transition: opacity var(--t2) ease-out, transform var(--t2) var(--ease); }
+  .scrolled .bar-title { opacity: 1; transform: none; }
+  .topbar .save-badge, .topbar .bell, .topbar .lang, .topbar .btn.primary, .topbar .month, .topbar h1 { order: 0; }
+  .navbar .save-badge { justify-self: start; }
+  /* v34: the badge is there only when saving fails, so each part of the bar is given its column instead of taking the next free one */
+  .navbar .save-badge { grid-column: 1; } .navbar .bar-title { grid-column: 2; grid-row: 1; } .navbar .bar-tools { grid-column: 3; grid-row: 1; }
+  .save-badge .long { display: none; }
+  .bar-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+  .navbar .lang { display: none; }
+  .navbar .tbtn { display: none; }   /* phones: the switch is in More, next to the language */
+  .bell, .navbar .btn.primary { width: 38px; height: 38px; min-height: 0; }
+  .bell::after, .navbar .btn.primary::after { content: ""; position: absolute; inset: -4px; }
+  .navbar .btn.primary { position: relative; padding: 0; border-radius: 50%; }
+  .navbar .btn.primary svg { width: 18px; height: 18px; }
+  .navbar .btn.primary .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pagehead { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 2px 16px 10px; }
+  .topbar h1 { font-size: 32px; font-weight: 500; letter-spacing: -.007em; line-height: 1.1; margin-right: 0; }
+  /* 44px targets, 16px fields (iOS zooms the page on anything smaller) */
+  .btn { min-height: 44px; padding: 10px 18px; }
+  .btn.sm { min-height: 38px; padding: 7px 14px; font-size: 13.5px; }
+  .iconbtn { min-width: 40px; min-height: 40px; display: inline-grid; place-items: center; }
+  input[type=text], input[type=password], input[type=search], input[type=number], input[type=date], select, textarea { font-size: 16px; min-height: 44px; border-radius: var(--r); }
+  select.lang, .field.inline select, .field.inline input, .srow-c select, input.day, .review input[type=text], .review select { min-height: 40px; font-size: 16px; }
+  .seg button { padding: 8px 12px; font-size: 13.5px; }
+  /* text buttons and chart marks keep their look and get a taller place to land a finger */
+  .linkbtn, .tbl th .linkbtn { display: inline-block; padding: 7px 0; margin: -7px 0; }
+  .plan thead th button { padding: 9px 5px; margin: -9px -5px; }
+  .stackbar > button, .colbtn { position: relative; }
+  .stackbar > button::after { content: ""; position: absolute; inset: -9px 0; }
+  .colbtn::after { content: ""; position: absolute; inset: 0 -3px; }
+  .month button, .stepper button { width: 38px; height: 38px; }
+  .plan td.c input { min-height: 40px; width: 64px; font-size: 16px; }
+  .plan.alloc td.c input { width: 72px; }
+  .content { padding: 4px 16px calc(104px + var(--safe-b)); gap: 16px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* a floating glass tab bar */
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; position: fixed; left: 10px; right: 10px; bottom: calc(10px + var(--safe-b)); z-index: 40; background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); border: 1px solid var(--glass-line); border-radius: 26px; padding: 5px; -webkit-user-select: none; user-select: none; }
+  .tabbar a, .tabbar button { all: unset; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; padding: 2px; font-size: 10.5px; font-weight: 500; color: var(--ink-2); cursor: pointer; border-radius: 21px; text-align: center; transition: color var(--t1) ease-out, background var(--t2) var(--ease), transform var(--t1) ease-out; }
+  .tabbar svg { width: 21px; height: 21px; }
+  .tabbar a:active, .tabbar button:active { transform: scale(.94); }
+  .tabbar [aria-current="page"] { color: var(--select-ink); background: var(--select); }
+  .tabbar [aria-current="page"] svg { color: var(--brand); }
+  .tabbar :focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  #toast { top: calc(8px + var(--safe-t)); bottom: auto; animation-name: toast-drop; }
+  #toast.out { animation-name: toast-lift; }
+  /* drawers become bottom sheets: a handle, rounded top corners, as tall as their content up to almost the full screen */
+  .drawer { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: calc(100dvh - 20px - var(--safe-t)); border-radius: var(--r-lg) var(--r-lg) 0 0; border-width: 1px 0 0; }
+  .grab, .sheet .grab { display: block; flex: none; width: 100%; height: 22px; position: relative; touch-action: none; }
+  .grab::before { content: ""; position: absolute; left: 50%; top: 8px; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--hover-line); opacity: .7; }
+  .drawer header { padding: 2px 16px 12px; touch-action: none; }
+  .drawer header .btn { width: 34px; min-height: 34px; }
+  .drawer .body { padding: 16px; }
+  .drawer footer { padding: 12px 16px calc(12px + var(--safe-b)); }
+  .drawer footer .btn.primary { flex: 1 1 auto; }
+  #overlay.in .drawer { animation: sheet-in 420ms var(--ease-ios) both; }
+  #overlay.out .drawer { animation: sheet-out 220ms var(--ease-in) both; }
+  .sheet .nav a { padding: 14px 12px; font-size: 16px; }
+}
+@media (max-width: 420px) { .chip { max-width: 100%; white-space: normal; } }
+@media (max-width: 760px) {
+  .payrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+  .payrow .field:first-child { grid-column: 1 / -1; }
+  .flow { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kpi, .kpi:nth-child(4) { grid-column: span 1; }
+  .kpi:nth-child(5) { grid-column: 1 / -1; }
+  .kpi { padding: 16px; }
+  .kpi .value { font-size: 19px; }
+  .tiles { gap: 10px; }
+  .tile { padding: 16px; }
+  .tile .value { font-size: 18px; }
+  .tile .note { font-size: 11.5px; }
+  .g-3 { grid-template-columns: minmax(0, 1fr); }
+  .form-grid, .form-grid.four, .checks { grid-template-columns: minmax(0, 1fr); }
+  .flow.two { grid-template-columns: minmax(0, 1fr); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hbar { grid-template-columns: 100px minmax(0, 1fr) auto; }
+  .cols { height: 190px; }
+  .card-h { padding: 16px 16px 0; } .card-b { padding: 14px 16px 16px; } .toolbar { padding: 12px 16px; }
+  .sm-only { display: inline; }
+  .plan th[scope="row"] { min-width: 132px; max-width: 150px; padding-left: 16px; font-size: 13px; }
+  .plan tr.grp th { padding-left: 16px; }
+  .modal { padding: 20px; text-align: center; align-items: center; }
+  .modal .field { align-self: stretch; text-align: left; }
+  .modal footer { align-self: stretch; }
+  .modal footer .btn { flex: 1 1 0; }
+  /* tables collapse into stacked cards */
+  .tbl.stackable thead { display: none; }
+  .tbl.stackable, .tbl.stackable tbody { display: block; }
+  .tbl.stackable tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .tbl.stackable tr:last-child { border-bottom: 0; }
+  .tbl.stackable td { padding: 0; border: 0; text-align: left; min-width: 0; }
+  .tbl.stackable td[data-l]::before { content: attr(data-l) " "; color: var(--ink-3); font-family: var(--font); font-size: 11.5px; }
+  .tbl.stackable td.first { grid-column: 1; grid-row: 1; }
+  .tbl.stackable td.amt { grid-column: 2; grid-row: 1; text-align: right; }
+  .tbl.stackable td.wide { grid-column: 1 / -1; }
+  .tbl.stackable td.meta { font-size: 12px; color: var(--ink-3); }
+  .tbl.stackable td.hide-sm { display: none; }
+  .tbl.stackable td.amt-s { text-align: left; }
+  .tbl.stackable td.sm-row { display: block; grid-column: 1 / -1; }
+  .tbl.stackable tr.grp, .tbl.stackable tr.sumrow.grand { background: var(--surface-2); align-items: center; }
+  .tbl.stackable tr.sumrow.grand > td, .tbl.stackable tr.grp > td { background: none; }
+  .paylist tr.grp .note { display: block; margin: 2px 0 0; }
+  .dist td.amt input { width: 108px !important; }
+  .dist tr.sumrow td.amt { padding-right: 0 !important; }
+  .flash > td { animation: none; }
+  .tbl.stackable tr.flash { animation: wash 1400ms ease-out both; }
+}
+/* People who ask their device for less motion get none: no entrances, no exits, no growth. */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+

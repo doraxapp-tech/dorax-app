@@ -1,0 +1,55 @@
+/* ---------- motion ----------
+   Entrances run once per navigation, never on a plain re-render. Exits are shorter than entrances.
+   Bars and columns grow from their baseline; a value that changed ticks; a row that changed is washed with the accent for a moment. */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes drawer-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes drawer-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(20px); } }
+@keyframes sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes sheet-out { from { transform: none; } to { transform: translateY(100%); } }
+@keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes modal-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(.975); } }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes toast-out { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 6px); } }
+@keyframes toast-drop { from { opacity: 0; transform: translate(-50%, -14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes toast-lift { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -10px); } }
+@keyframes grow-x { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes grow-y { from { transform: scaleY(0); } to { transform: none; } }
+@keyframes wash { from { background-color: var(--ring); } to { background-color: transparent; } }
+@keyframes tick { from { opacity: .15; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+#view.enter > * { animation: rise var(--t3) var(--ease) both; }
+#view.enter > *:nth-child(2) { animation-delay: 40ms; }
+#view.enter > *:nth-child(3) { animation-delay: 80ms; }
+#view.enter > *:nth-child(4) { animation-delay: 120ms; }
+#view.enter > *:nth-child(5) { animation-delay: 160ms; }
+#view.enter > *:nth-child(n+6) { animation-delay: 200ms; }
+#view.enter .kpis > *, #view.enter .tiles > * { animation: rise var(--t3) var(--ease) both; }
+#view.enter .kpis > *:nth-child(2), #view.enter .tiles > *:nth-child(2) { animation-delay: 45ms; }
+#view.enter .kpis > *:nth-child(3), #view.enter .tiles > *:nth-child(3) { animation-delay: 90ms; }
+#view.enter .kpis > *:nth-child(4), #view.enter .tiles > *:nth-child(4) { animation-delay: 135ms; }
+#view.enter .kpis > *:nth-child(5) { animation-delay: 180ms; }
+#view.enter .kpis > *:nth-child(6) { animation-delay: 225ms; }
+#view.enter .meter > i, #view.enter .hbar .track i, #view.enter .stackbar > button { animation: grow-x 640ms var(--ease) 180ms both; }
+#view.enter .colbtn i { animation: grow-y 560ms var(--ease) both; animation-delay: calc(160ms + var(--i, 0) * 32ms); }
+#view.enter .colbtn .v { animation: fade-in var(--t2) ease-out 520ms both; }
+#topbar.enter h1 { animation: rise var(--t3) var(--ease) both; }
+#overlay.in .scrim { animation: fade-in var(--t2) ease-out both; }
+#overlay.in .drawer { animation: drawer-in 280ms var(--ease) both; }
+#overlay.in .sheet { animation: sheet-in 420ms var(--ease-ios) both; }
+#overlay.out { pointer-events: none; }
+#overlay.out .scrim { animation: fade-out 160ms var(--ease-in) both; }
+#overlay.out .drawer { animation: drawer-out 160ms var(--ease-in) both; }
+#overlay.out .sheet { animation: sheet-out 220ms var(--ease-in) both; }
+#modal-root.in .scrim { animation: fade-in var(--t1) ease-out both; }
+#modal-root.in .modal { animation: modal-in 240ms var(--ease) both; }
+#modal-root.out { pointer-events: none; }
+#modal-root.out .scrim { animation: fade-out 130ms var(--ease-in) both; }
+#modal-root.out .modal { animation: modal-out 130ms var(--ease-in) both; }
+#toast { animation: toast-in 260ms var(--ease) both; }
+#toast.out { animation: toast-out 160ms var(--ease-in) both; }
+#tip:not([hidden]) { animation: fade-in 120ms ease-out both; }
+.flash > td, .card.flash, .li.flash { animation: wash 1400ms ease-out both; }
+.tick { animation: tick 360ms var(--ease) both; }
+.banner { animation: fade-in var(--t2) ease-out both; }
+

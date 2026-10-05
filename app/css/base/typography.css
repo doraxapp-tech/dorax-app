@@ -1,0 +1,37 @@
+/* ================= v22 =================
+   Type follows Apple's: semibold (600) headings, regular (400) text, and Apple's size / line-height / tracking steps
+   (56px -.005em, 48px -.003em, 40px 0, 32px .004em, 28px .007em, 24px .009em, 21px .011em, 19px .012em, 17px -.022em, 14px -.016em, 12px -.01em).
+   The app keeps its compact 14px text for tables and grids; the home page reads at 17px and 21px. */
+.topbar h1 { font-size: 28px; font-weight: 600; letter-spacing: .007em; line-height: 1.14; }
+.card-h h2 { font-size: 17px; font-weight: 600; letter-spacing: -.022em; line-height: 1.24; }
+.drawer header h2, .modal h2 { font-weight: 600; letter-spacing: -.022em; }
+.hello h2, .pf-head h2 { font-size: 21px; font-weight: 600; letter-spacing: .011em; line-height: 1.19; }
+.auth-card h1 { font-size: 28px; font-weight: 600; letter-spacing: .007em; line-height: 1.14; }
+.kpi .value, .figure b { font-weight: 600; letter-spacing: .007em; }
+.tile .value, .acct .bal, .bal, .tally b { font-weight: 600; }
+.empty b { font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+.legal-page h1 { font-weight: 600; letter-spacing: 0; line-height: 1.1; }
+.legal-page h2, .legal-body h2 { font-weight: 600; letter-spacing: -.022em; }
+.contact-done h2 { font-size: 21px; letter-spacing: .011em; }
+@media (max-width: 920px) {
+  .topbar h1 { font-size: 32px; font-weight: 700; letter-spacing: .004em; line-height: 1.125; }
+  .bar-title { font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+}
+.lp h1 { font-size: clamp(38px, 7.2vw, 64px); font-weight: 600; letter-spacing: -.005em; line-height: 1.07; }
+.lp h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 600; letter-spacing: 0; line-height: 1.1; }
+.lp h3 { font-size: 19px; font-weight: 600; letter-spacing: .012em; line-height: 1.21; }
+.lead { font-size: 21px; line-height: 1.381; letter-spacing: .011em; }
+.lead.sm { font-size: 17px; line-height: 1.47; letter-spacing: -.022em; }
+@media (max-width: 640px) { .lead { font-size: 19px; line-height: 1.42; letter-spacing: .012em; } }
+.lp .btn.lg { min-height: 44px; padding: 11px 22px; font-size: 17px; font-weight: 400; letter-spacing: -.022em; }
+.lp-link { letter-spacing: -.016em; }
+.eyebrow { letter-spacing: -.01em; }
+.bento p, .lp-steps p, .lp-rules p { font-size: 14px; line-height: 1.43; letter-spacing: -.016em; }
+.lp-faq summary { font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+.lp-faq details p { font-size: 17px; line-height: 1.47; letter-spacing: -.022em; }
+.tier-h p { letter-spacing: -.022em; }
+.tier .price b { font-weight: 600; letter-spacing: .004em; }
+.tier li { font-size: 14px; line-height: 1.43; }
+.lp-note { font-size: 14px; line-height: 1.43; }
+@media (min-width: 1180px) { .lp-hero h1 { font-size: clamp(44px, 3.9vw, 56px); } .lp-hero .lp-copy .lead { max-width: 30em; } }
+

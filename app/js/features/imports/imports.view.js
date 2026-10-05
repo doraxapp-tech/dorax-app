@@ -1,0 +1,39 @@
+/* Dorax Finance — screen: Imports. */
+// ---------- Imports (household accounts) ----------
+function viewImports() {
+  const imp = UI.imp;
+  return `${sheetCard()}
+  <div class="grid g-3">
+    <section class="card acct"><div class="row">${icon('list')}<b style="font-weight:500">${t('CSV file')}</b></div><p class="note">${t('Any CSV statement from your bank. You say which columns are the date, the description and the amount; the app remembers it for that account.')}</p><div class="row"><label class="btn primary" for="imp-file-csv">${icon('upload')}${t('Choose a CSV')}</label><input type="file" id="imp-file-csv" accept=".csv,text/csv,text/plain" class="sr" data-c="imp-file" data-source="csv"></div></section>
+    <section class="card acct"><div class="row">${icon('swap')}<b style="font-weight:500">${t('OFX file')}</b></div><p class="note">${t('Uses the bank’s own transaction IDs to catch duplicates exactly.')}</p><div class="row"><label class="btn primary" for="imp-file-ofx">${icon('upload')}${t('Choose an OFX')}</label><input type="file" id="imp-file-ofx" accept=".ofx,.qfx,application/x-ofx" class="sr" data-c="imp-file" data-source="ofx"></div></section>
+    <section class="card acct"><div class="row">${icon('briefcase')}<b style="font-weight:500">${t('Statement to OFX')}</b></div><p class="note">${t('Turning a bank statement into an OFX file for an accounting platform has its own screen.')}</p><div><a class="btn" href="#converter">${t('Statement converter')}</a></div></section>
+  </div>
+  ${UI.impError ? banner('crit', esc(UI.impError)) : `<p class="note" style="margin:0 2px">${t('Files are read here in your browser and are not uploaded. Nothing enters your ledger until you have reviewed every row.')}</p>`}
+  ${imp ? importPanel(imp) : ''}
+  <section class="card"><div class="card-h"><h2>${t('Import history')}</h2>${hint('impHistory')}<span class="sub">${t('Every import and where its transactions went')}</span></div>
+    <div class="card-b flush"><table class="tbl stackable"><thead><tr><th>${t('Date')}</th><th>${t('File')}</th><th>${t('Account')}</th><th class="r">${t('Detected')}</th><th class="r">${t('Imported')}</th><th class="r">${t('Duplicates')}</th><th>${t('Status')}</th></tr></thead><tbody>
+    ${paged('imports', S.imports).rows.map(i => `<tr><td class="num meta hide-sm" style="white-space:nowrap">${fmt.date(i.date, true)}</td><td class="first"><div class="tx-main"><b>${esc(i.file)}</b><small>${esc(sourceLabel(i.source))}</small></div></td><td class="wide meta"><span class="muted">${esc(acct(i.accountId) ? acct(i.accountId).name : i.source === 'sheet' ? t('Plan, goals and investments') : '—')}</span><span class="sm-only muted"> · ${fmt.date(i.date, true)}</span></td>
+      <td class="amt hide-sm">${i.detected}</td><td class="amt" data-l="${t('Imported')}">${i.imported}</td><td class="amt wide" data-l="${t('Duplicates')}">${i.duplicates}</td><td class="wide"><span class="chip good"><i></i>${t('Completed')}</span></td></tr>`).join('') || `<tr><td colspan="7"><div class="empty"><b>${t('No imports yet')}</b>${t('Your first import will be listed here.')}</div></td></tr>`}
+    </tbody></table>${paged('imports', S.imports).html}</div></section>`;
+}
+function importPanel(imp) {
+  if (imp.step === 'map') {
+    const need = [['date', t('Date')], ['description', t('Description')], ['amount', t('Amount')]], prev = csvRows(imp), bad = `<span class="chip crit"><i></i>${t('Unreadable')}</span>`, unread = prev.filter(r => !r.date || r.amount === null).length;
+    return `<section class="card" id="imp-panel"><div class="card-h"><h2>${t('Map CSV columns')}</h2>${hint('convCols')}<span class="sub">${esc(imp.file)} · ${tn(imp.csv.rows.length, '{n} row', '{n} rows')}</span><button class="right btn sm ghost" data-a="imp-cancel">${t('Cancel')}</button></div><div class="card-b stack" style="gap:14px">
+      <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+        <div class="field"><label for="imp-acct">${t('Import into')}</label><select id="imp-acct" data-c="imp-account">${acctOptions(imp.accountId, null, personal())}</select></div>
+        ${need.map(([f, l]) => `<div class="field"><label for="map-${f}">${t('{name} column', { name: l })}</label><select id="map-${f}" data-c="imp-map" data-f="${f}">${options(imp.csv.header.map((h, i) => [i, h]), imp.map[f])}</select></div>`).join('')}</div>
+      ${sw('imp-invert', !!imp.invert, 'imp-invert', '', t('In this file, purchases are positive numbers (usual in credit card statements)'))}
+      ${unread ? banner('warn', `<b>${tn(unread, '{n} row cannot be read with these columns.', '{n} rows cannot be read with these columns.')}</b> ${unread === prev.length ? t('Check which column is the date and which is the amount.') : t('They are marked below and are left out if you continue. Title or total rows usually look like this.')}`) : ''}
+      <div class="tbl-wrap pv-box"><table class="tbl" id="imp-preview"><thead><tr><th>${t('Date')}</th><th>${t('Description')}</th><th class="r">${t('Amount')}</th><th>${t('Read as')}</th></tr></thead><tbody>${paged('imp-prev', prev).rows.map(r => `<tr><td class="num">${r.date ? fmt.date(r.date, true) : bad}</td><td>${esc(r.description)}</td><td class="amt">${r.amount === null ? bad : fmt.money(r.amount, acct(imp.accountId).currency, { sign: true })}</td><td class="muted">${r.amount === null ? '—' : r.amount < 0 ? t('Expense') : t('Income')}</td></tr>`).join('')}</tbody></table></div>${paged('imp-prev', prev).html ? `<div class="pv-pager">${paged('imp-prev', prev).html}</div>` : ''}
+      <div class="row">${sw('imp-remember', imp.remember, 'imp-remember', '', t('Remember this mapping for {name}', { name: acct(imp.accountId).name }))}<button class="btn primary spacer" data-a="imp-review" ${unread === prev.length ? 'disabled' : ''}>${unread ? tn(prev.length - unread, 'Continue with {n} row', 'Continue with {n} rows') : t('Continue to review')}</button></div></div></section>`;
+  }
+  if (imp.step === 'done') return banner('good', `<b>${t('{n} transactions imported into {name}.', { n: imp.result.imported, name: esc(acct(imp.accountId).name) })}</b> ${t('{a} duplicates skipped, {b} ignored.', { a: imp.result.duplicates, b: imp.result.ignored })} <a href="#transactions" data-a="view-account" data-id="${imp.accountId}">${t('View transactions')}</a>`, 'check');
+  const n = importable(imp).length, st = sessStats(imp);
+  return `<section class="card" id="imp-panel"><div class="card-h"><h2>${t('Review before importing')}</h2>${hint('impReview')}<span class="sub">${esc(imp.file)} → ${imp.source === 'ofx' ? `<label class="sr" for="imp-acct">${t('Import into')}</label><select id="imp-acct" class="inline-select" data-c="imp-account">${acctOptions(imp.accountId, null, personal())}</select>` : esc(acct(imp.accountId).name)}</span><button class="right btn sm ghost" data-a="imp-cancel">${t('Cancel')}</button></div>
+    ${imp.note ? `<div class="card-b" style="padding-bottom:0">${banner('warn', esc(imp.note))}</div>` : ''}
+    ${st.dups ? `<div class="card-b" style="padding-bottom:0">${banner('warn', `<b>${tn(st.dups, '{n} transaction may already exist in this account.', '{n} transactions may already exist in this account.')}</b> ${t('They are skipped unless you choose “Keep both”.')}`)}</div>` : ''}
+    <div class="card-b flush" style="padding-top:10px">${reviewTable(imp, 'imp')}</div>
+    <div class="toolbar" style="border-top:1px solid var(--line);border-bottom:0"><span class="note">${st.undecided ? t('{n} rows still need a decision. Nothing is imported until every row is accepted or ignored.', { n: st.undecided }) : t('Ready: {a} to import, {b} duplicates skipped, {c} ignored.', { a: n, b: st.accepted - n, c: st.ignored })}</span>
+      <button class="btn primary spacer" data-a="imp-commit" ${st.undecided || !n ? 'disabled' : ''}>${t('Import {n} transactions', { n })}</button></div></section>`;
+}

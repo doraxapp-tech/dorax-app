@@ -1,0 +1,35 @@
+/* ---------- v35: the light theme, for the app only (owner) ----------
+   The class is on the root only while the app is on screen (applyTheme in main.js); the home page, login, first-time setup and legal pages never have it,
+   so nothing here reaches them. Same roles as the dark theme; values chosen so every pair in contrast.js passes on these surfaces.
+   The green steps down where it carries meaning by itself: links and focus #00754A, switches, meters and icons #0F8F62 (the logo's green, deepened for white),
+   the chosen chart column #004D2E so it stands apart from the grey ones by lightness and not by hue alone.
+   Category colours: the same seven hues; amber and green stepped to reach 3:1 on white (validated: lightness band, chroma, colour-blind separation, contrast). */
+:root.app-light {
+  color-scheme: light;
+  --bg: #F6F6F6; --surface: #FFFFFF; --surface-2: #FAFAFA; --surface-3: #EFEFEF; --well: #F2F2F2; --lift: #FFFFFF; --badge: #EFEFEF; --pit: #F3F3F3;
+  --line: #E4E4E4; --line-strong: #D2D2D2; --graphite: #B4B4B4; --field: #8C8C8C;
+  --ink: #262626; --ink-strong: #121212; --ink-2: #525252; --ink-3: #666666;
+  --primary: #006239; --primary-hover: #00754A; --primary-ink: #FAFAFA; --primary-line: rgba(0, 98, 57, .5);
+  --btn: transparent; --btn-hover: rgba(0, 0, 0, .04); --btn-line: #D2D2D2; --soft-hover: #E0E0E0;
+  --select: #EAEAEA; --select-ink: #121212;
+  --brand: #0F8F62; --link: #00754A; --focus: #00754A; --ring: #00754A; --on-brand: #FFFFFF;
+  --brand-deep: #006239; --brand-edge: #B5E3CF;
+  --edge-strong: 0 0 0 1px var(--line);
+  --glass: rgba(255, 255, 255, .88); --glass-line: #E4E4E4;
+  --pos: #00754A; --neg: #C4302B;
+  --good: #0F8F62; --warn: #B87A00; --warn-ink: #8A5A00; --crit: #D92D20; --info: #6B6B6B;
+  --good-bg: rgba(15, 143, 98, .10); --warn-bg: rgba(184, 122, 0, .12); --crit-bg: rgba(217, 45, 32, .09); --info-bg: rgba(0, 0, 0, .05);
+  --track: #E2E2E2; --hover-line: #8C8C8C; --knob: #FFFFFF; --switch-off: #C4C4C4; --switch-on: #0F8F62;
+  --s1: #1FA390; --s2: #B87A00; --s3: #4A8FE8; --s4: #D95926; --s5: #9085E9; --s6: #D55181; --s7: #5F9A31;
+  --col: #004D2E; --col-muted: #949494; --grid: #EDEDED;
+  --cur: rgba(0, 0, 0, .04); --cur-sum: rgba(0, 0, 0, .07);
+  --scrim: rgba(0, 0, 0, .38);
+}
+/* amber as a small label needs a darker step than amber as a dot; the reminder count sits on the deep green so its number reads */
+.app-light .nav .count, .app-light .btn .count { color: var(--warn-ink); }
+.app-light .bell .count { background: var(--primary); color: var(--primary-ink); }
+.app-light .steps li.done b { color: var(--pos); }
+/* floating panels have no border to lean on against a light page: a soft shadow lifts them, as the scrim does in dark */
+.app-light .drawer, .app-light .modal, .app-light .sheet, .app-light #toast, .app-light #tip { box-shadow: 0 18px 44px -18px rgba(0, 0, 0, .28), 0 2px 6px rgba(0, 0, 0, .06); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { :root.app-light { --glass: #FFFFFF; } }
+

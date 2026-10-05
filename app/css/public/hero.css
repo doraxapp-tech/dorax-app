@@ -1,0 +1,30 @@
+/* v19: on wide screens the hero reads left to right: the words on the left, the product on the right. Below that it stacks as before. */
+@media (min-width: 1180px) {
+  .lp-hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); align-items: center; gap: clamp(32px, 4vw, 64px); padding-block: clamp(40px, 6vw, 84px) clamp(32px, 5vw, 64px); }
+  .lp-hero .lp-copy { align-items: flex-start; text-align: left; max-width: none; }
+  .lp-hero .lp-copy .row { justify-content: flex-start; }
+  .lp-hero .lp-copy .lead { max-width: 46ch; }
+  .lp-hero h1 { font-size: clamp(38px, 4.1vw, 54px); }
+  .lp-hero .lp-stage { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 16px; max-width: none; }
+  .lp-hero .lp-stage > div:nth-child(2) { grid-column: 1; grid-row: 1 / span 2; }
+  .lp-hero .lp-floats.left { grid-column: 2; grid-row: 1; align-self: end; align-items: stretch; }
+  .lp-hero .lp-floats.right { grid-column: 2; grid-row: 2; align-self: start; }
+  .lp-hero .lp-floats.left .lp-float:nth-child(2), .lp-hero .lp-floats.right .lp-float:nth-child(1) { margin: 0; }
+  .lp-hero .lp-float { width: 100%; }
+}
+
+/* v20: centred section headings (plans, your data, how it works, what changes), four steps, small centred notes */
+.lp-sec-h.center { justify-content: center; text-align: center; }
+.lp-sec-h.center .lp-sec-t { align-items: center; max-width: 68ch; }
+.lp-sec-h.center .lead { max-width: 62ch; }
+.lp-steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1100px) { .lp-steps.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .lp-steps.four { grid-template-columns: minmax(0, 1fr); } }
+.lp-note { margin-top: 18px; text-align: center; color: var(--ink-3); font-size: 13.5px; line-height: 1.5; }
+.lp-who li b { color: var(--ink-strong); }
+.ph-name { font-weight: 500; font-size: 14px; letter-spacing: -.01em; color: var(--ink-strong); }
+/* the hero headline is two full sentences now: a smaller size keeps it to four lines beside the picture, and readable when stacked */
+.lp h1 { font-size: clamp(34px, 5.4vw, 56px); line-height: 1.06; }
+.lp-copy { max-width: 900px; }
+@media (min-width: 1180px) { .lp-hero h1 { font-size: clamp(36px, 3.3vw, 46px); } .lp-hero .lp-copy .lead { max-width: 52ch; } }
+

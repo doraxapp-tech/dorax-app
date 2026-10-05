@@ -1,0 +1,67 @@
+/* ================= v25 (owner): depth on the home page, metallic headings, plan cards as glass =================
+   The app keeps its flat cards; this is the public page only. Depth comes from three things: a soft light behind the hero, the plans and the closing
+   panel; cards lit from above (a faint top-down sheen, a 1px highlight on the top edge, a shadow under); and section rules that fade at the ends. */
+.lp-hero, #lp-plans, .lp-cta { position: relative; }
+.lp-hero::before, #lp-plans::before { content: ""; position: absolute; z-index: -1; pointer-events: none; left: calc(50% - 50vw); right: calc(50% - 50vw); }
+.lp-hero::before { top: -72px; bottom: -40px; background:
+    radial-gradient(46% 58% at 72% 38%, rgba(62, 207, 142, .16), transparent 72%),
+    radial-gradient(38% 46% at 18% 8%, rgba(255, 255, 255, .06), transparent 70%); }
+/* (v37: the dotted grid that was here made way for the logo book's Weave; one pattern per surface) */
+#lp-plans::before { top: 0; bottom: 0; background: radial-gradient(42% 46% at 50% 58%, rgba(62, 207, 142, .09), transparent 74%); }
+.lp-sec + .lp-sec, .lp-two { border-top: 1px solid transparent; border-image: linear-gradient(90deg, transparent, var(--line) 18%, var(--line) 82%, transparent) 1; }
+/* cards lit from above */
+.bento article, .lp-rules article, .who-bento article, .vs-box.old, .lp-float, .lp-cta {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, .014) 42%, rgba(255, 255, 255, 0) 100%), var(--surface);
+  box-shadow: 0 0 0 1px var(--line), inset 0 1px 0 rgba(255, 255, 255, .08), 0 28px 48px -30px rgba(0, 0, 0, .95), 0 2px 6px rgba(0, 0, 0, .3); border-color: transparent; }
+.bento article:hover, .who-bento article:hover { box-shadow: 0 0 0 1px var(--line-strong), inset 0 1px 0 rgba(255, 255, 255, .1), 0 32px 56px -30px rgba(0, 0, 0, 1), 0 2px 6px rgba(0, 0, 0, .3); border-color: transparent; }
+.vs-box.new { box-shadow: 0 0 0 1px var(--brand), inset 0 1px 0 rgba(255, 255, 255, .1), 0 28px 60px -30px rgba(62, 207, 142, .35), 0 2px 6px rgba(0, 0, 0, .3);
+  background: linear-gradient(180deg, rgba(62, 207, 142, .16) 0%, rgba(62, 207, 142, .08) 100%), var(--surface); }
+.phone { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 48px 80px -36px rgba(0, 0, 0, 1), 0 0 110px -30px rgba(62, 207, 142, .3); }
+.lp-cta { background: radial-gradient(60% 90% at 50% 0%, rgba(62, 207, 142, .14), transparent 70%), linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 60%), var(--surface); }
+.fl-ico { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
+
+/* metallic headings: white at the top of each line running to steel at its foot. The colour underneath stays, so a browser without
+   text clipping, or a forced-colours mode, shows plain white (green for the second hero line). */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .lp h1, .lp h2 { background-image: linear-gradient(180deg, #FFFFFF 8%, #F4F4F4 44%, #9A9A9A 100%); background-repeat: repeat-y; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .lp h1 { background-size: 100% 1.07em; } .lp h2 { background-size: 100% 1.1em; }
+  .lp h1 .hl { background-image: linear-gradient(180deg, #B6F7DA 0%, #3ECF8E 48%, #1F9D66 100%); background-size: 100% 1.07em; background-repeat: repeat-y; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .tier .price b { background-image: linear-gradient(180deg, #FFFFFF 10%, #F4F4F4 46%, #9A9A9A 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+}
+@media (forced-colors: active) { .lp h1, .lp h2, .lp h1 .hl, .tier .price b { background: none; -webkit-text-fill-color: currentColor; } }
+
+/* plans: a billing switch, then three glass cards, each with its own light in the corner */
+.seg.bill { align-self: center; background: rgba(255, 255, 255, .04); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.seg.bill button { padding: 8px 18px; font-size: 14px; letter-spacing: -.016em; min-height: 20px; }
+.seg.bill button[aria-pressed="true"] { background: var(--surface-3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 1px 2px rgba(0, 0, 0, .5); }
+.lp-plans { gap: 20px; }
+.tier { --tint: 180, 180, 180; position: relative; isolation: isolate; overflow: hidden; gap: 0; padding: 28px 28px 30px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .018) 46%, rgba(255, 255, 255, .008) 100%), var(--surface);
+  box-shadow: 0 0 0 1px var(--line), inset 0 1px 0 rgba(255, 255, 255, .1), 0 36px 64px -34px rgba(0, 0, 0, 1), 0 2px 6px rgba(0, 0, 0, .3); }
+.tier.free { --tint: 190, 196, 204; } .tier.plus { --tint: 62, 207, 142; } .tier.premium { --tint: 74, 143, 232; }
+.tier.plus { box-shadow: 0 0 0 1px var(--brand-edge), inset 0 1px 0 rgba(255, 255, 255, .12), 0 36px 72px -34px rgba(62, 207, 142, .3), 0 2px 6px rgba(0, 0, 0, .3); }
+.tier-glow { position: absolute; z-index: -1; left: -90px; top: -110px; width: 320px; height: 300px; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--tint), .34), rgba(var(--tint), .1) 55%, transparent 100%); pointer-events: none; }
+.tier-orb { position: absolute; z-index: -1; right: 10px; top: 4px; width: 84px; height: 84px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .05); background: linear-gradient(90deg, rgba(255, 255, 255, .035) 50%, transparent 50%); pointer-events: none; }
+.tier-top { display: flex; align-items: center; justify-content: space-between; min-height: 28px; margin-bottom: 22px; }
+.gem { width: 20px; height: 20px; border-radius: 6px; background: linear-gradient(145deg, rgba(255, 255, 255, .95), rgba(var(--tint), 1) 46%, rgba(var(--tint), .72));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .28), inset 0 1px 0 rgba(255, 255, 255, .7), 0 0 22px 2px rgba(var(--tint), .55), 0 6px 14px rgba(0, 0, 0, .5); }
+.tier-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: var(--pill); background: rgba(18, 18, 18, .72); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-strong); }
+.tier-badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--brand); }
+.tier-h h3 { font-family: var(--font); font-size: 19px; font-weight: 600; letter-spacing: .012em; text-transform: none; color: var(--ink-strong); line-height: 1.21; }
+.tier .price { min-height: 0; display: block; padding: 0; border-bottom: 0; margin-top: 14px; }
+.tier .price .per { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; }
+.tier .price b { font-size: 44px; line-height: 1.1; }
+.tier .price .per > span { color: var(--ink-3); font-size: 17px; letter-spacing: -.022em; padding: 0; align-self: auto; }
+.tier .price small { margin-top: 2px; }
+.lp-plans[data-bill="month"] .per.y, .lp-plans[data-bill="year"] .per.m { display: none; }
+.tier-who { margin-top: 14px; color: var(--ink-2); font-size: 15px; line-height: 1.45; letter-spacing: -.016em; min-height: 2.9em; }
+.tier-f { margin-top: 22px; min-height: 44px; }
+.tier-f .btn { min-height: 44px; font-size: 15px; font-weight: 500; letter-spacing: -.016em; border-radius: 10px; }
+.btn.glass { background: linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .045)); border-color: rgba(255, 255, 255, .1); color: var(--ink-strong); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 1px 2px rgba(0, 0, 0, .4); }
+.btn.glass:hover:not(:disabled) { background: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .07)); border-color: rgba(255, 255, 255, .18); }
+.tier-f .btn.primary { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 10px 24px -10px rgba(62, 207, 142, .5); }
+.tier-sep { display: flex; align-items: center; gap: 12px; margin: 26px 0 18px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+.tier-sep::before, .tier-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.tier li svg { color: rgb(var(--tint)); }
+@media (max-width: 640px) { .tier { padding: 24px 22px 26px; } .tier .price b { font-size: 40px; } .tier-who { min-height: 0; } }
+

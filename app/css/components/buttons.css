@@ -1,0 +1,32 @@
+/* ---------- buttons: neutral. A soft grey fill by default, one light filled button per screen for the main action, never a coloured one ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 16px; border-radius: var(--pill); border: 1px solid var(--btn-line); background: var(--btn); color: var(--ink-strong); font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; min-height: 36px; -webkit-user-select: none; user-select: none; transition: background var(--t1) ease-out, border-color var(--t1) ease-out, color var(--t1) ease-out, transform var(--t1) ease-out, opacity var(--t1) ease-out; }
+.btn:hover:not(:disabled) { background: var(--btn-hover); border-color: var(--graphite); }
+.btn:active:not(:disabled) { transform: scale(.97); opacity: .82; }
+.btn:disabled { opacity: .38; cursor: not-allowed; }
+.btn.primary { background: var(--primary); color: var(--primary-ink); border-color: var(--primary-line); font-weight: 500; }
+.btn.primary:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--brand); }
+.btn.soft { background: var(--select); border-color: var(--line); }
+.btn.soft:hover:not(:disabled) { background: var(--soft-hover, #2B2B2B); border-color: var(--line-strong); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
+.btn.ghost:hover:not(:disabled) { background: var(--btn-hover); color: var(--ink-strong); border-color: transparent; }
+.btn.danger { color: var(--neg); }
+.btn.danger:not(.ghost) { border-color: color-mix(in srgb, var(--crit) 45%, transparent); background: var(--crit-bg); }
+.btn.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--crit) 13%, transparent); border-color: var(--crit); color: var(--neg); }
+.btn.sm { padding: 5px 11px; min-height: 30px; font-size: 12.5px; }
+.btn svg { width: 15px; height: 15px; }
+.iconbtn { all: unset; cursor: pointer; padding: 4px 6px; border-radius: var(--r); color: var(--ink-3); font-size: 12px; font-weight: 500; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
+.iconbtn:hover { background: var(--surface-3); color: var(--ink-strong); }
+.iconbtn:focus-visible { outline: 2px solid var(--focus); }
+.iconbtn svg { width: 14px; height: 14px; display: block; }
+.linkbtn { all: unset; cursor: pointer; color: var(--ink-strong); font-weight: 500; transition: color var(--t1) ease-out; }
+.linkbtn:hover { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+.linkbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+/* segmented control: a recessed track, the chosen segment raised like a key */
+.seg { display: inline-flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; border-radius: var(--pill); background: var(--bg); border: 1px solid var(--line); padding: 2px; gap: 2px; }
+.seg::-webkit-scrollbar { display: none; }
+.seg button { all: unset; cursor: pointer; padding: 5px 13px; border-radius: var(--pill); font-size: 12.5px; font-weight: 500; color: var(--ink-2); white-space: nowrap; transition: background var(--t2) var(--ease), color var(--t1) ease-out, box-shadow var(--t2) var(--ease); }
+.seg button:hover { color: var(--ink-strong); }
+.seg button[aria-pressed="true"] { background: var(--select); color: var(--ink-strong); }
+.seg button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+

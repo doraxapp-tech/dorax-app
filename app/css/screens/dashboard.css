@@ -1,0 +1,26 @@
+/* v15: the dashboard. What needs doing first (with its action), then the month's figures, then the charts. */
+.card-h { row-gap: 4px; } .card-h .sub { flex: 0 1 auto; min-width: 0; }
+.li.todo { gap: 12px; padding: 10px 0; } .li.todo:first-child { padding-top: 2px; }
+.li.todo .when { width: 62px; display: flex; align-items: center; } .li.todo .when svg { width: 15px; height: 15px; color: var(--ink-3); } .li.todo .when .chip { font-size: 10px; padding: 0 7px; }
+.li.todo .grow { display: flex; flex-direction: column; gap: 1px; } .li.todo b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.li.todo small { color: var(--ink-3); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.li.todo .btn { flex: none; }
+.figure { display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px; margin-bottom: 2px; border-bottom: 1px solid var(--line); }
+.figure b { font-family: var(--fig); font-size: 26px; font-weight: 400; line-height: 1.2; color: var(--ink-strong); }
+.figure span { color: var(--ink-3); font-size: 12.5px; }
+.figure + .budget { padding-top: 13px; } .figure + .cols { margin-top: 28px; height: 170px; } .figure + .empty { padding-top: 22px; }
+.budget.funds .meta { justify-content: flex-start; }
+.meter.split { display: flex; gap: 2px; background: none; } .meter.split > i { border-radius: 99px 0 0 99px; min-width: 0; } .meter.split > em { display: block; height: 100%; min-width: 4px; border-radius: 0 99px 99px 0; background: var(--crit); }
+.over-list { list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.over-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: baseline; } .over-list li > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.banner.back { align-items: center; } .banner.back svg { color: var(--ink-3); margin-top: 0; }
+@media (max-width: 1280px) { .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 920px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .kpi .value { font-size: 22px; } .grid.g-even { grid-template-columns: minmax(0, 1fr); } }
+.li.todo .act svg:not(:only-child) { display: none; }   /* wide screens: words; the icon is for phones, except where it was already there */
+.li.todo .act[data-a="line-pay-now"] svg { display: block; }
+@media (max-width: 1100px) { .li.todo .act { width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding: 0; } .li.todo .act svg { display: block !important; width: 16px; height: 16px; } .li.todo .act .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+@media (max-width: 640px) { .li.todo .act { width: 44px; min-width: 44px; height: 44px; min-height: 44px; } .li.todo .act svg { width: 17px; height: 17px; } .li.todo.nod { display: none; } .li.todo .when { width: 52px; } }
+@media (max-width: 420px) { .over-list li { grid-template-columns: minmax(0, 1fr) auto; } .over-list li > span:nth-child(2) { display: none; } }
+#fii-card > .card-b { flex-direction: column; } #fii-card .cols { flex: 1; min-height: 150px; }
+@media (max-width: 640px) { #todo .card-h .right { display: none; } }
+

@@ -1,0 +1,24 @@
+/* ---------- v38 (owner: "remove the card design, change it for something different, the landing page is full of cards"):
+   "How it works" is a path, so it is drawn as one: four numbered points on a line, the words under each point, no boxes.
+   Wide screens: the line runs across. Narrow screens: the line runs down the left and the words sit beside it. */
+.lp-steps.st-path { gap: 0; margin-top: 12px; }
+.lp-steps.st-path li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 0 18px; border-radius: 0; background: none; box-shadow: none; text-align: center; }
+.lp-steps.st-path .st-node { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--bg); color: var(--brand); font-size: 13px; letter-spacing: .06em;
+  box-shadow: 0 0 0 1px rgba(62, 207, 142, .5), 0 0 0 6px rgba(62, 207, 142, .07), 0 0 28px -4px rgba(62, 207, 142, .45); }
+.lp-steps.st-path .st-txt { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.lp-steps.st-path h3 { margin: 0; text-wrap: balance; } .lp-steps.st-path p { margin: 0 auto; max-width: 30ch; text-wrap: pretty; }
+/* the piece of line from this point to the next one */
+.lp-steps.st-path li:not(:last-child)::after { content: ''; position: absolute; top: 22px; left: calc(50% + 34px); width: calc(100% - 68px); height: 1px; background: linear-gradient(90deg, rgba(62, 207, 142, .7), rgba(62, 207, 142, .3)); transform-origin: left center; }
+#public.reveal .lp-steps.st-path li:not(.seen)::after { transform: scaleX(0); }
+.lp-steps.st-path li.seen:not(.still) { transition-delay: calc(var(--i) * 130ms); }
+.lp-steps.st-path li.seen:not(.still)::after { transition: transform 760ms var(--ease) calc(260ms + var(--i) * 130ms); }
+@media (max-width: 1100px) { .lp-steps.four.st-path { grid-template-columns: repeat(4, minmax(0, 1fr)); } .lp-steps.st-path li { padding: 0 10px; } }
+@media (max-width: 900px) {
+  .lp-steps.four.st-path { grid-template-columns: minmax(0, 1fr); max-width: 520px; margin-inline: auto; }
+  .lp-steps.st-path li { flex-direction: row; align-items: flex-start; gap: 18px; padding: 0 0 30px; text-align: left; }
+  .lp-steps.st-path li:last-child { padding-bottom: 0; }
+  .lp-steps.st-path .st-txt { padding-top: 9px; } .lp-steps.st-path p { margin: 0; max-width: none; }
+  .lp-steps.st-path li:not(:last-child)::after { top: 56px; bottom: 12px; left: 22px; width: 1px; height: auto; background: linear-gradient(180deg, rgba(62, 207, 142, .6), rgba(62, 207, 142, .22)); transform-origin: center top; }
+  #public.reveal .lp-steps.st-path li:not(.seen)::after { transform: scaleY(0); }
+}
+
