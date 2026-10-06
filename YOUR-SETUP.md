@@ -90,9 +90,23 @@ The app side is in the folder. On the server, checked on the live project on 202
 
 Then send the form once on dorax.app. You answer by replying to the email. Details: `DEPLOY.md`, "The contact form tells you".
 
-### 4. GitHub (15 minutes, once)
+### 3f. Open Finance: connecting a bank, a trial with Belvo's test banks (built 2026-10-06)
 
-The folder is ready for it (`.gitignore`, `.gitattributes`, no keys inside). Steps and the commands: `DEPLOY.md`, step 4. In short: a private repository named `dorax-app` on github.com, six commands in the terminal, then Vercel > dorax-finance > Settings > Git > connect it. After that a `git push` deploys the site; until then it is still `npx vercel@latest deploy --prod`.
+1. Supabase > SQL Editor: run `supabase/schema.sql` again (adds the table `bank_links`).
+2. Supabase > Edge Functions > Secrets: `BELVO_SECRET_ID`, `BELVO_SECRET_PASSWORD` (the **sandbox** keys from Belvo's dashboard). `BANK_TRIAL_USERS` is no longer used and can be deleted.
+3. Terminal, in the folder: `npx supabase@latest functions deploy bank --project-ref uhvfkyblfojcpqupmlbg`.
+4. Deploy the site, then on dorax.app: **Open Finance** (in the menu, after Imports) > **Connect a bank**.
+
+Every account sees the page. It has never been run against Belvo itself, so tell Claude what the first try does. What must be settled before real banks: `DEPLOY.md`, "Connecting a bank through Open Finance".
+
+### 4. GitHub: done on 2026-10-05, one click left
+
+The code is at `https://github.com/doraxapp-tech/dorax-app`, branch `main`. Two things to remember about this computer:
+
+- It has a saved GitHub login for another account (dev-based). This repository's address carries the name `doraxapp-tech@` so git uses the right one.
+- From now on the folder has a history. After a set of changes (yours or the ones Claude saves into the folder): `git add .`, `git commit -m "what changed"`, `git push`.
+
+**Left:** Vercel > dorax-finance > Settings > Git > **Connect Git Repository** > `doraxapp-tech/dorax-app` (Vercel will ask to be allowed to see that GitHub account). After that a push to `main` deploys the site, and `npx vercel@latest deploy --prod` is no longer needed. If a deployment ever shows as "Blocked", it is usually because the commit was made under a GitHub account Vercel does not know: tell Claude what the message says.
 
 ## To know
 

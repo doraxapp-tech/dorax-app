@@ -9,6 +9,7 @@
     "build": "node tools/build.js",
     "emails": "node tools/build-emails.js",
     "functions": "node tools/build-functions.js",
+    "banks": "node tools/build-banks.js",
     "test": "node tools/build.js && node tests/run-all.js"
   },
   "devDependencies": {

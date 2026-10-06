@@ -152,6 +152,45 @@ To switch it on:
 
 What it does when things go wrong: the message is always saved first, and nothing about the email can make the form fail. If the email could not be sent, or 20 contact emails already went out that day (the form is open to anyone, and the email allowance is shared with the sign-up emails), the message waits and the morning run sends one summary. Without `CONTACT_TO` nothing is sent.
 
+### Connecting a bank through Open Finance (a TRIAL, built 2026-10-06)
+
+Decided by the owner on 2026-10-06: connecting a bank is **an option beside importing files**, not a replacement. What exists is a trial against **Belvo's sandbox** (test banks, invented data). Since the same day it has **its own page in the menu, Open Finance, for every account** (owner: "add an open finance tab and make it visible for all users"); the list of named accounts it started with is gone. The page is marked "Trial: test banks only", and the public pages still say Dorax does not connect to a bank, which stays true while only test banks can be reached.
+
+**What happens.** On the Open Finance page (in the menu right after Imports; on a phone, under More), "Connect a bank" asks for the CPF and full name the bank's consent needs. The person is sent to Belvo's page and from there to the bank, where they agree to share accounts and transactions. Back in Dorax, on the same page, "Bring transactions" lists the bank's accounts; each one opens, under the bank, in the same review table a statement file goes through. Nothing enters the ledger without that review, and the bank's own transaction ids catch what was already imported.
+
+| Piece | Where |
+| --- | --- |
+| The page (`viewOpenFinance`), the panel, the way back | `app/js/features/imports/bank.view.js`, `bank.actions.js`; the menu entry is in `app/js/app/shell.js` |
+| The server | `supabase/functions/bank/` (`index.ts`, `rules.mjs`) |
+| Which connections a person made | table `bank_links` (`supabase/schema.sql`, section 6) |
+
+**What is kept, and what is not.** Kept: Belvo's id of the connection, the bank's name, whose it is. **Not kept anywhere by Dorax: the CPF and the name** (they go to Belvo for the consent and are forgotten), account numbers, and the transactions themselves until the person accepts them in the review. Belvo's keys never reach the browser.
+
+**To switch the trial on.**
+
+1. Run `supabase/schema.sql` again in the SQL Editor (adds the table `bank_links`).
+2. Supabase > Edge Functions > Secrets, two values. Not in a file, not in a chat:
+   - `BELVO_SECRET_ID` and `BELVO_SECRET_PASSWORD`: the **sandbox** keys from Belvo's dashboard.
+   - `BANK_TRIAL_USERS` is no longer read. If it is there, it can be deleted.
+3. `npx supabase@latest functions deploy bank --project-ref uhvfkyblfojcpqupmlbg`
+4. Deploy the site (`git push`, or `npx vercel@latest deploy --prod`).
+5. On dorax.app: Open Finance > Connect a bank. In Belvo's page choose the test bank; its test users are in Belvo's documentation for the sandbox.
+
+**What has NOT been tried.** The function was built from Belvo's documentation and tested against a stand-in, never against Belvo itself. The first real try may show a difference (a field Belvo wants, an address it must be told about beforehand, the exact way it sends the person back). The function's log in Supabase says which request Belvo refused and with which code; it never holds a CPF, a name or a transaction.
+
+Without the two keys the page is still in the menu and says "Not available here yet".
+
+**Before other people use Dorax.** The page is open to everybody because the owner is the only user so far. A stranger who opens it would be asked for a real CPF to reach banks that are only pretend ones: before inviting people, either real banks are settled (the list below) or the page is taken out of the menu again (one line, `ROUTES` in `app/js/app/shell.js`).
+
+**Before real banks and real people.** This is a list of decisions, not a switch:
+
+- Belvo's price per connected account, and what their production approval asks for.
+- The privacy policy and terms: the CPF, Belvo as a processor, the consent and how to withdraw it (Belvo's "My Belvo Portal"), reviewed by the lawyer.
+- The home page: "Does Dorax connect to my bank? No." becomes "only if you choose to".
+- Deleting an account must also delete the person's connections at Belvo (today it removes only Dorax's own rows).
+- The function refuses every address but the sandbox on purpose. Real banks mean changing that line, with the points above settled.
+- Not built: keeping connections fresh by themselves (Belvo's notifications), consent renewal, investments and loans.
+
 ## 3. Google login
 
 In **Google Cloud Console > Google Auth Platform**:
@@ -279,3 +318,4 @@ Flagged so nothing here is mistaken for done:
 | Google **client secret** | Supabase dashboard only | Others can pose as your app to Google. Reset it in Google Cloud |
 | Resend **API key** | Supabase only: the SMTP password field, and Edge Functions > Secrets as `RESEND_API_KEY` | Others can send email as `mail.dorax.app`. Delete the key in Resend and make a new one |
 | Push signing key, schedule secret | Made by the server, kept in the table `reminder_secrets`. Never copy them anywhere | Others could send notifications in the app's name, or start a run. Delete the two rows; the function makes a new signing key (people switch notifications on again) and `schema.sql` a new secret |
+| Belvo **Secret ID and password** | Supabase only: Edge Functions > Secrets (`BELVO_SECRET_ID`, `BELVO_SECRET_PASSWORD`) | Others can read what connected people shared. Revoke the keys in Belvo's dashboard and make new ones |

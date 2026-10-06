@@ -6,7 +6,7 @@
 // For logging in against a real Supabase project from here, add http://localhost:5173/** to its Redirect URLs (DEPLOY.md, step 2).
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..'), DIR = path.join(ROOT, 'app'), PORT = +process.env.PORT || 5173, PREVIEW = process.argv.includes('--preview');
-const TYPES = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', svg: 'image/svg+xml', png: 'image/png', webmanifest: 'application/manifest+json' };
+const TYPES = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg', webmanifest: 'application/manifest+json' };
 /** The headers vercel.json gives a path (its "source" patterns are regular expressions on the whole path). */
 function headersFor(url) {
   const out = {}; let rules = []; try { rules = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).headers || []; } catch (e) { /* no file: no extra headers */ }
@@ -25,5 +25,6 @@ function createServer(opts) {
     res.writeHead(200, { ...head, 'Content-Type': TYPES[file.split('.').pop()] || 'application/octet-stream' }); fs.createReadStream(file).pipe(res);
   });
 }
+if (require.main === module) { try { require('./build-banks.js').write({ quiet: true }); } catch (e) { console.warn('banks: the list of logos could not be written: ' + e.message); } }
 if (require.main === module) createServer({ preview: PREVIEW }).listen(PORT, '127.0.0.1', () => console.log(`Dorax Finance${PREVIEW ? ' (preview: stand-in server, nothing leaves this browser)' : ''}: http://localhost:${PORT}`));
 module.exports = { createServer, headersFor };

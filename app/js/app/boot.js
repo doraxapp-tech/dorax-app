@@ -22,6 +22,7 @@ UI.pub = freshPub();
     const mine = SERVER.arrived.recovery && SERVER.arrived.owner === r.session.user.id;
     if (mine) return startRecovery();
     await openAccount();
+    bankArrival();                                   // back from the bank's consent page (the trial of connecting a bank)
     pushArrival();                                   // a notification was tapped while the app was closed: open the reminders
     if (SERVER.arrived.recovery && UI.session) toast(serverSays('otp_expired')); else if (SERVER.arrived.halfway && UI.session) toast(halfway);
     return;

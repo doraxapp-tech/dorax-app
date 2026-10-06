@@ -165,9 +165,44 @@
     delete db.users[me]; delete db.rows[me]; db.contact = db.contact.filter(m => m.user_id !== me); keep(db); return { data: null, error: null };
   });
 
+  // the bank function (the trial of connecting a bank): no Belvo and no bank here, so it answers what a server without Belvo's keys answers,
+  // and the Open Finance page says there is nothing to connect to. A test switches a pretend bank on (option bankTrial).
+  // "start" answers with this very page's address as if the person had already agreed at their bank, so the way back can be tried.
+  const BANK_TXNS = [['2026-09-28', -18990, 'SUPERMERCADO PAO DE ACUCAR'], ['2026-09-27', -4250, 'UBER *TRIP'], ['2026-09-25', 650000, 'PIX RECEBIDO SALARIO'], ['2026-09-20', -12900, 'FARMACIA DROGASIL'], ['2026-09-18', -180000, 'ALUGUEL IMOBILIARIA']];
+  function bankStandIn(body, db, me) {
+    const say = d => ({ data: d, error: null }), u = me && db.users[me];
+    if (!u) return { data: null, error: { message: 'not logged in', status: 401 } };
+    if (!OPT.bankTrial) return say({ ok: false, code: 'not_set_up', enabled: false });
+    db.bank = db.bank || []; db.bankPending = db.bankPending || {};
+    const mine = db.bank.filter(l => l.user_id === me), own = id => mine.find(l => l.id === id);
+    if (body.action === 'status') return say({ ok: true, enabled: true, sandbox: true, links: mine.map(l => ({ id: l.id, institution: l.institution, since: l.since })) });
+    if (body.action === 'start') {
+      if (String(body.cpf || '').replace(/\D/g, '').length !== 11 || /^(\d)\1{10}$/.test(String(body.cpf).replace(/\D/g, ''))) return say({ ok: false, code: 'bad_cpf' });
+      if (!/\S\s+\S/.test(String(body.name || ''))) return say({ ok: false, code: 'bad_name' });
+      const hex = n => Array.from({ length: n }, () => Math.floor(Math.random() * 16).toString(16)).join(''), link = `${hex(8)}-${hex(4)}-4${hex(3)}-a${hex(3)}-${hex(12)}`;
+      db.bankPending[link] = me; (db.bankAsked = db.bankAsked || []).push({ user_id: me, keptCpf: false }); keep(db);
+      return say({ ok: true, url: location.href.split(/[?#]/)[0] + '?bank=' + (OPT.bankOutcome || 'done') + '&link=' + link + '&institution=ofmockbank_br_retail' });
+    }
+    if (body.action === 'finish') {
+      if (db.bankPending[body.link] !== me) return say({ ok: false, code: 'not_yours' });
+      delete db.bankPending[body.link]; db.bank.push({ user_id: me, id: body.link, institution: 'Mock Bank', since: new Date().toISOString() }); keep(db);
+      return say({ ok: true, link: { id: body.link, institution: 'Mock Bank' } });
+    }
+    if (body.action === 'fetch') {
+      if (!own(body.link)) return say({ ok: false, code: 'no_link' });
+      if (OPT.bankEmpty) return say({ ok: true, institution: 'Mock Bank', accounts: [{ id: 'acc-1', name: 'Conta corrente', kind: 'checking', currency: 'BRL', institution: 'Mock Bank', balance: 123456 }], transactions: [], left: 0, more: false });
+      return say({ ok: true, institution: 'Mock Bank', left: 1, more: false,
+        accounts: [{ id: 'acc-1', name: 'Conta corrente', kind: 'checking', currency: 'BRL', institution: 'Mock Bank', balance: 123456 }, { id: 'acc-2', name: 'Cartão', kind: 'credit', currency: 'BRL', institution: 'Mock Bank', balance: -45000 }],
+        transactions: BANK_TXNS.map(([date, amount, description], i) => ({ id: 'tx-' + i, account: 'acc-1', date, amount, description })).concat([{ id: 'tx-c1', account: 'acc-2', date: '2026-09-26', amount: -8990, description: 'NETFLIX.COM' }]) });
+    }
+    if (body.action === 'disconnect') { db.bank = db.bank.filter(l => !(l.user_id === me && l.id === body.link)); keep(db); return say({ ok: true, removed: 1 }); }
+    return say({ ok: false, code: 'unknown_action' });
+  }
+
   // the reminders function: a key for the browser, and a test that "arrives" when the person has a device (push) or always (email)
   const functions = { invoke: (name, opt) => answer(() => {
     const body = (opt && opt.body) || {}, db = load(), me = store.get(SESSION_KEY);
+    if (name === 'bank') return bankStandIn(body, db, me);
     if (name !== 'reminders') return { data: null, error: { message: 'function not found', status: 404 } };
     if (body.action === 'key') return { data: { ok: true, publicKey: 'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8' }, error: null };
     if (body.action === 'test') { if (!me) return { data: { ok: false, code: 'not_logged_in' }, error: null };

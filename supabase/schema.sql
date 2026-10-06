@@ -11,6 +11,8 @@
 --                           already sent to whom (reminder_log), and the server's own secrets (reminder_secrets). The job itself is
 --                           the Edge Function in supabase/functions/reminders; its daily schedule is in supabase/reminders-schedule.sql.
 --   5. the contact notice   when a contact message is written, the database asks that same function to email it to the owner.
+--   6. bank_links            (a trial) which bank connections a person made through Open Finance. Only the function "bank" reads and
+--                           writes it; the connection itself, and the consent, live at Belvo.
 --
 -- What protects the data: ROW-LEVEL SECURITY. The app's public key lets a browser talk to the database, and these rules decide what
 -- it may do: a logged-in person reads and writes their own row of user_data and nothing else. Without the rules below, the tables
@@ -257,3 +259,22 @@ revoke all on function public.contact_messages_notify() from public, anon, authe
 drop trigger if exists contact_messages_notify on public.contact_messages;
 create trigger contact_messages_notify after insert on public.contact_messages
   for each row execute function public.contact_messages_notify();
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- 6. bank connections (Open Finance through Belvo): a trial
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- One row per bank a person connected. What is kept is only which connection it is (Belvo's id for it) and the bank's name, so the app
+-- can list it and ask for its data again. NOT kept: the CPF, the name given for the consent, any account number, any transaction.
+-- The app never touches this table: everything goes through the Edge Function in supabase/functions/bank, which checks with Belvo that
+-- a connection is the caller's own before writing it here. Deleting a person deletes their rows; the connection at Belvo is deleted by
+-- the function when the person disconnects a bank (delete_my_account does not do it yet: see DEPLOY.md before real people use this).
+create table if not exists public.bank_links (
+  link_id     uuid        primary key,
+  user_id     uuid        not null references auth.users (id) on delete cascade,
+  institution text        not null default '' check (char_length(institution) <= 80),
+  created_at  timestamptz not null default now()
+);
+comment on table public.bank_links is 'Dorax Finance (trial): bank connections made through Belvo. Only the function "bank" reads and writes it.';
+create index if not exists bank_links_user on public.bank_links (user_id);
+alter table public.bank_links enable row level security;        -- and no policy: closed to the app
+revoke all on public.bank_links from anon, authenticated;

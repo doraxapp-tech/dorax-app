@@ -293,7 +293,7 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
   { const { browser, page } = await open({ lang: 'pt', plan: true, account: 'example', viewport: { width: 1440, height: 900 }, motion: 'no-preference' });
     eq(await page.evaluate(() => { const n = document.querySelector('#nav'), kids = [...n.children], r = n.querySelector('.nav-rule'), cs = getComputedStyle(r);
       return [document.querySelectorAll('.nav-group').length, kids.map(e => e.tagName[0]).join(''), r.getAttribute('role'), cs.height, cs.backgroundColor, n.innerText.includes('CASA') || n.innerText.includes('DADOS')]; }),
-      [0, 'AAAAAAADAAAAA', 'separator', '1px', 'rgb(26, 26, 26)', false], 'menu: seven links, one hairline in the border colour, five links; no group names');
+      [0, 'AAAAAAADAAAAAA', 'separator', '1px', 'rgb(26, 26, 26)', false], 'menu: seven links, one hairline in the border colour, six links (Open Finance among them); no group names');
     const moves = {};
     for (const id of ['dashboard', 'transactions', 'plan', 'goals', 'investments', 'reports', 'accounts', 'imports', 'converter', 'recurring', 'categories', 'settings']) {
       const sel = `.rail .nav a[href="#${id}"]`, read = () => page.evaluate(sel => { const cs = getComputedStyle(document.querySelector(sel + ' svg')); return [cs.animationName, cs.animationIterationCount, cs.transform]; }, sel);

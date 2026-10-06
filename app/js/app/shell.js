@@ -2,11 +2,11 @@
 const ROUTES = [
   ['dashboard', 'grid', viewDashboard], ['transactions', 'list', viewTransactions], ['plan', 'calendar', viewPlan], ['goals', 'flag', viewGoals],
   ['investments', 'trend', viewInvestments], ['reports', 'chart', viewReports], ['accounts', 'wallet', viewAccounts],
-  ['imports', 'upload', viewImports], ['converter', 'swap', viewConverter], ['recurring', 'repeat', viewRecurring], ['categories', 'tag', viewCategories], ['settings', 'gear', viewSettings],
+  ['imports', 'upload', viewImports], ['openfinance', 'bank', viewOpenFinance], ['converter', 'swap', viewConverter], ['recurring', 'repeat', viewRecurring], ['categories', 'tag', viewCategories], ['settings', 'gear', viewSettings],
   ['profile', 'user', viewProfile],
 ];
 const routeLabel = id => ({ dashboard: t('Dashboard'), transactions: t('Transactions'), plan: t('Plan'), goals: t('Savings & goals'), investments: t('Investments'), reports: t('Reports'), accounts: t('Accounts'),
-  converter: t('Statement converter'), imports: t('Imports'), recurring: t('Recurring'), categories: t('Categories & rules'), settings: t('Settings'), profile: t('Profile') }[id]);
+  converter: t('Statement converter'), imports: t('Imports'), openfinance: t('Open Finance'), recurring: t('Recurring'), categories: t('Categories & rules'), settings: t('Settings'), profile: t('Profile') }[id]);
 const MONTH_ROUTES = ['dashboard', 'plan', 'goals', 'reports'];
 // v31 (owner: the converter is one person's tool, not everyone's): the fourth place on a phone goes to what every user has, savings and goals. The converter is in More, with the file tools.
 const TABS = ['dashboard', 'transactions', 'plan', 'goals'];
@@ -36,7 +36,7 @@ function renderShell() {
   document.documentElement.lang = S.settings.lang;
   // two groups, the household's screens and the tools for bringing data in, with a faint line between them and no names over them
   // (owner, 2026-10-05: "remove the sidebar section names and add a line to divide them")
-  $('nav').innerHTML = navLinks(ROUTES.slice(0, 7)) + '<div class="nav-rule" role="separator"></div>' + navLinks(ROUTES.slice(7, 12));
+  $('nav').innerHTML = navLinks(ROUTES.slice(0, 7)) + '<div class="nav-rule" role="separator"></div>' + navLinks(ROUTES.slice(7, 13));
   $('rail-foot').innerHTML = userCard();
   const tabs = TABS.map(id => ROUTES.find(r => r[0] === id)), inMore = !TABS.includes(UI.route);
   $('tabbar').innerHTML = tabs.map(([id, ic]) => `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}${tabLabel(id)}</a>`).join('') + `<button data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog">${icon('more')}${t('More')}</button>`;

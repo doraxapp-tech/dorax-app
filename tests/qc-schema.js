@@ -116,6 +116,15 @@ try {
   eq(psql(`select proname, prosecdef, proconfig::text from pg_proc where proname in ('save_push_subscription', 'remove_push_subscription') order by 1;`).stdout.trim().split('\n'), ['remove_push_subscription|t|{"search_path=\\"\\""}', 'save_push_subscription|t|{"search_path=\\"\\""}'], 'both device functions run with a fixed search path');
   psql(`insert into public.reminder_log (user_id, key) values ('${A}', 'bill:x:2026-10|soon'), ('${B}', 'bill:x:2026-10|soon');`);
 
+  // ----- bank connections (the trial): a table only the server's function touches
+  eq(psql(`select relrowsecurity from pg_class where relname = 'bank_links';`).stdout.trim(), 't', 'row-level security is on for bank_links');
+  for (const [role, uid] of [['anon', ''], ['authenticated', A]]) {
+    ok(/permission denied/.test(as(role, uid, `select count(*) from public.bank_links;`).error || ''), `bank_links cannot be read by ${role === 'anon' ? 'visitors' : 'logged-in people'}`);
+    ok(/permission denied/.test(as(role, uid, `insert into public.bank_links (link_id, user_id) values (gen_random_uuid(), '${A}');`).error || ''), `nor written by ${role === 'anon' ? 'them' : 'them: a connection is only added by the function, after Belvo confirms whose it is'}`);
+  }
+  psql(`insert into public.bank_links (link_id, user_id, institution) values ('33333333-3333-4333-8333-333333333333', '${A}', 'Bank A'), ('44444444-4444-4444-8444-444444444444', '${B}', 'Bank B');`);
+  eq(psql(`select string_agg(column_name, ',' order by column_name) from information_schema.columns where table_schema = 'public' and table_name = 'bank_links';`).stdout.trim(), 'created_at,institution,link_id,user_id', 'it keeps which connection, which bank, whose and when: no CPF, no name, no account');
+
   // ----- the contact notice: a new message makes the database ask the reminders function to email the owner
   psql(`delete from net.asked;`);
   eq(as('anon', '', `insert into public.contact_messages (email, topic, message, lang) values ('n@example.org', 'question', 'Does the notice go out for this one?', 'en');`), { rows: [] }, 'a visitor writes a contact message');
@@ -136,6 +145,7 @@ try {
   eq(as('authenticated', A, `select public.delete_my_account();`).error, undefined, 'a logged-in person deletes their account');
   eq(psql(`select (select count(*) from auth.users where id = '${A}'), (select count(*) from public.user_data where user_id = '${A}'), (select count(*) from auth.users), (select count(*) from public.user_data), (select count(*) from public.contact_messages where email = 'a@example.org'), (select count(*) from public.contact_messages where email = 'v@example.org');`).stdout.trim(), '0|0|1|1|0|1', 'the person, their row and the message they sent are gone; the other person and the visitor’s message are untouched');
   eq(psql(`select (select count(*) from public.push_subscriptions where user_id = '${A}'), (select count(*) from public.reminder_log where user_id = '${A}'), (select count(*) from public.push_subscriptions where user_id = '${B}'), (select count(*) from public.reminder_log where user_id = '${B}');`).stdout.trim(), '0|0|1|1', 'their devices and what was sent to them go with the account; the other person keeps theirs');
+  eq(psql(`select (select count(*) from public.bank_links where user_id = '${A}'), (select count(*) from public.bank_links where user_id = '${B}');`).stdout.trim(), '0|1', 'so do their bank connections');
   eq(psql(`select prosecdef, proconfig::text from pg_proc where proname = 'delete_my_account';`).stdout.trim(), 't|{"search_path=\\"\\""}', 'the function runs with its owner’s rights and a fixed search path');
 
   // ----- the cap on the open form: 30 messages an hour in all
@@ -151,7 +161,7 @@ try {
   const server = fs.readFileSync(path.join(__dirname, '..', 'app', 'js', 'server', 'server.js'), 'utf8');
   eq([...new Set([...server.matchAll(/\.from\('(\w+)'\)/g)].map(m => m[1]))].sort(), ['contact_messages', 'user_data'], 'the app uses exactly the two tables the script makes');
   eq([...server.matchAll(/\.rpc\('(\w+)'/g)].map(m => m[1]).sort(), ['delete_my_account', 'remove_push_subscription', 'save_push_subscription'], 'and the three functions');
-  eq([...server.matchAll(/functions\.invoke\('(\w+)'/g)].map(m => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['reminders'], 'and the one server job, which is in supabase/functions');
+  eq([...server.matchAll(/functions\.invoke\('(\w+)'/g)].map(m => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['reminders', 'bank'], 'and the two server jobs, which are in supabase/functions');
   ok(fs.existsSync(path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'index.ts')), 'supabase/functions/reminders/index.ts is there');
 } finally { stop(); }
 console.log(`qc-schema: ${pass} passed, ${fail} failed`);

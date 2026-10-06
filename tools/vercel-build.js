@@ -13,6 +13,8 @@ const fail = m => { console.error('\nvercel-build: ' + m + '\n'); process.exit(1
 /** The first of these variables that has a value, without the quotes or spaces a copy and paste sometimes leaves round it. */
 const env = (...names) => { for (const n of names) { const v = String(process.env[n] || '').trim().replace(/^(['"])(.*)\1$/, '$2').trim(); if (v) return { name: n, value: v }; } return null; };
 
+// the bank logos that are in app/assets/banks/ are listed for the app (tools/build-banks.js), so adding a file and deploying is all it takes
+try { require('./build-banks.js').write(); } catch (e) { fail('the list of bank logos could not be written: ' + e.message); }
 const check = spawnSync(process.execPath, [path.join(__dirname, 'build.js'), '--check'], { stdio: 'inherit' });
 if (check.status !== 0) fail('the checks failed (see above). Nothing was deployed.');
 

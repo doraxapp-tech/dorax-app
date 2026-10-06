@@ -115,6 +115,10 @@ const SERVER = (() => {
     /** channel: 'push' (a notification to the person's devices) or 'email'. The server sends it to the person logged in, nobody else. */
     async remindTest(channel) { const r = await ask(() => client.functions.invoke('reminders', { body: { action: 'test', channel } })); return !r.ok ? r : r.data && r.data.ok ? { ok: true } : { ok: false, code: (r.data && r.data.code) || 'unknown' }; },
 
+    /** Connecting a bank (a trial; supabase/functions/bank). action: 'status' | 'start' | 'finish' | 'fetch' | 'disconnect'. The answer is the
+        function's own: { ok: true, ... } or { ok: false, code }. */
+    async bank(action, body) { const r = await ask(() => client.functions.invoke('bank', { body: { ...(body || {}), action } })); return !r.ok ? r : r.data && typeof r.data === 'object' ? r.data : { ok: false, code: 'unknown' }; },
+
     // ----- the contact form: anyone can write, nobody can read through the app
     sendContact: ({ email, topic, message, lang }) => ask(() => client.from('contact_messages').insert({ email, topic, message, lang })),
   };

@@ -48,3 +48,6 @@
 .paylist tr.done .linkbtn { font-weight: 400; color: var(--ink-2); }
 .paylist td.first .note { margin-top: 1px; }
 
+
+/* Open Finance: a bank's accounts. On a phone the name gets its own line; the count and the button share the next one. */
+@media (max-width: 640px) { #bank-card .list .li { flex-wrap: wrap; row-gap: 8px; } #bank-card .list .li .grow { flex: 1 0 100%; } #bank-card .list .li .note { margin-right: auto; } }

@@ -38,5 +38,5 @@ const acctOptions = (sel, blank, list) => (blank ? `<option value="">${esc(blank
 const TYPES = () => [['expense', t('Expense')], ['income', t('Income')], ['transfer', t('Transfer')], ['adjustment', t('Adjustment')]];
 const STATUSES = () => [['confirmed', t('Confirmed')], ['pending', t('Pending')], ['ignored', t('Ignored')]];
 const ACCT_TYPES = () => [['checking', t('Checking')], ['savings', t('Savings')], ['credit', t('Credit card')], ['cash', t('Cash')]];
-const sourceLabel = s => ({ csv: t('CSV file'), ofx: t('OFX file'), manual: t('Manual entry'), sheet: t('Spreadsheet') }[s] || s);
+const sourceLabel = s => ({ csv: t('CSV file'), ofx: t('OFX file'), manual: t('Manual entry'), sheet: t('Spreadsheet'), bank: t('Bank connection') }[s] || s);
 const LANGS = [['es', 'Español'], ['pt', 'Português'], ['en', 'English']];

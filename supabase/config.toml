@@ -4,3 +4,7 @@
 # "supabase functions deploy" would switch that check on and the daily schedule, which has no login, would be refused.
 [functions.reminders]
 verify_jwt = false
+
+# The bank function also checks its callers itself: every request must carry a person's login, which it confirms with the login service.
+[functions.bank]
+verify_jwt = false

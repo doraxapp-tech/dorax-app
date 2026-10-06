@@ -2,6 +2,13 @@
 .acct { padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
 .acct .bal, .bal { font-family: var(--fig); font-size: 23px; font-weight: 500; letter-spacing: 0; font-variant-numeric: tabular-nums; color: var(--ink-strong); }
 .acct .inst { width: 36px; height: 36px; border-radius: 50%; background: var(--well); color: var(--ink); display: grid; place-items: center; font-family: var(--mono); font-weight: 500; font-size: 12px; flex: none; }
+/* (the classes are "bank" and "pic" on purpose: "brand" and "logo" are the app's own logo elsewhere, with their own sizes)
+   a bank the app knows: its colour and letters (the colours come from js/ui/bank-mark.js), or its own logo when the file is in assets/banks/.
+   The thin ring keeps a very dark or very light badge visible on either theme. The logo is shown as it is, only cut to the circle. */
+.acct .inst.bank, .acct .inst.pic { box-shadow: inset 0 0 0 1px rgba(128, 128, 128, .28); }
+.acct .inst.bank { font-weight: 600; letter-spacing: .02em; }
+.acct .inst.pic { background: #FFFFFF; overflow: hidden; }
+.acct .inst.pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .acct > .row > svg { width: 36px; height: 36px; padding: 9px; border-radius: 50%; background: var(--well); color: var(--ink); }
 .goal.off { opacity: .6; }
 .goal > .row:last-child { margin-top: auto; }

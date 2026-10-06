@@ -3,7 +3,7 @@
 function acctCard(a) {
   const bal = accountBalance(S, a.id, S.today), n = S.transactions.filter(x => x.accountId === a.id).length, last = S.imports.find(i => i.accountId === a.id);
   const used = a.type === 'credit' && a.creditLimit ? Math.round(-bal * 100 / a.creditLimit) : null;
-  return `<section class="card acct"><div class="row"><span class="inst">${esc(a.institution.slice(0, 2).toUpperCase())}</span><div style="min-width:0"><b style="font-weight:500">${esc(a.name)}</b><div class="note">${esc((ACCT_TYPES().find(x => x[0] === a.type) || [0, a.type])[1])} · ${a.currency}</div></div></div>
+  return `<section class="card acct"><div class="row">${bankMark(a.institution)}<div style="min-width:0"><b style="font-weight:500">${esc(a.name)}</b><div class="note">${esc((ACCT_TYPES().find(x => x[0] === a.type) || [0, a.type])[1])} · ${a.currency}</div></div></div>
     ${a.purpose ? `<div class="note">${esc(a.purpose)}</div>` : ''}
     <div><div class="note">${a.type === 'credit' ? t('Current balance owed') : t('Balance')}</div><div class="bal num">${fmt.money(a.type === 'credit' ? -bal : bal, a.currency)}</div></div>
     ${used !== null ? `<div>${meter(used, used > 80 ? 'warn' : 'go')}<div class="note" style="margin-top:4px">${t('{pct} of {limit} limit used', { pct: fmt.pct(used), limit: fmt.money(a.creditLimit, a.currency, { round: true }) })}</div></div>` : ''}

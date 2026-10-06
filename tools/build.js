@@ -38,7 +38,9 @@ const LIBS = { pdfworker: 'vendor/pdf.worker.min.js', pdf: 'vendor/pdf.min.js', 
 const libs = Buffer.concat(Object.entries(LIBS).map(([id, f]) => { const b = read(f); if (/<\/script/i.test(b.toString('latin1'))) fail(f + ' contains a closing script tag'); return Buffer.concat([Buffer.from(`<script type="text/plain" id="lib-${id}">\n`), b, Buffer.from('\n</script>\n')]); }));
 const SERVER_FILES = ['config.js', 'vendor/supabase.js'], standIn = fs.readFileSync(path.join(__dirname, 'preview-backend.js'));
 for (const f of SERVER_FILES) if (!scripts.includes(f)) fail('index.html no longer lists ' + f + ': the preview build expects to replace it');
-const js = Buffer.concat([Buffer.from('\n// ===== tools/preview-backend.js (the stand-in server: preview only) =====\n'), standIn, ...scripts.filter(f => !SERVER_FILES.includes(f)).map(f => Buffer.concat([Buffer.from('\n// ===== ' + f + ' =====\n'), read(f)]))]);
+// the bank logos are files beside the app; the one-file preview has nothing beside it, so there they are written into the list itself
+const LOGOS = 'js/data/bank-logos.js', inlined = f => f === LOGOS ? Buffer.from(require('./build-banks.js').inlineText()) : read(f);
+const js = Buffer.concat([Buffer.from('\n// ===== tools/preview-backend.js (the stand-in server: preview only) =====\n'), standIn, ...scripts.filter(f => !SERVER_FILES.includes(f)).map(f => Buffer.concat([Buffer.from('\n// ===== ' + f + ' =====\n'), inlined(f)]))]);
 if (/<\/script/i.test(js.toString())) fail('a script contains a closing script tag');
 const page = Buffer.concat([Buffer.from(title + '\n' + remote.map(h => `<link rel="stylesheet" href="${h}">`).join('\n') + '\n<style>'), css, Buffer.from('</style>\n' + body + '\n'), libs, Buffer.from('<script>'), js, Buffer.from('</script>\n')]);
 fs.mkdirSync(DIST, { recursive: true });
