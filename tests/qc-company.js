@@ -29,6 +29,10 @@ const path = require('path');
     eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), !!document.querySelector('[data-a="space-cur"]'), !!document.querySelector('.space .hint'), S.company === undefined]),
       [[['Household', 'true'], ['Company', 'false']], false, true, true], tag + 'it opens on the household, with no currency to choose and an (i); nothing is kept for the company until its side is opened');
     const before = await household(p);
+    // the side in use is green, like the main button, in both themes, and its words can be read on it
+    for (const theme of ['dark', 'light']) eq(await p.evaluate(th => { S.settings.theme = th; render(); const lum = c => { const [r, g, b] = c.match(/[\d.]+/g).map(Number).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+      const on = getComputedStyle(document.querySelector('.space [aria-pressed="true"]')), off = getComputedStyle(document.querySelector('.space [aria-pressed="false"]')), main = getComputedStyle(document.querySelector('.topbar .btn.primary')), l1 = lum(on.color), l2 = lum(on.backgroundColor);
+      const r = [on.backgroundColor === main.backgroundColor, on.backgroundColor !== off.backgroundColor, (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05) >= 4.5]; S.settings.theme = 'dark'; render(); return r; }, theme), [true, true, true], tag + `${theme}: the side in use is the green of the main button, the other is not, and the contrast is at least 4.5`);
     // a person with no company account sees the switch too (owner: "I never created one, make it visible for all users for now"):
     // the company's side opens in the account's own currency, says an account is missing, and can be planned all the same
     const none = await p.evaluate(() => { const keep = S.accounts, tx = S.transactions.length, out = {}; S.accounts = keep.filter(a => a.scope !== 'business'); render();

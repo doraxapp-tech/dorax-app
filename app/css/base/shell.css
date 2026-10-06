@@ -47,6 +47,8 @@
 .topbar h1 { order: 1; font-family: var(--font); font-size: 20px; font-weight: 500; letter-spacing: -.007em; line-height: 1.2; margin-right: auto; }
 /* Household / Company (Plan, Savings & goals): beside the title, because it decides what the whole page is about */
 .space { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+/* the side in use wears the green of the main button (owner, 2026-10-06: "make the household | company switch active green"); the currency beside it follows */
+.space .seg button[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); box-shadow: inset 0 0 0 1px var(--primary-line); }
 .topbar .space { order: 1; margin: 0 auto 0 6px; } .topbar:has(.space) h1 { margin-right: 0; }
 .topbar .month { order: 2; } .topbar .lang { order: 3; } .topbar .bell { order: 4; } .topbar .save-badge { order: 5; } .topbar .btn.primary { order: 6; }
 .content { padding: 6px 32px 56px; display: flex; flex-direction: column; gap: 20px; max-width: var(--col); width: 100%; margin-inline: auto; }
