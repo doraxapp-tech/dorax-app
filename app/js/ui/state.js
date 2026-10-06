@@ -12,6 +12,7 @@ const UI = {
   pub: null,            // what the pages before login remember: freshPub() in features/public/public.shared.js, set at start-up
   forceTone: null,      // tests pin the wording here
   route: 'dashboard',
+  space: 'personal', spaceCur: null,   // Plan and Savings & goals: whose money is shown (household or company) and, for a company with two currencies, which one
   tx: { q: '', month: 'current', scope: 'personal', account: '', category: '', type: '', status: '', sort: 'date', dir: -1, page: 1, size: 10 },
   drawer: null, sheet: false, rulePrompt: null, toast: null,
   conv: null,           // statement -> OFX session

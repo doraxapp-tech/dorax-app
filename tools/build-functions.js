@@ -14,7 +14,7 @@ const APP = path.join(__dirname, '..', 'app'), OUT = path.join(__dirname, '..', 
 const read = f => fs.readFileSync(path.join(APP, f), 'utf8');
 
 // the calculations a reminder needs, in the order index.html loads them; the readers of files (statements, spreadsheets) are left out
-const CORE = ['js/core/dates.js', 'js/core/reporting.js', 'js/core/plan.js', 'js/core/cards.js', 'js/core/reminders.js', 'js/core/goals.js', 'js/core/statements-owed.js', 'js/data/defaults.js'];
+const CORE = ['js/core/dates.js', 'js/core/reporting.js', 'js/core/books.js', 'js/core/plan.js', 'js/core/cards.js', 'js/core/reminders.js', 'js/core/goals.js', 'js/core/statements-owed.js', 'js/data/defaults.js'];
 const TEXT = ['js/ui/translate.js', 'js/ui/format.js', 'js/features/reminders/reminder-messages.js'];
 const order = [...read('index.html').matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
 for (const f of [...CORE, ...TEXT]) if (!order.includes(f)) throw new Error('build-functions: ' + f + ' is not a script of the app (index.html)');
@@ -49,7 +49,7 @@ ${[...sorted(CORE), ...sorted(TEXT)].map(f => '// ---- ' + f + '\n' + read(f)).j
 // ---------------------------------------------------------------- what the job asks
   const CUR = BASE_CURRENCY;
   const user = S.user || {}, snoozed = (user.remind || {}).snoozed || {};
-  const due = messageReminders(reminders(S, today, CUR, reminderOptions(S))).filter(r => snoozed[r.id] !== today);
+  const due = messageReminders(remindersAll(S, today, reminderOptions(S))).filter(r => snoozed[r.id] !== today);
   return { reminders: due, key: reminderKey, digest: reminderDigest, push: reminderPush, lang: (S.settings || {}).lang || 'pt', name: user.name || '',
     emailOn: !user.channels || user.channels.email !== false, texts: reminderTexts() };
 }

@@ -45,6 +45,9 @@
 .navbar, .pagehead, .bar-tools { display: contents; }
 .bar-title { display: none; }
 .topbar h1 { order: 1; font-family: var(--font); font-size: 20px; font-weight: 500; letter-spacing: -.007em; line-height: 1.2; margin-right: auto; }
+/* Household / Company (Plan, Savings & goals): beside the title, because it decides what the whole page is about */
+.space { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.topbar .space { order: 1; margin: 0 auto 0 6px; } .topbar:has(.space) h1 { margin-right: 0; }
 .topbar .month { order: 2; } .topbar .lang { order: 3; } .topbar .bell { order: 4; } .topbar .save-badge { order: 5; } .topbar .btn.primary { order: 6; }
 .content { padding: 6px 32px 56px; display: flex; flex-direction: column; gap: 20px; max-width: var(--col); width: 100%; margin-inline: auto; }
 .save-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: var(--pill); border: 1px solid var(--line); background: var(--badge); font-family: var(--mono); font-size: 11px; white-space: nowrap; color: var(--ink-2); }

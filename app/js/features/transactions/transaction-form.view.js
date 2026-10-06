@@ -11,7 +11,8 @@ function txDrawer(d) {
       ${x.type === 'transfer' || x.type === 'adjustment' ? fld('d-dir', t('Direction'), `<select id="d-dir" data-c="draft" data-k="dir">${options([['out', t('Money out')], ['in', t('Money in')]], x.dir)}</select>`) : fld('d-status', t('Status'), `<select id="d-status" data-c="draft" data-k="status">${options(STATUSES(), x.status)}</select>`)}
       ${fld('d-account', t('Account'), `<select id="d-account" data-c="draft" data-k="accountId" data-rerender="1">${acctOptions(x.accountId)}</select>`)}
       ${x.type === 'transfer' ? fld('d-xfer', t('Other account'), `<select id="d-xfer" data-c="draft" data-k="transferAccountId">${options([['', t('Not linked')], ...S.accounts.filter(k => k.id !== x.accountId).map(k => [k.id, k.name])], x.transferAccountId || '')}</select>`)
-        : x.splits || biz ? '' : fld('d-cat', t('Category'), `<select id="d-cat" data-c="draft" data-k="catKey">${catOptions(x.catKey, { blank: t('Uncategorized') })}</select>`)}
+        : biz ? (companyCats().length ? fld('d-cat', t('Company cost or income'), `<select id="d-cat" data-c="draft" data-k="catKey">${catOptions(x.catKey, { blank: t('Not in the company plan'), list: companyCats() })}</select>`) : '')
+        : x.splits ? '' : fld('d-cat', t('Category'), `<select id="d-cat" data-c="draft" data-k="catKey">${catOptions(x.catKey, { blank: t('Uncategorized') })}</select>`)}
     </div>
     ${biz ? banner('', t('Company account: this movement is kept for the company’s accounting and never counts in household figures.')) : x.type === 'transfer' ? banner('', t('Transfers between your own accounts are not counted as income or spending.')) : ''}
     ${x.type !== 'transfer' && !biz ? (x.splits ? `<div class="stack" style="gap:8px"><div class="row"><b style="font-weight:500">${t('Split across categories')}</b><button class="btn sm ghost spacer" data-a="split-off">${t('Remove split')}</button></div>

@@ -3,8 +3,11 @@ const SHELL_ACTIONS = {
   close() { const filters = UI.drawer && UI.drawer.kind === 'tx-filters'; UI.drawer = null; UI.sheet = false; renderOverlay(); if (filters) { const el = $('tx-filters-btn'); if (el) el.focus({ preventScroll: true }); } },
   theme() { S.settings.theme = S.settings.theme === 'light' ? 'dark' : 'light'; render(); const el = document.querySelector('.tbtn'); if (el) el.focus(); },
   'modal-cancel'() { const m = UI.modal; if (!m) return; UI.modal = null; renderModal(); const el = m.back && document.querySelector(m.back); if (el) el.focus(); },
-  'modal-confirm'() { const m = UI.modal; if (!m || !modalReady()) return; UI.modal = null; renderModal(); m.run(); },
+  'modal-confirm'() { const m = UI.modal; if (!m || !modalReady()) return; UI.modal = null; renderModal(); inBook(m.book, () => m.run()); },
   sheet() { UI.sheet = true; renderOverlay(); },
+  // Plan and Savings & goals: whose money is shown, and for a company with two currencies, which one
+  space(ds) { setPageBook(ds.v === 'business' ? bookKeyOf(companyCurrencies(S).includes(UI.spaceCur) ? UI.spaceCur : companyCurrencies(S)[0]) : 'personal'); UI.drawer = null; render(); },
+  'space-cur'(ds) { if (companyCurrencies(S).includes(ds.v)) setPageBook(bookKeyOf(ds.v)); UI.drawer = null; render(); },
   month(ds) { S.month = addMonths(S.month, +ds.d); render(); },
   'set-month'(ds) { S.month = ds.ym; render(); },
   'toggle-closed'() { UI.showClosed = !UI.showClosed; render(); },

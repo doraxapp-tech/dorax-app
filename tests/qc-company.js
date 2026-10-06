@@ -1,0 +1,198 @@
+// QC of the company's side of Plan and Savings & goals (owner, 2026-10-06: "I feel the need to also organize my PJ account like, savings,
+// goals, etc"; decided: fixed costs and goals first, one switch Household / Company, each currency by itself).
+// What must hold:
+//   1. the household is untouched: its screens and its data are the same, byte for byte, after the company's side is used;
+//   2. company money never adds into a household figure, and reais never add into dollars;
+//   3. everything Plan and Savings & goals do works on the company's side: costs, due days, payments, income, goals, contributions, deletes;
+//   4. the bell, the calendar file and the server's reminder job know about the company's bills;
+//   5. it reads right on a phone and in the three languages.
+const { open, ok, eq, done, TARGET } = require('./pw.js');
+const path = require('path');
+
+(async () => {
+  const tag = TARGET + ': ';
+  const wide = { width: 1440, height: 900 }, phone = { width: 390, height: 800 };
+  const quiet = p => p.waitForFunction(() => !document.querySelector('#toast-root').innerText.trim(), null, { timeout: 15000 }).catch(() => {});
+  // the household's screens, as text of the page, and its data
+  const household = p => p.evaluate(() => { const was = [UI.route, UI.space, UI.spaceCur], out = {}; UI.space = 'personal';
+    for (const r of ['dashboard', 'plan', 'goals', 'reports', 'recurring']) { UI.route = r; UI.pg = {}; out[r] = inBook('personal', () => ROUTES.find(x => x[0] === r)[2]()).replace(/\s+/g, ' '); }
+    [UI.route, UI.space, UI.spaceCur] = was;
+    out.data = JSON.stringify([S.plan, S.goals, S.goalMoves, S.pay, S.categories, S.rules, S.remainderLabel]);
+    out.month = JSON.stringify(monthSummary(S, ymOf(S.today), BASE_CURRENCY)); out.personalTx = S.transactions.filter(x => !isBiz(x.accountId)).length;
+    return out; });
+
+  // ---------------------------------------------------------------- 1. where the switch is, and where it is not
+  {
+    const o = await open({ lang: 'en', account: 'example', plan: true, viewport: wide }), p = o.page;
+    eq(await p.evaluate(() => ROUTES.map(r => { UI.route = r[0]; renderShell(); return [r[0], !!document.querySelector('.pagehead .space')]; }).filter(x => x[1]).map(x => x[0])), ['plan', 'goals'], tag + 'the Household / Company switch is on Plan and on Savings & goals, and on no other screen');
+    await p.evaluate(() => navigate('plan'));
+    eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), !!document.querySelector('[data-a="space-cur"]'), !!document.querySelector('.space .hint'), S.company === undefined]),
+      [[['Household', 'true'], ['Company', 'false']], false, true, true], tag + 'it opens on the household, with no currency to choose and an (i); nothing is kept for the company until its side is opened');
+    const before = await household(p);
+    // a person with no company account never sees it
+    const none = await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope !== 'business'); UI.space = 'business'; render(); const r = [!!document.querySelector('.space'), pageBookKey(), B() === S]; S.accounts = keep; UI.space = 'personal'; render(); return r; });
+    eq(none, [false, 'personal', true], tag + 'without a company account there is no switch, and the page is the household’s even if the company’s side was asked for');
+
+    // ---------------------------------------------------------------- 2. the company's fixed costs
+    await p.click('[data-a="space"][data-v="business"]');
+    eq(await p.evaluate(() => [pageBookKey(), [...document.querySelectorAll('[data-a="space-cur"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), !!document.querySelector('#paylist .empty'), !!document.querySelector('#paylist a[href="#imports"]'), [...document.querySelectorAll('.tile .value')].map(x => x.innerText.trim()), Object.keys(S.company.books), S.company.categories.map(c => c.name)]),
+      ['business:BRL', [['BRL', 'true'], ['USD', 'false']], true, false, ['R$ 0,00', 'R$ 0,00', 'R$ 0,00', 'R$ 0,00'], ['BRL'], ['Taxes', 'Accounting and services', 'Tools and software', 'Pay and people', 'Other', 'Income']],
+      tag + 'the company’s side opens in reais, offers the dollars too, and starts empty: no cost, no figure, its own groups');
+    await p.click('.topbar [data-a="line-new"]'); await p.waitForSelector('#l-name');
+    eq(await p.evaluate(() => [[...document.querySelectorAll('#l-cat option')].map(x => x.textContent), [...document.querySelectorAll('#l-acct option')].map(x => x.textContent), document.querySelector('#l-name').placeholder, document.querySelector('label[for="l-amount"]').innerText.trim(), UI.drawer.book]),
+      [['Taxes', 'Accounting and services', 'Tools and software', 'Pay and people', 'Other'], ['Nubank PJ', 'Wise BRL'], 'e.g. Accountant, taxes', 'Each month (R$)', 'business:BRL'], tag + 'a new company cost chooses among the company’s groups and is paid from a company account in reais');
+    await p.fill('#l-name', 'Accounting fee'); await p.selectOption('#l-cat', 'co-services'); await p.fill('#l-amount', '189'); await p.fill('#l-due', '4'); await p.click('[data-a="line-save"]'); await p.click('#overlay [data-a="close"]');
+    await p.evaluate(() => { const mk = (name, cat, amount, due, pay) => { A['line-new'](); Object.assign(UI.drawer.draft, { name, catId: cat, amountText: String(amount), due: due ? String(due) : '', pay: pay || 'fixed' }); A['line-save'](); A.close(); };
+      mk('Monthly tax', 'co-tax', 1250, 20, 'variable'); mk('Owner pay', 'co-people', 1518, 5); mk('Software', 'co-tools', 60, 0); save(); }); await quiet(p);
+    eq(await p.evaluate(() => { const b = S.company.books.BRL, l = b.plan.lines[0], sub = S.company.categories.find(c => c.id === 'co-services').subs[0];
+      return [b.plan.lines.map(x => [x.name, x.categoryId, x.due || null, x.pay]), l.subcategoryId === sub.id && sub.name === 'Accounting fee', planValue(B(), l, S.month), S.plan.lines.some(x => x.name === 'Accounting fee'), S.categories.some(c => c.subs.some(s => s.name === 'Accounting fee'))]; }),
+      [[['Accounting fee', 'co-services', 4, 'fixed'], ['Monthly tax', 'co-tax', 20, 'variable'], ['Owner pay', 'co-people', 5, 'fixed'], ['Software', 'co-tools', null, 'fixed']], true, 18900, false, false],
+      tag + 'the costs are kept in the company’s book for reais, each under a company group; none is in the household’s plan or categories');
+    eq(await p.evaluate(() => [[...document.querySelectorAll('.tile .value')].map(x => x.innerText.trim()), [...document.querySelectorAll('#paylist tr.grp b')].map(x => x.innerText.trim()), [...document.querySelectorAll('#paylist tr.grp .dot')].every(d => !/ink-3/.test(d.getAttribute('style'))), document.querySelectorAll('#plan-year tbody input').length]),
+      [['R$ 3.017,00', 'R$ 0,00', 'R$ 3.017,00', '−R$ 3.017,00'], ['Taxes', 'Accounting and services', 'Tools and software', 'Pay and people'], true, 48], tag + 'the page shows them grouped, in their group’s colour, with the month’s figures and a year grid to type in');
+
+    // paying: one click records an expense in the company account, tied to the cost
+    const txBefore = await p.evaluate(() => S.transactions.length);
+    await p.click('#paylist [data-a="line-pay-now"]'); await quiet(p);
+    eq(await p.evaluate(n => { const x = S.transactions.find(k => k.planLineId === S.company.books.BRL.plan.lines[0].id) || {}, pr = planProgress(B(), S.month, BCUR(), S.today).find(q => q.name === 'Accounting fee');
+      return [S.transactions.length - n, x.accountId, x.amount, x.currency, x.categoryId, isBiz(x.accountId), pr.status, pr.spent, document.querySelectorAll('.tile .value')[1].innerText.trim()]; }, txBefore),
+      [1, 'nu-pj', -18900, 'BRL', 'co-services', true, 'paid', 18900, 'R$ 189,00'], tag + '“Mark as paid” records the planned amount as an expense in the company account, and the cost reads as paid');
+    // income for the company, and the year grid
+    await p.click('[data-a="add-pay"]'); await p.waitForSelector('.payrow input');
+    await p.evaluate(() => { const y = S.today.slice(0, 4), r = B().pay[y][0]; r.name = 'Client A'; r.values = r.values.map(() => 1200000); render(); });
+    eq(await p.evaluate(() => { const y = S.today.slice(0, 4); return [S.company.books.BRL.pay[y].length, (S.pay[y] || []).some(r => r.name === 'Client A'), S.company.categories.find(c => c.income).subs.length, S.categories.find(c => c.income).subs.some(s => s.id === S.company.books.BRL.pay[y][0].sub), document.querySelectorAll('.tile .value')[3].innerText.trim()]; }),
+      [1, false, 2, false, 'R$ 8.983,00'], tag + 'the company’s income is its own row, under the company’s income group; income minus fixed costs follows');
+    // a cell of the year grid
+    await p.fill('#plan-year tbody tr:nth-of-type(2) td:nth-of-type(12) input', '11000'); await p.keyboard.press('Tab'); await quiet(p);
+    eq(await p.evaluate(() => S.company.books.BRL.pay[S.today.slice(0, 4)][0].values[11]), 1100000, tag + 'typing in the year grid changes the company’s own row');
+
+    // due days: the company's bills only
+    await p.click('#paylist [data-a="due-days"]'); await p.waitForSelector('.due-row');
+    eq(await p.evaluate(() => [[...document.querySelectorAll('.due-row b')].map(b => b.innerText.trim()), [...document.querySelectorAll('.due-group h3')].map(h => h.textContent.trim())]), [['Monthly tax', 'Accounting fee', 'Software', 'Owner pay'], ['Taxes', 'Accounting and services', 'Tools and software', 'Pay and people']], tag + 'the due days panel lists the company’s bills, not the household’s');
+    await p.evaluate(() => { const l = S.company.books.BRL.plan.lines.find(x => x.name === 'Software'); const el = document.getElementById('dd-' + l.id); el.value = '28'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    await p.click('[data-a="due-save"]'); await quiet(p);
+    eq(await p.evaluate(() => [S.company.books.BRL.plan.lines.find(x => x.name === 'Software').due, S.plan.lines.filter(l => l.due === 28).length]), [28, 0], tag + 'a due day saved there is the company cost’s');
+
+    // ---------------------------------------------------------------- 3. the dollars: another book
+    await p.click('[data-a="space-cur"][data-v="USD"]');
+    eq(await p.evaluate(() => [pageBookKey(), !!document.querySelector('#paylist .empty'), [...document.querySelectorAll('.tile .value')].map(x => x.innerText.trim()), Object.keys(S.company.books)]), ['business:USD', true, ['US$ 0,00', 'US$ 0,00', 'US$ 0,00', 'US$ 0,00'], ['BRL', 'USD']], tag + 'the dollars are a book of their own: empty, in US$, with none of the reais’ costs');
+    await p.evaluate(() => navigate('goals'));
+    eq(await p.evaluate(() => [pageBookKey(), !!document.querySelector('#view .empty'), document.querySelector('[data-a="space"][aria-pressed="true"]').dataset.v]), ['business:USD', true, 'business'], tag + 'Savings & goals opens on the same side and currency, with no goal yet');
+    await p.click('#view [data-a="goal-new"]'); await p.waitForSelector('#g-name');
+    eq(await p.evaluate(() => [[...document.querySelectorAll('#g-acct option')].map(x => x.textContent), document.querySelector('label[for="g-target"]').innerText.trim(), document.querySelector('label[for="g-initial"]').innerText.trim(), document.querySelector('label[for="g-monthly"]').innerText.trim(), document.querySelector('#g-name').placeholder]),
+      [['No account linked', 'Wise USD'], 'Target (US$)', 'Already saved (US$)', 'Each month (US$)', 'e.g. Taxes, Reserve, Equipment'], tag + 'a company goal in dollars is kept in a company dollar account, and every label says US$');
+    await p.fill('#g-name', 'Laptop'); await p.fill('#g-target', '2400'); await p.selectOption('#g-acct', 'wise-usd'); await p.fill('#g-initial', '400'); await p.fill('#g-monthly', '300'); await p.click('[data-a="goal-save"]'); await p.click('#overlay [data-a="close"]');
+    await p.evaluate(() => { A['goal-new'](); Object.assign(UI.drawer.draft, { name: 'Tax reserve', kind: 'fund', monthlyText: '500' }); A['goal-save'](); A.close(); save(); }); await quiet(p);
+    eq(await p.evaluate(() => { const b = S.company.books.USD; return [b.goals.map(g => [g.name, g.kind, g.target, g.accountId]), b.goalMoves.map(m => [m.amount, !!m.start]), S.company.books.BRL.goals.length, S.goals.some(g => g.name === 'Laptop'), [...document.querySelectorAll('.tile .value')].map(x => x.innerText.trim()), [...document.querySelectorAll('.goal b')].map(x => x.innerText.trim())]; }),
+      [[['Laptop', 'goal', 240000, 'wise-usd'], ['Tax reserve', 'fund', null, null]], [[40000, true]], 0, false, ['US$ 400,00', 'US$ 800,00', 'US$ 0,00', '−US$ 800,00'], ['Laptop', 'Tax reserve']],
+      tag + 'the goals are in the dollar book only: not in the reais’, not in the household’s; the figures are in US$');
+    // hand out the month, then a withdrawal
+    await p.click('[data-a="dist-register"]'); await quiet(p);
+    eq(await p.evaluate(() => { const b = S.company.books.USD, g = b.goals[0]; return [b.goalMoves.length, goalSaved(B(), g.id), goalMonth(B(), g.id, S.month), S.goalMoves.length === JSON.parse(JSON.stringify(S.goalMoves)).length, document.querySelectorAll('.tile .value')[2].innerText.trim()]; }), [3, 70000, 30000, true, 'US$ 800,00'], tag + 'handing out the month records one contribution per company goal, in dollars');
+    await p.click('.goal [data-a="goal-move"][data-dir="out"]'); await p.waitForSelector('#m-amount');
+    eq(await p.evaluate(() => [document.querySelector('label[for="m-amount"]').innerText.trim(), [...document.querySelectorAll('#m-acct option')].map(x => x.textContent)]), ['Amount (US$)', ['No account linked', 'Wise USD']], tag + 'a withdrawal asks in US$ and from a company dollar account');
+    await p.fill('#m-amount', '900'); await p.click('[data-a="move-save"]');
+    ok((await p.locator('#overlay .banner.crit').innerText()).includes('US$ 700,00'), tag + 'more than is saved is refused, said in US$');
+    await p.fill('#m-amount', '100'); await p.click('[data-a="move-save"]'); await quiet(p);
+    eq(await p.evaluate(() => goalSaved(B(), S.company.books.USD.goals[0].id)), 60000, tag + 'a withdrawal lowers the company goal');
+    // deleting asks first, in the middle, and takes only the company goal
+    await p.click('.goal:nth-of-type(2) [data-a="goal-open"]'); await p.waitForSelector('[data-a="goal-delete-ask"]'); await p.click('[data-a="goal-delete-ask"]'); await p.waitForSelector('#modal-ok');
+    const box = await p.evaluate(() => { const m = document.querySelector('#modal-root [role="alertdialog"], #modal-root [role="dialog"], .modal'), r = m.getBoundingClientRect(); return [Math.abs((r.left + r.right) / 2 - innerWidth / 2) <= 2, !!document.querySelector('#modal-word'), S.company.books.USD.goals.length]; });
+    eq(box, [true, true, 2], tag + 'deleting a company goal with money in it asks in a centred pop-up and wants the word typed; nothing goes until then');
+    await p.fill('#modal-word', 'delete'); await p.click('#modal-ok'); await quiet(p);
+    eq(await p.evaluate(() => [S.company.books.USD.goals.map(g => g.name), S.company.books.USD.goalMoves.every(m => m.goalId === S.company.books.USD.goals[0].id), S.goals.length > 0]), [['Laptop'], true, true], tag + 'after it the company goal and its movements are gone; the household’s goals are all there');
+
+    // ---------------------------------------------------------------- 4. the household is exactly as it was
+    const after = await household(p);
+    for (const k of Object.keys(before)) eq(after[k] === before[k], true, tag + `the household’s ${k === 'data' ? 'plan, goals, income and categories' : k === 'month' ? 'figures of the month' : k === 'personalTx' ? 'own transactions' : k + ' screen'} did not change by one character`);
+    eq(await p.evaluate(() => { const sum2 = (b, cur) => sum(planProgress(b, S.month, cur, S.today).map(x => x.spent)); return [sum2(companyBook(S, 'BRL'), 'BRL'), sum2(companyBook(S, 'USD'), 'USD'), categoryTotals(S, S.month, 'BRL').byCat['co-services'] || 0, monthSummary(companyBook(S, 'BRL'), S.month, 'BRL').expenses >= 18900]; }),
+      [18900, 0, 0, true], tag + 'the payment counts in the reais book, not in the dollar book and not in any household total');
+
+    // ---------------------------------------------------------------- 5. the bell and the reminders
+    await p.evaluate(() => { navigate('dashboard'); });
+    const bell = await p.evaluate(() => { const all = allReminders(), co = all.filter(r => r.book); return [pageBookKey(), co.map(r => [r.kind, r.name || '', r.cur, r.when, r.id.startsWith('business:')]), new Set(all.map(r => r.id)).size === all.length, +document.querySelector('.bell .count').innerText === activeReminders().length]; });
+    eq(bell, ['personal', [['bill', 'Owner pay', 'BRL', 'soon', true]], true, true], tag + 'on the dashboard (household) the bell counts the company’s bill that is coming up, with its book and currency, and no id is used twice');
+    await p.click('.bell'); await p.waitForSelector('.rem');
+    eq(await p.evaluate(() => [...document.querySelectorAll('.rem')].filter(r => r.querySelector('.chip') && /Company/.test(r.querySelector('.rem-t').innerText)).map(r => [r.querySelector('.rem-t b').innerText.replace(/\s+/g, ' ').trim(), r.querySelector('.num').innerText.trim(), (r.querySelector('[data-book]') || { dataset: {} }).dataset.book])),
+      [['Owner pay Company', 'R$ 1.518,00', 'business:BRL']], tag + 'in the list the company’s reminders say “Company”, show their own currency and carry their book');
+    const homeLines = await p.evaluate(() => JSON.stringify(S.plan.lines));
+    await p.click('.rem [data-a="line-pay-now"][data-book="business:BRL"]'); await quiet(p);
+    eq(await p.evaluate(h => { const l = S.company.books.BRL.plan.lines.find(x => x.name === 'Owner pay'), x = S.transactions.find(k => k.planLineId === l.id) || {}; return [x.accountId, x.amount, x.categoryId, UI.route, pageBookKey(), JSON.stringify(S.plan.lines) === h, allReminders().some(r => r.lineId === l.id)]; }, homeLines),
+      ['nu-pj', -151800, 'co-people', 'dashboard', 'personal', true, false], tag + 'paid from the bell while on the dashboard, the payment lands in the company account and book; the page stays the household’s and its reminder is gone');
+    // a variable bill from the bell opens the payment panel of the company's book
+    await p.evaluate(() => { A.close(); const l = S.company.books.BRL.plan.lines.find(x => x.name === 'Monthly tax'); l.due = +S.today.slice(8) + 1; render(); }); await p.click('.bell'); await p.waitForSelector('.rem [data-a="line-pay"][data-book="business:BRL"]');
+    await p.click('.rem [data-a="line-pay"][data-book="business:BRL"]'); await p.waitForSelector('#py-amount');
+    eq(await p.evaluate(() => [UI.drawer.book, [...document.querySelectorAll('#py-acct option')].map(x => x.textContent), document.querySelector('label[for="py-amount"]').innerText.trim()]), ['business:BRL', ['Nubank PJ', 'Wise BRL'], 'Amount (R$)'], tag + 'recording a company payment from the bell offers the company’s accounts');
+    await p.fill('#py-amount', '1.301,55'); await p.selectOption('#py-acct', 'wise-brl'); await p.click('[data-a="pay-save"]'); await quiet(p);
+    eq(await p.evaluate(() => { const l = S.company.books.BRL.plan.lines.find(x => x.name === 'Monthly tax'), x = S.transactions.find(k => k.planLineId === l.id); return [x.accountId, x.amount, planProgress(companyBook(S, 'BRL'), S.month, 'BRL', S.today).find(q => q.id === l.id).status, UI.drawer]; }), ['wise-brl', -130155, 'over', null], tag + 'and the amount typed is what counts against the plan');
+    // the calendar file and the list of next reminders name the company's bills too
+    eq(await p.evaluate(() => [calendarEvents().filter(e => /Accounting fee|Software|Monthly tax|Owner pay/.test(e.title)).length, reminderScheduleAll(S, S.today, 3, 45).filter(x => x.book).map(x => [x.name, x.cur]), new Set(calendarEvents().map(e => e.uid)).size === calendarEvents().length]), [4, [['Software', 'BRL'], ['Monthly tax', 'BRL'], ['Accounting fee', 'BRL'], ['Owner pay', 'BRL']], true], tag + 'the calendar file has one event per company bill with a due day, each with its own id; the next reminders list the company’s bills in the order they go out');
+    ok((await p.evaluate(() => reminderScheduleAll(S, S.today, 3, 45).filter(x => x.book).every(x => x.cur === 'BRL' && x.sendDate <= x.date))) === true, tag + 'the next reminders of the company are dated before their due day');
+
+    // ---------------------------------------------------------------- 6. a company movement and the company's costs
+    await p.evaluate(() => { navigate('transactions'); A['new-tx'](); UI.drawer.draft.accountId = 'nu-pj'; renderOverlay(); });
+    eq(await p.evaluate(() => [document.querySelector('label[for="d-cat"]').innerText.trim(), [...document.querySelectorAll('#d-cat optgroup')].map(g => g.label), document.querySelector('#d-cat option').textContent, !!document.querySelector('[data-a="split-on"]')]), ['Company cost or income', ['Taxes', 'Accounting and services', 'Tools and software', 'Pay and people', 'Other', 'Income'], 'Not in the company plan', false], tag + 'a movement in a company account can be tied to one of the company’s costs or income rows, and to nothing of the household');
+    const soft = await p.evaluate(() => { const l = S.company.books.BRL.plan.lines.find(x => x.name === 'Software'); return catKey(l.categoryId, l.subcategoryId); });
+    await p.fill('#d-merchant', 'NOTION LABS'); await p.fill('#d-amount', '58,40'); await p.selectOption('#d-cat', soft); await p.click('[data-a="save-tx"]'); await quiet(p);
+    eq(await p.evaluate(() => { const l = S.company.books.BRL.plan.lines.find(x => x.name === 'Software'), pr = planProgress(companyBook(S, 'BRL'), S.month, 'BRL', S.today).find(q => q.id === l.id), x = S.transactions.find(k => k.merchant === 'NOTION LABS'); return [x.categoryId, x.subcategoryId === l.subcategoryId, pr.spent, pr.status, UI.rulePrompt, catLabel(x).replace(/<[^>]+>/g, '')]; }), ['co-tools', true, 5840, 'paid', null, 'Company · Software'], tag + 'tied to a cost, it counts as that cost’s payment; no household rule is offered, and the list names the cost');
+    // the same choice is refused for a household account, and a household category for a company one
+    eq(await p.evaluate(k => { const x = S.transactions.find(q => q.merchant === 'NOTION LABS'); A['open-tx']({ id: x.id }); UI.drawer.draft.accountId = personal()[0].id; A['save-tx'](); const a = [x.categoryId, x.subcategoryId]; A['open-tx']({ id: x.id }); UI.drawer.draft.accountId = 'nu-pj'; UI.drawer.draft.catKey = catKey(S.categories[0].id); A['save-tx'](); return [a, [x.categoryId, x.subcategoryId]]; }, soft), [['other', null], [null, null]], tag + 'moved to a household account it loses the company cost; a household category never sticks to a company movement');
+
+    // ---------------------------------------------------------------- 7. language, saving, clearing
+    await p.evaluate(() => { S.settings.lang = 'pt'; render(); });
+    eq(await p.evaluate(() => [S.company.categories.map(c => c.name), S.company.books.BRL.plan.lines.map(l => l.name), S.company.categories.find(c => c.income).subs.map(s => s.name)]), [['Impostos', 'Contabilidade e serviços', 'Ferramentas e software', 'Salários e equipe', 'Outros', 'Renda'], ['Accounting fee', 'Monthly tax', 'Owner pay', 'Software'], ['Pagamentos de clientes', 'Outra receita']], tag + 'the company’s groups follow the language; what the person typed does not change');
+    await p.evaluate(() => { S.settings.lang = 'en'; render(); save(); saveNow(); });
+    await p.waitForFunction(() => savedState() === 'saved' && accountJson() === SYNC.last);
+    ok(await p.evaluate(() => backupClean(JSON.parse(JSON.stringify(S)))), tag + 'an account with a company side is still a clean backup');
+    await p.reload(); await p.waitForFunction(() => typeof UI !== 'undefined' && !!UI.session);
+    eq(await p.evaluate(() => [Object.keys(S.company.books), S.company.books.BRL.plan.lines.length, S.company.books.USD.goals.map(g => g.name), UI.space, pageBookKey()]), [['BRL', 'USD'], 4, ['Laptop'], 'personal', 'personal'], tag + 'the company’s side is saved with the account and is there after a reload; the app opens on the household');
+    eq(o.errors, [], tag + 'no errors'); await o.browser.close();
+  }
+
+  // ---------------------------------------------------------------- 8. phone, three languages; leaving the company's side
+  for (const lang of ['en', 'es', 'pt']) {
+    const o = await open({ lang, account: 'example', plan: true, viewport: phone, mobile: true, touch: true }), p = o.page, where = `${tag}${lang} 390: `;
+    await p.evaluate(() => navigate('plan')); await p.click('[data-a="space"][data-v="business"]');
+    await p.evaluate(() => { const mk = (name, cat, amount, due) => { A['line-new'](); Object.assign(UI.drawer.draft, { name, catId: cat, amountText: String(amount), due: String(due) }); A['line-save'](); A.close(); }; mk('Accounting fee', 'co-services', 189, 10); mk('Monthly tax for the company', 'co-tax', 1250, 20); render(); }); await quiet(p);
+    for (const route of ['plan', 'goals']) {
+      await p.evaluate(r => navigate(r), route);
+      eq(await p.evaluate(() => { const s = document.querySelector('.pagehead .space').getBoundingClientRect(), h = document.querySelector('.pagehead h1').getBoundingClientRect(), bs = [...document.querySelectorAll('.space .seg button')].map(b => b.getBoundingClientRect());
+        return [document.documentElement.scrollWidth - innerWidth <= 0, s.top >= h.bottom - 1, s.right <= innerWidth && s.left >= 0, bs.every(b => b.height >= 36 && b.width >= 44), document.querySelectorAll('.space .seg').length]; }), [true, true, true, true, 2], where + `${route}: the switch sits under the title, inside the screen, with buttons big enough for a thumb, and nothing is wider than the phone`);
+    }
+    await p.evaluate(() => navigate('plan')); await p.click('.navbar [data-a="line-new"]'); await p.waitForSelector('#l-name');
+    eq(await p.evaluate(() => [UI.drawer.book, document.documentElement.scrollWidth - innerWidth <= 0]), ['business:BRL', true], where + 'the round + of the top bar adds a cost to the side being shown');
+    await p.evaluate(() => A.close());
+    // every text of the company's side is in the language chosen
+    eq(await p.evaluate(() => [t('Whose money'), t('Not in the company plan'), t('Company cost or income'), t('e.g. Accountant, taxes'), t('e.g. Taxes, Reserve, Equipment')].every(x => typeof x === 'string' && x.length > 3) && (S.settings.lang === 'en' || t('Whose money') !== 'Whose money')), true, where + 'the new texts are translated');
+    // the company's last account goes: the page is the household's again, and what was planned is kept
+    eq(await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope !== 'business'); render(); const r = [!!document.querySelector('.space'), pageBookKey(), S.company.books.BRL.plan.lines.length, allReminders().some(x => x.book)]; S.accounts = keep; render(); return r.concat(pageBookKey()); }), [false, 'personal', 2, false, 'business:BRL'], where + 'without company accounts the switch leaves and no company reminder is raised; the plan is kept for when an account is back');
+    await p.evaluate(() => { wipeAll(); }); await quiet(p);
+    eq(await p.evaluate(() => [S.company === undefined, UI.space, S.accounts.length]), [true, 'personal', 0], where + '“Delete all your data” deletes the company’s side too');
+    eq(o.errors, [], where + 'no errors'); await o.browser.close();
+  }
+
+  // ---------------------------------------------------------------- 9. the server's reminder job reads the same books
+  if (TARGET === 'app') {
+    const E = await import('file://' + path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'engine.mjs'));
+    const { load } = require('./load.js'), L = load();
+    for (const lang of ['pt', 'en']) {
+      const acc = L.buildNewState('co@example.org', lang, '2026-10-02');
+      acc.accounts.push({ id: 'h1', name: 'Home', institution: 'Nubank', type: 'checking', currency: 'BRL', scope: 'personal', opening: 0 }, { id: 'c1', name: 'PJ', institution: 'Nubank', type: 'checking', currency: 'BRL', scope: 'business', opening: 0 }, { id: 'c2', name: 'Wise USD', institution: 'Wise', type: 'checking', currency: 'USD', scope: 'business', opening: 0 });
+      acc.plan.lines.push({ id: 'pl-h', name: 'Rent', categoryId: 'home', subcategoryId: null, pay: 'fixed', due: 5, accountId: 'h1', plan: { 2026: Array(12).fill(180000) }, end: null });
+      const quietAcc = E.openAccount(JSON.parse(JSON.stringify(acc)), '2026-10-02').reminders.map(r => r.id);
+      const usd = L.companyData(acc, 'USD', true), brl = L.companyData(acc, 'BRL', true);
+      usd.plan.lines.push({ id: 'pl-u', name: 'Design tool', categoryId: 'co-tools', subcategoryId: null, pay: 'fixed', due: 4, accountId: 'c2', plan: { 2026: Array(12).fill(5000) }, end: null });
+      brl.plan.lines.push({ id: 'pl-b', name: 'Accountant', categoryId: 'co-services', subcategoryId: null, pay: 'variable', due: 1, accountId: 'c1', plan: { 2026: Array(12).fill(18900) }, end: null });
+      const open2 = E.openAccount(JSON.parse(JSON.stringify(acc)), '2026-10-02'), rs = open2.reminders, co = lang === 'pt' ? 'Empresa' : 'Company';
+      eq([quietAcc, rs.map(r => [r.id, r.book || null, r.cur || null, r.when])], [['bill:pl-h:2026-10'], [['bill:pl-h:2026-10', null, null, 'soon'], ['business:BRL:bill:pl-b:2026-10', 'business:BRL', 'BRL', 'late'], ['business:USD:bill:pl-u:2026-10', 'business:USD', 'USD', 'soon']]], `server ${lang}: the job finds the household’s bill and, after it, the company’s in each currency, each with an id of its own`);
+      const d = open2.digest(rs), one = open2.push(rs.filter(r => r.book === 'business:USD')), mailOne = open2.digest(rs.filter(r => r.book === 'business:USD'));
+      ok(d.lines[1].startsWith(co + ' · Accountant: ≈ R$ 189,00') && d.lines[2].startsWith(co + ' · Design tool: US$ 50,00') && !d.lines[0].startsWith(co), `server ${lang}: the email says which bills are the company’s, each amount in its own currency`, d.lines);
+      eq([one.title, mailOne.subject.startsWith(co + ' · Design tool: ')], [co + ' · Design tool · US$ 50,00', true], `server ${lang}: a notification for one company bill names the company, the bill and the dollars`);
+      eq(new Set(rs.map(open2.key)).size, 3, `server ${lang}: each has its own key, so each is sent once per stage`);
+      // paid in the company account: the reminder goes; a household payment of the same name changes nothing
+      acc.transactions.push({ id: 't1', accountId: 'c2', date: '2026-10-01', description: 'x', merchant: 'x', amount: -5000, currency: 'USD', type: 'expense', categoryId: 'co-tools', subcategoryId: null, status: 'confirmed' }, { id: 't2', accountId: 'h1', date: '2026-10-01', description: 'y', merchant: 'y', amount: -18900, currency: 'BRL', type: 'expense', categoryId: 'co-services', subcategoryId: null, status: 'confirmed' });
+      eq(E.openAccount(JSON.parse(JSON.stringify(acc)), '2026-10-02').reminders.map(r => r.id), ['bill:pl-h:2026-10', 'business:BRL:bill:pl-b:2026-10'], `server ${lang}: a payment in the company’s dollar account settles the dollar bill; money spent from a household account never settles a company bill`);
+    }
+  }
+  done('qc-company');
+})().catch(e => { console.error('qc-company: Error', e); process.exit(1); });

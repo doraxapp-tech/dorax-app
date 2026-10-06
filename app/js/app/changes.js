@@ -13,9 +13,9 @@ const C = {
   },
   split(el) { UI.drawer.draft.splits[+el.dataset.i][el.dataset.k] = el.value; if (el.dataset.rerender) renderOverlayKeepFocus(); },
   'plan-cell'(el) { const v = typedAmount(el.value || '0'), l = lineById(el.dataset.id), y = el.dataset.y, m = +el.dataset.m; if (v === null || v < 0) toast(t('Enter the amount as a number, for example 1500 or 9,90.')); else { l.plan[y] = l.plan[y] || Array(12).fill(0); const was = l.plan[y][m]; l.plan[y][m] = v; offerFill('plan', l.id, y, m, v, was, l.plan[y]); } render(); },
-  'pay-cell'(el) { const v = typedAmount(el.value || '0'), r = S.pay[el.dataset.y].find(x => x.id === el.dataset.id), m = +el.dataset.m; if (v === null || v < 0) toast(t('Enter the amount as a number, for example 1500 or 9,90.')); else { const was = r.values[m]; r.values[m] = v; if (el.id.startsWith('pv-')) UI.fill = null; else offerFill('pay', r.id, el.dataset.y, m, v, was, r.values); } render(); },
-  'pay-to'(el) { S.pay[el.dataset.y].find(x => x.id === el.dataset.id).to = el.value; render(); },
-  'pay-name'(el) { const v = el.value.trim(); if (v) S.pay[el.dataset.y].find(x => x.id === el.dataset.id).name = v; render(); },
+  'pay-cell'(el) { const v = typedAmount(el.value || '0'), r = B().pay[el.dataset.y].find(x => x.id === el.dataset.id), m = +el.dataset.m; if (v === null || v < 0) toast(t('Enter the amount as a number, for example 1500 or 9,90.')); else { const was = r.values[m]; r.values[m] = v; if (el.id.startsWith('pv-')) UI.fill = null; else offerFill('pay', r.id, el.dataset.y, m, v, was, r.values); } render(); },
+  'pay-to'(el) { B().pay[el.dataset.y].find(x => x.id === el.dataset.id).to = el.value; render(); },
+  'pay-name'(el) { const v = el.value.trim(); if (v) B().pay[el.dataset.y].find(x => x.id === el.dataset.id).name = v; render(); },
   'close-day'(el) { const n = Math.round(+el.value); if (n >= 1 && n <= 28) S.settings.closeDay = n; render(); },
   'goal-cell'(el) { const v = typedAmount(el.value || '0'), g = goalById(el.dataset.id), y = el.dataset.y, m = +el.dataset.m; if (v === null || v < 0) toast(t('Enter the amount as a number, for example 1500 or 9,90.')); else { g.plan[y] = g.plan[y] || Array(12).fill(0); const was = g.plan[y][m]; g.plan[y][m] = v; UI.dist = null; offerFill('goal', g.id, y, m, v, was, g.plan[y]); } render(); },
   'dist-val'(el) { distDraft(S.month).vals[el.dataset.id] = el.value; render(); },
@@ -95,3 +95,5 @@ const C = {
   'user-channel'(el) { S.user.channels = { ...(S.user.channels || {}), [el.dataset.k]: el.checked }; render(); },
   'modal-word'(el) { UI.modal.typed = el.value; $('modal-ok').disabled = !modalReady(); },
 };
+// A field changes the book it belongs to: the open panel's, or the page's (ui/lookups.js).
+for (const k of Object.keys(C)) { const fn = C[k]; C[k] = el => inBook(bookKey(), () => fn(el)); }

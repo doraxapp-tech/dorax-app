@@ -21,6 +21,12 @@ const NAMES = [
   ['Left over', 'Queda libre', 'Sobra livre'],
   ['Main account', 'Cuenta principal', 'Conta principal'],
   ['Starting balance', 'Saldo inicial', 'Saldo inicial'],
+  // the company's side (core/books.js): the groups its fixed costs start with, and where its income comes from
+  ['Taxes', 'Impuestos', 'Impostos'],
+  ['Accounting and services', 'Contabilidad y servicios', 'Contabilidade e serviços'],
+  ['Tools and software', 'Herramientas y software', 'Ferramentas e software'],
+  ['Pay and people', 'Sueldos y equipo', 'Salários e equipe'],
+  ['Client payments', 'Pagos de clientes', 'Pagamentos de clientes'],
 ];
 const NAME_ROW = {}; NAMES.forEach(r => { NAME_ROW[r[0]] = r; });
 /** A name key in a language. "Transfer to {a}|bb" names an account: its current name is put in. A key the table does not have is looked up in the
@@ -33,7 +39,7 @@ function nameIn(key, lang, state) {
 }
 /** Everything in an account that can carry a name the app wrote. Accounts come first: other names can contain an account's name. */
 function namedThings(state) {
-  return [...state.accounts, state, ...state.categories, ...state.categories.flatMap(c => c.subs), ...state.plan.lines, ...Object.keys(state.pay || {}).flatMap(y => state.pay[y]), ...state.goals, ...(state.goalMoves || []), ...state.rules, ...state.transactions];
+  return [...state.accounts, state, ...state.categories, ...state.categories.flatMap(c => c.subs), ...state.plan.lines, ...Object.keys(state.pay || {}).flatMap(y => state.pay[y]), ...state.goals, ...(state.goalMoves || []), ...state.rules, ...state.transactions, ...companyNamed(state)];
 }
 const NAME_FIELDS = ['name', 'purpose', 'merchant', 'description', 'notes', 'note', 'remainderLabel'];
 /** Marks every name that is in the table as written by the app: o.k = { field: key }. Used once, on data that was just written in English. */

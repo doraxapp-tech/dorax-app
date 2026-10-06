@@ -2,7 +2,7 @@
 const TX_RESET = { q: '', month: '', scope: 'personal', account: '', category: '', type: '', status: '', page: 1 };
 
 const TRANSACTIONS_ACTIONS = {
-  'filter-cat'(ds) { Object.assign(UI.tx, TX_RESET, { month: ds.all ? '' : 'current', category: ds.cat }); UI.drawer = null; go('transactions'); },
+  'filter-cat'(ds) { Object.assign(UI.tx, TX_RESET, { month: ds.all ? '' : 'current', category: ds.cat, scope: inCompany() ? 'business' : TX_RESET.scope }); UI.drawer = null; go('transactions'); },
   'view-account'(ds) { Object.assign(UI.tx, TX_RESET, { account: ds.id, scope: '' }); go('transactions'); },
   /** Back to the view the table opens on: the month in the top bar, household accounts, nothing typed in the search. */
   'clear-filters'() { Object.assign(UI.tx, TX_DEFAULT, { page: 1 }); render(); const el = $('tx-filters-btn'); if (el) el.focus({ preventScroll: true }); },
@@ -52,7 +52,9 @@ const TRANSACTIONS_ACTIONS = {
       if (parts.some(p => p.a === 0)) return fail(t('Every split line needs an amount.'));
       splits = parts.map(p => ({ categoryId: p.k[0] || 'other', subcategoryId: p.k[1] || null, amount: sign * p.a }));
     }
-    const [c, s] = (splits ? catKey(splits[0].categoryId, splits[0].subcategoryId) : x.catKey).split('|'), noCat = x.type === 'transfer' || biz;
+    // a company movement can be tied to one of the company's own fixed costs or income rows, never to a household category (and the other way round)
+    const [c0, s0] = (splits ? catKey(splits[0].categoryId, splits[0].subcategoryId) : x.catKey || '|').split('|'), tree = biz ? companyCats() : S.categories, known = tree.find(k => k.id === c0);
+    const c = known ? c0 : '', s = known && known.subs.some(k => k.id === s0) ? s0 : '', noCat = x.type === 'transfer' || (biz && !c);
     const prev = d.isNew ? null : S.transactions.find(k => k.id === x.id);
     const next = { id: x.id || newId('t'), accountId: x.accountId, date: x.date, description: x.description || x.merchant.trim(), merchant: x.merchant.trim(), amount: sign * total, currency: acct(x.accountId).currency, type: x.type,
       categoryId: noCat ? null : c || 'other', subcategoryId: noCat ? null : s || null, status: x.status, transferAccountId: x.type === 'transfer' ? x.transferAccountId || null : null,
@@ -61,7 +63,7 @@ const TRANSACTIONS_ACTIONS = {
     if (prev) Object.assign(prev, next); else S.transactions.push(next);
     S.transactions.sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
     UI.rulePrompt = null;
-    if (prev && !splits && !noCat && d.original !== catKey(next.categoryId, next.subcategoryId) && next.categoryId !== 'other') {
+    if (prev && !splits && !noCat && !biz && d.original !== catKey(next.categoryId, next.subcategoryId) && next.categoryId !== 'other') {
       const rule = matchRule(next.description, next.accountId, S.rules);
       if (!rule || rule.categoryId !== next.categoryId || (rule.subcategoryId || null) !== next.subcategoryId) {
         const key = normalizeText(next.merchant), count = S.transactions.filter(k => normalizeText(k.merchant) === key && k.categoryId === next.categoryId && (k.subcategoryId || null) === next.subcategoryId).length;

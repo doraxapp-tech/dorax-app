@@ -22,3 +22,6 @@ const A = {
   ...BANK_ACTIONS,
   ...CONVERTER_ACTIONS,
 };
+// Every click runs in a book: the one the button names (data-book: a company bill in the bell), else the open panel's, else the page's
+// (ui/lookups.js). Set once here, so no action has to think about it.
+for (const k of Object.keys(A)) { const fn = A[k]; A[k] = (ds, el) => inBook((ds && ds.book) || bookKey(), () => fn(ds, el)); }

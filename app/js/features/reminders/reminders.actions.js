@@ -6,7 +6,7 @@ const REMIND_ACTIONS = {
   'remind-ask-due'(ds) { remindCfg().askDue = !!ds.v; toast(ds.v ? t('I will ask about bills without a due day again.') : t('I will not ask about due days again. You can set them in the plan whenever you want.')); render(); },
   'remind-report'(ds) { S.month = ds.ym; UI.drawer = null; navigate('reports'); },
   'remind-go'(ds) { UI.drawer = null; navigate(ds.route); const el = ds.route === 'profile' && $('reminders-card'); if (el) el.scrollIntoView({ block: 'start' }); },
-  'remind-month'(ds) { S.month = ds.ym; UI.drawer = null; navigate(ds.route); },
+  'remind-month'(ds) { S.month = ds.ym; UI.drawer = null; if (ds.book) setPageBook(ds.book); navigate(ds.route); },
   // notifications on this device, and the two "send a test" buttons (features/reminders/push.js; the server sends, see supabase/functions/reminders)
   async 'push-on'() {
     UI.push = { ...(UI.push || {}), busy: true }; render();
@@ -23,7 +23,7 @@ const REMIND_ACTIONS = {
   'calendar-file'() { const ev = calendarEvents(); if (!ev.length) return toast(t('Give at least one bill a due day first.')); saveFile('dorax-finance.ics', calendarText(ev), 'text/calendar'); },
   // paying the card: one movement out of the account that pays and one into the card, so both balances stay right
   'card-pay'(ds) {
-    const a = acct(ds.id), from = cashAccounts().filter(x => x.type !== 'credit'), inv = cardInvoices(S, S.today, CUR).find(c => c.accountId === ds.id && c.ym === ymOf(S.today));
+    const a = acct(ds.id), from = cashAccounts().filter(x => x.type !== 'credit'), inv = cardInvoices(B(), S.today, BCUR()).find(c => c.accountId === ds.id && c.ym === ymOf(S.today));
     if (!a) return; if (!from.length) return toast(t('Add the account you pay the card from first.'));
     UI.sheet = false; UI.drawer = { kind: 'card-pay', title: t('Pay {name}', { name: a.name }), back: !!ds.back, draft: { cardId: a.id, fromId: from[0].id, amountText: inv && inv.amount ? plain(inv.amount) : '', date: S.today } };
     renderOverlay(); const el = $('cp-amount'); if (el) { el.focus(); el.select(); }

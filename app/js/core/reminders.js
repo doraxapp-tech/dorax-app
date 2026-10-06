@@ -36,7 +36,21 @@ function reminders(state, today, currency, opt) {
   }
   return out;
 }
+/** The household's reminders and, after them, the company's: its bills, card invoices and reserves, in each currency it keeps a plan in.
+    A company reminder says which book it comes from (book, cur) and its id starts with that, so it never collides with a household one.
+    The statements for the accountant and the month's summary are said once, by the household's side. */
+function remindersAll(state, today, opt) {
+  const out = reminders(state, today, BASE_CURRENCY, opt);
+  for (const b of companyBooks(state)) for (const r of reminders(b.book, today, b.cur, { ...opt, close: false, summary: false })) out.push({ ...r, id: b.key + ':' + r.id, book: b.key, cur: b.cur });
+  return out;
+}
 /** Bills whose reminder has not gone out yet: the due day is further away than the lead time. sendDate is the day the reminder is due. */
 function reminderSchedule(state, today, currency, lead, days) {
   return upcomingBills(state, today, currency, days || 45).filter(p => p.dueDate && p.days > lead).map(p => ({ lineId: p.id, name: p.name, pay: p.pay, ym: p.ym, date: p.dueDate, days: p.days, amount: p.planned, sendDate: addDays(p.dueDate, -lead) }));
+}
+/** The same for both sides: the household's bills, then the company's, in the order their reminders go out. */
+function reminderScheduleAll(state, today, lead, days) {
+  const out = reminderSchedule(state, today, BASE_CURRENCY, lead, days);
+  for (const b of companyBooks(state)) for (const x of reminderSchedule(b.book, today, b.cur, lead, days)) out.push({ ...x, book: b.key, cur: b.cur });
+  return out.sort((a, b) => a.sendDate < b.sendDate ? -1 : a.sendDate > b.sendDate ? 1 : 0);
 }

@@ -152,6 +152,26 @@ To switch it on:
 
 What it does when things go wrong: the message is always saved first, and nothing about the email can make the form fail. If the email could not be sent, or 20 contact emails already went out that day (the form is open to anyone, and the email allowance is shared with the sign-up emails), the message waits and the morning run sends one summary. Without `CONTACT_TO` nothing is sent.
 
+### The company's side of Plan and Savings & goals (built 2026-10-06)
+
+Asked by the owner while using the app: "I feel the need to also organize my PJ account like, savings, goals, etc". Decided with him: **fixed costs and goals first**; **one switch, Household / Company**, on the same pages; **each currency by itself** (nothing is converted).
+
+**What the person sees.** On Plan and on Savings & goals, beside the title: Household | Company. It is there only when the account has a company (PJ) account. A company with accounts in two currencies also chooses BRL or USD. On the company's side the pages are the same ones (fixed costs with due days and "Mark as paid", income rows, the year grid, goals and funds, the monthly hand-out), counting only company accounts in that currency. The bell, the calendar file, the reminder emails and the notifications include the company's bills, marked "Company" and in their own currency. A movement in a company account can be tied to a company cost (Transactions > the movement > "Company cost or income"), which counts as that cost's payment.
+
+**What is kept, and where.** `S.company = { categories, books: { BRL: { goals, goalMoves, plan: { lines }, pay }, USD: {...} } }`, inside the same account document. The household's own plan, goals, income and categories are not touched or moved: an account that never opens the company's side has no `company` at all. The company has its own groups (Taxes, Accounting and services, Tools and software, Pay and people, Other) and its own income group; they follow the language like the household's.
+
+| Piece | Where |
+| --- | --- |
+| The books: what a company book is, which currencies exist | `app/js/core/books.js` |
+| Whose accounts count in a calculation (`state.scope`) | `inScope` in `app/js/core/reporting.js`, `cardInvoices` in `core/cards.js` |
+| Which book a screen, a panel or a click uses (`B()`, `inBook`, `data-book`) | `app/js/ui/lookups.js`; set around every click in `app/js/app/actions.js`, every field in `changes.js`, every page in `shell.js`, every panel in `overlay.js` |
+| The switch | `spaceSwitch()` in `app/js/app/shell.js` |
+| Reminders of both sides | `remindersAll`, `reminderScheduleAll` in `app/js/core/reminders.js` |
+
+**After deploying the site, deploy the reminders function again** (step 2 of "The contact form tells you" has the command). The server's copy of the rules (`engine.mjs`) was regenerated: until the function is deployed again the app shows the company's bills in the bell, but the emails and notifications are still the household's only. `node tools/build-functions.js --version` prints the new letters to compare.
+
+**Not built yet (the owner chose to start with costs and goals):** a company dashboard and company reports; the Dashboard's "To do" list is the household's (company bills are in the bell); the company's groups cannot be renamed on the Categories page; a statement imported into a company account does not tick a company bill by itself (tie the movement to the cost, or use "Mark as paid" and skip the duplicate the import flags); money the company pays the owner is not linked to the household's income.
+
 ### Connecting a bank through Open Finance (a TRIAL, built 2026-10-06)
 
 Decided by the owner on 2026-10-06: connecting a bank is **an option beside importing files**, not a replacement. What exists is a trial against **Belvo's sandbox** (test banks, invented data). Since the same day it has **its own page in the menu, Open Finance, for every account** (owner: "add an open finance tab and make it visible for all users"); the list of named accounts it started with is gone. The page is marked "Trial: test banks only", and the public pages still say Dorax does not connect to a bank, which stays true while only test banks can be reached.

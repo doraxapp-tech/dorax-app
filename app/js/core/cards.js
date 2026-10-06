@@ -7,7 +7,7 @@ const onCard = (state, line) => { const a = state.accounts.find(x => x.id === li
 function cardInvoices(state, today, currency) {
   const nowYm = ymOf(today), out = [];
   for (const a of state.accounts) {
-    if (a.type !== 'credit' || a.scope === 'business' || a.currency !== currency || !a.dueDay) continue;
+    if (a.type !== 'credit' || (a.scope === 'business') !== (state.scope === 'business') || a.currency !== currency || !a.dueDay) continue;
     const hasTx = state.transactions.some(t => t.accountId === a.id);
     for (const ym of [nowYm, addMonths(nowYm, 1)]) {
       const date = isoDate(ym, a.dueDay), prevYm = addMonths(ym, -1);

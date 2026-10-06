@@ -12,6 +12,7 @@ for (const f of files) {
   const s = fs.readFileSync(path.join(src, f), 'utf8');
   // t('...')
   for (const m of s.matchAll(/\bt\(\s*'((?:[^'\\]|\\.)*)'/g)) add(m[1], f);
+  for (const m of s.matchAll(/\btcur\(\s*'((?:[^'\\]|\\.)*)'/g)) add(m[1], f);       // t() with the currency put in (ui/lookups.js)
   for (const m of s.matchAll(/\bt\(\s*"((?:[^"\\]|\\.)*)"/g)) add(m[1], f);
   // tn(n, 'one', 'many')
   for (const m of s.matchAll(/\btn\(\s*[^,]+,\s*'((?:[^'\\]|\\.)*)'\s*,\s*'((?:[^'\\]|\\.)*)'/g)) { add(m[1], f); add(m[2], f); }

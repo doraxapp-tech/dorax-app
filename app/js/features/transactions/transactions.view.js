@@ -21,6 +21,7 @@ const TX_SIZES = [10, 25, 50], TX_KEYS = ['month', 'scope', 'account', 'category
 function txCatPairs() {
   const pairs = [['', t('All categories')], ['none', t('Uncategorized') + (S.categories.some(c => c.id === 'other') ? ' / ' + catName('other') : '')]];
   S.categories.forEach(c => { pairs.push([c.id, c.name]); c.subs.forEach(s => pairs.push([s.id, '   ' + s.name])); });
+  companyCats().forEach(c => { pairs.push([c.id, t('Company') + ' · ' + c.name]); c.subs.forEach(s => pairs.push([s.id, '   ' + s.name])); });      // the company's own groups, after the household's
   return pairs;
 }
 /** The filters that differ from the opening view, as [key, words]. An account decides the scope by itself, so the scope is not listed beside it. */

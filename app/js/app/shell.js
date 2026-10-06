@@ -13,6 +13,13 @@ const TABS = ['dashboard', 'transactions', 'plan', 'goals'];
 const tabLabel = id => id === 'goals' ? t('Goals') : routeLabel(id);
 const $ = id => document.getElementById(id);
 
+/** Household or Company, on the screens that have the two sides. It is there only once the company has an account; with accounts in more
+    than one currency the company's side also asks which one, because reais and dollars are planned apart and never added up. */
+function spaceSwitch() {
+  const cs = companyCurrencies(S); if (!SPACE_ROUTES.includes(UI.route) || !cs.length) return '';
+  const key = pageBookKey(), co = key !== 'personal';
+  return `<div class="space">${seg('space', [['personal', t('Household')], ['business', t('Company')]], co ? 'business' : 'personal', t('Whose money'))}${co && cs.length > 1 ? seg('space-cur', cs.map(c => [c, c]), key.slice(9), t('Currency')) : ''}${info(t('Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.'))}</div>`;
+}
 function navLinks(list) {
   const pending = S.transactions.filter(x => x.status === 'pending').length, c = closeInfo(addMonths(ymOf(S.today), -1)), open = c.total - c.sent;
   return list.map(([id, ic]) => `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}<span>${routeLabel(id)}</span>${id === 'transactions' && pending ? `<span class="count" title="${t('Pending')}">${pending}</span>` : ''}${id === 'converter' && open ? `<span class="count" title="${t('Pending')}">${open}</span>` : ''}</a>`).join('');
@@ -52,7 +59,7 @@ function renderShell() {
         ${bellButton()}
         ${main ? `<button class="btn primary" data-a="${main[0]}" ${main[1]}>${icon('plus')}<span class="lbl">${main[2]}</span></button>` : ''}</div></div>
     <div class="pagehead"><h1>${routeLabel(UI.route)}</h1>
-      ${MONTH_ROUTES.includes(UI.route) ? `<div class="month" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${ym <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(ym, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${ym >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : ''}</div>`;
+      ${MONTH_ROUTES.includes(UI.route) ? `<div class="month" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${ym <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(ym, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${ym >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : ''}${spaceSwitch()}</div>`;
 }
 // Renders triggered by a field's change event are postponed until focus has moved and any click in progress has landed,
 // so Tab order survives and a button pressed straight after typing still receives its click. State is always updated immediately.
@@ -79,7 +86,7 @@ function renderNow() {
   }
   $('public').innerHTML = '';
   renderShell();
-  $('view').innerHTML = ROUTES.find(x => x[0] === UI.route)[2]();
+  $('view').innerHTML = inBook(pageBookKey(), () => ROUTES.find(x => x[0] === UI.route)[2]());       // the page shows its own book, whatever panel is open over it
   document.querySelectorAll('#view .tbl-wrap').forEach((w, i) => {
     if (UI.autoScroll) { const cur = w.querySelector('thead th.cur'), first = w.querySelector('thead th'); if (cur && first) w.scrollLeft = Math.max(0, cur.offsetLeft - first.offsetWidth - 8); }
     else if (sx[i]) w.scrollLeft = sx[i];

@@ -2,7 +2,7 @@
 // ---------- confirmation: every delete is confirmed in a centred dialog; what cannot be rebuilt also asks for a typed word ----------
 function confirmBox(o) {
   const el = document.activeElement;
-  UI.modal = { tone: 'danger', typed: '', word: o.critical ? t('delete') : null, back: el && el.id ? '#' + el.id : focusKey(el), ...o };
+  UI.modal = { tone: 'danger', typed: '', word: o.critical ? t('delete') : null, back: el && el.id ? '#' + el.id : focusKey(el), book: bookKey(), ...o };
   renderModal();
 }
 const modalReady = () => !UI.modal.word || UI.modal.typed.trim().toLowerCase() === UI.modal.word.toLowerCase();

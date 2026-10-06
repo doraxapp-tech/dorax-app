@@ -90,6 +90,15 @@ The app side is in the folder. On the server, checked on the live project on 202
 
 Then send the form once on dorax.app. You answer by replying to the email. Details: `DEPLOY.md`, "The contact form tells you".
 
+### 3g. The company's side of Plan and Savings & goals (built 2026-10-06)
+
+Nothing to set up in the app: with a company (PJ) account, Plan and Savings & goals show **Household | Company** beside the title. One step on the server, so that reminder emails and notifications also cover the company's bills:
+
+1. Deploy the site (`git push`).
+2. Terminal, in the folder: `npx supabase@latest functions deploy reminders --project-ref uhvfkyblfojcpqupmlbg`.
+
+Details and what is not built yet: `DEPLOY.md`, "The company's side of Plan and Savings & goals".
+
 ### 3f. Open Finance: connecting a bank, a trial with Belvo's test banks (built 2026-10-06)
 
 1. Supabase > SQL Editor: run `supabase/schema.sql` again (adds the table `bank_links`).

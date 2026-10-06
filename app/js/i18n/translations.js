@@ -1188,6 +1188,13 @@ const TR = [
   ["Test sent. It should arrive in a few seconds.", "Prueba enviada. Debería llegar en unos segundos.", "Teste enviado. Deve chegar em alguns segundos."],
   ["Test sent to {email}.", "Prueba enviada a {email}.", "Teste enviado para {email}."],
   ["The test could not be sent. Try again in a minute.", "No se pudo enviar la prueba. Inténtalo de nuevo en un minuto.", "Não foi possível enviar o teste. Tente de novo em um minuto."],
+  // the company's side of Plan and Savings & goals (2026-10-06)
+  ["Whose money", "De quién es el dinero", "De quem é o dinheiro"],
+  ["Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.", "El dinero de la casa y el de la empresa se planifican por separado. Del lado de la empresa, los costos fijos y las metas cuentan solo las cuentas de la empresa, cada moneda por su lado.", "O dinheiro da casa e o da empresa são planejados separadamente. No lado da empresa, os custos fixos e as metas contam só as contas da empresa, cada moeda por si."],
+  ["e.g. Taxes, Reserve, Equipment", "p. ej. Impuestos, Reserva, Equipo", "ex.: Impostos, Reserva, Equipamento"],
+  ["e.g. Accountant, taxes", "p. ej. Contador, impuestos", "ex.: Contador, impostos"],
+  ["Company cost or income", "Costo o ingreso de la empresa", "Custo ou receita da empresa"],
+  ["Not in the company plan", "Fuera del plan de la empresa", "Fora do plano da empresa"],
   // connecting a bank through Open Finance (a trial, 2026-10-06)
   ["Connect a bank", "Conectar un banco", "Conectar um banco"],
   ["Open Finance", "Open Finance", "Open Finance"],

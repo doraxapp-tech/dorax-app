@@ -10,8 +10,13 @@ const whenText = r => r.days < 0 ? tn(-r.days, '{n} day late', '{n} days late') 
 /** The reminders worth a message. "Some bills have no due day" is a thing to set up, not a thing that is due: the app shows it, nothing is sent for it. */
 const messageReminders = rs => rs.filter(r => r.kind !== 'nodue');
 
-/** One reminder as one sentence. */
+/** One reminder as one sentence. A company reminder (r.book, r.cur: core/reminders.js) says so first, and is in its own currency. */
+const ofCompany = r => r.book ? t('Company') + ' · ' : '';
 function reminderLine(r) {
+  const CUR = r.cur || BASE_CURRENCY;
+  return ofCompany(r) + reminderSentence(r, CUR);
+}
+function reminderSentence(r, CUR) {
   return r.kind === 'bill' ? t('{name}: {amount}, due {date} ({when}).', { name: r.name, amount: (r.pay === 'variable' ? '≈ ' : '') + fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
     : r.kind === 'card' ? t('{name}: invoice of {amount}, due {date} ({when}).', { name: r.name, amount: (r.estimate ? '≈ ' : '') + fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
     : r.kind === 'past' ? tn(r.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(r.ym) }) + ': ' + r.lines.map(x => x.name).join(', ') + '.'
@@ -24,7 +29,7 @@ function reminderLine(r) {
 function reminderDigest(rs) {
   rs = messageReminders(rs); if (!rs.length) return null;
   const bills = rs.filter(r => r.kind === 'bill' || r.kind === 'card');
-  return { subject: rs.length === 1 && bills.length ? `${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today'), lines: rs.map(reminderLine) };
+  return { subject: rs.length === 1 && bills.length ? `${ofCompany(bills[0])}${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today'), lines: rs.map(reminderLine) };
 }
 
 /** The notification: a title and a short body. One bill shows its name and amount, then when it is due; several are counted, the first three named. */
@@ -32,7 +37,7 @@ function reminderPush(rs) {
   rs = messageReminders(rs); if (!rs.length) return null;
   if (rs.length === 1) {
     const r = rs[0];
-    if (r.kind === 'bill' || r.kind === 'card') return { title: `${r.kind === 'card' ? t('{name}: invoice', { name: r.name }) : r.name} · ${(r.pay === 'variable' || r.estimate ? '≈ ' : '') + fmt.money(r.amount, CUR)}`, body: `${t('Due {date}', { date: fmt.date(r.date) })} · ${whenText(r)}` };
+    if (r.kind === 'bill' || r.kind === 'card') return { title: `${ofCompany(r)}${r.kind === 'card' ? t('{name}: invoice', { name: r.name }) : r.name} · ${(r.pay === 'variable' || r.estimate ? '≈ ' : '') + fmt.money(r.amount, r.cur || BASE_CURRENCY)}`, body: `${t('Due {date}', { date: fmt.date(r.date) })} · ${whenText(r)}` };
     return { title: 'Dorax Finance', body: reminderLine(r) };
   }
   const more = rs.length - 3;

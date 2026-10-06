@@ -1,6 +1,7 @@
 /* Dorax Finance — calculations: the month (income, spending, left over), totals by category, balances, shares. */
 // ---------- reporting ----------
-// Household figures only ever include personal accounts. Company (PJ) accounts are kept for statement export and never mixed in.
+// Household figures only ever include personal accounts, and a company book's figures only company (PJ) accounts: the two are never mixed.
+// Which side is being counted is the state's own say: a company book answers scope 'business' (core/books.js), the account itself nothing.
 function counts(t) { return t.status !== 'ignored'; }
 function allocations(t) {
   if (t.splits && t.splits.length) return t.splits.map(s => ({ categoryId: s.categoryId, subcategoryId: s.subcategoryId || null, amount: s.amount }));
@@ -8,7 +9,7 @@ function allocations(t) {
 }
 function inScope(state, t, ym, currency) {
   const acct = state.accounts.find(a => a.id === t.accountId);
-  return acct && acct.scope !== 'business' && acct.currency === currency && counts(t) && (!ym || ymOf(t.date) === ym);
+  return acct && (acct.scope === 'business') === (state.scope === 'business') && acct.currency === currency && counts(t) && (!ym || ymOf(t.date) === ym);
 }
 /** Income, expenses, what is left over (income minus spending) and its share of income, for a month. Transfers and adjustments never count as spending.
     `saved` is NOT money put into goals: that is the sum of goal movements. upTo (a date) limits the month to its first days. */
