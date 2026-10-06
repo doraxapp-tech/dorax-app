@@ -24,7 +24,7 @@ const path = require('path');
   // ---------------------------------------------------------------- 1. where the switch is, and where it is not
   {
     const o = await open({ lang: 'en', account: 'example', plan: true, viewport: wide }), p = o.page;
-    eq(await p.evaluate(() => ROUTES.map(r => { UI.route = r[0]; renderShell(); return [r[0], !!document.querySelector('.pagehead .space')]; }).filter(x => x[1]).map(x => x[0])), ['plan', 'goals'], tag + 'the Household / Company switch is on Plan and on Savings & goals, and on no other screen');
+    eq(await p.evaluate(() => ROUTES.map(r => { UI.route = r[0]; renderShell(); return [r[0], !!document.querySelector('.pagehead .space')]; }).filter(x => x[1]).map(x => x[0])), ['plan', 'goals', 'categories'], tag + 'the Household / Company switch is on Plan, on Savings & goals and on Categories, and on no other screen');
     await p.evaluate(() => navigate('plan'));
     eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), [...document.querySelectorAll('[data-a="space-cur"]')].some(b => getComputedStyle(b).visibility !== 'hidden'), !!document.querySelector('.space .hint'), S.company === undefined]),
       [[['Household', 'true'], ['Company', 'false']], false, true, true], tag + 'it opens on the household, with no currency to choose and an (i); nothing is kept for the company until its side is opened');

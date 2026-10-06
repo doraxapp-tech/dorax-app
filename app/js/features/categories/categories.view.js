@@ -2,20 +2,32 @@
 // ---------- Categories & Rules ----------
 // v36 (owner: "a mess… a super long column of categories and subcategories"; "remove Test a description"; "explain Add a rule, I don't know what it is for"):
 // categories are a grid of short blocks, each showing its subcategories only when opened; rules say in plain words what they do, above the form that adds one.
+// 2026-10-06 (owner: "how do I add and remove groups (categories) for the company? and also how to remove group categories for Household?"):
+// the screen has the two sides, like Plan (Household | Company in the top bar), and a category can be deleted on either. Deleting one never
+// loses anything: what it held (subcategories, their fixed costs, transactions) moves to Other, which is why Other itself stays, and so does
+// Income. The company's categories are the groups of its fixed costs; they are the same for every currency the company plans in. Rules file
+// household statements only, so the company's side does not show them.
 function viewCategories() {
-  const count = {};
+  const co = inCompany(), cats = B().categories, count = {}, oid = otherId();
   S.transactions.forEach(x => allocations(x).forEach(a => { if (a.categoryId) count[a.categoryId] = (count[a.categoryId] || 0) + 1; if (a.subcategoryId) count[a.subcategoryId] = (count[a.subcategoryId] || 0) + 1; }));
+  const paid = new Set(sideBooks().flatMap(b => Object.values(b.pay || {}).flatMap(rows => (rows || []).map(r => r.sub))));
   const editing = id => UI.catEdit === id;
+  const off = tip => `disabled style="opacity:.4;cursor:not-allowed" data-tip="${esc(tip)}"`;
   const nameCell = (id, name) => editing(id) ? `<input type="text" id="cat-rename" aria-label="${t('Name')}" value="${esc(name)}" data-id="${id}"><button class="btn sm primary" data-a="save-cat" data-id="${id}">${t('Save')}</button><button class="btn sm ghost" data-a="edit-cat" data-id="">${t('Cancel')}</button>` : `<span class="nm">${esc(name)}</span>`;
+  const subDel = s => count[s.id] ? off(t('Reassign its {n} transactions before deleting', { n: count[s.id] })) : paid.has(s.id) ? off(t('It is an income row on Plan. Remove the row there first.')) : '';
+  const catDel = c => c.income ? off(t('Income is kept here. It can be renamed, not deleted.')) : c.id === oid ? off(t('Anything without a category goes here. It can be renamed, not deleted.')) : '';
   const block = c => { const open = !!UI.catOpen[c.id] || c.subs.some(s => editing(s.id));
-    return `<div class="cat-card${open ? ' open' : ''}"><div class="cat-h"><span class="dot" style="background:${catColor(c.id)}"></span>${nameCell(c.id, c.name)}${editing(c.id) ? '' : `<span class="n" title="${t('Transactions')}">${count[c.id] || 0}</span><button class="iconbtn" data-a="edit-cat" data-id="${c.id}">${t('Rename')}</button>`}</div>
-      <button class="cat-more" data-a="cat-toggle" data-id="${c.id}" aria-expanded="${open}" aria-controls="subs-${c.id}">${icon(open ? 'down' : 'right')}<span>${tn(c.subs.length, '{n} subcategory', '{n} subcategories')}</span></button>
-      ${open ? `<div class="subs" id="subs-${c.id}">${c.subs.map(s => `<div class="sub">${nameCell(s.id, s.name)}${editing(s.id) ? '' : `<span class="n" title="${t('Transactions')}">${count[s.id] || 0}</span><button class="iconbtn" data-a="edit-cat" data-id="${s.id}">${t('Rename')}</button><button class="iconbtn" data-a="delete-sub" data-id="${s.id}" ${count[s.id] ? `disabled style="opacity:.4;cursor:not-allowed" data-tip="${t('Reassign its {n} transactions before deleting', { n: count[s.id] })}"` : ''}>${t('Delete')}</button>`}</div>`).join('')}
+    return `<div class="cat-card${open ? ' open' : ''}"><div class="cat-h"><span class="dot" style="background:${catColor(c.id)}"></span>${nameCell(c.id, c.name)}${editing(c.id) ? '' : `<span class="n" title="${t('Transactions')}">${count[c.id] || 0}</span>`}</div>
+      <div class="cat-f"><button class="cat-more" data-a="cat-toggle" data-id="${c.id}" aria-expanded="${open}" aria-controls="subs-${c.id}">${icon(open ? 'down' : 'right')}<span>${tn(c.subs.length, '{n} subcategory', '{n} subcategories')}</span></button>
+        ${editing(c.id) ? '' : `<span class="cat-acts"><button class="iconbtn" id="ren-${c.id}" data-a="edit-cat" data-id="${c.id}" aria-label="${t('Rename')} ${esc(c.name)}">${t('Rename')}</button><button class="iconbtn" id="del-${c.id}" data-a="delete-cat" data-id="${c.id}" aria-label="${t('Delete')} ${esc(c.name)}" ${catDel(c)}>${t('Delete')}</button></span>`}</div>
+      ${open ? `<div class="subs" id="subs-${c.id}">${c.subs.map(s => `<div class="sub">${nameCell(s.id, s.name)}${editing(s.id) ? '' : `<span class="n" title="${t('Transactions')}">${count[s.id] || 0}</span><button class="iconbtn" data-a="edit-cat" data-id="${s.id}">${t('Rename')}</button><button class="iconbtn" data-a="delete-sub" data-id="${s.id}" ${subDel(s)}>${t('Delete')}</button>`}</div>`).join('')}
         <div class="sub add"><label class="sr" for="newsub-${c.id}">${t('New subcategory')}</label><input type="text" id="newsub-${c.id}" placeholder="${t('New subcategory')}"><button class="btn sm" data-a="add-sub" data-id="${c.id}">${t('Add')}</button></div></div>` : ''}</div>`; };
-  const rules = [...S.rules].sort((a, b) => b.priority - a.priority || a.pattern.localeCompare(b.pattern)), pr = paged('rules', rules);
-  return `<section class="card" id="cat-cats"><div class="card-h"><h2>${t('Categories')}</h2>${hint('catCats')}<span class="sub">${tn(S.categories.length, '{n} category', '{n} categories')}</span>
+  const catsCard = `<section class="card" id="cat-cats"><div class="card-h"><h2>${co ? t('Company categories') : t('Categories')}</h2>${hint(co ? 'catCo' : 'catCats')}<span class="sub">${tn(cats.length, '{n} category', '{n} categories')}</span>
       <div class="right"><label class="sr" for="newcat">${t('New category name')}</label><input type="text" id="newcat" placeholder="${t('New category name')}" style="width:190px"><button class="btn sm" data-a="add-cat">${icon('plus')}${t('Add category')}</button></div></div>
-    <div class="card-b"><div class="cat-grid">${S.categories.map(block).join('')}</div></div></section>
+    <div class="card-b"><div class="cat-grid">${cats.map(block).join('')}</div>${co ? `<p class="note" id="cat-co-note" style="margin-top:14px;max-width:86ch">${t('Rules file the household’s statements only. A company movement is filed by hand, on Transactions.')}</p>` : ''}</div></section>`;
+  if (co) return catsCard;
+  const rules = [...S.rules].sort((a, b) => b.priority - a.priority || a.pattern.localeCompare(b.pattern)), pr = paged('rules', rules);
+  return `${catsCard}
   <section class="card" id="cat-rules"><div class="card-h"><h2>${t('Rules')}</h2>${hint('catRules')}<span class="sub">${tn(S.rules.filter(r => r.active).length, '{n} active', '{n} active')}</span></div>
     <div class="card-b" style="padding-bottom:16px"><p class="note" style="max-width:86ch">${t('A rule names and files transactions for you. When the bank’s text of a transaction contains the keyword, the transaction gets the merchant name and the category you chose. Rules are applied every time you import a statement.')}</p>
       <div class="rule-new"><div class="row" style="gap:6px"><b style="font-weight:500">${t('Add a rule')}</b>${hint('catAdd')}</div><div class="form-grid rule-form">

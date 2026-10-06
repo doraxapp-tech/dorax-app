@@ -13,7 +13,7 @@ const TABS = ['dashboard', 'transactions', 'plan', 'goals'];
 const tabLabel = id => id === 'goals' ? t('Goals') : routeLabel(id);
 const $ = id => document.getElementById(id);
 
-/** Household or Company, on the screens that have the two sides. It is there for everybody (owner, 2026-10-06: "make it visible for all
+/** Household or Company, on the screens that have the two sides (Plan, Savings & goals, Categories). It is there for everybody (owner, 2026-10-06: "make it visible for all
     users for now"): a person with no company account can still plan the company's side, in the account's own currency. With more than one
     currency the company's side also asks which one, because reais and dollars are planned apart and never added up. */
 function spaceSwitch() {
@@ -25,7 +25,10 @@ function spaceSwitch() {
   // it on the left (css/base/shell.css). The (i) comes before the currency so that it does not move either. And when the company has two
   // currencies, the room for their switch is kept on the household's side too (drawn but not shown, not reachable): the group is the same
   // size on both sides, so the bar wraps the same way on both, at any window width.
-  return `<div class="space${cs.length > 1 ? ' two' : ''}"><span class="space-side" aria-hidden="true"></span>${seg('space', [['personal', t('Household')], ['business', t('Company')]], co ? 'business' : 'personal', t('Whose money'))}<span class="space-tail">${info(t('Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.'))}${cs.length < 2 ? '' : co ? seg('space-cur', cs.map(c => [c, c]), key.slice(9), t('Currency')) : `<span class="space-ghost" aria-hidden="true">${seg('space-cur', cs.map(c => [c, c]), cs.includes(UI.spaceCur) ? UI.spaceCur : cs[0], t('Currency'))}</span>`}</span></div>`;
+  // Categories are the same for every currency of the company, so that screen asks only whose they are.
+  const cats = UI.route === 'categories', two = cs.length > 1 && !cats;
+  const what = cats ? t('The household and the company each keep their own categories. The company’s are the same for every currency it plans in.') : t('Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.');
+  return `<div class="space${two ? ' two' : ''}"><span class="space-side" aria-hidden="true"></span>${seg('space', [['personal', t('Household')], ['business', t('Company')]], co ? 'business' : 'personal', cats ? t('Whose categories') : t('Whose money'))}<span class="space-tail">${info(what)}${!two ? '' : co ? seg('space-cur', cs.map(c => [c, c]), key.slice(9), t('Currency')) : `<span class="space-ghost" aria-hidden="true">${seg('space-cur', cs.map(c => [c, c]), cs.includes(UI.spaceCur) ? UI.spaceCur : cs[0], t('Currency'))}</span>`}</span></div>`;
 }
 function navLinks(list) {
   const pending = S.transactions.filter(x => x.status === 'pending').length, c = closeInfo(addMonths(ymOf(S.today), -1)), open = c.total - c.sent;

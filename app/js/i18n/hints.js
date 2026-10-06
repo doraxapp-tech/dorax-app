@@ -66,7 +66,8 @@ const HINTS = {
   recList: () => t('A payment is listed when the same merchant appears in at least 3 of the last 4 months with a similar amount and day. “Not recurring” takes one off the list.'),
   recAdd: () => t('Add a payment that repeats but has not shown up in your transactions yet.'),
   // categories and rules
-  catCats: () => t('Categories group your spending on the dashboard and in the reports; subcategories split a category further. Rename them as you like. The number is how many transactions use each one.'),
+  catCats: () => t('Categories group your spending on the dashboard and in the reports; subcategories split a category further. Add, rename or delete them as you like: what a deleted category held moves to Other. The number is how many transactions use each one.'),
+  catCo: () => t('The company’s categories group its fixed costs on Plan, and a company movement can be filed under one on Transactions. They are the same for every currency the company plans in. Add, rename or delete them as you like. The number is how many transactions use each one.'),
   catRules: () => t('A rule files transactions for you. When the bank’s text of a transaction contains the keyword, the transaction gets the merchant name and the category of the rule. Rules are applied when a statement is imported; if two rules match, the one with the higher priority wins.'),
   catAdd: () => t('Example: keyword UBER, merchant Uber, category Transport. From then on, every imported line whose text contains UBER is named Uber and filed under Transport by itself.'),
   firstSteps: () => t('The four things that make the app useful, in order. Each is ticked when it is done.'),

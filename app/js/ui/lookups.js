@@ -10,11 +10,11 @@ const needStatements = ym => S.accounts.filter(a => owesStatement(a, ym));
 /** Accounts in the order the converter offers them: the ones on the monthly list, then the other company accounts, then the household's. */
 const convAccounts = () => { const m = needStatements(); return [...m, ...business().filter(a => !m.includes(a)), ...personal().filter(a => !m.includes(a))]; };
 // ---------- which book: the household's or the company's ----------
-// Plan and Savings & goals have two sides (core/books.js). The page says which one it shows (UI.space, UI.spaceCur); everything those
+// Plan, Savings & goals and Categories have two sides (core/books.js). The page says which one it shows (UI.space, UI.spaceCur); everything those
 // screens read and write goes through B(), the book in use, instead of S. A panel remembers the book it was opened for (drawer.book), a
 // button can name one (data-book: a company bill in the bell), and while a view or an action runs the book is fixed (inBook), so the page
 // behind a panel never borrows the panel's book. On every other screen B() is S: the household, as before.
-const SPACE_ROUTES = ['plan', 'goals'];
+const SPACE_ROUTES = ['plan', 'goals', 'categories'];
 let BOOK_NOW = null;
 function inBook(key, fn) { const was = BOOK_NOW; BOOK_NOW = key || 'personal'; try { return fn(); } finally { BOOK_NOW = was; } }
 /** The book the page itself shows: the company's only on a screen that has two sides, and only when it was chosen. */
@@ -22,7 +22,7 @@ function pageBookKey() {
   if (UI.space !== 'business' || !SPACE_ROUTES.includes(UI.route)) return 'personal';
   const cs = companyCurrencies(S); return cs.length ? bookKeyOf(cs.includes(UI.spaceCur) ? UI.spaceCur : cs[0]) : 'personal';
 }
-function setPageBook(key) { const co = String(key || '').startsWith('business:'); UI.space = co ? 'business' : 'personal'; if (co) UI.spaceCur = key.slice(9); UI.dist = UI.fill = null; UI.pg = {}; }
+function setPageBook(key) { const co = String(key || '').startsWith('business:'); UI.space = co ? 'business' : 'personal'; if (co) UI.spaceCur = key.slice(9); UI.dist = UI.fill = UI.catEdit = null; UI.pg = {}; }
 const bookKey = () => BOOK_NOW || (UI.drawer && UI.drawer.book) || pageBookKey();
 const B = () => bookOf(S, bookKey());
 const inCompany = () => B() !== S;
@@ -34,10 +34,16 @@ const bookAccounts = () => { const co = inCompany(), cur = BCUR(); return S.acco
 const goalAccounts = () => inCompany() ? bookAccounts() : personal();
 /** Runs fn once for the household and once for every company book, and joins what it answers. */
 const everyBook = fn => ['personal', ...companyBooks(S).map(b => b.key)].flatMap(k => inBook(k, fn));
-/** A text that names the currency ("Amount (R$)"), in the currency of the book in use. */
 /** On the company's side with no company account in the book's currency: said once at the top of the page, with the way to add one.
     Planning works without it; paying a bill and saying where a goal's money is kept need the account. */
 const companyNote = () => !inCompany() || bookAccounts().length ? '' : banner('', `<b>${t('No company account in {cur} yet.', { cur: BCUR() })}</b> ${t('You can plan here already. Add the company’s account to pay its bills from it and to keep its goals in it.')}<div class="row" style="margin-top:8px"><button class="btn sm" data-a="edit-account" data-scope="business" data-cur="${BCUR()}">${icon('plus')}${t('Add company account')}</button></div>`);
+/** A side's categories are shared by all its books: the household has one, the company one per currency it plans in. So what follows a
+    category (the fixed costs under it, the income rows) is looked for in every one of them. */
+const sideBooks = () => inCompany() ? Object.values((S.company || {}).books || {}) : [S];
+const sideLines = () => sideBooks().flatMap(b => (b.plan || {}).lines || []);
+/** The category that keeps what has none: it can be renamed, never deleted, and it takes what a deleted category held. */
+const otherId = () => inCompany() ? 'co-other' : 'other';
+/** A text that names the currency ("Amount (R$)"), in the currency of the book in use. */
 const tcur = (key, vars) => t(key, vars).replace('R$', SYMBOL[BCUR()] || BCUR());
 function catOf(id) { for (const c of [...S.categories, ...companyCats()]) { if (c.id === id) return { cat: c }; const s = c.subs.find(x => x.id === id); if (s) return { cat: c, sub: s }; } return null; }
 function catName(id) { const f = catOf(id); return f ? (f.sub ? f.sub.name : f.cat.name) : t('Uncategorized'); }
