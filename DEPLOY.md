@@ -141,7 +141,7 @@ Built on 2026-10-05. What a person gets is what the bell in the app already show
 
 ### The contact form tells you
 
-Built on 2026-10-05. When somebody sends the contact form, the database asks the reminders function to email the message to you, from `no-reply@mail.dorax.app`. **You answer by replying to that email**: the reply goes to the address the person gave. The button in the email opens the table in Supabase, where you tick "handled".
+Built on 2026-10-05. When somebody sends the contact form, the database asks the reminders function to email the message to you, from `no-reply@mail.dorax.app`. **The green button, "Reply to ...", starts an email to the person who wrote**, with a subject in their language and their message quoted; replying to the email in your mail program does the same. A small link at the bottom opens the table in Supabase, where you tick "handled". If what the person typed is not a plain email address, there is no button and the email says so.
 
 To switch it on:
 

@@ -164,10 +164,12 @@ OUT.contactUnknown = await call({ action: 'contact', id: '99999999-9999-4999-899
 OUT.contact1 = await call({ action: 'contact', id: m1.id }, cron); OUT.contact1Net = flush(); OUT.contact1Told = !!told(m1.id);
 OUT.contact1Again = await call({ action: 'contact', id: m1.id }, cron); OUT.contact1AgainNet = flush();
 OUT.contact2 = await call({ action: 'contact', id: m2.id }, cron); OUT.contact2Net = flush();
+const m6 = msg(6, { email: 'a?bcc=spy@evil.example', lang: 'es' }), m7 = msg(7, { email: 'Ana.Souza+dorax@mail.example.com.br', lang: 'en', message: 'x'.repeat(3000) });
+OUT.contact6 = await call({ action: 'contact', id: m6.id }, cron); OUT.contact6Net = flush(); OUT.contact7 = await call({ action: 'contact', id: m7.id }, cron); OUT.contact7Net = flush();
 // the email service is down: the message stays "not told" and the morning's summary picks it up
 const m3 = msg(3); MAIL_STATUS = 500; OUT.contactDown = await call({ action: 'contact', id: m3.id }, cron); flush(); MAIL_STATUS = 200; OUT.contactDownTold = !!told(m3.id);
 // a flood: after 20 emails in a day the rest wait
-for (let i = 10; i < 28; i++) msg(i, { notified_at: '2026-11-04T14:00:00Z' });
+for (let i = 10; i < 26; i++) msg(i, { notified_at: '2026-11-04T14:00:00Z' });
 const m4 = msg(4); OUT.contactHeld = await call({ action: 'contact', id: m4.id }, cron); OUT.contactHeldNet = flush(); OUT.contactHeldTold = !!told(m4.id);
 const m5 = msg(5, { created_at: '2026-11-05T10:55:00Z' });       // written five minutes before the run: its own email may still be on the way
 NOW = '2026-11-06T11:00:00Z'; m5.created_at = '2026-11-06T10:55:00Z';

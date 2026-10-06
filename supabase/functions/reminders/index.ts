@@ -122,10 +122,17 @@ async function fromDatabase(req: Request, admin: Any) {
 
 // ---- the contact form: the owner hears about a message by email, and answers by replying to it
 const contactTo = () => (Deno.env.get('CONTACT_TO') || '').trim();
-const looksLikeEmail = (s: unknown) => typeof s === 'string' && s.length <= 254 && /^[^\s@<>,;:"]+@[^\s@<>,;:"]+\.[^\s@<>,;:"]+$/.test(s);
+// Strict on purpose: only the plain shape of an address (letters, digits, dot, dash, plus, underscore). Anything else is shown as text and
+// gets no reply button, so what is typed into the form's email field can never become part of a link or a header.
+const looksLikeEmail = (s: unknown) => typeof s === 'string' && s.length <= 254 && /^[A-Za-z0-9._+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(s);
 const tableLink = () => `https://supabase.com/dashboard/project/${new URL(Deno.env.get('SUPABASE_URL')!).hostname.split('.')[0]}/editor`;
+const SEE_ALL = () => ({ text: 'See all messages in Supabase', link: tableLink() });
 const CONTACT_TEXTS = { open: 'Open the messages in Supabase',
-  why: 'You get this email because someone used the contact form of Dorax Finance. Reply to this email to answer them. In the table contact_messages, tick "handled" when it is done.' };
+  why: 'You get this email because someone used the contact form of Dorax Finance. In the table contact_messages, tick "handled" when a message is answered.' };
+/** A new email to the person who wrote, started for the owner: their address, a subject in their language, their message quoted below.
+    The address goes in encoded, so nothing typed into the form's email field can add a second recipient or a field of its own. */
+const RE = { pt: 'Re: sua mensagem para o Dorax Finance', es: 'Re: tu mensaje a Dorax Finance', en: 'Re: your message to Dorax Finance' } as Record<string, string>;
+const replyLink = (m: Any) => `mailto:${encodeURIComponent(m.email).replace(/%40/g, '@')}?subject=${encodeURIComponent(RE[m.lang] || RE.pt)}&body=${encodeURIComponent('\n\n' + clip(m.message, 600).split(/\r?\n/).map(l => '> ' + l).join('\n'))}`;
 
 /** One message, as soon as it is written. The database calls this (a trigger on contact_messages) with the id of the new row. */
 async function contact(req: Request, admin: Any, body: Any) {
@@ -142,7 +149,13 @@ async function contact(req: Request, admin: Any, body: Any) {
   const from = clip(m.email, 254, true), subject = clip(`Dorax contact (${m.topic}): ${from}`, 150, true);
   const lines = [`From: ${from}${m.user_id ? ' (has an account)' : ''}`, `Topic: ${clip(m.topic, 40, true)} · Language: ${clip(m.lang || 'not given', 12, true)} · ${todayIn(TZ, new Date(m.created_at))}`,
     ...String(m.message || '').split(/\r?\n/).map(l => clip(l, 600, true).trim()).filter(Boolean).slice(0, 60)];
-  const r = await sendEmail(to, subject, reminderEmail({ title: 'New message from the contact form', lines, texts: CONTACT_TEXTS, site: SITE, link: tableLink(), lang: 'en' }), looksLikeEmail(m.email) ? { reply_to: m.email } : {});
+  // the button answers the person; when what they typed is not an address there is nobody to answer, and the email says so
+  const can = looksLikeEmail(m.email);
+  const mail = can ? reminderEmail({ title: 'New message from the contact form', lines, site: SITE, lang: 'en', link: replyLink(m), more: SEE_ALL(),
+      texts: { open: `Reply to ${from}`, why: `The button starts an email to ${from}. Replying to this email does the same. You get it because someone used the contact form of Dorax Finance.` } })
+    : reminderEmail({ title: 'New message from the contact form', lines: [...lines, 'The address they gave does not look like an email address, so there is no reply button.'], site: SITE, lang: 'en', more: SEE_ALL(),
+      texts: { open: '', why: 'You get this email because someone used the contact form of Dorax Finance.' } });
+  const r = await sendEmail(to, subject, mail, can ? { reply_to: m.email } : {});
   if (r.ok) await admin.from('contact_messages').update({ notified_at: new Date().toISOString() }).eq('id', id);
   return answer(req, { ok: r.ok, sent: r.ok ? 1 : 0, code: r.ok ? '' : r.reason });
 }
