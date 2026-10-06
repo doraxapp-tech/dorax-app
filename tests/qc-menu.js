@@ -65,17 +65,29 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     // the profile link beside the dots still works
     await p.click('#rail-foot .who'); eq(await p.evaluate(() => UI.route), 'profile', tag + 'the name still opens the profile');
 
-    // ---------------------------------------------------------------- 4. the switch is centred
-    for (const [w, h] of [[1440, 900], [1100, 760], [960, 700]]) { await p.setViewportSize({ width: w, height: h });
-      for (const cur of [false, true]) eq(await p.evaluate(two => { navigate('plan'); A.space({ v: 'business' }); if (!two) { UI.space = 'personal'; render(); }
-        const s = document.querySelector('.topbar .space').getBoundingClientRect(), h1 = document.querySelector('.topbar h1').getBoundingClientRect(), m = document.querySelector('.topbar .month').getBoundingClientRect();
-        return [Math.abs((s.left - h1.right) - (m.left - s.right)) <= 2, s.left >= h1.right + 8, s.right <= m.left - 8, Math.abs((s.top + s.bottom) / 2 - (h1.top + h1.bottom) / 2) <= 3, document.documentElement.scrollWidth - innerWidth <= 0]; }, cur),
-        [true, true, true, true, true], tag + `${w}px${cur ? ', with the currency' : ''}: the switch is in the middle of the room between the title and the tools, on the title’s line, touching neither`); }
+    // ---------------------------------------------------------------- 4. the switch is centred, and nothing moves when the side changes
+    // (owner: "the width of the header and the content in that tab changes a bit due to the fact that the BRL | USD switch is appearing")
+    eq(await p.evaluate(() => [getComputedStyle(document.documentElement).scrollbarGutter, document.documentElement.classList.contains('in-app')]), ['stable', true], tag + 'inside the app the room of the page’s scroll bar is always kept, so a short page is exactly as wide as a long one');
+    for (const [w, h] of [[1440, 900], [1280, 800], [1100, 760], [960, 700]]) { await p.setViewportSize({ width: w, height: h });
+      for (const route of ['plan', 'goals']) {
+        const at = await p.evaluate(r => { navigate(r); const box = s => { const x = document.querySelector(s).getBoundingClientRect(); return [Math.round(x.left * 10) / 10, Math.round(x.top * 10) / 10, Math.round(x.width * 10) / 10]; };
+          const read = () => ({ seg: box('.topbar .space > .seg'), hint: box('.topbar .space .hint'), h1: box('.topbar h1'), month: box('.topbar .month'), bell: box('.topbar .bell'), main: box('.topbar .btn.primary'), bar: box('#topbar'), view: box('#view') });
+          A.space({ v: 'personal' }); const home = read(), ghost = document.querySelector('.space-ghost'), hidden = [!!ghost, ghost && getComputedStyle(ghost).visibility, ghost && ghost.getAttribute('aria-hidden'), document.querySelectorAll('.space [data-a="space-cur"]').length];
+          document.querySelector('.space [data-a="space"][data-v="personal"]').focus(); const tabbable = [...document.querySelectorAll('.space button')].filter(b => getComputedStyle(b).visibility !== 'hidden').map(b => b.dataset.a || 'hint');
+          A.space({ v: 'business' }); const co = read(), cur = box('.topbar .space .space-tail .seg'), shown = getComputedStyle(document.querySelector('.space [data-a="space-cur"]')).visibility;
+          A.space({ v: 'personal' }); return { home, co, hidden, tabbable, cur, shown, over: document.documentElement.scrollWidth - innerWidth <= 0 }; }, route);
+        const sameLine = Math.abs(at.co.seg[1] - at.co.month[1]) < 20;
+        eq([JSON.stringify(at.home) === JSON.stringify(at.co), at.hidden, at.tabbable, at.shown, at.cur[0] >= at.co.hint[0] + at.co.hint[2], !sameLine || at.cur[0] + at.cur[2] <= at.co.month[0] - 6, at.over],
+          [true, [true, 'hidden', 'true', 2], ['space', 'space', 'hint'], 'visible', true, true, true], tag + `${w}px ${route}: going from Household to Company moves nothing: the switch, the (i), the title, the month, the bell, the main button and the page keep their place and width; the currency appears in room that was kept for it, after the (i), and on the household’s side it is neither seen nor reachable`);
+        if (w >= 1280) ok(Math.abs((at.co.seg[0] + at.co.seg[2] / 2) - (at.co.h1[0] + at.co.h1[2] + at.co.month[0]) / 2) <= 2 && Math.abs(at.co.seg[1] + 15 - (at.co.h1[1] + 12)) <= 8, tag + `${w}px ${route}: Household | Company itself is in the exact middle of the room between the title and the month, on the title’s line`, at.co);
+      } }
+    // one company currency: nothing is kept, because nothing can appear
+    eq(await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => !(a.scope === 'business' && a.currency === 'USD')); navigate('plan'); const pos = () => Math.round(document.querySelector('.topbar .space > .seg').getBoundingClientRect().left * 10) / 10; A.space({ v: 'personal' }); const a = pos(), ghost = !!document.querySelector('.space-ghost'); A.space({ v: 'business' }); const b = pos(), cur = !!document.querySelector('[data-a="space-cur"]'); A.space({ v: 'personal' }); S.accounts = keep; render(); return [a === b, ghost, cur]; }), [true, false, false], tag + 'with one company currency there is no currency to keep room for, and the switch does not move either');
     await p.setViewportSize({ width: 1440, height: 900 });
     // ---------------------------------------------------------------- log out, from the menu
     await p.evaluate(() => { S.settings.theme = 'dark'; UI.space = 'personal'; render(); save(); saveNow(); }); await p.waitForFunction(() => savedState() === 'saved' && accountJson() === SYNC.last);
     await p.click('#user-menu-btn'); await p.click('#user-menu [data-a="logout"]'); await p.waitForSelector('.lp-actions');
-    eq(await p.evaluate(() => [UI.session, UI.menu, document.querySelector('.app').hidden]), [null, false, true], tag + 'Log out, from the menu, logs out and leaves no menu open behind it');
+    eq(await p.evaluate(() => [UI.session, UI.menu, document.querySelector('.app').hidden, document.documentElement.classList.contains('in-app'), getComputedStyle(document.documentElement).scrollbarGutter]), [null, false, true, false, 'auto'], tag + 'Log out, from the menu, logs out and leaves no menu open behind it; the pages before login are laid out as they always were');
     eq(o.errors, [], tag + 'no errors'); await o.browser.close();
   }
   // ---------------------------------------------------------------- 5. a phone
@@ -83,7 +95,11 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     const o = await open({ lang, account: 'example', plan: true, viewport: { width: 390, height: 800 }, mobile: true, touch: true }), p = o.page, where = `${tag}${lang} 390: `, T = k => p.evaluate(k => t(k), k);
     eq(await p.evaluate(() => [getComputedStyle(document.querySelector('.rail')).display, document.querySelectorAll('#topbar select, #topbar .tbtn').length]), ['none', 0], where + 'no side bar, and nothing about language or appearance in the top bar');
     await p.evaluate(() => { navigate('plan'); A.space({ v: 'business' }); });
-    eq(await p.evaluate(() => { const s = document.querySelector('.pagehead .space'), kids = [...s.children].map(k => k.getBoundingClientRect()), l = Math.min(...kids.map(k => k.left)), r = Math.max(...kids.map(k => k.right)); return [Math.abs((l + r) / 2 - innerWidth / 2) <= 2, l >= 12 && r <= innerWidth - 12, document.documentElement.scrollWidth - innerWidth <= 0]; }), [true, true, true], where + 'the switch and its currency are in the middle of the screen, inside it');
+    eq(await p.evaluate(() => { const pos = () => ['.pagehead .space > .seg', '.pagehead .space .hint', '.pagehead h1', '.pagehead .month', '#view'].map(s => { const x = document.querySelector(s).getBoundingClientRect(); return [Math.round(x.left), Math.round(x.top), Math.round(x.width)]; });
+      const co = pos(), cur = document.querySelector('.pagehead [data-a="space-cur"]').closest('.seg').getBoundingClientRect(), h1 = document.querySelector('.pagehead h1').getBoundingClientRect(); A.space({ v: 'personal' }); const home = pos(); A.space({ v: 'business' });
+      return [JSON.stringify(home) === JSON.stringify(co), Math.abs(co[0][0] - h1.left) <= 1, cur.right <= innerWidth - 12, document.documentElement.scrollWidth - innerWidth <= 0]; }), [true, true, true, true], where + 'with two company currencies the switch starts under the title and nothing moves when the side changes; the currency fits beside it');
+    eq(await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => !(a.scope === 'business' && a.currency === 'USD')); render(); const kids = [document.querySelector('.pagehead .space > .seg'), document.querySelector('.pagehead .space .hint')].map(k => k.getBoundingClientRect()), l = Math.min(...kids.map(k => k.left)), r = Math.max(...kids.map(k => k.right)), a = kids[0].left; A.space({ v: 'personal' }); const b = document.querySelector('.pagehead .space > .seg').getBoundingClientRect().left; A.space({ v: 'business' }); S.accounts = keep; render();
+      return [Math.abs((l + r) / 2 - innerWidth / 2) <= 2, a === b]; }), [true, true], where + 'with one company currency the switch is in the middle of the screen, and stays there');
     await p.click('#tabbar [data-a="sheet"]'); await p.waitForSelector('.sheet [data-a="help"]');
     eq(await p.evaluate(() => { const sh = document.querySelector('.sheet'), ids = [...sh.querySelectorAll('select, button')].map(el => el.id || el.dataset.a), help = sh.querySelector('[data-a="help"]'), out = sh.querySelector('[data-a="logout"]'); sh.scrollTop = sh.scrollHeight; const h = help.getBoundingClientRect(), u = out.getBoundingClientRect(), box = sh.getBoundingClientRect();
       return [ids, help.innerText.trim(), h.height >= 44 && u.height >= 44, h.bottom <= u.top + 1, Math.abs(h.width - u.width) <= 1 && h.width >= box.width - 30, u.bottom <= innerHeight]; }),

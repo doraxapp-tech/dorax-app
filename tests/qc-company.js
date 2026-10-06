@@ -26,7 +26,7 @@ const path = require('path');
     const o = await open({ lang: 'en', account: 'example', plan: true, viewport: wide }), p = o.page;
     eq(await p.evaluate(() => ROUTES.map(r => { UI.route = r[0]; renderShell(); return [r[0], !!document.querySelector('.pagehead .space')]; }).filter(x => x[1]).map(x => x[0])), ['plan', 'goals'], tag + 'the Household / Company switch is on Plan and on Savings & goals, and on no other screen');
     await p.evaluate(() => navigate('plan'));
-    eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), !!document.querySelector('[data-a="space-cur"]'), !!document.querySelector('.space .hint'), S.company === undefined]),
+    eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), [...document.querySelectorAll('[data-a="space-cur"]')].some(b => getComputedStyle(b).visibility !== 'hidden'), !!document.querySelector('.space .hint'), S.company === undefined]),
       [[['Household', 'true'], ['Company', 'false']], false, true, true], tag + 'it opens on the household, with no currency to choose and an (i); nothing is kept for the company until its side is opened');
     const before = await household(p);
     // the side in use is green, like the main button, in both themes, and its words can be read on it
@@ -117,7 +117,7 @@ const path = require('path');
     eq(await p.evaluate(() => goalSaved(B(), S.company.books.USD.goals[0].id)), 60000, tag + 'a withdrawal lowers the company goal');
     // deleting asks first, in the middle, and takes only the company goal
     await p.click('.goal:nth-of-type(2) [data-a="goal-open"]'); await p.waitForSelector('[data-a="goal-delete-ask"]'); await p.click('[data-a="goal-delete-ask"]'); await p.waitForSelector('#modal-ok');
-    const box = await p.evaluate(() => { const m = document.querySelector('#modal-root [role="alertdialog"], #modal-root [role="dialog"], .modal'), r = m.getBoundingClientRect(); return [Math.abs((r.left + r.right) / 2 - innerWidth / 2) <= 2, !!document.querySelector('#modal-word'), S.company.books.USD.goals.length]; });
+    const box = await p.evaluate(() => { const m = document.querySelector('#modal-root [role="alertdialog"], #modal-root [role="dialog"], .modal'), r = m.getBoundingClientRect(); return [Math.abs((r.left + r.right) / 2 - (r => (r.left + r.right) / 2)(document.querySelector('.app').getBoundingClientRect())) <= 2, !!document.querySelector('#modal-word'), S.company.books.USD.goals.length]; });
     eq(box, [true, true, 2], tag + 'deleting a company goal with money in it asks in a centred pop-up and wants the word typed; nothing goes until then');
     await p.fill('#modal-word', 'delete'); await p.click('#modal-ok'); await quiet(p);
     eq(await p.evaluate(() => [S.company.books.USD.goals.map(g => g.name), S.company.books.USD.goalMoves.every(m => m.goalId === S.company.books.USD.goals[0].id), S.goals.length > 0]), [['Laptop'], true, true], tag + 'after it the company goal and its movements are gone; the household’s goals are all there');

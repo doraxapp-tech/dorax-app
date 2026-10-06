@@ -79,7 +79,7 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   const del = page.locator('#overlay [data-a="goal-delete-ask"]').first();
   if (await del.count()) {
     await del.click();
-    const m = await page.evaluate(() => { const el = document.querySelector('#modal-root .modal'); if (!el) return null; const b = el.getBoundingClientRect(); return { centred: Math.abs((b.left + b.right) / 2 - innerWidth / 2) < 3, role: el.getAttribute('role') || (el.closest('[role]') || {}).getAttribute && el.closest('[role]').getAttribute('role'), word: UI.modal.word || null, okDisabled: document.querySelector('#modal-ok').disabled }; });
+    const m = await page.evaluate(() => { const el = document.querySelector('#modal-root .modal'); if (!el) return null; const b = el.getBoundingClientRect(); return { centred: Math.abs((b.left + b.right) / 2 - (r => (r.left + r.right) / 2)(document.querySelector('.app').getBoundingClientRect())) < 3, role: el.getAttribute('role') || (el.closest('[role]') || {}).getAttribute && el.closest('[role]').getAttribute('role'), word: UI.modal.word || null, okDisabled: document.querySelector('#modal-ok').disabled }; });
     ok(m && m.centred, 'delete: asked in a centred dialog', m);
     ok(m && m.word && m.okDisabled, 'delete of a goal with movements: the word has to be typed first', m);
     await page.fill('#modal-word', 'nope'); ok(await page.locator('#modal-ok').isDisabled(), 'delete: a wrong word keeps the button off');

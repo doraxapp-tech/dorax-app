@@ -19,7 +19,13 @@ const $ = id => document.getElementById(id);
 function spaceSwitch() {
   const cs = companyCurrencies(S); if (!SPACE_ROUTES.includes(UI.route)) return '';
   const key = pageBookKey(), co = key !== 'personal';
-  return `<div class="space">${seg('space', [['personal', t('Household')], ['business', t('Company')]], co ? 'business' : 'personal', t('Whose money'))}${co && cs.length > 1 ? seg('space-cur', cs.map(c => [c, c]), key.slice(9), t('Currency')) : ''}${info(t('Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.'))}</div>`;
+  // Nothing may move when the side changes (owner, 2026-10-06: "the width of the header ... changes a bit due to the fact that the BRL | USD
+  // switch is appearing there ... I dont like that"). So Household | Company is the centre piece and never shifts: what follows it (the (i),
+  // then the currency when the company's side has more than one) sits in a tail to its right, and an empty side of the same width balances
+  // it on the left (css/base/shell.css). The (i) comes before the currency so that it does not move either. And when the company has two
+  // currencies, the room for their switch is kept on the household's side too (drawn but not shown, not reachable): the group is the same
+  // size on both sides, so the bar wraps the same way on both, at any window width.
+  return `<div class="space${cs.length > 1 ? ' two' : ''}"><span class="space-side" aria-hidden="true"></span>${seg('space', [['personal', t('Household')], ['business', t('Company')]], co ? 'business' : 'personal', t('Whose money'))}<span class="space-tail">${info(t('Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.'))}${cs.length < 2 ? '' : co ? seg('space-cur', cs.map(c => [c, c]), key.slice(9), t('Currency')) : `<span class="space-ghost" aria-hidden="true">${seg('space-cur', cs.map(c => [c, c]), cs.includes(UI.spaceCur) ? UI.spaceCur : cs[0], t('Currency'))}</span>`}</span></div>`;
 }
 function navLinks(list) {
   const pending = S.transactions.filter(x => x.status === 'pending').length, c = closeInfo(addMonths(ymOf(S.today), -1)), open = c.total - c.sent;
@@ -31,6 +37,7 @@ function navLinks(list) {
 function applyTheme(pub) {
   const light = !pub && S.settings.theme === 'light', root = document.documentElement;
   root.classList.toggle('app-light', light);
+  root.classList.toggle('in-app', !pub);      // the app itself is on screen: the room for the page's scroll bar is kept (css/base/tokens.css)
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', light ? '#F6F6F6' : '#000000');
 }
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the

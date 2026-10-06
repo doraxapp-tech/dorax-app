@@ -48,7 +48,10 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+/* inside the app the room for the page's scroll bar is kept even on a page too short to scroll, so going from a long page to a short one (the household's
+   plan to an empty company side) does not make everything a scroll bar wider */
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; background: var(--bg); }
+html.in-app { scrollbar-gutter: stable; }      /* inside the app only: the pages before login are laid out as before */
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.43; letter-spacing: -.016em; -webkit-font-smoothing: antialiased; font-feature-settings: "calt", "kern", "liga"; }
 button, a, label, select, summary { touch-action: manipulation; }

@@ -121,7 +121,7 @@ const ROOT = path.join(__dirname, '..'), FN = path.join(ROOT, 'supabase', 'funct
     await p.evaluate(() => A['imp-cancel']());
     // disconnecting asks first, in a pop-up in the middle
     await p.click('[data-a="bank-disconnect"]'); await p.waitForSelector('#modal-ok');
-    eq(await p.evaluate(() => { const m = document.querySelector('.modal, #modal-root [role="alertdialog"], #modal-root [role="dialog"]'), r = m && m.getBoundingClientRect(); return [!!m, r ? Math.abs((r.left + r.right) / 2 - innerWidth / 2) <= 2 : false, (DORAX_PREVIEW.db().bank || []).length]; }), [true, true, 1], where + 'disconnecting asks for confirmation in a centred pop-up, and nothing is removed until it is given');
+    eq(await p.evaluate(() => { const m = document.querySelector('.modal, #modal-root [role="alertdialog"], #modal-root [role="dialog"]'), r = m && m.getBoundingClientRect(); return [!!m, r ? Math.abs((r.left + r.right) / 2 - (r => (r.left + r.right) / 2)(document.querySelector('.app').getBoundingClientRect())) <= 2 : false, (DORAX_PREVIEW.db().bank || []).length]; }), [true, true, 1], where + 'disconnecting asks for confirmation in a centred pop-up, and nothing is removed until it is given');
     await p.click('#modal-ok'); await p.waitForFunction(() => UI.bank && !UI.bank.busy && (UI.bank.links || []).length === 0);
     eq(await p.evaluate(b => [(DORAX_PREVIEW.db().bank || []).length, !!document.querySelector('#bank-card .empty'), S.transactions.length - b], before), [0, true, 5], where + 'after it the bank is gone from the server and the imported transactions stay');
     eq(o.errors, [], where + 'no errors'); await o.browser.close();
