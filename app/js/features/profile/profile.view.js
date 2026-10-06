@@ -5,7 +5,20 @@ const initials = name => { const p = String(name || '').trim().split(/\s+/).filt
 const avatar = cls => `<span class="avatar ${cls || ''}" aria-hidden="true">${esc(initials(S.user.name || S.user.email))}</span>`;
 function userCard() {
   return `<a class="who" href="#profile" ${UI.route === 'profile' ? 'aria-current="page"' : ''}>${avatar()}<span class="who-t"><b>${esc(S.user.name || t('Profile'))}</b><small>${esc(S.user.email)}</small></span></a>
-    <button class="iconbtn" data-a="logout" aria-label="${t('Log out')}" data-tip="${t('Log out')}">${icon('logout')}</button>`;
+    <button class="iconbtn" id="user-menu-btn" data-a="user-menu" aria-expanded="${!!UI.menu}" aria-controls="user-menu" aria-label="${t('More options')}"${UI.menu ? '' : ` data-tip="${t('More options')}"`}>${icon('more')}</button>
+    ${UI.menu ? userMenu() : ''}`;
+}
+/** The three dots beside the person's name: what used to sit in the top bar (language, light or dark) and the ways out (help, log out).
+    It opens above the name, because the name is at the foot of the side bar. It holds a list and a pair of buttons to choose with, so it is a group of
+    ordinary controls, not a "menu" of items: Tab walks through it, Escape or a click anywhere else closes it (app/events.js).
+    A phone has no side bar: the same four things are in the More sheet (app/overlay.js). */
+function userMenu() {
+  const light = S.settings.theme === 'light';
+  return `<div class="umenu" id="user-menu" role="group" aria-label="${t('More options')}">
+      <div class="umenu-row"><label for="lang">${icon('globe')}${t('Language')}</label><select id="lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>
+      <div class="umenu-row"><span class="umenu-l" id="umenu-theme">${icon(light ? 'sun' : 'moon')}${t('Appearance')}</span><div class="seg" role="group" aria-labelledby="umenu-theme">${[['dark', 'moon', t('Dark')], ['light', 'sun', t('Light')]].map(([v, ic, l]) => `<button data-a="theme-set" data-v="${v}" aria-pressed="${light === (v === 'light')}" aria-label="${l}" data-tip="${l}">${icon(ic)}</button>`).join('')}</div></div>
+      <button class="umenu-item" data-a="help">${icon('help')}<span>${t('Help')}</span></button>
+      <button class="umenu-item out" data-a="logout">${icon('logout')}<span>${t('Log out')}</span></button></div>`;
 }
 
 // ---------- dashboard: the greeting ----------

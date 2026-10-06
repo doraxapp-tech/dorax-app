@@ -3,6 +3,7 @@
 document.addEventListener('click', e => {
   const q = e.target.closest('.lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
   if (q && q.parentElement.animate && !reducedMotion()) { e.preventDefault(); faqToggle(q.parentElement); return; }
+  if (UI.menu && !e.target.closest('#rail-foot')) { UI.menu = false; renderShell(); }      // a click anywhere else closes the menu beside the name; the click itself still counts
   const link = e.target.closest('a[href^="#"]');
   if (link) {
     e.preventDefault();
@@ -27,6 +28,7 @@ document.addEventListener('input', e => {
   else if (el.dataset.c === 'split' && el.tagName !== 'SELECT') UI.drawer.draft.splits[+el.dataset.i][el.dataset.k] = el.value;
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && UI.menu && !UI.modal && !UI.drawer) { UI.menu = false; renderShell(); const el = $('user-menu-btn'); if (el) el.focus(); return; }
   if (UI.modal) {
     if (e.key === 'Escape') A['modal-cancel']();
     else if (e.key === 'Enter' && e.target.id === 'modal-word') A['modal-confirm']();

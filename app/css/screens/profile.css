@@ -13,6 +13,23 @@
 .avatar { width: 30px; height: 30px; border-radius: 50%; border: 0; display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--ink-strong); flex: none; background: var(--surface-3); }
 .avatar.lg { width: 56px; height: 56px; font-size: 18px; }
 .rail-foot .iconbtn svg { width: 16px; height: 16px; }
+/* the menu beside the name (three dots): language, appearance, help, log out. It opens upwards, over the end of the navigation.
+   Like every panel here it is a surface with a border: no shadow. */
+.rail-foot { position: relative; }
+.rail-foot .iconbtn { display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0; flex: none; }
+.rail-foot .iconbtn:hover, .rail-foot .iconbtn[aria-expanded="true"] { background: var(--select); color: var(--ink-strong); }
+.rail-foot .iconbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.umenu { position: absolute; left: -1px; right: -1px; bottom: calc(100% + 8px); z-index: 5; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: var(--r-mid); border: 1px solid var(--line-strong); background: var(--lift); animation: umenu-in var(--t2) var(--ease) both; transform-origin: bottom center; -webkit-user-select: none; user-select: none; }
+@keyframes umenu-in { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.umenu-row, .umenu-item { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 6px; border-radius: var(--r); color: var(--ink-2); font-size: 13px; }
+.umenu-row { justify-content: space-between; } .umenu-row label, .umenu-l { display: flex; align-items: center; gap: 8px; font-weight: 400; color: inherit; margin: 0; white-space: nowrap; }
+.umenu .seg { flex: none; } .umenu .seg button { display: grid; place-items: center; width: 36px; height: 26px; padding: 0; } .umenu .seg svg { width: 14px; height: 14px; }
+.umenu svg { width: 16px; height: 16px; flex: none; }
+.umenu-row select { flex: none; width: 104px; min-height: 30px; padding: 3px 4px 3px 10px; font-family: var(--font); font-size: 12.5px; border-radius: var(--pill); border-color: var(--line-strong); background-color: transparent; }
+.umenu-item { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 6px; border-radius: var(--r); color: var(--ink-2); font-size: 13px; cursor: pointer; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
+.umenu-item:hover { background: var(--select); color: var(--ink-strong); } .umenu-item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.umenu-item.out { color: var(--neg); border-top: 1px solid var(--line); border-radius: 0 0 var(--r) var(--r); margin-top: 4px; padding-top: 2px; }
+.umenu-item.out:hover { color: var(--neg); }
 .sheet-out svg { width: 17px; height: 17px; }
 .sheet-out { all: unset; display: flex; align-items: center; gap: 11px; padding: 13px 12px; border-radius: var(--r); color: var(--neg); cursor: pointer; font-weight: 400; border-top: 1px solid var(--line); margin-top: 6px; }
 .pf-head .card-b { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 22px; }
@@ -32,4 +49,8 @@
 .lead { font-size: 18px; line-height: 1.55; color: var(--ink-2); max-width: 58ch; }
 .lead.sm { font-size: 15.5px; }
 .chip.ph { text-transform: uppercase; letter-spacing: .1em; }
-
+/* phones (More): Help, a row like Log out, above it; both rows span the sheet */
+.sheet-help svg { width: 17px; height: 17px; }
+.sheet-help { all: unset; display: flex; align-items: center; gap: 11px; padding: 13px 12px; border-radius: var(--r); color: var(--ink-2); cursor: pointer; font-weight: 400; border-top: 1px solid var(--line); margin-top: 6px; }
+.sheet-help, .sheet-out { box-sizing: border-box; width: 100%; }
+.sheet-help + .sheet-out { margin-top: 0; }

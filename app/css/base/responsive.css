@@ -15,14 +15,12 @@
   .scrolled .navbar { border-bottom-color: var(--line); }
   .bar-title { display: block; font-size: 16px; font-weight: 500; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transform: translateY(4px); transition: opacity var(--t2) ease-out, transform var(--t2) var(--ease); }
   .scrolled .bar-title { opacity: 1; transform: none; }
-  .topbar .save-badge, .topbar .bell, .topbar .lang, .topbar .btn.primary, .topbar .month, .topbar h1 { order: 0; }
+  .topbar .save-badge, .topbar .bell, .topbar .btn.primary, .topbar .month, .topbar h1 { order: 0; }
   .navbar .save-badge { justify-self: start; }
   /* v34: the badge is there only when saving fails, so each part of the bar is given its column instead of taking the next free one */
   .navbar .save-badge { grid-column: 1; } .navbar .bar-title { grid-column: 2; grid-row: 1; } .navbar .bar-tools { grid-column: 3; grid-row: 1; }
   .save-badge .long { display: none; }
   .bar-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
-  .navbar .lang { display: none; }
-  .navbar .tbtn { display: none; }   /* phones: the switch is in More, next to the language */
   .bell, .navbar .btn.primary { width: 38px; height: 38px; min-height: 0; }
   .bell::after, .navbar .btn.primary::after { content: ""; position: absolute; inset: -4px; }
   .navbar .btn.primary { position: relative; padding: 0; border-radius: 50%; }
@@ -31,7 +29,7 @@
   .pagehead { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 2px 16px 10px; }
   .topbar h1 { font-size: 32px; font-weight: 500; letter-spacing: -.007em; line-height: 1.1; margin-right: 0; }
   /* the switch takes its own line under the title and the month, so neither is squeezed */
-  .topbar .space { order: 0; flex: 1 0 100%; margin: 4px 0 0; } .space .seg button { padding: 9px 16px; font-size: 14px; }
+  .topbar .space { order: 0; flex: 1 0 100%; margin: 4px 0 0; justify-content: center; } .space .seg button { padding: 9px 16px; font-size: 14px; }
   /* 44px targets, 16px fields (iOS zooms the page on anything smaller) */
   .btn { min-height: 44px; padding: 10px 18px; }
   .btn.sm { min-height: 38px; padding: 7px 14px; font-size: 13.5px; }

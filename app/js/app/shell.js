@@ -33,7 +33,6 @@ function applyTheme(pub) {
   root.classList.toggle('app-light', light);
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', light ? '#F6F6F6' : '#000000');
 }
-const themeButton = () => { const light = S.settings.theme === 'light'; return `<button class="tbtn" data-a="theme" aria-label="${light ? t('Switch to dark') : t('Switch to light')}" data-tip="${light ? t('Dark') : t('Light')}">${icon(light ? 'moon' : 'sun')}</button>`; };
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the
     bar cluttered); where the data lives is said in Settings, under Your data. It never claims a save that did not happen. */
 function saveBadge() {
@@ -55,9 +54,7 @@ function renderShell() {
   $('topbar').innerHTML = `<div class="navbar">
       ${saveBadge()}
       <span class="bar-title" aria-hidden="true">${routeLabel(UI.route)}</span>
-      <div class="bar-tools"><label class="sr" for="lang">${t('Language')}</label><select id="lang" class="lang" data-c="setting" data-k="lang">${options(LANGS.map(([v, l]) => [v, v.toUpperCase()]), S.settings.lang)}</select>
-        ${themeButton()}
-        ${bellButton()}
+      <div class="bar-tools">${bellButton()}
         ${main ? `<button class="btn primary" data-a="${main[0]}" ${main[1]}>${icon('plus')}<span class="lbl">${main[2]}</span></button>` : ''}</div></div>
     <div class="pagehead"><h1>${routeLabel(UI.route)}</h1>
       ${MONTH_ROUTES.includes(UI.route) ? `<div class="month" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${ym <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(ym, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${ym >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : ''}${spaceSwitch()}</div>`;
@@ -108,7 +105,7 @@ function focusKey(el) {
 function navigate(route) {
   if (route === 'contabilizei') route = 'converter';      // the screen's name before v31: old links still open it
   UI.route = ROUTES.some(r => r[0] === route) ? route : 'dashboard';
-  UI.sheet = false; UI.autoScroll = true; UI.pg = {};      // another screen: every table starts on its first page
+  UI.sheet = false; UI.menu = false; UI.autoScroll = true; UI.pg = {};      // another screen: every table starts on its first page
   try { if (UI.session && location.hash.slice(1) !== UI.route) history.replaceState(null, '', '#' + UI.route); } catch (e) { /* sandboxed frame: keep the route in memory only */ }
   renderNow(); window.scrollTo(0, 0); enterView();
 }

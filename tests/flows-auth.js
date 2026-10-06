@@ -218,7 +218,7 @@ let LIVE = null;
   await page.evaluate(() => navigate('settings')); ok(/Not saved yet/.test(await txt('#your-data')) && /have not reached the server/.test(await txt('#your-data')), 'Settings says the same');
   eq((await db()).rows[me].data.user.name, 'Marta Lima', 'the server still has the last saved version');
   // logging out now would lose the change: the person is asked
-  await page.click('#rail-foot [data-a="logout"]'); await page.waitForSelector('#modal-root .modal');
+  await page.click('#rail-foot [data-a="user-menu"]'); await page.click('#rail-foot [data-a="logout"]'); await page.waitForSelector('#modal-root .modal');
   ok(/Log out without saving/.test(await txt('#modal-root .modal')), 'logging out with unsaved changes asks first'); await page.click('#modal-root button[data-a="modal-cancel"]');
   await page.evaluate(() => DORAX_PREVIEW.works()); await page.evaluate(() => window.dispatchEvent(new Event('online')));
   await page.waitForFunction(() => savedState() === 'saved'); await idle();
@@ -496,7 +496,7 @@ let LIVE = null;
     await f.locator('#ob-name').waitFor(); ok(true, 'framed preview: sign-up goes straight to the setup (the preview asks for no email confirmation)');
     await f.locator('[data-a="onboard-save"]').click(); await f.locator('[data-a="ob-finish"]').click();
     ok(await f.locator('.hello').isVisible(), 'framed preview: account opens');
-    await f.locator('#rail-foot [data-a="logout"]').click(); await f.locator('.lp-actions [data-v="login"]').click();
+    await f.locator('#rail-foot [data-a="user-menu"]').click(); await f.locator('#rail-foot [data-a="logout"]').click(); await f.locator('.lp-actions [data-v="login"]').click();
     await f.locator('#au-email').fill('quadro@example.org'); await f.locator('#au-pass').fill('Quadro2026'); await f.locator('[data-a="auth-login"]').click();
     await f.locator('.hello').waitFor(); ok(true, 'framed preview: login with the password works in memory');
     eq(errs, [], 'framed preview: no page errors'); fs.unlinkSync(wrap); await b.close();

@@ -1,7 +1,10 @@
 /* Dorax Finance — clicks: the frame of the app: panels, dialogs, the month, the theme, the pager. Joined into A in app/actions.js. */
 const SHELL_ACTIONS = {
   close() { const filters = UI.drawer && UI.drawer.kind === 'tx-filters'; UI.drawer = null; UI.sheet = false; renderOverlay(); if (filters) { const el = $('tx-filters-btn'); if (el) el.focus({ preventScroll: true }); } },
-  theme() { S.settings.theme = S.settings.theme === 'light' ? 'dark' : 'light'; render(); const el = document.querySelector('.tbtn'); if (el) el.focus(); },
+  // the menu beside the person's name (features/profile/profile.view.js): language, appearance, help, log out
+  'user-menu'() { UI.menu = !UI.menu; renderShell(); const el = UI.menu ? $('lang') : $('user-menu-btn'); if (el) el.focus(); },
+  help() { UI.menu = false; renderShell(); A.contact(); },
+  'theme-set'(ds) { S.settings.theme = ds.v === 'light' ? 'light' : 'dark'; render(); const el = document.querySelector(`#user-menu [data-a="theme-set"][data-v="${S.settings.theme}"]`); if (el) el.focus(); },
   'modal-cancel'() { const m = UI.modal; if (!m) return; UI.modal = null; renderModal(); const el = m.back && document.querySelector(m.back); if (el) el.focus(); },
   'modal-confirm'() { const m = UI.modal; if (!m || !modalReady()) return; UI.modal = null; renderModal(); inBook(m.book, () => m.run()); },
   sheet() { UI.sheet = true; renderOverlay(); },
