@@ -14,7 +14,7 @@ const UI = {
   route: 'dashboard',
   space: 'personal', spaceCur: null,   // Plan and Savings & goals: whose money is shown (household or company) and, for a company with two currencies, which one
   tx: { q: '', month: 'current', scope: 'personal', account: '', category: '', type: '', status: '', sort: 'date', dir: -1, page: 1, size: 10 },
-  drawer: null, sheet: false, menu: false, rulePrompt: null, toast: null,      // menu: the three dots beside the person's name are open
+  drawer: null, sheet: false, menu: false, find: null, rulePrompt: null, toast: null,      // menu: the three dots beside the person's name are open
   conv: null,           // statement -> OFX session
   imp: null,            // CSV / OFX import session (household)
   backupError: null,    // Settings: why a chosen backup file was refused

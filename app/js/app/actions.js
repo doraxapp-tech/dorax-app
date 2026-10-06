@@ -20,6 +20,7 @@ const A = {
   ...CATEGORIES_ACTIONS,
   ...IMPORTS_ACTIONS,
   ...BANK_ACTIONS,
+  ...FIND_ACTIONS,
   ...CONVERTER_ACTIONS,
 };
 // Every click runs in a book: the one the button names (data-book: a company bill in the bell), else the open panel's, else the page's

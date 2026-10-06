@@ -1201,6 +1201,18 @@ const TR = [
   // the menu beside the person's name (2026-10-06)
   ["More options", "Más opciones", "Mais opções"],
   ["Help", "Ayuda", "Ajuda"],
+  // search (features/find, 2026-10-06)
+  ["Search", "Buscar", "Buscar"],
+  ["Search pages, accounts, bills, transactions", "Busca páginas, cuentas, pagos, transacciones", "Busque páginas, contas, pagamentos, transações"],
+  ["Results", "Resultados", "Resultados"],
+  ["Page", "Página", "Página"],
+  ["Transaction", "Transacción", "Transação"],
+  ["Action", "Acción", "Ação"],
+  ["Investment", "Inversión", "Investimento"],
+  ["Nothing matches “{q}”", "Nada coincide con “{q}”", "Nada corresponde a “{q}”"],
+  ["Try a name, a merchant or an amount.", "Prueba con un nombre, un comercio o un importe.", "Tente um nome, um estabelecimento ou um valor."],
+  ["to move", "para moverte", "para mover"],
+  ["to open", "para abrir", "para abrir"],
   // connecting a bank through Open Finance (a trial, 2026-10-06)
   ["Connect a bank", "Conectar un banco", "Conectar um banco"],
   ["Open Finance", "Open Finance", "Open Finance"],

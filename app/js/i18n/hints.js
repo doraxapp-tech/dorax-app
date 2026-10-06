@@ -77,7 +77,6 @@ const HINTS = {
   setData: () => t('Where your data is kept, how to take a copy of it and how to erase it.'),
   // profile
   proYou: () => t('Your name, as the app greets you.'),
-  proTone: () => t('How the app’s messages are worded. The information is the same in both.'),
   proLogin: () => t('The email you log in with, and how you log in: a password, Google, or both. Changing the email sends a link to the new address.'),
   proRemind: () => t('Which reminders you get, and how many days before a due day they start.'),
   proDelete: () => t('Erases this account and everything in it. It cannot be undone.'),

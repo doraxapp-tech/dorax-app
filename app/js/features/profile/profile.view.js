@@ -1,20 +1,23 @@
-/* Dorax Finance — the person: profile, how the app talks to them, email and login, reminders, deleting the account.
+/* Dorax Finance — the person: profile, email and login, reminders, deleting the account.
    Also the greeting on the dashboard, the first steps of a new account and the user card in the menu. */
 
-const initials = name => { const p = String(name || '').trim().split(/\s+/).filter(Boolean); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : (p[0] || '')[1] || '')).toUpperCase(); };
-const avatar = cls => `<span class="avatar ${cls || ''}" aria-hidden="true">${esc(initials(S.user.name || S.user.email))}</span>`;
+/** The picture every person starts with (owner, 2026-10-06: "a pro image inspire in the app logo and colors"): a figure drawn the way the logo
+    is drawn, in thick even strokes, on the logo's deep green; the head is the ring of the logo's "d", with its light green quarter. */
+const avatar = cls => `<span class="avatar ${cls || ''}" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="20" fill="#006239"/><g fill="none" stroke="#F4F7F5" stroke-width="3.2"><circle cx="20" cy="15.2" r="5.6"/><path d="M8.4 34a11.6 11.6 0 0 1 23.2 0"/><path stroke="#3ECF8E" d="M14.4 15.2a5.6 5.6 0 0 1 5.6-5.6"/></g></svg></span>`;
 function userCard() {
-  return `<a class="who" href="#profile" ${UI.route === 'profile' ? 'aria-current="page"' : ''}>${avatar()}<span class="who-t"><b>${esc(S.user.name || t('Profile'))}</b><small>${esc(S.user.email)}</small></span></a>
-    <button class="iconbtn" id="user-menu-btn" data-a="user-menu" aria-expanded="${!!UI.menu}" aria-controls="user-menu" aria-label="${t('More options')}"${UI.menu ? '' : ` data-tip="${t('More options')}"`}>${icon('more')}</button>
+  // the whole card opens the menu (owner, 2026-10-06: "move the profile tab into a button in the 3 dot dropdown"): the name no longer
+  // leads to the profile by itself, the menu's first row does
+  return `<button class="who" id="user-menu-btn" data-a="user-menu" aria-expanded="${!!UI.menu}" aria-controls="user-menu" aria-label="${esc(S.user.name || S.user.email)}: ${t('More options')}">${avatar()}<span class="who-t"><b>${esc(S.user.name || t('Profile'))}</b><small>${esc(S.user.email)}</small></span><span class="who-more">${icon('more')}</span></button>
     ${UI.menu ? userMenu() : ''}`;
 }
-/** The three dots beside the person's name: what used to sit in the top bar (language, light or dark) and the ways out (help, log out).
+/** The menu of the person's card: the profile, what used to sit in the top bar (language, light or dark) and the ways out (help, log out).
     It opens above the name, because the name is at the foot of the side bar. It holds a list and a pair of buttons to choose with, so it is a group of
     ordinary controls, not a "menu" of items: Tab walks through it, Escape or a click anywhere else closes it (app/events.js).
     A phone has no side bar: the same four things are in the More sheet (app/overlay.js). */
 function userMenu() {
   const light = S.settings.theme === 'light';
   return `<div class="umenu" id="user-menu" role="group" aria-label="${t('More options')}">
+      <a class="umenu-item" id="umenu-profile" href="#profile" ${UI.route === 'profile' ? 'aria-current="page"' : ''}>${icon('user')}<span>${t('Profile')}</span></a>
       <div class="umenu-row"><label for="lang">${icon('globe')}${t('Language')}</label><select id="lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>
       <div class="umenu-row"><span class="umenu-l" id="umenu-theme">${icon(light ? 'sun' : 'moon')}${t('Appearance')}</span><div class="seg" role="group" aria-labelledby="umenu-theme">${[['dark', 'moon', t('Dark')], ['light', 'sun', t('Light')]].map(([v, ic, l]) => `<button data-a="theme-set" data-v="${v}" aria-pressed="${light === (v === 'light')}" aria-label="${l}" data-tip="${l}">${icon(ic)}</button>`).join('')}</div></div>
       <button class="umenu-item" data-a="help">${icon('help')}<span>${t('Help')}</span></button>
@@ -61,8 +64,7 @@ function loginCard() {
       <div class="row"><button class="btn primary${f.busy ? ' busy' : ''}" data-a="pw-save" ${f.busy ? 'disabled aria-busy="true"' : ''}>${f.busy ? t('One moment…') : t('Save password')}</button><button class="btn ghost" data-a="pw-cancel" ${f.busy ? 'disabled' : ''}>${t('Cancel')}</button></div></div>`;
 }
 function viewProfile() {
-  const u = S.user, tone = u.tone || 'friend', sample = k => (VOICE[S.settings.lang] || {})[k] || k, plainOf = k => (I18N[S.settings.lang] && I18N[S.settings.lang][k]) || k;
-  const toneCard = (id, title, text, example) => `<button class="pick" data-a="user-tone" data-v="${id}" aria-pressed="${tone === id}"><b>${title}</b><span class="note">${text}</span><span class="say">“${esc(example)}”</span></button>`;
+  const u = S.user;
   return `<section class="card pf-head"><div class="card-b">${avatar('lg')}<div class="grow"><h2>${esc(u.name || t('Profile'))}</h2><p class="note">${esc(u.email)} · ${t('With Dorax since {date}', { date: fmt.date(u.since, true) })}</p></div>
       <button class="btn" data-a="logout">${icon('logout')}${t('Log out')}</button></div></section>
   <div class="grid g-even">
@@ -70,9 +72,6 @@ function viewProfile() {
       <div class="field"><label for="pf-name">${t('Your name')}</label><input type="text" id="pf-name" autocomplete="given-name" value="${esc(u.name)}" data-c="user-name"><small>${t('This is what I call you across the app.')}</small></div>
       <div class="field"><label for="pf-lang">${t('Language')}</label><select id="pf-lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>
       <p class="note">${t('Number format, backup and your data are in')} <a href="#settings">${t('Settings')}</a>.</p></div></section>
-    <section class="card"><div class="card-h"><h2>${t('How I talk to you')}</h2>${hint('proTone')}</div><div class="card-b stack" style="gap:12px">
-      <div class="picks" role="group" aria-label="${t('How I talk to you')}">${toneCard('friend', t('With some spark'), t('Like a friend who is good with money. Short, warm, a joke when nothing is at stake.'), sample('Payment recorded.'))}${toneCard('plain', t('Just the facts'), t('The same information in neutral words.'), plainOf('Payment recorded.'))}</div>
-      <p class="note">${t('The numbers and what they mean are the same either way. Only the wording changes. Deleting something is always said plainly.')}</p></div></section>
     <section class="card"><div class="card-h"><h2>${t('Email and login')}</h2>${hint('proLogin')}</div><div class="card-b stack" style="gap:14px">
       ${loginCard()}
       ${u.pendingEmail ? banner('', `<b>${t('We sent a link to {email}.', { email: esc(u.pendingEmail) })}</b> ${t('Your login changes when you open it. Until then you keep using {email}.', { email: esc(u.email) })} ${t('If a link also arrives at your current address, open that one too.')}<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-a="email-cancel">${t('Hide this')}</button></div>`, 'mail')

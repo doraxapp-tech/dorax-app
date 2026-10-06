@@ -3,7 +3,7 @@
 function renderOverlay() {
   const d = UI.drawer;
   let h = '';
-  if (UI.sheet) h = `<div class="scrim" data-a="close"></div><div class="sheet" role="dialog" aria-label="${t('More')}"><div class="grab" aria-hidden="true"></div><nav class="nav">${navLinks(ROUTES.filter(r => !TABS.includes(r[0])))}</nav>
+  if (UI.sheet) h = `<div class="scrim" data-a="close"></div><div class="sheet" role="dialog" aria-label="${t('More')}"><div class="grab" aria-hidden="true"></div><button class="sheet-find" data-a="find">${icon('search')}<span>${t('Search')}</span></button><nav class="nav">${navLinks(ROUTES.filter(r => !TABS.includes(r[0])))}</nav>
       <div class="sheet-row"><label for="lang-m">${icon('globe')}${t('Language')}</label><select id="lang-m" class="lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>
       <div class="sheet-row"><label for="theme-m">${icon(S.settings.theme === 'light' ? 'sun' : 'moon')}${t('Appearance')}</label><select id="theme-m" data-c="setting" data-k="theme">${options([['dark', t('Dark')], ['light', t('Light')]], S.settings.theme === 'light' ? 'light' : 'dark')}</select></div>
       <button class="sheet-help" data-a="help">${icon('help')}<span>${t('Help')}</span></button>
@@ -21,7 +21,7 @@ function renderOverlay() {
 }
 /** While a dialog is open, only the dialog can be reached: the page, the tab bar and any panel underneath are inert. */
 function setInert() {
-  const modal = !!UI.modal, over = !!(UI.drawer || UI.sheet);
+  const modal = !!UI.modal, over = !!(UI.drawer || UI.sheet || UI.find);      // the search is a panel over the page like the others
   document.querySelector('.app').inert = modal || over; $('tabbar').inert = modal || over; $('overlay').inert = modal || $('overlay').classList.contains('out');
 }
 

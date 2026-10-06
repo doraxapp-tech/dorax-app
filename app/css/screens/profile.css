@@ -5,20 +5,18 @@
 .hello p { color: var(--ink-2); font-size: 14.5px; max-width: 70ch; }
 .hello p.note { font-size: 12px; color: var(--ink-3); }
 .rail-foot { display: flex; align-items: center; gap: 6px; padding: 8px; }
-.who { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; padding: 4px 6px; border-radius: var(--r); text-decoration: none; color: var(--ink); transition: background var(--t1) ease-out; }
-.who:hover, .who[aria-current="page"] { background: var(--select); }
+.who { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; padding: 4px 6px; border-radius: var(--r); color: var(--ink); transition: background var(--t1) ease-out; }
+.who:hover, .who[aria-expanded="true"] { background: var(--select); } .who:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.who-more { margin-left: auto; display: grid; place-items: center; width: 24px; height: 24px; color: var(--ink-3); flex: none; } .who-more svg { width: 16px; height: 16px; } .who:hover .who-more, .who[aria-expanded="true"] .who-more { color: var(--ink-strong); }
 .who-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
 .who-t b { font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .who-t small { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.avatar { width: 30px; height: 30px; border-radius: 50%; border: 0; display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--ink-strong); flex: none; background: var(--surface-3); }
-.avatar.lg { width: 56px; height: 56px; font-size: 18px; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: block; flex: none; overflow: hidden; } .avatar svg { display: block; width: 100%; height: 100%; }
+.avatar.lg { width: 56px; height: 56px; }
 .rail-foot .iconbtn svg { width: 16px; height: 16px; }
 /* the menu beside the name (three dots): language, appearance, help, log out. It opens upwards, over the end of the navigation.
    Like every panel here it is a surface with a border: no shadow. */
 .rail-foot { position: relative; }
-.rail-foot .iconbtn { display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0; flex: none; }
-.rail-foot .iconbtn:hover, .rail-foot .iconbtn[aria-expanded="true"] { background: var(--select); color: var(--ink-strong); }
-.rail-foot .iconbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .umenu { position: absolute; left: -1px; right: -1px; bottom: calc(100% + 8px); z-index: 5; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: var(--r-mid); border: 1px solid var(--line-strong); background: var(--lift); animation: umenu-in var(--t2) var(--ease) both; transform-origin: bottom center; -webkit-user-select: none; user-select: none; }
 @keyframes umenu-in { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
 .umenu-row, .umenu-item { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 6px; border-radius: var(--r); color: var(--ink-2); font-size: 13px; }
@@ -27,7 +25,7 @@
 .umenu svg { width: 16px; height: 16px; flex: none; }
 .umenu-row select { flex: none; width: 104px; min-height: 30px; padding: 3px 4px 3px 10px; font-family: var(--font); font-size: 12.5px; border-radius: var(--pill); border-color: var(--line-strong); background-color: transparent; }
 .umenu-item { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 6px; border-radius: var(--r); color: var(--ink-2); font-size: 13px; cursor: pointer; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
-.umenu-item:hover { background: var(--select); color: var(--ink-strong); } .umenu-item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.umenu-item:hover, .umenu-item[aria-current="page"] { background: var(--select); color: var(--ink-strong); } .umenu-item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .umenu-item.out { color: var(--neg); border-top: 1px solid var(--line); border-radius: 0 0 var(--r) var(--r); margin-top: 4px; padding-top: 2px; }
 .umenu-item.out:hover { color: var(--neg); }
 .sheet-out svg { width: 17px; height: 17px; }

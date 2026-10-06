@@ -20,7 +20,6 @@ const PROFILE_ACTIONS = {
   },
   logout() { UI.menu = false; logOut(); },      // what is not saved yet is sent while the account is still the open one (app/session.js)
   // profile
-  'user-tone'(ds) { S.user.tone = ds.v === 'plain' ? 'plain' : 'friend'; render(); },
   /** The login's address. The server sends a link to the new address (and, as it is set up by default, one to the current address too):
       the login changes when the links are opened. Until then nothing changes. */
   async 'email-change'() {

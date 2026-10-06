@@ -1,7 +1,7 @@
 /* Dorax Finance — every field: what happens when its value changes (data-c). */
 // ---------- changes (input / change) ----------
 const C = {
-  ...SHEET_CHANGES, ...REMIND_CHANGES, ...ONBOARD_CHANGES,
+  ...SHEET_CHANGES, ...REMIND_CHANGES, ...ONBOARD_CHANGES, ...FIND_CHANGES,
   'tx-filter'(el) { UI.tx[el.dataset.k] = el.value; UI.tx.page = 1; if (el.dataset.k === 'q') { $('tx-list').innerHTML = txList(); $('tx-tools').innerHTML = txTools(); } else render(); },
   /** A choice inside the filter pop-up: it changes the copy, and the pop-up is redrawn so its button counts again. A scope chosen by hand lets go of the account. */
   'tx-size'(el) { UI.tx.size = +el.value; UI.tx.page = 1; $('tx-list').innerHTML = txList(); const s = $('tx-size'); if (s) s.focus({ preventScroll: true }); },

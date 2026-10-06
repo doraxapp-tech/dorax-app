@@ -28,6 +28,16 @@ document.addEventListener('input', e => {
   else if (el.dataset.c === 'split' && el.tagName !== 'SELECT') UI.drawer.draft.splits[+el.dataset.i][el.dataset.k] = el.value;
 });
 document.addEventListener('keydown', e => {
+  // the search (features/find): while it is open the field keeps the focus and these keys are its own
+  if (UI.find) {
+    if (e.key === 'Escape') A['find-close']();
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); findMove(e.key === 'ArrowDown' ? 1 : -1); }
+    else if (e.key === 'Tab') { e.preventDefault(); findMove(e.shiftKey ? -1 : 1); }
+    else if (e.key === 'Enter') { e.preventDefault(); A['find-go']({ i: UI.find.i }); save(); }
+    return;
+  }
+  // F opens it from anywhere in the app, unless something is being typed or a panel is open. Ctrl+F stays the browser's own.
+  if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && UI.session && !UI.modal && !UI.drawer && !UI.sheet && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) && !e.target.isContentEditable) { e.preventDefault(); return A.find(); }
   if (e.key === 'Escape' && UI.menu && !UI.modal && !UI.drawer) { UI.menu = false; renderShell(); const el = $('user-menu-btn'); if (el) el.focus(); return; }
   if (UI.modal) {
     if (e.key === 'Escape') A['modal-cancel']();

@@ -19,22 +19,23 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     eq(await p.evaluate(() => [...document.querySelectorAll('#topbar .bar-tools > *')].map(el => el.className.split(' ')[0] || el.tagName)), ['bell', 'btn'], tag + 'the dashboard’s top bar keeps the bell and the main button');
 
     // ---------------------------------------------------------------- 2. the menu
-    eq(await p.evaluate(() => { const b = document.querySelector('#rail-foot #user-menu-btn'), who = document.querySelector('#rail-foot .who').getBoundingClientRect(), r = b.getBoundingClientRect(); return [b.getAttribute('aria-expanded'), b.getAttribute('aria-controls'), b.getAttribute('aria-label'), !!b.querySelector('svg'), r.left >= who.right - 1 && Math.abs((r.top + r.bottom) / 2 - (who.top + who.bottom) / 2) <= 2, r.width >= 32 && r.height >= 32, !!document.querySelector('#user-menu'), !!document.querySelector('#rail-foot > [data-a="logout"]')]; }),
-      ['false', 'user-menu', 'More options', true, true, true, false, false], tag + 'three dots sit beside the name, level with it, closed; the log out button is no longer loose beside the name');
+    eq(await p.evaluate(() => { const b = document.querySelector('#rail-foot #user-menu-btn'), r = b.getBoundingClientRect(), foot = document.querySelector('#rail-foot').getBoundingClientRect(), dots = b.querySelector('.who-more').getBoundingClientRect(), name = b.querySelector('.who-t').getBoundingClientRect();
+      return [b.tagName, b.getAttribute('aria-expanded'), b.getAttribute('aria-controls'), b.getAttribute('aria-label'), !!b.querySelector('.avatar svg'), b.querySelector('.who-t b').innerText.trim(), dots.left >= name.right - 1 && dots.right <= r.right, r.width >= foot.width - 20 && r.height >= 36, !!document.querySelector('#user-menu'), document.querySelectorAll('#rail-foot a, #rail-foot > [data-a="logout"]').length]; }),
+      ['BUTTON', 'false', 'user-menu', 'Alex: More options', true, 'Alex', true, true, false, 0], tag + 'the person’s card (picture, name, three dots) is one button that opens the menu; nothing in it leads straight to the profile or logs out');
     await p.click('#user-menu-btn');
     eq(await p.evaluate(() => { const m = document.querySelector('#user-menu'), r = m.getBoundingClientRect(), foot = document.querySelector('#rail-foot').getBoundingClientRect(), rail = document.querySelector('.rail').getBoundingClientRect();
-      return [document.querySelector('#user-menu-btn').getAttribute('aria-expanded'), m.getAttribute('role'), m.getAttribute('aria-label'), [...m.querySelectorAll('select, button')].map(el => el.id || el.dataset.a + (el.dataset.v ? ':' + el.dataset.v : '')), [...m.querySelectorAll('label, .umenu-l, .umenu-item span')].map(el => el.innerText.trim()), [...m.querySelectorAll('[data-a="theme-set"]')].map(b => [b.getAttribute('aria-label'), b.getAttribute('aria-pressed')]), document.activeElement.id,
+      return [document.querySelector('#user-menu-btn').getAttribute('aria-expanded'), m.getAttribute('role'), m.getAttribute('aria-label'), [...m.querySelectorAll('a, select, button')].map(el => el.getAttribute('href') || el.id || el.dataset.a + (el.dataset.v ? ':' + el.dataset.v : '')), [...m.querySelectorAll('label, .umenu-l, .umenu-item span')].map(el => el.innerText.trim()), [...m.querySelectorAll('[data-a="theme-set"]')].map(b => [b.getAttribute('aria-label'), b.getAttribute('aria-pressed')]), document.activeElement.getAttribute('href'),
         r.bottom <= foot.top && r.top >= 0 && r.left >= rail.left && r.right <= rail.right, [...m.querySelectorAll('.umenu-row, .umenu-item')].every(el => el.getBoundingClientRect().height >= 40), [...m.querySelectorAll('select, .seg')].every(s => s.getBoundingClientRect().right <= r.right - 6), getComputedStyle(m).boxShadow]; }),
-      ['true', 'group', 'More options', ['lang', 'theme-set:dark', 'theme-set:light', 'help', 'logout'], ['Language', 'Appearance', 'Help', 'Log out'], [['Dark', 'true'], ['Light', 'false']], 'lang', true, true, true, 'none'],
-      tag + 'they open a group above the name, inside the side bar, with language, appearance, help and log out in that order; the language is focused; every row is 40px or taller; no shadow');
+      ['true', 'group', 'More options', ['#profile', 'lang', 'theme-set:dark', 'theme-set:light', 'help', 'logout'], ['Profile', 'Language', 'Appearance', 'Help', 'Log out'], [['Dark', 'true'], ['Light', 'false']], '#profile', true, true, true, 'none'],
+      tag + 'it opens a group above the name, inside the side bar, with profile, language, appearance, help and log out in that order; the first row is focused; every row is 40px or taller; no shadow');
     // keyboard: Tab walks the four, then leaves; Escape closes and gives the focus back
-    const order = []; for (let i = 0; i < 4; i++) { await p.keyboard.press('Tab'); order.push(await p.evaluate(() => document.activeElement.id || document.activeElement.dataset.a + (document.activeElement.dataset.v ? ':' + document.activeElement.dataset.v : ''))); }
-    eq(order, ['theme-set:dark', 'theme-set:light', 'help', 'logout'], tag + 'Tab goes from the language to Dark, to Light, to help, to log out');
+    const order = []; for (let i = 0; i < 5; i++) { await p.keyboard.press('Tab'); order.push(await p.evaluate(() => document.activeElement.id || document.activeElement.dataset.a + (document.activeElement.dataset.v ? ':' + document.activeElement.dataset.v : ''))); }
+    eq(order, ['lang', 'theme-set:dark', 'theme-set:light', 'help', 'logout'], tag + 'Tab goes from the profile to the language, to Dark, to Light, to help, to log out');
     await p.keyboard.press('Escape');
-    eq(await p.evaluate(() => [UI.menu, !!document.querySelector('#user-menu'), document.activeElement.id]), [false, false, 'user-menu-btn'], tag + 'Escape closes it and the focus is back on the three dots');
+    eq(await p.evaluate(() => [UI.menu, !!document.querySelector('#user-menu'), document.activeElement.id]), [false, false, 'user-menu-btn'], tag + 'Escape closes it and the focus is back on the card');
     // language and appearance
     await p.keyboard.press('Enter'); await p.waitForSelector('#user-menu');
-    await p.selectOption('#lang', 'pt');
+    await p.focus('#lang'); await p.selectOption('#lang', 'pt');
     eq(await p.evaluate(() => [S.settings.lang, document.documentElement.lang, UI.menu, document.querySelector('#user-menu label').innerText.trim(), document.querySelector('#rail-foot [data-a="logout"] span').innerText.trim(), document.activeElement.id, [...document.querySelectorAll('#lang option')].map(x => x.textContent)]), ['pt', 'pt', true, 'Idioma', 'Sair', 'lang', ['Español', 'Português', 'English']], tag + 'choosing a language changes the app at once; the menu stays open, in the new language, with the focus where it was');
     await p.click('#user-menu [data-a="theme-set"][data-v="light"]');
     eq(await p.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light'), UI.menu, [...document.querySelectorAll('#user-menu [data-a="theme-set"]')].map(b => b.getAttribute('aria-pressed')), document.activeElement.dataset.v, !!document.querySelector('#umenu-theme svg')]), ['light', true, true, ['false', 'true'], 'light', true], tag + 'Light changes the appearance at once; the menu stays open, Light reads as chosen and keeps the focus');
@@ -53,7 +54,7 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     await p.click('#user-menu-btn'); await p.click('.topbar h1');
     eq(await p.evaluate(() => UI.menu), false, tag + 'so does a click on the page');
     await p.click('#user-menu-btn'); await p.click('#user-menu-btn');
-    eq(await p.evaluate(() => [UI.menu, document.querySelector('#user-menu-btn').getAttribute('aria-expanded')]), [false, 'false'], tag + 'and a second click on the three dots');
+    eq(await p.evaluate(() => [UI.menu, document.querySelector('#user-menu-btn').getAttribute('aria-expanded')]), [false, 'false'], tag + 'and a second click on the card');
     // a short window: the menu is still whole
     await p.setViewportSize({ width: 1100, height: 520 }); await p.click('#user-menu-btn');
     eq(await p.evaluate(() => { const r = document.querySelector('#user-menu').getBoundingClientRect(); return [r.top >= 0, r.bottom <= innerHeight, document.documentElement.scrollWidth - innerWidth <= 0]; }), [true, true, true], tag + 'in a short window the menu is still entirely on screen');
@@ -62,8 +63,16 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     await p.evaluate(() => { UI.menu = true; render(); }); await p.click('#user-menu [data-a="help"]'); await p.waitForSelector('#ct-message');
     eq(await p.evaluate(() => [UI.menu, UI.drawer.kind, !!document.querySelector('#user-menu')]), [false, 'contact', false], tag + 'Help closes the menu and opens the panel to write to Dorax');
     await p.evaluate(() => A.close());
-    // the profile link beside the dots still works
-    await p.click('#rail-foot .who'); eq(await p.evaluate(() => UI.route), 'profile', tag + 'the name still opens the profile');
+    // the profile is a row of the menu now (owner: "move the profile tab into a button in the 3 dot dropdown")
+    await p.click('#user-menu-btn'); await p.click('#user-menu a[href="#profile"]');
+    eq(await p.evaluate(() => [UI.route, UI.menu, document.querySelector('.pagehead h1').innerText.trim()]), ['profile', false, 'Profile'], tag + 'the menu’s first row opens the profile and closes the menu');
+    await p.click('#user-menu-btn'); eq(await p.evaluate(() => document.querySelector('#user-menu a[href="#profile"]').getAttribute('aria-current')), 'page', tag + 'on the profile, that row reads as the page being shown'); await p.keyboard.press('Escape');
+    // the profile itself: no choice of voice any more, and a picture instead of two letters
+    eq(await p.evaluate(() => [/How I talk to you|With some spark|Just the facts/.test(document.querySelector('#view').innerText), document.querySelectorAll('#view [data-a="user-tone"], #view .pick').length, [...document.querySelectorAll('#view .card-h h2')].map(h => h.innerText.trim()).slice(0, 3), typeof A['user-tone']]),
+      [false, 0, ['You', 'Email and login', 'Reminders'], 'undefined'], tag + 'the profile no longer has “How I talk to you”: the cards are You, Email and login, Reminders');
+    eq(await p.evaluate(() => [...document.querySelectorAll('.avatar')].map(a => { const svg = a.querySelector('svg'), r = a.getBoundingClientRect(), disc = svg.querySelector('circle'), cs = getComputedStyle(a); return [a.innerText.trim(), !!svg, disc.getAttribute('fill'), [...svg.querySelectorAll('[stroke]')].map(x => x.getAttribute('stroke')).sort().join(' '), Math.round(r.width) === Math.round(r.height), cs.borderRadius, a.getAttribute('aria-hidden')]; })),
+      [['', true, '#006239', '#3ECF8E #F4F7F5', true, '50%', 'true'], ['', true, '#006239', '#3ECF8E #F4F7F5', true, '50%', 'true']], tag + 'the person’s picture, in the side bar and on the profile, is a round drawing in the logo’s green with its light green accent: no initials');
+    eq(await p.evaluate(() => { const lum = h => { const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4); return .2126 * r + .7152 * g + .0722 * b; }, ratio = (a, b) => (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05); return [ratio('#F4F7F5', '#006239') >= 3, ratio('#3ECF8E', '#006239') >= 3]; }), [true, true], tag + 'the figure and its accent stand out from the green behind them (3 to 1 or more)');
 
     // ---------------------------------------------------------------- 4. the switch is centred, and nothing moves when the side changes
     // (owner: "the width of the header and the content in that tab changes a bit due to the fact that the BRL | USD switch is appearing")
@@ -103,7 +112,7 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     await p.click('#tabbar [data-a="sheet"]'); await p.waitForSelector('.sheet [data-a="help"]');
     eq(await p.evaluate(() => { const sh = document.querySelector('.sheet'), ids = [...sh.querySelectorAll('select, button')].map(el => el.id || el.dataset.a), help = sh.querySelector('[data-a="help"]'), out = sh.querySelector('[data-a="logout"]'); sh.scrollTop = sh.scrollHeight; const h = help.getBoundingClientRect(), u = out.getBoundingClientRect(), box = sh.getBoundingClientRect();
       return [ids, help.innerText.trim(), h.height >= 44 && u.height >= 44, h.bottom <= u.top + 1, Math.abs(h.width - u.width) <= 1 && h.width >= box.width - 30, u.bottom <= innerHeight]; }),
-      [['lang-m', 'theme-m', 'help', 'logout'], await T('Help'), true, true, true, true], where + 'More holds the language, the appearance, Help and Log out, in that order; Help and Log out are full rows a thumb can hit');
+      [['find', 'lang-m', 'theme-m', 'help', 'logout'], await T('Help'), true, true, true, true], where + 'More holds the search, then the language, the appearance, Help and Log out, in that order; Help and Log out are full rows a thumb can hit');
     await p.evaluate(() => document.querySelector('.sheet [data-a="help"]').click()); await p.waitForSelector('#ct-message');
     eq(await p.evaluate(() => [UI.sheet, UI.drawer.kind]), [false, 'contact'], where + 'Help closes More and opens the panel to write to Dorax');
     eq(o.errors, [], where + 'no errors'); await o.browser.close();
