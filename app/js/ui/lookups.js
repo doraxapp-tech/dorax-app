@@ -17,7 +17,7 @@ const convAccounts = () => { const m = needStatements(); return [...m, ...busine
 const SPACE_ROUTES = ['plan', 'goals'];
 let BOOK_NOW = null;
 function inBook(key, fn) { const was = BOOK_NOW; BOOK_NOW = key || 'personal'; try { return fn(); } finally { BOOK_NOW = was; } }
-/** The book the page itself shows: the company's only on a screen that has two sides, when it was chosen and the company has an account. */
+/** The book the page itself shows: the company's only on a screen that has two sides, and only when it was chosen. */
 function pageBookKey() {
   if (UI.space !== 'business' || !SPACE_ROUTES.includes(UI.route)) return 'personal';
   const cs = companyCurrencies(S); return cs.length ? bookKeyOf(cs.includes(UI.spaceCur) ? UI.spaceCur : cs[0]) : 'personal';
@@ -35,6 +35,9 @@ const goalAccounts = () => inCompany() ? bookAccounts() : personal();
 /** Runs fn once for the household and once for every company book, and joins what it answers. */
 const everyBook = fn => ['personal', ...companyBooks(S).map(b => b.key)].flatMap(k => inBook(k, fn));
 /** A text that names the currency ("Amount (R$)"), in the currency of the book in use. */
+/** On the company's side with no company account in the book's currency: said once at the top of the page, with the way to add one.
+    Planning works without it; paying a bill and saying where a goal's money is kept need the account. */
+const companyNote = () => !inCompany() || bookAccounts().length ? '' : banner('', `<b>${t('No company account in {cur} yet.', { cur: BCUR() })}</b> ${t('You can plan here already. Add the company’s account to pay its bills from it and to keep its goals in it.')}<div class="row" style="margin-top:8px"><button class="btn sm" data-a="edit-account" data-scope="business" data-cur="${BCUR()}">${icon('plus')}${t('Add company account')}</button></div>`);
 const tcur = (key, vars) => t(key, vars).replace('R$', SYMBOL[BCUR()] || BCUR());
 function catOf(id) { for (const c of [...S.categories, ...companyCats()]) { if (c.id === id) return { cat: c }; const s = c.subs.find(x => x.id === id); if (s) return { cat: c, sub: s }; } return null; }
 function catName(id) { const f = catOf(id); return f ? (f.sub ? f.sub.name : f.cat.name) : t('Uncategorized'); }

@@ -58,7 +58,7 @@ function distCard(ym) {
 function viewGoals() {
   const ym = B().month, nowYm = ymOf(B().today), years = goalYears(B()), year = years.includes(UI.goalYear) ? UI.goalYear : (years.includes(+nowYm.slice(0, 4)) ? +nowYm.slice(0, 4) : years[0]), mode = UI.goalMode;
   const open = B().goals.filter(g => g.status === 'active' || g.status === 'paused'), closed = B().goals.filter(g => g.status === 'done' || g.status === 'archived');
-  if (!B().goals.length) return `<div class="card"><div class="empty"><b>${t('No goals yet')}</b>${t('Create a goal with a target, or a fund for money you set aside every month.')}<div style="margin-top:12px"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div></div></div>`;
+  if (!B().goals.length) return `${companyNote()}<div class="card"><div class="empty"><b>${t('No goals yet')}</b>${t('Create a goal with a target, or a fund for money you set aside every month.')}<div style="margin-top:12px"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div></div></div>`;
   const d = distribution(B(), ym), totalSaved = sum(B().goals.filter(g => g.status !== 'archived').map(g => goalSaved(B(), g.id)));
   // year grid
   const months = Array.from({ length: 12 }, (_, i) => year + '-' + String(i + 1).padStart(2, '0')), rem = allocRemainder(B(), year), pays = payRows(B(), year, 'savings');
@@ -71,7 +71,7 @@ function viewGoals() {
     <td class="c tot">${show(sum(months.map((m, i) => gval(g, i))))}</td></tr>`).join('');
   const payCells = r => r.values.map((v, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${v ? '' : 'z'}" id="ap-${year}-${r.id}-${i}" aria-label="${esc(r.name)}, ${mon(i, true)}" value="${plain(v)}" data-c="pay-cell" data-id="${r.id}" data-y="${year}" data-m="${i}">` : show(v)}</td>`).join('');
   const byAcct = {}; B().goals.filter(g => g.status !== 'archived').forEach(g => { const k = g.accountId && acct(g.accountId) ? g.accountId : ''; (byAcct[k] = byAcct[k] || []).push(g); });
-  return `<section class="tiles">
+  return `${companyNote()}<section class="tiles">
       <div class="card tile"><div class="label"><span>${t('Saved in goals and funds')}</span>${hint('goalSaved')}</div><div class="value num">${fmt.money(totalSaved, BCUR())}</div></div>
       <div class="card tile"><div class="label"><span>${t('Plan for {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('goalPlan')}</div><div class="value num">${fmt.money(d.planned, BCUR())}</div></div>
       <div class="card tile"><div class="label"><span>${t('Recorded in {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('goalDone')}</div><div class="value num">${fmt.money(d.done, BCUR())}</div></div>

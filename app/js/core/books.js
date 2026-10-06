@@ -12,9 +12,14 @@
 const COMPANY_GROUPS = [['co-tax', 'Taxes', 's4'], ['co-services', 'Accounting and services', 's3'], ['co-tools', 'Tools and software', 's5'], ['co-people', 'Pay and people', 's1'], ['co-other', 'Other', 's2']];
 const BOOK_PARTS = ['goals', 'goalMoves', 'plan', 'pay'];
 
-/** The currencies the company has accounts in, the account's own currency first. No company account, no company side. */
+/** The currencies the company's side can be planned in, the account's own currency first: every currency a company account holds, every
+    currency a company book already has something in (so a plan is never lost with its account), and, when there is neither, the account's
+    own currency. So the company's side is there for everybody, with or without a company account (owner, 2026-10-06: "I never created one,
+    make it visible for all users for now"). */
 function companyCurrencies(state) {
-  const cs = [...new Set(state.accounts.filter(a => a.scope === 'business').map(a => a.currency))];
+  const books = (state.company || {}).books || {}, used = c => { const b = books[c] || {}; return !!((b.goals || []).length || ((b.plan || {}).lines || []).length || Object.values(b.pay || {}).some(rows => (rows || []).length)); };
+  const cs = [...new Set([...state.accounts.filter(a => a.scope === 'business').map(a => a.currency), ...Object.keys(books).filter(used)])];
+  if (!cs.length) cs.push(BASE_CURRENCY);
   return cs.sort((a, b) => a === BASE_CURRENCY ? -1 : b === BASE_CURRENCY ? 1 : a < b ? -1 : a > b ? 1 : 0);
 }
 /** What is kept for the company in one currency. With make, it is started when it is not there yet (the app, on first use); without, the
@@ -42,12 +47,12 @@ function companyBook(state, cur, make) {
   });
 }
 const bookKeyOf = cur => 'business:' + cur;
-/** The book a key names. An unknown key, or a company currency with no account any more, is the household's. */
+/** The book a key names. An unknown key, or a company currency that has neither an account nor a plan, is the household's. */
 function bookOf(state, key) {
   const cur = String(key || '').startsWith('business:') ? key.slice(9) : null;
   return cur && companyCurrencies(state).includes(cur) ? companyBook(state, cur, true) : state;
 }
-/** The company books that exist, each with its currency. Nothing is created: an account with no company side answers an empty list. */
+/** The company books that exist, each with its currency. Nothing is created: an account whose company side was never opened answers an empty list. */
 function companyBooks(state) {
   return companyCurrencies(state).map(cur => ({ cur, key: bookKeyOf(cur), book: companyBook(state, cur, false) })).filter(x => x.book);
 }

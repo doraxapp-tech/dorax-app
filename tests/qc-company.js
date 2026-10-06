@@ -29,9 +29,25 @@ const path = require('path');
     eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), !!document.querySelector('[data-a="space-cur"]'), !!document.querySelector('.space .hint'), S.company === undefined]),
       [[['Household', 'true'], ['Company', 'false']], false, true, true], tag + 'it opens on the household, with no currency to choose and an (i); nothing is kept for the company until its side is opened');
     const before = await household(p);
-    // a person with no company account never sees it
-    const none = await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope !== 'business'); UI.space = 'business'; render(); const r = [!!document.querySelector('.space'), pageBookKey(), B() === S]; S.accounts = keep; UI.space = 'personal'; render(); return r; });
-    eq(none, [false, 'personal', true], tag + 'without a company account there is no switch, and the page is the household’s even if the company’s side was asked for');
+    // a person with no company account sees the switch too (owner: "I never created one, make it visible for all users for now"):
+    // the company's side opens in the account's own currency, says an account is missing, and can be planned all the same
+    const none = await p.evaluate(() => { const keep = S.accounts, tx = S.transactions.length, out = {}; S.accounts = keep.filter(a => a.scope !== 'business'); render();
+      out.home = [!!document.querySelector('.space'), !!document.querySelector('#view .banner [data-a="edit-account"]')];
+      document.querySelector('[data-a="space"][data-v="business"]').click();
+      const note = document.querySelector('#view > .banner');
+      out.side = [pageBookKey(), !!document.querySelector('[data-a="space-cur"]'), note.innerText.replace(/\s+/g, ' ').trim(), !!note.querySelector('[data-a="edit-account"][data-scope="business"][data-cur="BRL"]')];
+      A['line-new'](); out.from = [...document.querySelectorAll('#l-acct option')].map(x => x.textContent); Object.assign(UI.drawer.draft, { name: 'Trial cost', catId: 'co-tax', amountText: '100', due: '9' }); A['line-save'](); A.close();
+      const l = B().plan.lines[0]; A['line-pay-now']({ id: l.id });
+      out.plan = [B().plan.lines.length, planValue(B(), l, S.month), S.transactions.length - tx, document.querySelector('#toast-root').innerText.trim().startsWith('Add an account first.'), allReminders().filter(r => r.book).map(r => [r.kind, r.name, r.cur])];
+      navigate('goals'); out.goals = [pageBookKey(), !!document.querySelector('#view > .banner [data-a="edit-account"]')]; navigate('plan');
+      document.querySelector('#view > .banner [data-a="edit-account"]').click();
+      out.form = [UI.drawer.kind, UI.drawer.draft.scope, UI.drawer.draft.currency]; UI.drawer.draft.name = 'New PJ'; A['save-account']();
+      A['line-pay-now']({ id: l.id }); const x = S.transactions.find(k => k.planLineId === l.id) || {};
+      out.after = [!!document.querySelector('#view > .banner'), UI.route, pageBookKey(), S.transactions.length - tx, isBiz(x.accountId), x.amount];
+      S.transactions = S.transactions.filter(k => k !== x); S.accounts = keep; delete S.company; UI.space = 'personal'; UI.toast = UI.undo = null; renderToast(); render(); return out; });
+    eq(none, { home: [true, false], side: ['business:BRL', false, 'No company account in BRL yet. You can plan here already. Add the company’s account to pay its bills from it and to keep its goals in it. Add company account', true],
+      from: ['No account'], plan: [1, 10000, 0, true, [['bill', 'Trial cost', 'BRL']]], goals: ['business:BRL', true], form: ['account', 'business', 'BRL'], after: [false, 'plan', 'business:BRL', 1, true, -10000] },
+      tag + 'without a company account the switch is there all the same: the company’s side opens in reais, says the account is missing and how to add it, and can be planned; its bill is in the bell; paying waits for the account, which the note adds as a company account');
 
     // ---------------------------------------------------------------- 2. the company's fixed costs
     await p.click('[data-a="space"][data-v="business"]');
@@ -164,8 +180,8 @@ const path = require('path');
     await p.evaluate(() => A.close());
     // every text of the company's side is in the language chosen
     eq(await p.evaluate(() => [t('Whose money'), t('Not in the company plan'), t('Company cost or income'), t('e.g. Accountant, taxes'), t('e.g. Taxes, Reserve, Equipment')].every(x => typeof x === 'string' && x.length > 3) && (S.settings.lang === 'en' || t('Whose money') !== 'Whose money')), true, where + 'the new texts are translated');
-    // the company's last account goes: the page is the household's again, and what was planned is kept
-    eq(await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope !== 'business'); render(); const r = [!!document.querySelector('.space'), pageBookKey(), S.company.books.BRL.plan.lines.length, allReminders().some(x => x.book)]; S.accounts = keep; render(); return r.concat(pageBookKey()); }), [false, 'personal', 2, false, 'business:BRL'], where + 'without company accounts the switch leaves and no company reminder is raised; the plan is kept for when an account is back');
+    // the company's last account goes: its side and its plan stay, and the page says an account is missing
+    eq(await p.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope !== 'business'); render(); const n = document.querySelector('#view > .banner'), r = [!!document.querySelector('.space'), pageBookKey(), S.company.books.BRL.plan.lines.length, !!n && n.getBoundingClientRect().right <= innerWidth, document.documentElement.scrollWidth - innerWidth <= 0, companyCurrencies(S)]; S.accounts = keep; render(); return r.concat(pageBookKey()); }), [true, 'business:BRL', 2, true, true, ['BRL'], 'business:BRL'], where + 'when the company’s accounts are gone the switch and the plan stay, and the note about the missing account fits the phone');
     await p.evaluate(() => { wipeAll(); }); await quiet(p);
     eq(await p.evaluate(() => [S.company === undefined, UI.space, S.accounts.length]), [true, 'personal', 0], where + '“Delete all your data” deletes the company’s side too');
     eq(o.errors, [], where + 'no errors'); await o.browser.close();

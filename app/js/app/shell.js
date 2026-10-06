@@ -13,10 +13,11 @@ const TABS = ['dashboard', 'transactions', 'plan', 'goals'];
 const tabLabel = id => id === 'goals' ? t('Goals') : routeLabel(id);
 const $ = id => document.getElementById(id);
 
-/** Household or Company, on the screens that have the two sides. It is there only once the company has an account; with accounts in more
-    than one currency the company's side also asks which one, because reais and dollars are planned apart and never added up. */
+/** Household or Company, on the screens that have the two sides. It is there for everybody (owner, 2026-10-06: "make it visible for all
+    users for now"): a person with no company account can still plan the company's side, in the account's own currency. With more than one
+    currency the company's side also asks which one, because reais and dollars are planned apart and never added up. */
 function spaceSwitch() {
-  const cs = companyCurrencies(S); if (!SPACE_ROUTES.includes(UI.route) || !cs.length) return '';
+  const cs = companyCurrencies(S); if (!SPACE_ROUTES.includes(UI.route)) return '';
   const key = pageBookKey(), co = key !== 'personal';
   return `<div class="space">${seg('space', [['personal', t('Household')], ['business', t('Company')]], co ? 'business' : 'personal', t('Whose money'))}${co && cs.length > 1 ? seg('space-cur', cs.map(c => [c, c]), key.slice(9), t('Currency')) : ''}${info(t('Household and company money are planned apart. On the company’s side, fixed costs and goals count only the company’s accounts, each currency by itself.'))}</div>`;
 }

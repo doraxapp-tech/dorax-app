@@ -3,7 +3,7 @@ const ACCOUNTS_ACTIONS = {
   // accounts
   'edit-account'(ds) {
     const a = S.accounts.find(x => x.id === ds.id);
-    UI.drawer = { kind: 'account', title: a ? t('Edit account') : t('Add account'), isNew: !a, draft: a ? { ...a, monthly: owesStatement(a), openingText: centsToDecimal(a.opening), limitText: a.creditLimit ? centsToDecimal(a.creditLimit) : '' } : { id: null, name: '', institution: BANKS[0], type: 'checking', currency: 'BRL', scope: 'personal', purpose: '', openingText: '0.00', limitText: '' } };
+    UI.drawer = { kind: 'account', title: a ? t('Edit account') : t('Add account'), isNew: !a, draft: a ? { ...a, monthly: owesStatement(a), openingText: centsToDecimal(a.opening), limitText: a.creditLimit ? centsToDecimal(a.creditLimit) : '' } : { id: null, name: '', institution: BANKS[0], type: 'checking', currency: ds.cur || 'BRL', scope: ds.scope === 'business' ? 'business' : 'personal', purpose: '', openingText: '0.00', limitText: '' } };      // Plan and Goals ask for a company account in their currency (companyNote)
     renderOverlay();
   },
   'save-account'() {

@@ -76,7 +76,7 @@ function viewPlan() {
   const netRow = `<tr class="sumrow grand"><th scope="row">${t('Income minus fixed costs')}</th>${months.map((m, i) => { const a = inc.map(r => pval(r, i)), b = exp.map(l => val(l, i)); const v = sum(a) - sum(b); return `<td class="c${cur(i)}">${a.concat(b).some(x => x === null) ? '<span class="z">—</span>' : mode === 'diff' ? show(v, 'income') : `<span class="${v < 0 ? 'neg' : ''}">${fmt.money(v, null, { bare: true, trim: true })}</span>`}</td>`; }).join('')}<td class="c tot">${mode === 'diff' ? show(netYear, 'income') : `<span class="${netYear < 0 ? 'neg' : ''}">${fmt.money(netYear, null, { bare: true, trim: true })}</span>`}</td></tr>`;
   const prog = planProgress(B(), ym, BCUR(), B().today), pt = planTotals(B(), ym), spent = sum(prog.map(x => x.spent)), toPay = sum(prog.map(x => x.toPay)), net = pt.income - pt.expenses;
   const emptyYear = !yearPlanned(B(), year), canCopy = emptyYear && yearPlanned(B(), year - 1) > 0;
-  return `<section class="tiles">
+  return `${companyNote()}<section class="tiles">
       <div class="card tile"><div class="label"><span>${t('Fixed costs, {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('planFixed')}</div><div class="value num">${fmt.money(pt.expenses, BCUR())}</div></div>
       <div class="card tile"><div class="label"><span>${t('Paid so far')}</span>${hint('planPaid')}</div><div class="value num">${fmt.money(spent, BCUR())}</div></div>
       <div class="card tile"><div class="label"><span>${t('Still to pay')}</span>${hint('planLeft')}</div><div class="value num">${fmt.money(toPay, BCUR())}</div></div>

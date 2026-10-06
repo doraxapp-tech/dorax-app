@@ -1195,6 +1195,9 @@ const TR = [
   ["e.g. Accountant, taxes", "p. ej. Contador, impuestos", "ex.: Contador, impostos"],
   ["Company cost or income", "Costo o ingreso de la empresa", "Custo ou receita da empresa"],
   ["Not in the company plan", "Fuera del plan de la empresa", "Fora do plano da empresa"],
+  ["No company account in {cur} yet.", "Todavía no hay una cuenta de la empresa en {cur}.", "Ainda não há uma conta da empresa em {cur}."],
+  ["You can plan here already. Add the company’s account to pay its bills from it and to keep its goals in it.", "Ya puedes planificar aquí. Agrega la cuenta de la empresa para pagar sus cuentas desde ella y guardar sus metas en ella.", "Você já pode planejar aqui. Adicione a conta da empresa para pagar as contas dela e guardar as metas nela."],
+  ["Add company account", "Agregar cuenta de la empresa", "Adicionar conta da empresa"],
   // connecting a bank through Open Finance (a trial, 2026-10-06)
   ["Connect a bank", "Conectar un banco", "Conectar um banco"],
   ["Open Finance", "Open Finance", "Open Finance"],

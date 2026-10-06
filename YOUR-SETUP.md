@@ -92,7 +92,7 @@ Then send the form once on dorax.app. You answer by replying to the email. Detai
 
 ### 3g. The company's side of Plan and Savings & goals (built 2026-10-06)
 
-Nothing to set up in the app: with a company (PJ) account, Plan and Savings & goals show **Household | Company** beside the title. One step on the server, so that reminder emails and notifications also cover the company's bills:
+Nothing to set up in the app: Plan and Savings & goals show **Household | Company** beside the title, for every account. To mark company bills as paid, add the company's account (the note on the company's side has the button, or Accounts > Add account > Belongs to: Company). One step on the server, so that reminder emails and notifications also cover the company's bills:
 
 1. Deploy the site (`git push`).
 2. Terminal, in the folder: `npx supabase@latest functions deploy reminders --project-ref uhvfkyblfojcpqupmlbg`.
