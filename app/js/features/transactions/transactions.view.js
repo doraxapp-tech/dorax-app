@@ -7,7 +7,7 @@ function filteredTx(f) {
     if (f.account ? x.accountId !== f.account : f.scope && (f.scope === 'business') !== isBiz(x.accountId)) return false;
     if (f.type && x.type !== f.type) return false;
     if (f.status && x.status !== f.status) return false;
-    if (f.category) { const hit = f.category === 'none' ? (!x.categoryId || x.categoryId === 'other') && x.type !== 'transfer' && !isBiz(x.accountId) : allocations(x).some(a => a.categoryId === f.category || a.subcategoryId === f.category); if (!hit) return false; }
+    if (f.category) { const hit = f.category === 'none' ? x.type !== 'transfer' && (isBiz(x.accountId) ? f.scope === 'business' && !allocations(x).some(a => companyCats().some(c => c.id === a.categoryId)) : !x.categoryId || x.categoryId === 'other') : allocations(x).some(a => a.categoryId === f.category || a.subcategoryId === f.category); if (!hit) return false; }
     if (q && !(normalizeText(x.merchant + ' ' + x.description + ' ' + x.notes).includes(q) || centsToDecimal(Math.abs(x.amount)).includes(f.q.trim().replace(',', '.')))) return false;
     return true;
   });

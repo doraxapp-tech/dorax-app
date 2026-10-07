@@ -13,7 +13,7 @@ const TABS = ['dashboard', 'transactions', 'plan', 'goals'];
 const tabLabel = id => id === 'goals' ? t('Goals') : routeLabel(id);
 const $ = id => document.getElementById(id);
 
-/** Household or Company, on the screens that have the two sides (Plan, Savings & goals, Categories). It is there for everybody (owner, 2026-10-06: "make it visible for all
+/** Household or Company, on the screens that have the two sides (the dashboard, Plan, Savings & goals, Categories). It is there for everybody (owner, 2026-10-06: "make it visible for all
     users for now"): a person with no company account can still plan the company's side, in the account's own currency. With more than one
     currency the company's side also asks which one, because reais and dollars are planned apart and never added up. */
 function spaceSwitch() {

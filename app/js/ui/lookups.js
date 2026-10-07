@@ -10,11 +10,11 @@ const needStatements = ym => S.accounts.filter(a => owesStatement(a, ym));
 /** Accounts in the order the converter offers them: the ones on the monthly list, then the other company accounts, then the household's. */
 const convAccounts = () => { const m = needStatements(); return [...m, ...business().filter(a => !m.includes(a)), ...personal().filter(a => !m.includes(a))]; };
 // ---------- which book: the household's or the company's ----------
-// Plan, Savings & goals and Categories have two sides (core/books.js). The page says which one it shows (UI.space, UI.spaceCur); everything those
+// The dashboard, Plan, Savings & goals and Categories have two sides (core/books.js). The page says which one it shows (UI.space, UI.spaceCur); everything those
 // screens read and write goes through B(), the book in use, instead of S. A panel remembers the book it was opened for (drawer.book), a
 // button can name one (data-book: a company bill in the bell), and while a view or an action runs the book is fixed (inBook), so the page
 // behind a panel never borrows the panel's book. On every other screen B() is S: the household, as before.
-const SPACE_ROUTES = ['plan', 'goals', 'categories'];
+const SPACE_ROUTES = ['dashboard', 'plan', 'goals', 'categories'];
 let BOOK_NOW = null;
 function inBook(key, fn) { const was = BOOK_NOW; BOOK_NOW = key || 'personal'; try { return fn(); } finally { BOOK_NOW = was; } }
 /** The book the page itself shows: the company's only on a screen that has two sides, and only when it was chosen. */

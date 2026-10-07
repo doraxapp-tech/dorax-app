@@ -24,7 +24,7 @@ const path = require('path');
   // ---------------------------------------------------------------- 1. where the switch is, and where it is not
   {
     const o = await open({ lang: 'en', account: 'example', plan: true, viewport: wide }), p = o.page;
-    eq(await p.evaluate(() => ROUTES.map(r => { UI.route = r[0]; renderShell(); return [r[0], !!document.querySelector('.pagehead .space')]; }).filter(x => x[1]).map(x => x[0])), ['plan', 'goals', 'categories'], tag + 'the Household / Company switch is on Plan, on Savings & goals and on Categories, and on no other screen');
+    eq(await p.evaluate(() => ROUTES.map(r => { UI.route = r[0]; renderShell(); return [r[0], !!document.querySelector('.pagehead .space')]; }).filter(x => x[1]).map(x => x[0])), ['dashboard', 'plan', 'goals', 'categories'], tag + 'the Household / Company switch is on the dashboard, on Plan, on Savings & goals and on Categories, and on no other screen');
     await p.evaluate(() => navigate('plan'));
     eq(await p.evaluate(() => [[...document.querySelectorAll('.space [data-a="space"]')].map(b => [b.innerText.trim(), b.getAttribute('aria-pressed')]), [...document.querySelectorAll('[data-a="space-cur"]')].some(b => getComputedStyle(b).visibility !== 'hidden'), !!document.querySelector('.space .hint'), S.company === undefined]),
       [[['Household', 'true'], ['Company', 'false']], false, true, true], tag + 'it opens on the household, with no currency to choose and an (i); nothing is kept for the company until its side is opened');
@@ -129,7 +129,7 @@ const path = require('path');
       [18900, 0, 0, true], tag + 'the payment counts in the reais book, not in the dollar book and not in any household total');
 
     // ---------------------------------------------------------------- 5. the bell and the reminders
-    await p.evaluate(() => { navigate('dashboard'); });
+    await p.evaluate(() => { A.space({ v: 'personal' }); navigate('dashboard'); });      // the dashboard has two sides since 2026-10-07: this part is about the household's
     const bell = await p.evaluate(() => { const all = allReminders(), co = all.filter(r => r.book); return [pageBookKey(), co.map(r => [r.kind, r.name || '', r.cur, r.when, r.id.startsWith('business:')]), new Set(all.map(r => r.id)).size === all.length, +document.querySelector('.bell .count').innerText === activeReminders().length]; });
     eq(bell, ['personal', [['bill', 'Owner pay', 'BRL', 'soon', true]], true, true], tag + 'on the dashboard (household) the bell counts the company’s bill that is coming up, with its book and currency, and no id is used twice');
     await p.click('.bell'); await p.waitForSelector('.rem');
