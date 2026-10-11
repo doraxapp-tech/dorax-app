@@ -41,6 +41,6 @@ const PROFILE_ACTIONS = {
         UI.session = null; forgetSync(); reallyLogOut(t('Account deleted. Everything is gone, as you asked.'));
       } });
   },
-  'step-income'() { const y = +S.today.slice(0, 4); navigate('plan'); A['add-pay']({ y }); },
+  'step-income'() { A['plan-income']({ add: S.today.slice(0, 4) }); },      // the income's panel with a new payment, right here (2026-10-11)
   'steps-hide'() { S.isNew = false; UI.stepsDone = null; render(); },
 };

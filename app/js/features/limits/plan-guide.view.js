@@ -45,7 +45,7 @@ function planGuideDrawer(d) {
     const rows = payRows(B(), +ym.slice(0, 4)).filter(r => (r.values[+ym.slice(5) - 1] || 0) > 0);
     const body = mp.income
       ? `<div class="pg-big num">${limMoney(mp.income)}</div><ul class="pg-inc">${rows.map(r => `<li><span>${esc(r.name)}</span><span class="num">${limMoney(r.values[+ym.slice(5) - 1])}</span></li>`).join('')}</ul>
-         <p class="note">${t('From your Plan.')} <button class="linkbtn" data-a="pg-income-plan">${t('Change it in the Plan')}</button></p>`
+         <p class="note pg-from">${t('From your Plan.')}</p><button class="btn sm" data-a="pg-income-plan" aria-haspopup="dialog">${t('Change income')}</button>`
       : `<div class="form-grid">${fld('pg-income', tcur('Each month (R$)'), `<input type="text" id="pg-income" value="${esc(x.income)}" data-c="draft" data-k="income" inputmode="decimal" class="num" placeholder="0" autocomplete="off" enterkeyhint="next">`, 'full')}</div>
          <p class="note">${t('Your salary and any other money that comes in every month. In the Plan you can split it into two payments.')}</p>`;
     return `<div class="body pg">${err}${pgHead(1, t('What comes in each month'), mp.income ? '' : t('Everything starts here: the limits come out of what you earn.'))}${body}</div>

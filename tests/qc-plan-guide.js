@@ -19,7 +19,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await home(), [['', false, false, true], ['electricidad', true, false, false], ['supermercado', true, false, false]], 'his Home: everything else (empty: every part has its line), and the two bills of variable amount that can become limits; never the fixed bills');
   ok(await page.evaluate(() => !!document.querySelector('[data-a="cat-toggle"][data-id="casa"]').closest('.cat-card').querySelector('.cat-lim-add')), 'Categories: Home now says “Set a limit” (before: nothing)');
   await page.click('.cat-lim-add[data-cat="casa"]'); await page.waitForSelector('#lm-for');
-  eq(await page.evaluate(() => [document.querySelector('#lm-for').value, document.querySelector('#lm-amount').value, /Groceries is a bill of variable amount in your Plan \(R\$ 1\.200\)/.test(document.querySelector('.lim-covers').innerText)]),
+  eq(await page.evaluate(() => [document.querySelector('#lm-for').value, document.querySelector('#lm-amount').value.replace(/[.,]00$/, ''), /Groceries is a bill of variable amount in your Plan \(R\$ 1\.200\)/.test(document.querySelector('.lim-covers').innerText)]),
     ['supermercado', '1.200', true], 'it opens on Groceries (everyday spending, by its name), with its own amount, and says the bill becomes a limit');
   await page.fill('#lm-amount', '1000'); await page.click('[data-a="limit-save"]');
   eq(await page.evaluate(() => { const l = S.plan.lines.find(k => k.id === 'pl-supermercado'); return [l.pay, l.due, planValue(S, l, ymOf(S.today)), planValue(S, l, '2026-09'), S.plan.lines.filter(k => k.subcategoryId === 'supermercado').length]; }),

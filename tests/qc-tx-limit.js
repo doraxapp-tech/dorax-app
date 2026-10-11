@@ -35,7 +35,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(await page.evaluate(() => /Escribe el límite como número/.test(document.querySelector('#tx-limit').innerText) && !B().plan.lines.some(l => l.categoryId === 'salidas')), 'a wrong number is said, and nothing is saved');
   await page.fill('#d-limit', '400'); await page.tap('[data-a="tx-limit-save"]'); await page.waitForTimeout(200);
   eq(await page.evaluate(() => { const l = B().plan.lines.find(k => k.categoryId === 'salidas'); return [!!l && l.pay, l && l.name, l && planValue(B(), l, ymOf(S.today)), document.querySelector('#d-amount').value, /de R\$ 400,00/.test(document.querySelector('#tx-limit').innerText), /Límite guardado/.test(document.querySelector('#toast-root').innerText)]; }),
-    ['budget', 'Salidas', 40000, '5000', true, true], 'saved: a line of the plan spent in several purchases, 400 a month; the hint shows at once; the amount typed is kept; it is said');
+    ['budget', 'Salidas', 40000, '5.000,00', true, true], 'saved: a line of the plan spent in several purchases, 400 a month; the hint shows at once; the amount typed is kept; it is said');
   await page.fill('#d-amount', '120'); await page.fill('#d-merchant', 'Cine'); await page.tap('[data-a="save-tx"]'); await page.waitForTimeout(300);
   await page.evaluate(() => navigate('plan')); await page.waitForTimeout(300);
   ok(await page.evaluate(() => planProgress(B(), ymOf(S.today), CUR, S.today).some(p => p.name === 'Salidas' && p.planned === 40000 && p.spent >= 12000) && /Salidas/.test(document.querySelector('#view').innerText)), 'Plan shows it, with the expense in it');

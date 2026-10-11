@@ -67,11 +67,11 @@ const { open, ok, eq, done } = require('./pw.js');
     [['expense', 'out', '15', 'Taxi', 'casa|transporte', '2026-10-01', 'nu-conta', null], ['d-say', '15', 'Taxi', '2026-10-01', 'Transport', 'Expense · R$ 15,00 · Taxi · Transport · yesterday', n0]],
     'typed in the sentence: the amount, the name, the group and the day appear in the form underneath, a line says what was understood, the sentence keeps the focus, nothing is saved');
   await page.fill('#d-amount', '18'); await page.fill('#d-say', 'taxi 15 yesterday santander');
-  eq([await draft(page), await page.evaluate(() => document.querySelector('#d-account').value)], [['expense', 'out', '18', 'Taxi', 'casa|transporte', '2026-10-01', 'sant', null], 'sant'], 'an amount corrected by hand is not written over when the sentence goes on; what the sentence adds (the account) still arrives');
+  eq([await draft(page), await page.evaluate(() => document.querySelector('#d-account').value)], [['expense', 'out', '18,00', 'Taxi', 'casa|transporte', '2026-10-01', 'sant', null], 'sant'], 'an amount corrected by hand is not written over when the sentence goes on; what the sentence adds (the account) still arrives');
   await page.fill('#d-say', '');
-  eq([await draft(page), await page.evaluate(() => !document.querySelector('#d-say-read').innerText.trim())], [['expense', 'out', '18', '', '|', '2026-10-02', 'nu-conta', null], true], 'the sentence erased: every field it had filled goes back to how the panel opened; the one set by hand stays');
+  eq([await draft(page), await page.evaluate(() => !document.querySelector('#d-say-read').innerText.trim())], [['expense', 'out', '18,00', '', '|', '2026-10-02', 'nu-conta', null], true], 'the sentence erased: every field it had filled goes back to how the panel opened; the one set by hand stays');
   await page.fill('#d-say', 'recibí 3000');
-  eq(await draft(page), ['income', 'in', '18', 'Income', '|', '2026-10-02', 'nu-conta', null], 'an income with no name is called by its kind, so it can be saved as it is');
+  eq(await draft(page), ['income', 'in', '18,00', 'Income', '|', '2026-10-02', 'nu-conta', null], 'an income with no name is called by its kind, so it can be saved as it is');
   await page.evaluate(() => A.close());
 
   // ---------- 4. Enter, a missing amount, and what is typed ----------

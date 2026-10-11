@@ -21,6 +21,7 @@ const measure = () => {
   for (const root of scope) for (const el of root.querySelectorAll('button, a[href], select, input:not([type=hidden]), textarea, summary, [role=button], [role=switch], [tabindex="0"], tr.click, label.sw, label.btn')) {
     if (!vis(el) || el.disabled || el.closest('[inert]') || (el.type === 'file' && el.classList.contains('sr'))) continue;
     if ((el.tagName === 'A' || el.classList.contains('linkbtn')) && el.closest('p, .note, small, li, .banner, dd, .lead, .auth-alt, .ob-later, .lp-legal, .legal-foot, label.check') && !el.classList.contains('btn')) continue;      // a link inside a sentence is read, then pressed: it follows the text's size
+    if (el.classList.contains('kpi-open')) continue;      // a figure tile's own button covers the whole tile, bigger than a thumb; its (i) sits above it on purpose (2026-10-11)
     el.scrollIntoView({ block: 'center', inline: 'center' });
     const r = el.getBoundingClientRect(), cx = Math.min(innerWidth - 2, Math.max(2, r.left + r.width / 2)), cy = r.top + r.height / 2;
     const at = (dx, dy) => own(el, document.elementFromPoint(Math.min(innerWidth - 1, Math.max(1, cx + dx)), cy + dy));

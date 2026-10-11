@@ -91,7 +91,7 @@ function debtFormDrawer(d) {
   return `<div class="body">${d.error ? errBanner(d.error) : ''}<div class="form-grid">
     ${fld('db-name', t('What it is'), inp('db-name', 'name', g.name, `placeholder="${esc(t('e.g. Bank loan, Overdraft, Store'))}"`), 'full')}
     ${fld('db-owed', tcur('Owed today (R$)'), inp('db-owed', 'owedText', g.owedText, 'inputmode="decimal" class="num"'))}
-    ${fld('db-rate', `${t('Interest a month (%)')} <span class="muted">${t('optional')}</span>`, inp('db-rate', 'rateText', g.rateText, 'inputmode="decimal" class="num" placeholder="0"'))}
+    ${fld('db-rate', `${t('Interest a month (%)')} <span class="muted">${t('optional')}</span>`, inp('db-rate', 'rateText', g.rateText, 'data-nomask inputmode="decimal" class="num" placeholder="0"'))}
     ${fld('db-min', `${tcur('Monthly payment (R$)')} <span class="muted">${t('optional')}</span>`, inp('db-min', 'minText', g.minText, 'inputmode="decimal" class="num" placeholder="0"'))}
     ${fld('db-due', `${t('Due day')} <span class="muted">${t('optional')}</span>`, inp('db-due', 'dueText', g.dueText, 'inputmode="numeric" class="num" placeholder="1–31"'))}
   </div>

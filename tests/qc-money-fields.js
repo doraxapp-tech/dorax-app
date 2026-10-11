@@ -3,6 +3,8 @@
 //      (inputmode="numeric");
 //   2. typed for real into the main ones, letters never appear: "1a2b,5c0" is "12,50"; a pasted "R$ 1.234,56" keeps its number; an amount keeps a
 //      minus at the start, a count none; the caret stays where the person is typing;
+//      since 2026-10-11 an amount fills from the cents and writes its own marks (owner: "don't make me type the point or the comma";
+//      app/js/ui/money-mask.js): 1 → 0,01, 15 → 0,15, 150000 → 1.500,00; a field already holding "5.200" shows "5.200,00" when focused;
 //   3. every marked field of the app does the same.
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
@@ -35,7 +37,17 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await typeInto('#d-amount', '1a2b,5c0'), '12,50', 'a transaction’s amount: letters typed never appear');
   eq(await paste('#d-amount', 'R$ 1.234,56'), '1.234,56', 'pasted with its symbol, the number stays');
   await page.click('#d-amount', { clickCount: 3 }); await page.keyboard.type('100'); await page.keyboard.press('ArrowLeft'); await page.keyboard.type('x');
-  eq(await page.evaluate(() => { const el = document.querySelector('#d-amount'); return [el.value, el.selectionStart]; }), ['100', 2], 'the caret stays where the person was typing');
+  eq(await page.evaluate(() => { const el = document.querySelector('#d-amount'); return [el.value, el.selectionStart]; }), ['1,00', 3], 'the caret stays where the person was typing (100 is 1,00: from the cents)');
+  // from the cents, digit by digit; what is pasted or filled in is read as an amount; a focused field shows its cents
+  await page.click('#d-amount', { clickCount: 3 }); await page.keyboard.press('Backspace');
+  const steps = []; for (const ch of '150000') { await page.keyboard.type(ch); steps.push(await page.inputValue('#d-amount')); }
+  eq(steps, ['0,01', '0,15', '1,50', '15,00', '150,00', '1.500,00'], 'an amount fills from the cents: the point and the comma are written by the field');
+  await page.fill('#d-amount', '1.500'); eq(await page.inputValue('#d-amount'), '1.500,00', 'filled in one piece, “1.500” keeps its value');
+  await page.evaluate(() => A.close());
+  await page.evaluate(() => A['edit-account']({ id: 'nu-conta' })); await page.waitForTimeout(150);
+  const pre = await page.evaluate(() => { const el = document.querySelector('.drawer input[inputmode="decimal"]'); return '#' + el.id; });
+  const before = await page.inputValue(pre); await page.focus(pre); await page.waitForFunction(s => /,00$/.test(document.querySelector(s).value), pre);
+  eq([before, await page.inputValue(pre)], ['5.200', '5.200,00'], 'a field already holding an amount shows its cents when focused, so the next digit goes after them');
   await page.evaluate(() => A.close());
   await page.evaluate(() => A['edit-account']({ id: 'nu-card' })); await page.waitForSelector('#a-open');
   eq(await typeInto('#a-open', '-1o.250,00'), '-1.250,00', 'a card’s opening balance keeps its minus, not the letter');
@@ -46,7 +58,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { navigate('investments'); }); await page.waitForTimeout(100);
   if (await page.locator('#sim-qty').count()) eq(await typeInto('#sim-qty', '-1a0'), '10', 'a count of quotas: digits only, no minus');
   await page.evaluate(() => A['runway-edit']()); await page.waitForSelector('#rw-spend');
-  eq(await typeInto('#rw-spend', '4.5x00'), '4.500', 'what goes out in a month');
+  eq(await typeInto('#rw-spend', '4.5x00'), '45,00', 'what goes out in a month: from the cents, the marks written by the field');
   await page.evaluate(() => A.close());
   // the import review's amount
   await page.evaluate(() => { navigate('imports'); });
@@ -61,7 +73,7 @@ const { open, ok, eq, done } = require('./pw.js');
     // a day or a count in a number field: the browser itself keeps no letter in it (its value is empty), which is a refusal too
     const tryAll = where => document.querySelectorAll('input[inputmode="decimal"], input[inputmode="numeric"]').forEach(el => {
       const key = el.id || el.dataset.k; if (seen.has(key)) return; seen.add(key);
-      const was = el.value; el.value = 'x9y,5'; el.dispatchEvent(new Event('input', { bubbles: true })); const now = (document.getElementById(el.id) || el).value; if (now !== '9,5' && !(el.type === 'number' && now === '')) bad.push(key + ' @' + where + ' → ' + now);
+      const was = el.value; el.value = 'x9y,5'; el.dispatchEvent(new Event('input', { bubbles: true })); const now = (document.getElementById(el.id) || el).value; if (!(now === '9,5' || (now === '9,50' && el.matches('input[inputmode="decimal"]:not([data-nomask])'))) && !(el.type === 'number' && now === '')) bad.push(key + ' @' + where + ' → ' + now);
     });
     for (const side of ['personal', 'business']) { A.space({ v: side }); for (const r of sideRoutes(ROUTES).map(x => x[0])) { UI.drawer = null; navigate(r); tryAll(side + ' ' + r); } }
     return [seen.size, bad];

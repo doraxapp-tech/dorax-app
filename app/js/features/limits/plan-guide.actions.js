@@ -77,7 +77,7 @@ const PLAN_GUIDE_ACTIONS = {
   },
   /** The end: the Plan's limits card. */
   'pg-see'() { UI.drawer = null; renderOverlay(); navigate('plan'); const el = $('limits-card'); if (el) el.scrollIntoView({ block: 'start' }); },
-  'pg-income-plan'() { UI.drawer = null; renderOverlay(); navigate('plan'); const el = document.querySelector('.payrows'); if (el) el.closest('section').scrollIntoView({ block: 'start' }); },
+  'pg-income-plan'() { A['plan-income']({ ret: 'guide' }); },      // the income's panel; its Done comes back here (2026-10-11)
   /** From "New fixed cost": straight to it. */
   'pg-only-line'() { UI.drawer = null; renderOverlay(); A['line-new']({ skipGuide: '1' }); },
 };

@@ -52,15 +52,15 @@ const T = '2026-10-02';
   await page.click('[data-a="co-setup-cur"][data-v="USD"]');
   eq(await page.evaluate(() => [document.querySelector('.ob-val span').innerText, document.querySelector('#cos-balance-r').dataset.cur]), ['US$', 'USD'], 'screen 2: choosing dollars changes the sign beside the amount');
   await page.click('[data-a="co-setup-cur"][data-v="BRL"]'); await page.selectOption('#cos-bank', 'Inter');
-  await page.fill('#cos-balance', '1,8,0'); await page.click('[data-a="co-setup-next"]');
-  ok(/1500 or 9,90/.test(await text(page, '#co-setup .banner')) && await page.evaluate(() => UI.coSetup.step) === 1, 'screen 2: an amount that cannot be read is said, and the screen stays');
+  await page.fill('#cos-balance', '1,8,0');
+  eq(await page.inputValue('#cos-balance'), '1,80', 'screen 2: what is typed is always an amount, from the cents (2026-10-11: "1,8,0" is 1,80)');
   await page.fill('#cos-balance', '18.000');
   eq(await page.evaluate(() => [document.querySelector('#cos-balance-r').value, document.querySelector('#cos-balance-r').getAttribute('aria-valuetext')]), ['18000', 'R$ 18.000'], 'screen 2: the slider follows the amount typed');
   await page.click('[data-a="co-setup-next"]'); await page.waitForSelector('#cos-income');
   await page.evaluate(() => { const r = document.querySelector('#cos-income-r'); r.value = 12000; r.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.fill('#cos-costs', '4.000');
   eq([await page.inputValue('#cos-income'), /a transfer to your home’s side/.test(await text(page, '#co-setup')), await page.evaluate(() => S.accounts.filter(a => a.scope === 'business').length)], ['12.000', true, 0], 'screen 3: the slider writes its field; it says what you pay yourself is a transfer, not a cost; still nothing written');
-  await page.click('[data-a="co-setup-back"]'); eq(await page.inputValue('#cos-balance'), '18.000', 'Back keeps what was answered'); await page.click('[data-a="co-setup-next"]');
+  await page.click('[data-a="co-setup-back"]'); eq((await page.inputValue('#cos-balance')).replace(/[.,]00$/, ''), '18.000', 'Back keeps what was answered'); await page.click('[data-a="co-setup-next"]');
   await page.click('[data-a="co-setup-next"]'); await page.waitForSelector('#co-band');
   eq(await page.evaluate(() => [S.user.company, UI.coSetup, S.company.name, S.company.kind, S.company.spend, S.accounts.filter(a => a.scope === 'business').map(a => [a.name, a.institution, a.currency, a.type, a.opening]), S.company.books.BRL.pay[2026].map(r => [r.name, r.sub, r.to, r.values[8], r.values[9], r.values[11]]), S.user.spend === undefined, pageBookKey(), document.querySelector('#toast').innerText.trim()]),
     [true, null, 'Studio <b>Lima</b>', 'mei', { BRL: 400000 }, [['Inter MEI', 'Inter', 'BRL', 'checking', 1800000]], [['Client payments', 'co-clients', 'fixed', 0, 1200000, 1200000]], true, 'business:BRL', 'Done. This is Studio <b>Lima</b>’s side.'],
@@ -72,7 +72,7 @@ const T = '2026-10-02';
   ok(/Company runway/.test(card) && /The company’s runway starts with the first amount it keeps/.test(card) && /With R\$ 4\.000 going out a month, R\$ 4\.000 put aside is 30 days/.test(card), 'the dashboard opens with the company’s runway: the 18.000 of its checking account are the month’s money (2026-10-09: counted from savings), so it starts with what it keeps; 4.000 a month', card);
   eq(await page.evaluate(() => [document.querySelectorAll('.hello, #co-ask, #first-steps').length, !!document.querySelector('#insight-card'), !!document.querySelector('#todo'), !document.querySelector('#plan-card') && document.querySelector('.dash-more').innerText.includes(partName('plan')), !!document.querySelector('#planned-month')]), [0, true, true, true, true], 'the company’s page is its own: no greeting and no first steps; its own insight, its To do and its planned month; its plan against actual one click away (2026-10-11: at a glance)');
   await page.click('#runway-card [data-a="runway-edit"]');
-  eq(await page.evaluate(() => [UI.drawer.title, UI.drawer.book, document.querySelector('#rw-spend').value, /What you pay yourself is a transfer/.test(document.querySelector('.drawer').innerText)]), ['Company runway', 'business:BRL', '4.000', true], 'Adjust, on the company’s side: its own estimate');
+  eq(await page.evaluate(() => [UI.drawer.title, UI.drawer.book, document.querySelector('#rw-spend').value.replace(/[.,]00$/, ''), /What you pay yourself is a transfer/.test(document.querySelector('.drawer').innerText)]), ['Company runway', 'business:BRL', '4.000', true], 'Adjust, on the company’s side: its own estimate');
   await page.fill('#rw-spend', '6.000'); await page.click('[data-a="runway-save"]');
   ok(/With R\$ 6\.000 going out a month, R\$ 6\.000 put aside is 30 days/.test(await text(page, '#runway-card')) && await page.evaluate(() => S.company.spend.BRL === 600000 && !('spend' in S.user)), 'the company’s estimate is saved for the company: 6.000 a month; the household’s is not touched');
   await page.click('#co-band [data-a="company-edit"]'); await page.fill('#co-name', 'Lima Co'); await page.selectOption('#co-kind', 'pj'); await page.click('[data-a="company-save"]');

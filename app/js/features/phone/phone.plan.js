@@ -34,11 +34,11 @@ function phonePayList(ym, prog) {
    three small; and the income as a short list that opens to be edited, instead of a form with a field for everything). */
 /** "Still to pay" as wide as the screen with the large number, the other three as small figures in a row to swipe (the Goals pattern). */
 function phonePlanTop(ym, pt, spent, toPay, net, netSay) {
-  return `<section class="card g-total"><span class="label"><span>${t('Still to pay')}</span>${hint('planLeft')}</span><span class="value num">${fmt.money(toPay, BCUR())}</span></section>
+  return `<section class="card g-total tap">${kpiTap('plan-left', t('Still to pay'))}<span class="label"><span>${t('Still to pay')}</span>${hint('planLeft')}</span><span class="value num">${fmt.money(toPay, BCUR())}</span></section>
   <section class="kpis g-mini" aria-label="${fmt.month(ym)}">
-    ${statTile(t('Fixed costs, {month}', { month: fmt.month(ym, 'bare') }), fmt.money(pt.expenses, BCUR()), '', '')}
-    ${statTile(t('Paid so far'), fmt.money(spent, BCUR()), '', '')}
-    ${statTile(netSay || t('Income minus fixed costs'), `<span class="${net < 0 ? 'neg' : ''}">${fmt.money(net, BCUR())}</span>`, '', '')}</section>
+    ${statTile(t('Fixed costs, {month}', { month: fmt.month(ym, 'bare') }), fmt.money(pt.expenses, BCUR()), '', '', '', 'plan-fixed')}
+    ${statTile(t('Paid so far'), fmt.money(spent, BCUR()), '', '', '', 'plan-paid')}
+    ${statTile(netSay || t('Income minus fixed costs'), `<span class="${net < 0 ? 'neg' : ''}">${fmt.money(net, BCUR())}</span>`, '', '', '', 'plan-net')}</section>
   <div class="g-acts two" role="group" aria-label="${t('Payments')}">
     <button class="btn primary" data-a="pay-pick" data-v="mark" data-ym="${ym}">${icon('check')}${t('Pay bills')}</button>
     <button class="btn" data-a="pay-pick" data-v="record" data-ym="${ym}">${icon('plus')}${t('Record payment')}</button></div>`;

@@ -22,7 +22,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const inc = await page.evaluate(() => payRows(B(), 2026).find(r => r.to === 'fixed').id);
   eq(await page.evaluate(() => [UI.drawer.kind, document.querySelector('#overlay .drawer').classList.contains('pop'), document.querySelectorAll('#overlay .payrow').length, document.activeElement.closest('.payrow') !== null]), ['plan-income', true, await page.evaluate(() => payRows(B(), 2026).length), true], 'a panel in the middle with each payment, the focus on the first');
   await page.fill(`#pv-${inc}`, '6000'); await page.press(`#pv-${inc}`, 'Tab');
-  await page.click('#overlay footer [data-a="close"]');
+  await page.click('#overlay footer [data-a="plan-income-done"]');
   eq(await page.evaluate(id => [!UI.drawer, payRows(B(), 2026).find(r => r.id === id).values[9], document.querySelector('#plan-month .lim-mh b').innerText], inc), [true, 600000, await page.evaluate(() => fmt.money(monthPlan(B(), B().month).income, CUR, { trim: true }))], '“Done”: closed, and the month shows the new income');
   // ---------- 3. the year ----------
   await page.click('[data-a="plan-year-open"]');

@@ -1,0 +1,7 @@
+/* Dorax Finance — a figure tile that opens what it is made of (features/kpi/kpi-more.js; the summary's own: css/screens/dashboard.css, .kpi.tap).
+   The whole tile is the button (.kpi-open, laid over it); its (i) and its links keep their own press above it. On hover its edge turns the brand's
+   green, like the summary's dashed line; pressed, it gives a little. */
+.card.tile.tap, .card.g-total.tap { position: relative; cursor: pointer; transition: border-color var(--t1) ease-out, transform var(--t1) ease-out; }
+.card.tile.tap .hint, .card.tile.tap a, .card.g-total.tap .hint { position: relative; z-index: 2; }
+@media (hover: hover) and (pointer: fine) { .card.tile.tap:hover, .card.g-total.tap:hover { border-color: var(--brand); } }
+.card.tile.tap:active, .card.g-total.tap:active { transform: scale(.99); }

@@ -3,10 +3,10 @@
 function viewRecurring() {
   const list = recurringList(S, S.today), upcoming = list.filter(r => dayDiff(r.next, S.today) <= 30), tot = xs => fmt.money(sum(xs.map(r => r.amount)), CUR);
   return `<section class="tiles">
-      <div class="card tile"><div class="label"><span>${t('Recurring payments')}</span>${hint('recCount')}</div><div class="value num">${list.length}</div></div>
-      <div class="card tile"><div class="label"><span>${t('Monthly total')}</span>${hint('recTotal')}</div><div class="value num">${tot(list)}</div></div>
-      <div class="card tile"><div class="label"><span>${t('Due in the next 30 days')}</span>${hint('recDue')}</div><div class="value num">${tot(upcoming)}</div></div>
-      <div class="card tile"><div class="label"><span>${t('Next payment')}</span>${hint('recNext')}</div><div class="value">${list[0] ? fmt.date(list[0].next) : '—'}</div></div></section>
+      <div class="card tile tap">${kpiTap('rec-count', t('Recurring payments'))}<div class="label"><span>${t('Recurring payments')}</span>${hint('recCount')}</div><div class="value num">${list.length}</div></div>
+      <div class="card tile tap">${kpiTap('rec-total', t('Monthly total'))}<div class="label"><span>${t('Monthly total')}</span>${hint('recTotal')}</div><div class="value num">${tot(list)}</div></div>
+      <div class="card tile tap">${kpiTap('rec-due', t('Due in the next 30 days'))}<div class="label"><span>${t('Due in the next 30 days')}</span>${hint('recDue')}</div><div class="value num">${tot(upcoming)}</div></div>
+      <div class="card tile tap">${kpiTap('rec-next', t('Next payment'))}<div class="label"><span>${t('Next payment')}</span>${hint('recNext')}</div><div class="value">${list[0] ? fmt.date(list[0].next) : '—'}</div></div></section>
   <section class="card"><div class="card-h"><h2>${t('Recurring transactions')}</h2>${hint('recList')}<span class="sub">${t('Detected: same merchant in at least 3 of the last 4 months, similar amount and day')}</span></div>
     <div class="card-b flush"><table class="tbl stackable"><thead><tr><th>${t('Merchant')}</th><th>${t('Category')}</th><th>${t('Account')}</th><th>${t('Next expected')}</th><th>${t('Source')}</th><th class="r">${t('Typical amount')}</th><th><span class="sr">${t('Actions')}</span></th></tr></thead><tbody>
     ${paged('recurring', list).rows.map(r => `<tr><td class="first"><b style="font-weight:500">${esc(r.merchant)}</b></td><td class="wide">${catLabel({ type: 'expense', categoryId: r.categoryId, subcategoryId: r.subcategoryId })}</td><td class="wide meta"><span class="muted">${esc(acct(r.accountId).name)}</span></td>

@@ -21,7 +21,7 @@ function planDesk(ym) {
 }
 /** "Change income": the payments of the month, in a panel. */
 function planIncomeDrawer() {
-  return `<div class="body">${incomeBody(B().month)}</div><footer><button class="btn primary" data-a="close">${t('Done')}</button></footer>`;
+  return `<div class="body">${incomeBody(B().month)}</div><footer><button class="btn primary" data-a="plan-income-done">${t('Done')}</button></footer>`;
 }
 /** "The year, month by month": the whole grid, in a wide panel. */
 function planYearDrawer() { return `<div class="body pyr">${planYearSection(true)}</div>`; }

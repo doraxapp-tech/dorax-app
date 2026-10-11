@@ -62,10 +62,10 @@ function viewPlan() {
   const prog = planProgress(B(), ym, BCUR(), B().today).filter(x => x.bill), pt = planTotals(B(), ym), spent = sum(prog.map(x => x.spent)), toPay = sum(prog.map(x => x.toPay)), net = pt.income - pt.expenses, billsPlanned = sum(prog.map(x => x.planned));
   const netSay = B().plan.lines.some(l => l.pay === 'budget' && planValue(B(), l, ym) > 0) ? t('Left after bills and limits') : t('Income minus fixed costs');
   const tiles = `${isPhone() ? phonePlanTop(ym, { ...pt, expenses: billsPlanned }, spent, toPay, net, netSay) : `<section class="tiles">
-      <div class="card tile"><div class="label"><span>${t('Fixed costs, {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('planFixed')}</div><div class="value num">${fmt.money(billsPlanned, BCUR())}</div></div>
-      <div class="card tile"><div class="label"><span>${t('Paid so far')}</span>${hint('planPaid')}</div><div class="value num">${fmt.money(spent, BCUR())}</div></div>
-      <div class="card tile"><div class="label"><span>${t('Still to pay')}</span>${hint('planLeft')}</div><div class="value num">${fmt.money(toPay, BCUR())}</div></div>
-      <div class="card tile"><div class="label"><span>${netSay}</span>${hint('planNet')}</div><div class="value num ${net < 0 ? 'neg' : ''}">${fmt.money(net, BCUR())}</div></div></section>`}`;
+      <div class="card tile tap">${kpiTap('plan-fixed', t('Fixed costs, {month}', { month: fmt.month(ym, 'bare') }))}<div class="label"><span>${t('Fixed costs, {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('planFixed')}</div><div class="value num">${fmt.money(billsPlanned, BCUR())}</div></div>
+      <div class="card tile tap">${kpiTap('plan-paid', t('Paid so far'))}<div class="label"><span>${t('Paid so far')}</span>${hint('planPaid')}</div><div class="value num">${fmt.money(spent, BCUR())}</div></div>
+      <div class="card tile tap">${kpiTap('plan-left', t('Still to pay'))}<div class="label"><span>${t('Still to pay')}</span>${hint('planLeft')}</div><div class="value num">${fmt.money(toPay, BCUR())}</div></div>
+      <div class="card tile tap">${kpiTap('plan-net', netSay)}<div class="label"><span>${netSay}</span>${hint('planNet')}</div><div class="value num ${net < 0 ? 'neg' : ''}">${fmt.money(net, BCUR())}</div></div></section>`}`;
   // a phone keeps its long page, the year grid left to the computer (features/phone/desk-only.js); a computer shows what is used day to day and
   // keeps the income and the year one click away (features/plan/plan-desk.view.js, owner, 2026-10-11)
   if (isPhone()) return deskCut(`${companyNote()}${tiles}

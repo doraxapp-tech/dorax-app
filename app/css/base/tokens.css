@@ -74,18 +74,21 @@
    #0E0F0C is the page; cards and panels step up from it in greys with a breath of green (#141612, #1B1E18, #252921). The words stay #D4D4D4
    (owner, same day: "so it is not so bright"); the quiet ones are Wise's greys. #9FD182 on #0E0F0C is 10.9:1; #163300 on #9FD182 is 7.9:1.
    The company's side keeps its blue accent (css/screens/company.css): the accent tokens are in their own block, which it overrides. */
-:root.in-app:not(.app-light) {
+/* the Journey's opening and the tours are dark pages in both themes: in the light theme they wear these same dark colours, so their headings and
+   fields stay light on dark (owner, 2026-10-11: "Journey's onboarding: in light mode its H1 looks black") */
+:root.in-app:not(.app-light), :root.app-light #jstart, :root.app-light .tour-page {
+  color-scheme: dark;
   --bg: #0E0F0C; --surface: #141612; --surface-2: #1B1E18; --surface-3: #252921; --well: #1B1E18; --lift: #1B1E18; --badge: #252921; --pit: #111310;
   --line: #22261F; --line-strong: #393E34; --graphite: #4A4F45; --field: #6A6C6A;
-  --ink: #D4D4D4; --ink-strong: #D4D4D4; --ink-2: #A9ADA6; --ink-3: #868685; --on-dark: #D4D4D4;
+  --ink: #D4D4D4; --ink-strong: #D4D4D4; --ink-2: #A9ADA6; --ink-3: #959793; --on-dark: #D4D4D4;
   --primary: #9FD182; --primary-hover: #B9E2A2; --primary-ink: #163300; --primary-line: transparent;
   --cta: #9FD182; --cta-hover: #B9E2A2; --cta-ink: #163300;
-  --btn-line: #393E34; --btn-hover: rgba(232, 235, 230, .05); --select: rgba(159, 209, 130, .10); --select-ink: #9FD182; --on-brand: #163300;
+  --btn-line: #393E34; --btn-hover: rgba(232, 235, 230, .05); --select: #1E2519; --select-ink: #9FD182; --on-brand: #163300;
   --glass: rgba(14, 15, 12, .86); --glass-line: #2C3028; --nt-ink: #D4D4D4;
   --pos: #9FD182; --good: #9FD182; --good-bg: rgba(159, 209, 130, .10); --neg: #FF8F87; --crit: #FF6B61;
   --track: #2A2E26; --hover-line: #6A6C6A; --switch-off: #393E34; --col-muted: #4A4F45; --grid: #1E211B; --spark-ink: #163300;
 }
-:root.in-app:not(.app-light):not(.side-co) {
+:root.in-app:not(.app-light):not(.side-co), :root.app-light:not(.side-co) #jstart, :root.app-light:not(.side-co) .tour-page {
   --brand: #9FD182; --link: #9FD182; --focus: #9FD182; --ring: #9FD182; --switch-on: #9FD182; --col: #9FD182; --nt-link: #9FD182;
   --brand-deep: #163300; --brand-edge: #2D4F16; --cur: rgba(159, 209, 130, .16); --cur-sum: rgba(159, 209, 130, .24);      /* the current month's column stands out (owner, 2026-10-07) */
 }

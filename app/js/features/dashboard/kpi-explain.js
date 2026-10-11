@@ -19,6 +19,7 @@ const kpiBar = (label, amount, max, cur, col, act) => { const inner = `<span cla
 const kpiSec = (title, body) => body ? `<div class="kx-sec"><h3>${title}</h3>${body}</div>` : '';
 
 function kpiDrawer(d) {
+  if (typeof KPI_MORE !== 'undefined' && KPI_MORE[d.k]) return kpiMoreDrawer(d);      // the Plan's, Goals', Investments' and Recurring's tiles (features/kpi/kpi-more.js)
   const x = dashParts(), { co, b, cur, ym, inProgress, m, p, vsLabel, unpaid } = x, k = d.k, month = fmt.month(ym);
   const change = (now, was, goodUp) => { if (!was) return ''; const pc = Math.round((now - was) * 1000 / Math.abs(was)) / 10; return `<p class="kx-vs ${pc === 0 ? '' : (pc > 0) === goodUp ? 'up' : 'down'}">${pc > 0 ? '▲' : pc < 0 ? '▼' : '•'} ${fmt.pct(Math.abs(pc))} ${esc(vsLabel)} <span class="muted">(${fmt.money(was, cur)})</span></p>`; };
   let big = '', say = '', body = '', go = [['reports', t('See more in Reports')]];
@@ -77,12 +78,16 @@ function kpiDrawer(d) {
     say = t('Transfers out of the company’s accounts in this currency in {month}, such as what you paid yourself or changed into another currency. They are not costs.', { month });
     body = kpiSec(t('How it adds up'), kpiRow(t('Went out by transfer'), x.sent, cur) + kpiRow(t('Came in by transfer'), x.arrived, cur));
   }
+  if (d.from === 'reports') go = go.filter(g => g[0] !== 'reports');      // opened from Reports: no way to the page it is on
   return `<div class="body kx"><div class="kx-big num">${big}</div><p class="kx-say">${say}</p>${body}</div>
     <footer>${go.map(([v, l], i) => `<button class="btn${i === 0 ? ' primary' : ''}" data-a="kpi-go" data-v="${v}">${l}${icon('right')}</button>`).join('')}<button class="btn ghost spacer" data-a="close">${t('Close')}</button></footer>`;
 }
 const KPI_ACTIONS = {
   /** A tile of the summary pressed: its card in the middle of the screen. */
-  'kpi-open'(ds) { if (!KPI_KINDS.includes(ds.k)) return; UI.drawer = { kind: 'kpi', k: ds.k, pop: true, title: kpiTitle(ds.k, inCompany()) }; renderOverlay(); },
+  'kpi-open'(ds) {
+    const more = typeof KPI_MORE !== 'undefined' && KPI_MORE[ds.k]; if (!KPI_KINDS.includes(ds.k) && !more) return;
+    UI.drawer = { kind: 'kpi', k: ds.k, from: ds.from || null, pop: true, title: more ? more.title() : kpiTitle(ds.k, inCompany()) }; renderOverlay();
+  },
   /** The way further: Reports (on a phone, the view that holds this figure), the Plan, or Accounts & savings. */
   'kpi-go'(ds) { const k = UI.drawer && UI.drawer.k; UI.drawer = null; renderOverlay(); if (ds.v === 'reports') UI.repView = k === 'income' || k === 'left' ? 'in' : 'out'; navigate(ds.v); },
 };

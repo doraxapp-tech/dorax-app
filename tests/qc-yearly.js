@@ -31,7 +31,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [[...document.querySelectorAll('.yr-strip li')].map(l => l.querySelector('span').innerText.toLowerCase() + ':' + l.querySelector('b').innerText), document.querySelector('[data-a="yearly-put"]').innerText.trim()]),
     [['oct:R$ 600', 'nov:R$ 600', 'dec:R$ 600', 'jan:You pay'], 'Set aside R$ 600'], 'its details: the months one by one, the one it is paid in; “Set aside R$ 600”');
   await page.click('[data-a="yearly-put"]');
-  eq(await page.evaluate(() => [UI.drawer.kind, $('m-amount').value]), ['goal-move', '600'], 'a contribution of this month’s share');
+  eq(await page.evaluate(() => [UI.drawer.kind, $('m-amount').value.replace(/[.,]00$/, '')]), ['goal-move', '600'], 'a contribution of this month’s share');
   await page.click('[data-a="move-save"]');
   eq(await page.evaluate(id => [UI.drawer.kind, goalSaved(B(), id), document.querySelector('.yr-strip li.cur').classList.contains('done'), !document.querySelector('[data-a="yearly-put"]'), S.transactions.filter(x => x.goalMoveId && B().goalMoves.find(m => m.id === x.goalMoveId && m.goalId === id)).length], g.id),
     ['yearly-view', 60000, true, true, 2], 'saved: back to its details, October marked, nothing more to set aside this month; the money moved (one transfer row in each account)');
@@ -45,7 +45,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(id => { A.reminders(); A['issue-open']({ id: `issue:yearly:${id}:2026-10` }); }, iptu);
   eq(await page.evaluate(() => [...document.querySelectorAll('.iss-fix')].map(b => b.dataset.v)), ['yearly-pay', 'yearly-view'], 'its panel: “I paid it”, or see it');
   await page.click('.iss-fix[data-v="yearly-pay"]');
-  eq(await page.evaluate(() => [UI.drawer.kind, $('yp-amount').value, UI.route]), ['yearly-pay', '1.200', 'goals'], '“I paid it”: what it cost, to change if it was another price');
+  eq(await page.evaluate(() => [UI.drawer.kind, $('yp-amount').value.replace(/[.,]00$/, ''), UI.route]), ['yearly-pay', '1.200', 'goals'], '“I paid it”: what it cost, to change if it was another price');
   // pay the IPVA early instead, with what was set aside
   await page.evaluate(id => { A.close(); A['yearly-pay']({ id }); }, g.id);
   eq(await page.evaluate(() => [$('yp-cat').value, acct($('yp-acct').value).type]), ['casa|transporte', 'checking'], 'IPVA goes to Transport, paid from the main account');

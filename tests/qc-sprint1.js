@@ -20,7 +20,7 @@ const { open, ok, eq, done } = require('./pw.js');
     ['free-card', true, true, true], 'a phone: it is the first part of the summary, one figure, until when, and how much a day');
   await page.click('#free-open'); await page.waitForSelector('.fu-view');
   eq(await page.evaluate(() => [document.querySelectorAll('.fu-steps li').length >= 3, !!document.querySelector('.fu-steps .fu-total'), !!document.querySelector('[data-a="free-pay"]')]), [true, true, true], 'its details: the sum line by line, and the way to set the pay day');
-  await page.click('[data-a="free-pay"]'); eq(await page.evaluate(() => [UI.route, !UI.drawer]), ['plan', true], '“Set your pay day” goes to the Plan');
+  await page.click('[data-a="free-pay"]'); eq(await page.evaluate(() => [UI.route, UI.drawer && UI.drawer.kind]), ['dashboard', 'plan-income'], '“Set your pay day” opens the income’s panel right there (2026-10-11: no looking for a hidden button)');
   // a pay day: the figure runs to it
   const withPay = await page.evaluate(() => { const y = +S.today.slice(0, 4), row = (S.pay[y] || [])[0]; if (!row) return null; row.day = 20; const x = freeUntil(S, S.today, CUR); return [x.until, !!x.pay]; });
   if (withPay) eq(withPay, ['2026-10-20', true], 'with a pay day on the 20th, it runs to the 20th');

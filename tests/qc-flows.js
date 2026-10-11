@@ -64,7 +64,7 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   const drawerInputs = await page.evaluate(() => [...document.querySelectorAll('#overlay input, #overlay select')].map(e => e.id + ':' + e.type));
   await page.fill('#l-name', 'Internet'); await page.fill('#l-amount', '110,905'); await page.click('[data-a="line-save"]');
   ok(await page.evaluate(() => !!UI.drawer && S.plan.lines.length === 1) && await page.locator('#l-amount').count() === 1, 'a slip like 110,905 is refused, not saved as 110.905,00', drawerInputs);
-  await page.fill('#l-amount', '1o0'); eq(await page.inputValue('#l-amount'), '10', 'a letter cannot even be typed in an amount: “1o0” is “10” (owner, 2026-10-09)');
+  await page.fill('#l-amount', '1o0'); eq(await page.inputValue('#l-amount'), '10,00', 'a letter cannot even be typed in an amount: “1o0” is “10” (owner, 2026-10-09), shown with its cents (2026-10-11)');
   await page.fill('#l-amount', '110,90'); await page.fill('#l-due', '10'); await page.click('[data-a="line-save"]');
   eq(await page.evaluate(() => S.plan.lines.filter(l => l.name === 'Internet').map(l => planValue(S, l, ymOf(S.today)))), [11090], 'the corrected amount is saved as typed');
   await page.evaluate(() => { UI.drawer = null; render(); });

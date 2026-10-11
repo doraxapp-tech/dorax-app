@@ -60,13 +60,13 @@ const pushRefresh_wait = page => page.evaluate(() => pushRefresh());      // thi
   // ---------- 4. a sprint ----------
   await page.click('.jr-sprint [data-a="sprint-new"]'); await page.waitForSelector('#sp-target');
   ok(await page.evaluate(() => /Your monthly payments, for these days: R\$ 400\.00/.test(document.querySelector('.drawer .body').innerText)), 'the sprint form offers the monthly payments for its days');
-  eq(await page.evaluate(() => document.querySelector('#sp-target').value), '500', 'it starts from the last sprint’s amount');
+  eq(await page.evaluate(() => document.querySelector('#sp-target').value.replace(/[.,]00$/, '')), '500', 'it starts from the last sprint’s amount');
   await page.click('[data-a="sprint-days"][data-v="14"]'); await page.fill('#sp-target', ''); await page.click('[data-a="sprint-save"]'); eq(await page.evaluate(() => document.activeElement.id), 'sp-target', 'no amount: refused');
   await page.fill('#sp-target', '1000'); await page.click('[data-a="sprint-save"]'); await page.waitForSelector('#jr-sprint');
   eq(await page.evaluate(() => [S.journey.sprint.days, S.journey.sprint.target, S.journey.sprint.start === S.today, document.querySelector('#jr-sprint .jr-fig').innerText.replace(/\s+/g, ' ').trim(), document.querySelector('#jr-sprint .jr-lab').innerText]),
     [14, 100000, true, 'R$ 0 / R$ 1,000 0%', 'SPRINT · DAY 1 OF 14'], 'a sprint of 14 days for R$ 1,000, from today: its figure and its day');
   await page.evaluate(() => A['debt-pay']({ id: S.journey.debts.find(d => d.name === 'Bank loan').id })); await page.waitForSelector('#dp-amount');
-  eq(await page.evaluate(() => document.querySelector('#dp-amount').value), '400', 'paying a debt starts from its monthly payment');
+  eq(await page.evaluate(() => document.querySelector('#dp-amount').value.replace(/[.,]00$/, '')), '400', 'paying a debt starts from its monthly payment');
   await page.click('[data-a="debt-pay-save"]'); await page.waitForSelector('#jr-sprint');
   eq(await page.evaluate(() => [debtLeft(S.journey, S.journey.debts.find(d => d.name === 'Bank loan')), document.querySelector('#jr-sprint .jr-fig').innerText.replace(/\s+/g, ' ').trim(), document.querySelector('#jr-sprint .jr-bar').getAttribute('aria-valuenow')]), [760000, 'R$ 400 / R$ 1,000 40%', '40'], 'a payment: the debt owes R$ 7,600; the sprint has R$ 400 of R$ 1,000, the bar at 40%');
   await page.evaluate(() => { S.transactions.push({ id: 'qa-cp', accountId: 'nu-card', date: S.today, description: 'Payment', merchant: 'Payment', amount: 10000, currency: 'BRL', type: 'transfer', transferAccountId: 'nu-conta', categoryId: null, status: 'confirmed' }); render(); });

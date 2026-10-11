@@ -57,7 +57,7 @@ function freeCard() {
   if (isPhone()) return `<section class="card rw-ph fu" id="free-card"><button class="rw-tap" id="free-open" data-a="free-view" aria-haspopup="dialog">
       <span class="rw-h"><b>${fuTitle(r)}</b><span class="rw-see">${t('See')}${icon('right')}</span></span>
       ${fuBig(r)}<span class="fu-say">${fuSay(r)}</span></button></section>`;
-  return `<section class="card fu" id="free-card"><div class="card-h"><h2>${fuTitle(r)}</h2>${r.pay ? '' : `<span class="right"><a class="btn sm" href="#plan">${t('Set your pay day')}</a></span>`}</div>
+  return `<section class="card fu" id="free-card"><div class="card-h"><h2>${fuTitle(r)}</h2>${r.pay ? '' : `<span class="right"><button class="btn sm" data-a="plan-income" data-focus="day" aria-haspopup="dialog">${t('Set your pay day')}</button></span>`}</div>
     <div class="card-b">${fuBig(r)}<p class="fu-say">${fuSay(r)}</p>${fuBar(r)}<button type="button" class="linkbtn fu-how" data-a="free-view">${t('How we worked it out')}${icon('right')}</button></div></section>`;      // the steps in its panel (2026-10-11: at a glance)
 }
 /** A phone's details: the figure again, then everything behind it; the way to the pay day when there is none. */
@@ -68,5 +68,5 @@ function freeDrawer() {
 }
 const FREE_ACTIONS = {
   'free-view'() { const r = freeUntil(S, S.today, CUR); UI.drawer = { kind: 'free-view', title: r ? fuTitle(r) : t('You can spend'), pop: !isPhone() }; renderOverlay(); },
-  'free-pay'() { UI.drawer = null; renderOverlay(); go('plan'); },      // the pay lines are in the Plan (its income)
+  'free-pay'() { A['plan-income']({ focus: 'day' }); },      // the income's panel, on the first pay day (owner, 2026-10-11: no looking for a hidden button)
 };

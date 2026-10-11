@@ -25,7 +25,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [UI.drawer.kind, !document.querySelector('#lm-for'), document.querySelector('#lm-amount').value, document.activeElement.id, !document.querySelector('[data-a="limit-remove"]')]), ['limit', true, '', 'lm-amount', true], 'Going out: one field, empty, with the cursor in it; no “For” (no subcategories), no Remove (no limit yet)');
   ok(avg && avg.n >= 1, 'the example has spending in Going out in the last months: an average is offered');
   eq(await page.evaluate(() => (document.querySelector('.lim-avg') || {}).dataset.v), String(avg.amount), 'the button offers that average');
-  await page.click('[data-a="limit-avg"]'); eq(await page.evaluate(() => document.querySelector('#lm-amount').value), await page.evaluate(v => plain(v), avg.amount), '“Use” puts the average in the field');
+  await page.click('[data-a="limit-avg"]'); eq(await page.evaluate(() => typedAmount(document.querySelector('#lm-amount').value)), avg.amount, '“Use” puts the average in the field');
   await page.fill('#lm-amount', ''); await page.click('[data-a="limit-save"]');
   eq(await page.evaluate(() => [UI.drawer.kind, UI.drawer.invalid, document.activeElement.id, /Enter the monthly limit/.test(document.querySelector('#overlay').innerText)]), ['limit', 'lm-amount', 'lm-amount', true], 'an empty amount: refused, said at the field');
   await page.fill('#lm-amount', '0'); await page.click('[data-a="limit-save"]');
@@ -46,7 +46,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq((await line())[1], 'Nights out', 'renamed: the limit takes the new name');
   // ---------- 3. a category with fixed bills: by subcategory ----------
   await page.click('.cat-lim[data-cat="casa"]'); await page.waitForSelector('#lm-for');
-  eq(await page.evaluate(() => [[...document.querySelectorAll('#lm-for option')].map(o => o.textContent), document.querySelector('#lm-for').value, document.querySelector('#lm-amount').value, !!document.querySelector('[data-a="limit-remove"]')]),
+  eq(await page.evaluate(() => [[...document.querySelectorAll('#lm-for option')].map(o => o.textContent), document.querySelector('#lm-for').value, document.querySelector('#lm-amount').value.replace(/[.,]00$/, ''), !!document.querySelector('[data-a="limit-remove"]')]),
     [['Everything else in Home', 'Electricity · now a bill', 'Groceries', 'Transport'], 'supermercado', '1.200', true], 'Home: everything else in it (outside its own lines), its bill of variable amount that can become a limit, and its two limits; Groceries first, with its R$ 1.200; Remove is there (no fixed bill like rent)');
   await page.selectOption('#lm-for', 'transporte');
   eq(await page.evaluate(() => document.querySelector('#lm-amount').value), '300', 'Transport chosen: its own R$ 300 in the field');
@@ -57,7 +57,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [...document.querySelectorAll('#lm-for option')].map(o => [o.value, o.textContent])), [['', 'The whole category'], ['s-bars', 'Bars']], 'Other, with one subcategory and no limit: the whole category or Bars');
   await page.selectOption('#lm-for', 's-bars'); await page.fill('#lm-amount', '200'); await page.click('[data-a="limit-save"]');
   await page.evaluate(() => A['limit-open']({ cat: 'other' }));
-  eq(await page.evaluate(() => [[...document.querySelectorAll('#lm-for option')].map(o => o.textContent), document.querySelector('#lm-for').value, document.querySelector('#lm-amount').value]), [['Everything else in Other', 'Bars'], 's-bars', '200'], 'with a limit on Bars, the rest of Other can still have its own (it counts what Bars does not: nothing twice); Bars opens first');
+  eq(await page.evaluate(() => [[...document.querySelectorAll('#lm-for option')].map(o => o.textContent), document.querySelector('#lm-for').value, document.querySelector('#lm-amount').value.replace(/[.,]00$/, '')]), [['Everything else in Other', 'Bars'], 's-bars', '200'], 'with a limit on Bars, the rest of Other can still have its own (it counts what Bars does not: nothing twice); Bars opens first');
   await page.evaluate(() => { UI.drawer = null; renderOverlay(); });
   // ---------- 4. removing ----------
   await page.click('.cat-lim[data-cat="salidas"]'); await page.waitForSelector('[data-a="limit-remove"]'); await page.click('[data-a="limit-remove"]');

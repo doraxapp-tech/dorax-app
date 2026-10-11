@@ -9,11 +9,11 @@
 /** The top of the screen: the total, the month's three figures as a row to swipe, the three actions, the goals as cards to tap. */
 function phoneGoalsTop(open, closed, ym) {
   const d = distribution(B(), ym), total = sum(B().goals.filter(g => g.status !== 'archived').map(g => goalSaved(B(), g.id))), bare = fmt.month(ym, 'bare');
-  return `<section class="card g-total"><span class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</span><span class="value num">${fmt.money(total, BCUR())}</span></section>
+  return `<section class="card g-total tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<span class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</span><span class="value num">${fmt.money(total, BCUR())}</span></section>
   <section class="kpis g-mini" aria-label="${fmt.month(ym)}">
-    ${statTile(t('Plan for {month}', { month: bare }), fmt.money(d.planned, BCUR()), '', '')}
-    ${statTile(t('Recorded in {month}', { month: bare }), fmt.money(d.done, BCUR()), '', '')}
-    ${statTile(esc(B().remainderLabel), `<span class="${d.remainder < 0 ? 'neg' : ''}">${fmt.money(d.remainder, BCUR())}</span>`, '', '')}</section>
+    ${statTile(t('Plan for {month}', { month: bare }), fmt.money(d.planned, BCUR()), '', '', '', 'goal-plan')}
+    ${statTile(t('Recorded in {month}', { month: bare }), fmt.money(d.done, BCUR()), '', '', '', 'goal-done')}
+    ${statTile(esc(B().remainderLabel), `<span class="${d.remainder < 0 ? 'neg' : ''}">${fmt.money(d.remainder, BCUR())}</span>`, '', '', '', 'goal-rest')}</section>
   <div class="g-acts" role="group" aria-label="${t('Goals and funds')}">
     <button class="btn" data-a="goal-new">${icon('plus')}${t('Create')}</button>
     <button class="btn primary" data-a="goal-pick" data-dir="in">${icon('coins')}${t('Contribute')}</button>
