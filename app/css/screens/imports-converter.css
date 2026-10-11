@@ -11,12 +11,25 @@
 .tally { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .tally > div { padding: 14px; border: 1px solid var(--line); border-radius: var(--r-mid); color: var(--ink-2); }
 .tally b { display: block; font-family: var(--fig); font-size: 22px; font-weight: 500; letter-spacing: 0; color: var(--ink-strong); }
-.review td { padding: 8px 8px; }
-.review th { padding: 9px 8px; }
-.review th:first-child, .review td:first-child { padding-left: 22px; }
-.review input[type=text], .review select { min-height: 32px; padding: 4px 8px; font-size: 13px; }
-.review input.amt-in { width: 108px; text-align: right; font-family: var(--mono); font-size: 12.5px; }
-.review select[data-f="type"] { min-width: 112px; }
+.review { table-layout: fixed; min-width: 860px; }
+.review col.c-sel { width: 48px; } .review col.c-date { width: 72px; } .review col.c-type { width: 162px; } .review col.c-cat { width: 184px; } .review col.c-amt { width: 104px; } .review col.c-dec { width: 178px; }      /* the name and why it came filed get the rest */
+.review td { padding: 9px 8px; vertical-align: middle; } .review tbody td { height: 64px; }      /* every row the same height, one line or two */ .review th { padding: 9px 8px; }
+.review th:first-child, .review td:first-child { padding-left: 22px; } .review th:last-child, .review td:last-child { padding-right: 22px; }
+.review select { width: 100%; min-height: 32px; padding: 4px 26px 4px 10px; font-size: 13px; }
+.review .rv-date { white-space: nowrap; color: var(--ink-2); }
+/* text edited in place: it reads as text, and shows it is a field on hover and on focus */
+.review .rv-in { width: 100%; min-height: 30px; padding: 3px 8px; margin-left: -8px; border: 1px solid transparent; border-radius: 6px; background: transparent; font-size: 13.5px; color: var(--ink-strong); text-overflow: ellipsis; }
+.review .rv-in:hover { border-color: var(--line-strong); } .review .rv-in:focus { outline: none; border-color: var(--focus); background: var(--surface); box-shadow: 0 0 0 1px var(--focus); }
+.review .rv-desc .rv-in { font-weight: 500; }
+.review input.amt-in { margin-left: 0; margin-right: -8px; text-align: right; font-family: var(--fig); font-size: 13.5px; font-weight: 500; }
+.review input.amt-in.pos { color: var(--pos, var(--good)); }
+.review .rv-say { display: flex; align-items: center; gap: 6px; min-width: 0; margin-top: 2px; font-size: 12px; color: var(--ink-3); }
+.review .rv-say .rv-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.review .rv-say .chip { flex: none; }
+.review .rv-nocat { font-size: 12.5px; }
+.review .rv-dec { width: 100%; } .review .rv-dec button { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 8px; }
+.review .rv-dec button svg { width: 13px; height: 13px; }
+.review .rv-keep { display: flex; gap: 6px; align-items: center; margin-top: 5px; font-size: 12px; }
 .review tr.dup td { background: var(--warn-bg); }
 .review tr.off td { opacity: .45; }
 .code { font-family: var(--mono); font-size: 12px; line-height: 1.55; color: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r-card); padding: 16px; overflow: auto; max-height: 320px; white-space: pre; tab-size: 2; }
@@ -28,11 +41,11 @@
 .tree { display: flex; flex-direction: column; }
 .tree .cat-h { display: flex; align-items: center; gap: 9px; padding: 10px 0 5px; font-weight: 500; color: var(--ink-strong); }
 .tree .sub { display: flex; align-items: center; gap: 8px; padding: 4px 0 4px 18px; color: var(--ink-2); }
-.tree .n { margin-left: auto; color: var(--ink-3); font-family: var(--mono); font-size: 11.5px; }
+.tree .n { margin-left: auto; color: var(--ink-3); font-family: var(--fig); font-size: 11.5px; }
 .tree .cat-block { border-bottom: 1px solid var(--line); padding-bottom: 8px; }
 .tree .cat-block:last-child { border-bottom: 0; }
 .payrows { display: flex; flex-direction: column; gap: 10px; }
-.payrow { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.payrow { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .8fr) minmax(0, 1fr) minmax(0, .8fr) auto; gap: 10px; align-items: end; }      /* payment, amount, where it goes, its day, remove */
 .payrow .iconbtn { margin-bottom: 8px; }
 .flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .flow.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -51,3 +64,43 @@
 
 /* Open Finance: a bank's accounts. On a phone the name gets its own line; the count and the button share the next one. */
 @media (max-width: 640px) { #bank-card .list .li { flex-wrap: wrap; row-gap: 8px; } #bank-card .list .li .grow { flex: 1 0 100%; } #bank-card .list .li .note { margin-right: auto; } }
+
+.rv-unseen { color: var(--warn); }
+/* a merchant's rows on one line in "To look at": one choice for all of them, opened to see each */
+.review tr.rv-grp td { background: var(--surface-2); }
+.review .rv-open { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; margin-left: -6px; }
+.review .rv-open svg { width: 15px; height: 15px; transition: transform var(--t1) var(--ease); }
+.review .rv-open[aria-expanded="true"] svg { transform: rotate(90deg); }
+.review .rv-count { display: inline-block; padding: 1px 7px; border-radius: var(--pill, 999px); background: var(--surface-3); color: var(--ink-2); font-size: 12px; font-weight: 600; }
+.review .rv-desc .rv-gname { font-weight: 600; }
+.review .rv-gsum { font-family: var(--fig); font-size: 13.5px; font-weight: 600; color: var(--ink-strong); } .review .rv-gsum.pos { color: var(--pos, var(--good)); }
+.review tr.rv-member:not(.dup) td { background: var(--surface); } .review tr.rv-member td.rv-desc { padding-left: 22px; }
+.review tr.rv-member td:first-child { box-shadow: inset 2px 0 0 var(--line-strong); }
+.imp-learnt { margin-top: 6px; }
+/* the history: fixed columns, so the way to undo stays in the card */
+@media (min-width: 921px) {
+  .imp-hist { table-layout: fixed; }
+  .imp-hist .h-date { width: 128px; }   /* "dd/mm/yyyy" whole, with the cell's padding (owner, 2026-10-09: "the date is cut, the year cannot be read") */ .imp-hist .h-acct { width: 15%; } .imp-hist .h-n { width: 86px; } .imp-hist .h-st { width: 124px; } .imp-hist .h-undo { width: 100px; }
+  .imp-hist td { overflow: hidden; } .imp-hist .tx-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.imp-hist .c-undone { display: none; }
+/* a narrower computer: the file's name keeps its room. "Detected" and the status column step out; an undone import says so where its button was. */
+@media (min-width: 921px) and (max-width: 1199px) {
+  .imp-hist th, .imp-hist td { padding-inline: 14px; }
+  .imp-hist .h-date { width: 106px; } .imp-hist .h-acct { width: 22%; } .imp-hist .h-n { width: 84px; } .imp-hist .h-undo { width: 116px; }
+  .imp-hist .h-det, .imp-hist .c-det, .imp-hist .h-st, .imp-hist .c-st { display: none; }
+  .imp-hist .c-undone { display: inline-flex; }
+}
+/* what the import will do to the totals, by type, before anything enters (owner, 2026-10-09: "the most dangerous is the type") */
+.rv-types { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; margin: 0; padding: 0 22px 14px; font-size: 13px; color: var(--ink-2); }
+.rv-types > b { color: var(--ink); font-weight: 500; }
+.rv-types b.num { margin-left: 3px; font-family: var(--fig); font-weight: 600; color: var(--ink-strong); }
+/* the review's bar (owner, 2026-10-09: "many options in sight; the All / To look at toggle can hardly be seen, make the active one white") */
+.rv-bar { gap: 10px; }
+.seg.rv-only button[aria-pressed="true"] { background: var(--ink-strong); color: var(--bg); }
+.seg.rv-only button[aria-pressed="true"]:hover { color: var(--bg); }
+.rv-more-wrap { position: relative; }
+.umenu.rv-menu { left: auto; right: 0; top: calc(100% + 6px); bottom: auto; width: max-content; min-width: 220px; transform-origin: top right; }
+.rv-selbar { gap: 8px; background: var(--surface-2); }
+.rv-selbar > b { font-weight: 500; color: var(--ink-strong); margin-right: 4px; }
+.rv-why { margin: 0; padding: 12px 22px 6px; max-width: 110ch; }

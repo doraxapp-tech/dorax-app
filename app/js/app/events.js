@@ -4,6 +4,10 @@ document.addEventListener('click', e => {
   const q = e.target.closest('.lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
   if (q && q.parentElement.animate && !reducedMotion()) { e.preventDefault(); faqToggle(q.parentElement); return; }
   if (UI.menu && !e.target.closest('#rail-foot')) { UI.menu = false; renderShell(); }      // a click anywhere else closes the menu beside the name; the click itself still counts
+  if (UI.goalMenu && !e.target.closest('.gmenu-wrap')) { UI.goalMenu = false; renderOverlay(); }      // and the goal's menu (features/goals)
+  if (UI.rvMore && !e.target.closest('#rv-more-btn')) { UI.rvMore = false; if (!e.target.closest('[data-a]')) render(); }      // and an import review's "More" (a choice in it redraws by itself)
+  const pg = e.target.closest('a[data-a="pub-go"]');      // a link to a page before login (ui/pages.js): a plain click changes the page here; with Ctrl, Shift or ⌘ the browser opens its address
+  if (pg && !pg.getAttribute('href').startsWith('#')) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); }
   const link = e.target.closest('a[href^="#"]');
   if (link) {
     e.preventDefault();
@@ -11,20 +15,27 @@ document.addEventListener('click', e => {
     save(); return;
   }
   const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
-  const fn = A[el.dataset.a]; if (fn) { fn(el.dataset, el); save(); }
+  const fn = A[el.dataset.a]; if (fn) { fn(el.dataset, el); stepsMaybe(); cheerMaybe(); save(); }      // cheerMaybe: a mark passed or a goal reached just now (features/ahead/curios.view.js)
 });
 // Anything that can change the data ends in a save: the account is sent to the server shortly after (server/sync.js).
 ['change', 'keyup'].forEach(type => document.addEventListener(type, save));
 document.addEventListener('change', e => {
   const el = e.target.closest('[data-c]'); if (!el || el.dataset.live || !C[el.dataset.c]) return;
+  if (/^rv-/.test(el.dataset.c) && !sessOf(el.dataset)) return;      // a review field whose import was just cancelled or saved: its last change has nowhere to go
   deferring = true; try { C[el.dataset.c](el); } finally { deferring = false; }
 });
 document.addEventListener('pointerdown', () => { pointerDown = true; }, true);
 ['pointerup', 'pointercancel'].forEach(type => document.addEventListener(type, () => { pointerDown = false; }, true));
 document.addEventListener('input', e => {
+  // the field a refusal pointed at, being fixed: no longer red, and its reason goes
+  const f = e.target; if (UI.drawer && f.id && UI.drawer.invalid === f.id) { UI.drawer.invalid = null; UI.drawer.error = null; f.removeAttribute('aria-invalid'); const m = $('fail-msg'); if (m) m.remove(); }
   const el = e.target.closest('[data-c]'); if (!el) return;
   if (el.dataset.live && C[el.dataset.c]) C[el.dataset.c](el);
-  else if (el.dataset.c === 'draft' && el.tagName !== 'SELECT' && el.type !== 'checkbox') UI.drawer.draft[el.dataset.k] = el.value;
+  else if (el.dataset.c === 'draft' && el.tagName !== 'SELECT' && el.type !== 'checkbox') {
+    UI.drawer.draft[el.dataset.k] = el.value; if (UI.drawer.kind === 'tx') txTouched(el.dataset.k);
+    const lim = $('tx-limit'); if (lim && el.dataset.k === 'amountText' && !UI.drawer.limitOpen) lim.innerHTML = txLimitIn(UI.drawer);
+    const ins = $('tx-inst-say'); if (ins && el.dataset.k === 'amountText') ins.innerHTML = instSay(UI.drawer.draft);      // the installments, as the amount is typed (features/installments)      // what is left of the group's limit, as the amount is typed
+  }
   else if (el.dataset.c === 'split' && el.tagName !== 'SELECT') UI.drawer.draft.splits[+el.dataset.i][el.dataset.k] = el.value;
 });
 document.addEventListener('keydown', e => {
@@ -39,6 +50,7 @@ document.addEventListener('keydown', e => {
   // F opens it from anywhere in the app, unless something is being typed or a panel is open. Ctrl+F stays the browser's own.
   if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && UI.session && !UI.modal && !UI.drawer && !UI.sheet && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) && !e.target.isContentEditable) { e.preventDefault(); return A.find(); }
   if (e.key === 'Escape' && UI.menu && !UI.modal && !UI.drawer) { UI.menu = false; renderShell(); const el = $('user-menu-btn'); if (el) el.focus(); return; }
+  if (e.key === 'Escape' && UI.goalMenu && !UI.modal) { UI.goalMenu = false; renderOverlay(); const el = $('goal-menu-btn'); if (el) el.focus(); return; }      // the goal's menu first, its panel after
   if (UI.modal) {
     if (e.key === 'Escape') A['modal-cancel']();
     else if (e.key === 'Enter' && e.target.id === 'modal-word') A['modal-confirm']();
@@ -50,11 +62,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && (e.target.id === 'pf-pw-cur' || e.target.id === 'pf-pw-new')) { e.preventDefault(); A['pw-save'](); return save(); }
   if (e.key === 'Enter' && e.target.id === 'pf-email') { e.preventDefault(); return A['email-change'](); }
   if (e.key === 'Enter' && e.target.id === 'cv-pw') { e.preventDefault(); return A['conv-pw'](); }
+  if (e.key === 'Enter' && ['d-say', 'd-amount', 'd-merchant'].includes(e.target.id) && UI.drawer && UI.drawer.kind === 'tx' && !UI.modal) { e.preventDefault(); A['save-tx'](); return save(); }      // the sentence, the amount or the name, then Enter: saved
   if (e.key === 'Enter' && e.target.matches && e.target.matches('.due-row input')) {       // Enter walks down the list of bills and saves at the end
     e.preventDefault(); const all = [...document.querySelectorAll('.due-row input')], next = all[all.indexOf(e.target) + 1];
     if (next) { next.focus(); next.select(); return; } return A['due-save']();
   }
   if (e.key === 'Escape' && (UI.drawer || UI.sheet)) A.close();
+  else if (e.key === 'Escape' && UI.jstart && !UI.modal) A['jstart-close']();      // the Journey's first page (features/journey)
+  else if (e.key === 'Escape' && UI.tour && !UI.modal) A['tour-close']();      // a screen's first visit (features/tours)
   if (e.key === 'Enter' && e.target.matches && e.target.matches('tr.click')) A['open-tx'](e.target.dataset);
   if (e.key === 'Enter' && e.target.id === 'cat-rename') A['save-cat'](e.target.dataset);
   if (e.target.matches && e.target.matches('.plan input') && ['Enter', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
@@ -94,7 +109,12 @@ document.addEventListener('mousemove', showTip);
 document.addEventListener('focusin', showTip);
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('.plan input')) e.target.select(); });
 document.addEventListener('focusout', hideTip);
-window.addEventListener('scroll', () => { hideTip(); document.documentElement.classList.toggle('scrolled', window.scrollY > 30); }, { passive: true });
+// On a phone the page does not scroll: the app's own column does (css/screens/phone.css), so a scroll is listened for wherever it happens.
+const scroller = () => document.querySelector('.work');
+const scrolledBy = () => Math.max(window.scrollY || 0, (scroller() || {}).scrollTop || 0);
+/** Back to the top of the page, whichever of the two is scrolling. */
+function toTop() { window.scrollTo(0, 0); const w = scroller(); if (w) w.scrollTop = 0; }
+document.addEventListener('scroll', e => { if (e.target !== document && e.target !== scroller()) return; hideTip(); document.documentElement.classList.toggle('scrolled', scrolledBy() > 30); }, { passive: true, capture: true });
 // Phones: a sheet can be pulled down by its handle or its header to dismiss it, the way sheets behave on iOS.
 let pull = null;
 document.addEventListener('touchstart', e => {

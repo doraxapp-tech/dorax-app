@@ -8,7 +8,7 @@ function authFail(errs, message, order) {
   const first = order.find(k => errs[k]) || order[0], el = $(ids[first]); if (el) el.focus();
 }
 /** Another screen of the login: drawn, scrolled to the top, and the keyboard put where the next thing happens. */
-function authShow(sel) { renderNow(); window.scrollTo(0, 0); enterView(); const el = document.querySelector('#public ' + sel) || $('au-title'); if (el) el.focus({ preventScroll: true }); }
+function authShow(sel) { renderNow(); toTop(); enterView(); const el = document.querySelector('#public ' + sel) || $('au-title'); if (el) el.focus({ preventScroll: true }); }
 function authClear(el, k) {
   if (!UI.pub.errs || !UI.pub.errs[k]) return; UI.pub.errs[k] = null;
   const f = el.closest('.field'); if (f) { f.classList.remove('bad'); const e = f.querySelector('small.err'); if (e) e.remove(); } el.removeAttribute('aria-invalid');

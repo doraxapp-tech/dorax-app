@@ -3,8 +3,21 @@
 .btn:hover:not(:disabled) { background: var(--btn-hover); border-color: var(--graphite); }
 .btn:active:not(:disabled) { transform: scale(.97); opacity: .82; }
 .btn:disabled { opacity: .38; cursor: not-allowed; }
+/* The main action is the brand's deep green, as on the login and the home page (owner, 2026-10-07: "I like the deep green more than the bright
+   one; the bright makes sense in some parts of the app, but in general I like the deep one"). */
 .btn.primary { background: var(--primary); color: var(--primary-ink); border-color: var(--primary-line); font-weight: 500; }
 .btn.primary:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--brand); }
+/* Where the bright green does make sense: "now". A bill that is late or due within a week (features/plan/plan.view.js, dueSoon), in the Plan,
+   in the dashboard's to-do list and in the bell. And the phone's round + (css/screens/phone.css). Nowhere else. */
+.btn.primary.now { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); font-weight: 600; }
+.btn.primary.now:hover:not(:disabled) { background: var(--cta-hover); border-color: var(--cta-hover); }
+/* One filled button a screen (owner, 2026-10-07: "I still see green buttons everywhere"): where the same action repeats down a page (a bill in each
+   row, "Contribute" on each goal, one way in for each kind of file) it is this button instead.
+   a main action that is not pressing yet (a bill due later in the month): the outlined button, its mark in the accent. In a list, the bright green
+   is kept for what is late or due within a week, so it means "now" (features/plan/plan.view.js, dueSoon). */
+.btn.later { border-color: var(--line-strong); }
+.btn.later svg { color: var(--brand); }
+.btn.later:hover:not(:disabled) { border-color: var(--brand); }
 .btn.soft { background: var(--select); border-color: var(--line); }
 .btn.soft:hover:not(:disabled) { background: var(--soft-hover, #2B2B2B); border-color: var(--line-strong); }
 .btn.ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
@@ -21,6 +34,7 @@
 .linkbtn { all: unset; cursor: pointer; color: var(--ink-strong); font-weight: 500; transition: color var(--t1) ease-out; }
 .linkbtn:hover { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
 .linkbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+a.linkbtn { display: inline-block; }      /* a link to another page (js/ui/pages.js) is one piece, like the button it was: it moves to the next line whole, and its padding counts */
 
 /* segmented control: a recessed track, the chosen segment raised like a key */
 .seg { display: inline-flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; border-radius: var(--pill); background: var(--bg); border: 1px solid var(--line); padding: 2px; gap: 2px; }
@@ -30,3 +44,10 @@
 .seg button[aria-pressed="true"] { background: var(--select); color: var(--ink-strong); }
 .seg button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 
+
+/* a card's way to its page ("Open plan", "Open goals", "View all"): outlined and with an arrow, so it is found at a glance
+   (owner, 2026-10-07: "the buttons of the dashboard's cards are not intuitive, make them more visible") */
+.btn.go { border-color: var(--line-strong); color: var(--ink-strong); padding-right: 8px; gap: 3px; }
+.btn.go svg { width: 14px; height: 14px; color: var(--brand); transition: transform var(--t2) var(--ease); }
+.btn.go:hover:not(:disabled) { border-color: var(--hover-line); }
+.btn.go:hover svg { transform: translateX(2px); }

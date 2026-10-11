@@ -16,11 +16,11 @@ function contactFields() {
 }
 function viewContact() {
   const c = contactState();
-  return `<main class="legal"><div class="legal-page contact-page"><div class="legal-top"><button class="btn ghost sm auth-back" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</button>${brandMark(true)}</div>
+  return `<main class="legal"><div class="legal-page contact-page"><div class="legal-top"><a class="btn ghost sm auth-back" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</a>${brandMark(true)}</div>
     <h1 id="contact-title" tabindex="-1">${t('Contact')}</h1><p class="lead sm">${t('Write to Dorax. The answer comes by email.')}</p>
     <div class="contact-form">${contactFields()}
       <div class="row">${c.sent ? `<button class="btn" data-a="contact-new">${t('Write another message')}</button>` : `<button class="btn primary lg${c.busy ? ' busy' : ''}" data-a="contact-send" ${c.busy ? 'disabled aria-busy="true"' : ''}>${c.busy ? t('One moment…') : t('Send message')}</button>`}</div></div>
-    <p class="legal-foot"><button class="linkbtn" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</button> · <button class="linkbtn" data-a="pub-go" data-v="terms">${t('Terms of use')}</button> · <button class="linkbtn" data-a="pub-go" data-v="landing">${t('Home')}</button></p></div></main>`;
+    <p class="legal-foot"><a class="linkbtn" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a> · <a class="linkbtn" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a> · <a class="linkbtn" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing">${t('Home')}</a></p></div></main>`;
 }
 const contactDrawer = () => { const c = contactState(); return `<div class="body contact-form"><p class="note">${t('Write to Dorax. The answer comes by email.')}</p>${contactFields()}</div>
   <footer>${c.sent ? `<button class="btn" data-a="contact-new">${t('Write another message')}</button>` : `<button class="btn primary${c.busy ? ' busy' : ''}" data-a="contact-send" ${c.busy ? 'disabled aria-busy="true"' : ''}>${c.busy ? t('One moment…') : t('Send message')}</button>`}<button class="btn ghost spacer" data-a="close">${t('Close')}</button></footer>`; };

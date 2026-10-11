@@ -138,7 +138,7 @@ let LIVE = null;
   await page.fill('#au-email', 'nobody@example.org'); await page.fill('#au-pass', 'Whatever123'); await page.click('[data-a="auth-login"]'); await idle();
   eq(await txt('.banner.crit'), wrong, 'unknown email gets the same answer as a wrong password');
   await page.fill('#au-email', 'marta@example.org'); await page.fill('#au-pass', 'NovaSenha77'); await page.keyboard.press('Enter'); await inApp();
-  ok(/Good to see you again, Marta Lima/.test(await toastText()), 'login with the new password (Enter): welcome back');
+  ok(/Good to see you again, Marta\./.test(await toastText()), 'login with the new password (Enter): welcome back, by first name (the profile holds "Marta Lima")');
   eq(await page.evaluate(() => S.user.name), 'Marta Lima', 'the account comes back as it was left');
 
   // the same email cannot sign up twice
@@ -224,7 +224,7 @@ let LIVE = null;
   await page.waitForFunction(() => savedState() === 'saved'); await idle();
   ok(/connection is back/.test(await toastText()), 'back online: saved, and said so'); eq(await page.locator('.save-badge').count(), 0, 'the warning is gone');
   eq((await db()).rows[me].data.user.name, 'Marta sem rede', 'the change made offline reached the server');
-  ok(/Saved on the server/.test(await txt('#your-data .card-h')) && /On the server, in your account/.test(await txt('#your-data')), 'Settings: saved, on the server');
+  ok(/Saved on the server/.test(await txt('#your-data .set-head')) && !/Where it is kept|Files you bring in/.test(await txt('#your-data')) && await page.locator('#not-saved').count() === 0, 'Settings: “Your data” says it is saved on the server in its heading; the two explaining rows are gone (owner, 2026-10-07) and there is no warning while everything is saved');
   eq(await page.locator('#proto-tools, [data-a="restore-demo"], [data-a="start-clean"], [data-a="proto-onboard"]').count(), 0, 'Settings: no prototype card, no example account tools');
 
   // the account cannot be read when it is opened: a screen that says so, and trying again works
@@ -264,7 +264,7 @@ let LIVE = null;
   await page.fill('#pf-pw-new', 'AnaSenha2026'); await page.click('[data-a="pw-save"]'); await page.waitForFunction(() => !UI.pw);
   ok(/Email and password/.test(await txt('#view')), 'now both ways in'); ok(/Password saved/.test(await toastText()), 'password added');
   await logout(); await login('ana.g@example.org', 'AnaSenha2026'); await inApp(); ok(true, 'a Google account logs in with the password it added');
-  await logout(); await go('login'); await page.click('[data-a="auth-google"]'); await inApp(); ok(/Good to see you again, Ana Google/.test(await toastText()), 'Google again: straight into the same account');
+  await logout(); await go('login'); await page.click('[data-a="auth-google"]'); await inApp(); ok(/Good to see you again, Ana\./.test(await toastText()), 'Google again: straight into the same account, greeted by first name');
   await logout();
   // Google meets an email that already has a password account: one account, two ways in
   await page.evaluate(() => DORAX_PREVIEW.set({ google: { email: 'marta.lima@example.org', name: 'Marta via Google' } }));
@@ -496,6 +496,7 @@ let LIVE = null;
     await f.locator('#ob-name').waitFor(); ok(true, 'framed preview: sign-up goes straight to the setup (the preview asks for no email confirmation)');
     await f.locator('[data-a="onboard-save"]').click(); await f.locator('[data-a="ob-finish"]').click();
     ok(await f.locator('.hello').isVisible(), 'framed preview: account opens');
+    if (await f.locator('#tour').count()) await f.locator('#tour .tour-x').click();      // a new account's first visit to the summary (2026-10-10, features/tours): seen, then closed
     await f.locator('#rail-foot [data-a="user-menu"]').click(); await f.locator('#rail-foot [data-a="logout"]').click(); await f.locator('.lp-actions [data-v="login"]').click();
     await f.locator('#au-email').fill('quadro@example.org'); await f.locator('#au-pass').fill('Quadro2026'); await f.locator('[data-a="auth-login"]').click();
     await f.locator('.hello').waitFor(); ok(true, 'framed preview: login with the password works in memory');

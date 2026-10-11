@@ -13,6 +13,8 @@
 --   5. the contact notice   when a contact message is written, the database asks that same function to email it to the owner.
 --   6. bank_links            (a trial) which bank connections a person made through Open Finance. Only the function "bank" reads and
 --                           writes it; the connection itself, and the consent, live at Belvo.
+--   7. ai_calls              when each person asked for category suggestions with AI (supabase/functions/suggest), for its daily limit.
+--                           Only that function reads and writes it. What the rows said is not kept.
 --
 -- What protects the data: ROW-LEVEL SECURITY. The app's public key lets a browser talk to the database, and these rules decide what
 -- it may do: a logged-in person reads and writes their own row of user_data and nothing else. Without the rules below, the tables
@@ -278,3 +280,19 @@ comment on table public.bank_links is 'Dorax Finance (trial): bank connections m
 create index if not exists bank_links_user on public.bank_links (user_id);
 alter table public.bank_links enable row level security;        -- and no policy: closed to the app
 revoke all on public.bank_links from anon, authenticated;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- One row per call to the function "suggest" (category suggestions with AI, off until a person turns it on): who asked, when, and how many
+-- rows. It is there for the daily limit only, so that one account cannot run up the owner's bill with the AI. What the rows said is NOT kept.
+-- The app never touches this table; deleting a person deletes their rows.
+create table if not exists public.ai_calls (
+  id       bigserial   primary key,
+  user_id  uuid        not null references auth.users (id) on delete cascade,
+  at       timestamptz not null default now(),
+  rows     integer     not null default 0 check (rows >= 0 and rows <= 1000)
+);
+comment on table public.ai_calls is 'Dorax Finance: calls to the AI suggestions, for the daily limit. Only the function "suggest" reads and writes it.';
+create index if not exists ai_calls_user_at on public.ai_calls (user_id, at desc);
+alter table public.ai_calls enable row level security;          -- and no policy: closed to the app
+revoke all on public.ai_calls from anon, authenticated;
+

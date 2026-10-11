@@ -37,9 +37,10 @@ const PROFILE_ACTIONS = {
       async run() {
         const r = await SERVER.deleteAccount();
         if (!r.ok) return toast(r.code === 'network' ? serverSays(r.code) : t('The account could not be deleted. Nothing was removed. Try again, or write to us through the contact form.'));
+        GUARD.forget(guardUser());      // this device forgets its lock for an account that no longer exists
         UI.session = null; forgetSync(); reallyLogOut(t('Account deleted. Everything is gone, as you asked.'));
       } });
   },
   'step-income'() { const y = +S.today.slice(0, 4); navigate('plan'); A['add-pay']({ y }); },
-  'steps-hide'() { S.isNew = false; render(); },
+  'steps-hide'() { S.isNew = false; UI.stepsDone = null; render(); },
 };

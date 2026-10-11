@@ -6,13 +6,15 @@ let RECOVERING = false;    // a "forgot my password" link was opened: the person
 let STARTED = false;       // start-up is over: from here on, news from the server (logged in, logged out) is acted on
 
 function resetUi() {
-  UI.conv = UI.imp = UI.sheetImp = UI.rulePrompt = UI.dist = UI.sim = UI.undo = UI.inc = UI.drawer = UI.modal = UI.flash = UI.ob = UI.impError = UI.backupError = UI.contact = UI.pw = null; UI.sheet = false; UI.planYear = UI.goalYear = +S.today.slice(0, 4);
+  UI.jstart = null; if (typeof renderJstart === 'function') renderJstart();
+  UI.tour = null; if (typeof renderTour === 'function') renderTour();      // a screen's first visit goes with the session (features/tours)      // the Journey's first page goes with the session (features/journey)
+  UI.conv = UI.imp = UI.sheetImp = UI.rulePrompt = UI.dist = UI.sim = UI.undo = UI.inc = UI.drawer = UI.modal = UI.flash = UI.ob = UI.impError = UI.backupError = UI.contact = UI.pw = UI.coSetup = UI.stepsDone = UI.paySkip = UI.guard = null; UI.insightOpen = false; UI.curio = null; UI.space = 'personal'; UI.sheet = false; UI.planYear = UI.goalYear = +S.today.slice(0, 4);
   Object.assign(UI.tx, TX_RESET, { month: 'current', sort: 'date', dir: -1 }); Object.assign(UI.fii, { ticker: '', kind: '', month: null, limit: 30 }); renderModal();
 }
 /** A screen that stands between the pages before login and the app: 'loading', 'offline' (the account could not be read), 'reset' (new password). */
 function showGate(screen, more) {
   UI.session = null; UI.drawer = UI.modal = null; UI.sheet = false; renderModal();       // a dialog of the screen before must not stay on top of this one
-  UI.pub = { ...freshPub(), screen, ...(more || {}) }; renderNow(); window.scrollTo(0, 0);
+  UI.pub = { ...freshPub(), screen, ...(more || {}) }; renderNow(); toTop();
 }
 /** The person has proved who they are (password, Google, or a link from an email): their account is read from the server and opened.
     Someone whose account has nothing saved yet goes through the first-time setup, with the name given at sign-up (or by Google) filled in.
@@ -28,13 +30,13 @@ async function openAccount() {
   if (!r.ok) { WHO = null; return showGate('offline', { error: serverSays(r.code) }); }
   if (!r.row) {
     const lang = S.settings.lang; forgetSync(); S = buildNewState(u.email, lang, deviceToday()); UI.ob = null;
-    UI.pub = { ...freshPub(), screen: 'onboard', name: SERVER.name() }; renderNow(); window.scrollTo(0, 0); enterView();
+    UI.pub = { ...freshPub(), screen: 'onboard', name: SERVER.name() }; renderNow(); toTop(); enterView();
     const el = $('ob-name'); if (el) { el.focus(); if (el.select) el.select(); }
     return;
   }
   if (!accountShape(r.row.data)) { WHO = null; return showGate('offline', { error: t('This account could not be opened: what the server keeps for it cannot be read by this version of the app. Nothing was changed. Write to us through the contact form.'), fixed: true }); }
   adoptState(r.row.data, r.row.rev); rememberLang(S.settings.lang);
-  startSession(S.user.name ? t('Good to see you again, {name}.', { name: S.user.name }) : t('Good to see you again.'));
+  startSession(S.user.name ? t('Good to see you again, {name}.', { name: firstName(S.user.name) }) : t('Good to see you again.'));
 }
 /** What an account has to have for the screens to draw it. The same check a backup file goes through before it is restored. */
 const accountShape = st => !!(st && Array.isArray(st.accounts) && Array.isArray(st.transactions) && st.plan && Array.isArray(st.plan.lines) && st.pay && Array.isArray(st.goals) && Array.isArray(st.goalMoves) && st.settings && st.user && st.fii && Array.isArray(st.categories));
@@ -45,7 +47,8 @@ function startSession(message) {
   UI.session = { id: u.id, email: u.email, since: localDay(u.last_sign_in_at) || S.today };
   S.month = ymOf(S.today); resetUi(); UI.pub = freshPub();      // an account opens on the current month: that is where what needs doing is
   let h = ''; try { h = location.hash.slice(1); } catch (e) { /* a sandboxed frame has no address to read */ }
-  navigate(h); toast(message); saveNow();
+  navigate(h); toast(message); cheerBaseline(); saveNow();
+  LOCK.touch = Date.now(); guardSeen(true); if (LOCK.on) renderLock();      // this device was used just now (features/lock); a closed screen now knows the name
 }
 /** The day of a moment the server gives (in universal time), as it was on this device. */
 function localDay(iso) { const d = iso ? new Date(iso) : null; return d && !isNaN(d) ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : ''; }
@@ -53,9 +56,10 @@ function localDay(iso) { const d = iso ? new Date(iso) : null; return d && !isNa
 function leaveSession(message) {
   const lang = S.settings.lang;
   WHO = null; RECOVERING = false; UI.session = null; UI.bye = null; forgetSync();
+  if (LOCK.on) { LOCK.on = LOCK.leaving = false; renderLock(); }      // nobody's account is behind the lock any more
   S = buildNewState('', lang, deviceToday()); resetUi(); UI.pub = freshPub();
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* a sandboxed frame keeps its address */ }
-  renderNow(); window.scrollTo(0, 0); enterView(); if (message) toast(message);
+  renderNow(); toTop(); enterView(); if (message) toast(message); curioMaybe();
 }
 /** Logging out, asked for here. What is not saved yet is sent first; if it cannot be, the person decides. */
 async function logOut(message) {

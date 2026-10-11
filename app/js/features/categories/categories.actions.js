@@ -2,7 +2,7 @@
 const CATEGORIES_ACTIONS = {
   'cat-toggle'(ds) { UI.catOpen[ds.id] = !UI.catOpen[ds.id]; render(); const el = document.querySelector(`[data-a="cat-toggle"][data-id="${ds.id}"]`); if (el) el.focus(); },
   'edit-cat'(ds) { UI.catEdit = ds.id || null; render(); const el = $('cat-rename'); if (el) { el.focus(); el.select(); } },
-  'save-cat'(ds) { const v = $('cat-rename').value.trim(), f = catOf(ds.id); if (v && f) { (f.sub || f.cat).name = v; sideLines().forEach(l => { if (l.subcategoryId === ds.id) l.name = v; }); } UI.catEdit = null; render(); const el = $('ren-' + ds.id); if (el) el.focus(); },
+  'save-cat'(ds) { const v = $('cat-rename').value.trim(), f = catOf(ds.id); if (v && f) { const was = (f.sub || f.cat).name; (f.sub || f.cat).name = v; sideLines().forEach(l => { if (l.subcategoryId === ds.id || (!f.sub && !l.subcategoryId && l.categoryId === ds.id && l.pay === 'budget' && l.name === was)) l.name = v; }); } UI.catEdit = null; render(); const el = $('ren-' + ds.id); if (el) el.focus(); },      // a whole category's limit (features/limits) keeps the category's name
   'add-cat'() {
     const v = $('newcat').value.trim(); if (!v) return toast(t('Enter a category name.'));
     const cats = B().categories, n = cats.filter(c => !c.income).length, i = cats.findIndex(c => c.income);      // before Income, which closes the list

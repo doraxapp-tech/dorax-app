@@ -22,6 +22,11 @@ function reminders(state, today, currency, opt) {
     if (left.length && left.length < prev.length) out.push({ id: 'past:' + prevYm, kind: 'past', when: 'late', level: 'warn', ym: prevYm, lines: left.map(p => ({ id: p.id, name: p.name, amount: p.planned })), amount: sum(left.map(p => p.planned)) });
     if (noDay.length && opt.askDue !== false) out.push({ id: 'nodue:' + nowYm, kind: 'nodue', when: 'setup', level: 'info', ym: nowYm, lines: noDay.map(p => ({ id: p.id, name: p.name, amount: p.planned })), amount: sum(noDay.map(p => p.planned)) });
   }
+  if (opt.pay) {      // pay day (core/payday.js): a payment whose day has come, with nothing recorded under it, unless the person said "I'll do it" this month.
+    // It is one stage ("today"), so it is announced once: on its day, or on the first day the job sees it. Nothing is ever recorded by itself.
+    const said = (state.user || {}).payAsk || {};
+    for (const g of payDue(state, today, currency)) if (said[g.key] !== nowYm) out.push({ id: 'pay:' + g.key + ':' + nowYm, kind: 'pay', when: 'today', level: 'info', key: g.key, name: g.name, ym: nowYm, date: g.date, days: dayDiff(g.date, today), amount: g.amount });
+  }
   if (opt.close) {
     const biz = state.accounts.filter(a => owesStatement(a, prevYm)), st = (state.closes || {})[prevYm] || {}, sent = biz.filter(a => st[a.id] === 'sent').length;
     if (biz.length && sent < biz.length) { const date = closeDue(prevYm, opt.closeDay), days = dayDiff(date, today); out.push({ id: 'close:' + prevYm, kind: 'close', when: days < 0 ? 'late' : days === 0 ? 'today' : 'soon', level: days < 0 ? 'crit' : days <= 3 ? 'warn' : 'info', ym: prevYm, date, days, sent, total: biz.length }); }
@@ -34,14 +39,19 @@ function reminders(state, today, currency, opt) {
     const m = monthSummary(state, prevYm, currency);
     if (m.count) out.push({ id: 'summary:' + prevYm, kind: 'summary', when: 'soon', level: 'info', ym: prevYm, saved: m.saved, income: m.income, expenses: m.expenses });
   }
+  // the journey out of debt (core/journey.js, owner 2026-10-10): yesterday to mark while a sprint runs, a debt's payment coming due, a sprint ending
+  if (opt.journey) out.push(...journeyReminders(state, today, currency, lead));
+  // spending limits at 80% and past them (core/budget-alerts.js, owner 2026-10-10)
+  if (opt.budgets) out.push(...budgetReminders(state, today, currency));
   return out;
 }
 /** The household's reminders and, after them, the company's: its bills, card invoices and reserves, in each currency it keeps a plan in.
     A company reminder says which book it comes from (book, cur) and its id starts with that, so it never collides with a household one.
-    The statements for the accountant and the month's summary are said once, by the household's side. */
+    The statements for the accountant and the month's summary are said once, by the household's side; pay day is the household's alone. */
 function remindersAll(state, today, opt) {
-  const out = reminders(state, today, BASE_CURRENCY, opt);
-  for (const b of companyBooks(state)) for (const r of reminders(b.book, today, b.cur, { ...opt, close: false, summary: false })) out.push({ ...r, id: b.key + ':' + r.id, book: b.key, cur: b.cur });
+  const gone = (state.user || {}).company === false;      // a company put away: neither its bills nor the statements its accounts owe are chased
+  const out = reminders(state, today, BASE_CURRENCY, gone ? { ...opt, close: false } : opt);
+  for (const b of companyBooks(state)) for (const r of reminders(b.book, today, b.cur, { ...opt, close: false, summary: false, pay: false })) out.push({ ...r, id: b.key + ':' + r.id, book: b.key, cur: b.cur });
   return out;
 }
 /** Bills whose reminder has not gone out yet: the due day is further away than the lead time. sendDate is the day the reminder is due. */

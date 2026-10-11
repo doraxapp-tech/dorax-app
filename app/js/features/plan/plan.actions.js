@@ -4,9 +4,12 @@ const PLAN_ACTIONS = {
   'plan-year'(ds) { if (ds.v) UI.planYear = +ds.v; render(); },
   // fixed costs: create, change from a month, end, delete
   'plan-start-year'(ds) { const y = +ds.v; startPlanYear(B(), y); toast(t('{year} starts with the amounts of December {prev}. Change what is different.', { year: y, prev: y - 1 })); render(); },
-  'line-new'() {
+  'line-new'(ds) {
     const cat = B().categories.find(c => !c.income); if (!cat) return toast(t('Add a category first.'));
-    UI.drawer = { kind: 'line-form', title: t('New fixed cost'), isNew: true, draft: { id: null, name: '', catId: cat.id, pay: 'fixed', due: '', accountId: (cashAccounts()[0] || {}).id || '', amountText: '', from: ymOf(B().today), end: '', note: '', replan: true } };
+    // 2026-10-10 (owner, on Mobills: "first they have to put a spending limit on the categories; it teaches that this can be done"): the first fixed
+    // cost of a side with no limit opens "Plan your month" once, with "Only add the fixed cost" at its foot (features/limits/plan-guide.view.js)
+    if (!(ds && ds.skipGuide) && !inCompany() && !B().plan.guideSeen && !B().plan.lines.some(l => l.pay === 'budget')) return A['plan-guide']({ fromLine: '1' });      // the household's (a company plans costs, not spending)
+    UI.drawer = { kind: 'line-form', title: t('New fixed cost'), isNew: true, draft: { id: null, name: '', catId: cat.id, pay: 'fixed', due: '', accountId: (mainAcct() || cashAccounts()[0] || {}).id || '', amountText: '', from: ymOf(B().today), end: '', note: '', replan: true } };
     renderOverlay(); const el = $('l-name'); if (el) el.focus();
   },
   'line-open'(ds) { const l = lineById(ds.id); if (!l) return A.close(); UI.drawer = { kind: 'line-view', title: l.name, id: l.id, ym: ds.ym || (UI.drawer && UI.drawer.ym) || B().month }; renderOverlay(); },
@@ -17,10 +20,12 @@ const PLAN_ACTIONS = {
   },
   'line-save'() {
     const d = UI.drawer, x = d.draft, name = x.name.trim(), amount = typedAmount(x.amountText || '0'), due = x.due === '' || x.due == null ? null : Math.round(+x.due), cat = B().categories.find(c => c.id === x.catId);
-    if (!name) return fail(t('Enter a name for the fixed cost.'));
-    if (!cat) return fail(t('Choose a group.'));
-    if (due !== null && !(due >= 1 && due <= 31)) return fail(t('The due day must be between 1 and 31.'));
-    if ((d.isNew || x.replan) && (amount === null || amount < 0)) return fail(t('Enter the amount as a number, for example 1500 or 9,90.'));
+    if (!name) return fail(t('Enter a name for the fixed cost.'), 'l-name');
+    if (!cat) return fail(t('Choose a group.'), 'l-cat');
+    if ((d.isNew || x.replan) && !String(x.amountText || '').trim()) return fail(t('Enter what it costs each month.'), 'l-amount');
+    if ((d.isNew || x.replan) && (amount === null || amount <= 0)) return fail(t('Enter the amount as a number greater than zero, for example 1500 or 9,90.'), 'l-amount');
+    if (due === null && lineNeedsDue(x)) return fail(t('Enter the day it is due: without it the app cannot remind you or tell you when it is late.'), 'l-due');
+    if (due !== null && !(due >= 1 && due <= 31)) return fail(t('The due day must be between 1 and 31.'), 'l-due');
     if (!d.isNew && x.replan && x.end && x.from > x.end) return fail(t('The amount starts after the last month this cost is paid.'));
     let l;
     if (d.isNew) { const sub = { id: newId('s'), name }; cat.subs.push(sub); l = { id: newId('pl'), categoryId: cat.id, subcategoryId: sub.id, plan: {}, end: null }; B().plan.lines.push(l); }
@@ -45,7 +50,7 @@ const PLAN_ACTIONS = {
 
   // fixed costs: payments. A payment is an expense transaction in the line's account, so there is one source of truth for what was paid.
   'line-pay'(ds) {
-    const l = lineById(ds.id), ym = ds.ym || B().month, a = lineAcct(l); if (!a) return toast(t('Add an account first.'));
+    const l = lineById(ds.id), ym = ds.ym || B().month, a = lineAcct(l); if (!a) return needAccount();
     const p = planProgress(B(), ym, BCUR(), B().today).find(x => x.id === l.id);
     UI.drawer = { kind: 'line-pay', title: l.pay === 'budget' ? t('Expense in {name}', { name: l.name }) : t('Pay {name}', { name: l.name }), back: !!ds.back,
       draft: { lineId: l.id, ym, amountText: l.pay === 'fixed' && !p.spent && p.planned ? plain(p.planned) : '', date: defaultPayDate(l, ym), accountId: a.id, note: '' } };
@@ -53,9 +58,10 @@ const PLAN_ACTIONS = {
   },
   'line-pay-now'(ds) {
     const l = lineById(ds.id), ym = ds.ym || B().month, a = lineAcct(l), v = planValue(B(), l, ym);
-    if (!a) return toast(t('Add an account first.'));
+    if (!a) return needAccount();
     if (!v) return;
     UI.undo = [recordPayment(l, v, defaultPayDate(l, ym), a.id, '').id]; flash(l.id);
+    if (ds.close) { UI.drawer = null; renderOverlay(); }      // from the details: done, back to the list, where the row now says it is paid
     toast(t('{name} paid: {amount} from {account}.', { name: l.name, amount: fmt.money(v, BCUR()), account: a.name }), { a: 'undo-pay', label: t('Undo') }); render();
   },
   'group-pay-now'(ds) {
@@ -66,10 +72,11 @@ const PLAN_ACTIONS = {
   },
   'pay-save'() {
     const d = UI.drawer, m = d.draft, l = lineById(m.lineId), amt = typedAmount(m.amountText || '');
-    if (amt === null || amt <= 0) return fail(t('Enter an amount greater than zero, for example 185,42.'));
-    if (!parseDate(m.date)) return fail(t('Enter a valid date.'));
-    if (m.date > B().today) return fail(t('The date cannot be in the future.'));
-    if (!acct(m.accountId)) return fail(t('Add an account first.'));
+    if (amt === null || amt <= 0) return fail(t('Enter an amount greater than zero, for example 185,42.'), 'py-amount');
+    if (!parseDate(m.date)) return fail(t('Enter a valid date.'), 'py-date');
+    if (m.date > B().today) return fail(t('The date cannot be in the future.'), 'py-date');
+    if (!acct(m.accountId)) return fail(t('Add an account first.'), 'py-acct');
+    m.accountId = cardRoute(m.accountId);      // a savings account whose card has credit only: on its invoice
     recordPayment(l, amt, m.date, m.accountId, (m.note || '').trim()); flash(l.id);
     toast(l.pay === 'budget' ? t('Expense recorded.') : t('Payment recorded.')); UI.drawer = d.back ? { kind: 'line-view', title: l.name, id: l.id, ym: ymOf(m.date) } : null; render();
   },
@@ -82,7 +89,7 @@ const PLAN_ACTIONS = {
 
   // income
   'pay-copy'(ds) { const y = +ds.ym.slice(0, 4), m = +ds.ym.slice(5) - 1; payRows(B(), y).forEach(r => { for (let i = m + 1; i < 12; i++) r.values[i] = r.values[m]; }); toast(t('Amounts copied to the following months.')); render(); },
-  'add-pay'(ds) { const inc = B().categories.find(c => c.income), sub = { id: newId('s'), ...appName('Other income') }; inc.subs.push(sub); const id = newId('pay'); B().pay[ds.y] = B().pay[ds.y] || []; B().pay[ds.y].push({ id, ...appName('Other income'), sub: sub.id, half: 0, to: 'fixed', values: Array(12).fill(0) }); render(); const el = $('pn-' + id); if (el) { el.focus(); el.select(); } },
+  'add-pay'(ds) { const inc = B().categories.find(c => c.income), sub = { id: newId('s'), ...appName('Other income') }; inc.subs.push(sub); const id = newId('pay'); B().pay[ds.y] = B().pay[ds.y] || []; B().pay[ds.y].push({ id, ...appName('Other income'), sub: sub.id, half: 0, to: 'fixed', values: Array(12).fill(0) }); if (isPhone()) { UI.drawer = { kind: 'pay-row', title: B().pay[ds.y].find(x => x.id === id).name, id, y: ds.y, ym: ds.ym || B().month }; render(); const f = $('pn-' + id); if (f) { f.focus(); f.select(); } return; } render(); const el = $('pn-' + id); if (el) { el.focus(); el.select(); } },
   'remove-pay'(ds) {
     const r = (B().pay[ds.y] || []).find(k => k.id === ds.id); if (!r) return;
     confirmBox({ title: t('Remove {name} from {year}?', { name: r.name, year: ds.y }), text: t('Its planned amounts for {year} are removed. Income already recorded in Transactions is not touched.', { year: ds.y }), label: t('Remove income'),

@@ -1,0 +1,204 @@
+/* ---------- the accounts as bank cards, and the wallet on the dashboard (features/accounts/wallet.js, owner 2026-10-08; approved the same day) ---------- */
+/* A card the size of a real one (85.6 × 54 mm): the bank's colour lit from a corner, a soft sheen, fine lines, a gold chip, the contactless mark,
+   the holder's name pressed in. Spans all the way down, so a card can sit inside a button. */
+/* 2026-10-08 (owner: "lower the brightness of the cards, e.g. the red one to #ec00007d, and follow the same pattern for the others"): the bank's colour
+   at that strength over black (--cc-d: its 49 %, what #EC00007D shows on the black page), lit a little at the top left and darker to the bottom
+   right; white words on every card, whatever the bank's own ink, since the lowered colour is dark. */
+.ccard { --cc-d: color-mix(in srgb, var(--cc) 49%, #000000); position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; width: 100%; aspect-ratio: 1.586; box-sizing: border-box; padding: 14px 16px 16px; border-radius: 16px; overflow: hidden; text-align: left;
+  color: #FFFFFF; font-family: var(--font); -webkit-user-select: none; user-select: none;
+  background: radial-gradient(140% 120% at 0% 0%, color-mix(in srgb, var(--cc-d) 84%, #FFFFFF) 0%, var(--cc-d) 42%, color-mix(in srgb, var(--cc-d) 70%, #000000) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), inset 0 0 0 1px rgba(255, 255, 255, .06), 0 10px 28px rgba(0, 0, 0, .38); }
+.ccard::before { content: ""; position: absolute; z-index: -1; top: -45%; right: -18%; width: 78%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .09), rgba(255, 255, 255, 0) 68%); }
+.ccard::after { content: ""; position: absolute; z-index: -1; inset: 0; background: repeating-linear-gradient(115deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 9px); }
+.ccard > span { display: flex; }
+.ccard b, .ccard .num, .ccard small { color: inherit; }      /* the bank's own ink everywhere on the card */
+.cc-top { align-items: center; gap: 10px; min-height: 32px; }
+.cc-logo { flex: none; display: block; }
+.cc-logo .inst { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: rgba(255, 255, 255, .2); color: #FFFFFF; font-family: var(--mono); font-size: 11px; font-weight: 700; box-shadow: 0 0 0 2px rgba(255, 255, 255, .55); }
+.cc-logo .inst.pic { background: #FFFFFF; } .cc-logo .inst img { width: 100%; height: 100%; object-fit: cover; display: block; } .cc-logo .inst svg { width: 17px; height: 17px; }
+.cc-name { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-amt { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.1; }
+.cc-amt small { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; opacity: .78; }
+.cc-amt b { font-family: var(--fig); font-size: 17px; font-weight: 600; white-space: nowrap; }
+/* a card with both functions: the invoice under the balance, smaller (owner, 2026-10-09) */
+.cc-inv { margin-top: 3px; font-size: 11.5px; font-weight: 500; white-space: nowrap; opacity: .82; }
+.cc-inv .num { font-family: var(--fig); }
+.w-mini .cc-inv { font-size: 9px; margin-top: 1px; }
+.op-fn { display: flex; width: 100%; margin: 6px 0 2px; padding: 3px; }
+.op-fn button { flex: 1 1 0; min-height: 40px; display: grid; place-items: center; font-size: 14px; }
+.cc-mid { align-items: center; gap: 10px; }
+.cc-chip { width: 42px; height: 32px; flex: none; }
+.cc-nfc { width: 24px; height: 24px; flex: none; opacity: .85; }
+.cc-bot { align-items: flex-end; justify-content: space-between; gap: 12px; }
+.cc-holder { min-width: 0; font-family: var(--mono); font-size: 13px; letter-spacing: .14em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 0 rgba(0, 0, 0, .28), 0 -1px 0 rgba(255, 255, 255, .12); }
+.cc-kind { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
+
+/* Accounts: the cards in a grid, each with its details under it (no card inside a card) */
+.cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px 22px; }
+.cc-item { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.cc-meta { display: flex; flex-direction: column; gap: 8px; padding: 0 2px; }
+/* the card opens its transactions: it lifts under a pointer, gives a little under a finger */
+.cc-tap { all: unset; box-sizing: border-box; display: block; cursor: pointer; border-radius: 16px; -webkit-tap-highlight-color: transparent; }
+.cc-tap .ccard { transition: transform var(--t1) ease-out, box-shadow var(--t1) ease-out; }
+.cc-tap:active .ccard { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .cc-tap:hover .ccard { transform: translateY(-3px); } }
+.cc-tap:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .cc-tap .ccard { transition: none; } }
+@media (max-width: 920px) { .cc-grid { grid-template-columns: minmax(0, 1fr); gap: 26px; } }
+/* the computer: one group per kind, a faint line between them that fades out at both ends */
+.cc-div { height: 1px; margin: 34px 0; border: 0; background: var(--line); }      /* a plain line, no faded ends (owner, 2026-10-09) */
+.cc-group > h2.sec { margin: 0 0 14px; }
+
+/* The wallet: each card shows its top strip (40 px, owner 2026-10-08) above the next, the last one whole */
+.wallet-sec .w-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.wallet-sec .w-head h2 { font-size: 17px; font-weight: 600; }
+.w-tools { display: flex; align-items: center; gap: 8px; }
+.w-nav { display: none; gap: 4px; }      /* arrows for a mouse; a finger swipes */
+@media (hover: hover) and (pointer: fine) { .w-nav { display: flex; } }
+.w-nav .iconbtn:disabled { opacity: .3; cursor: default; }
+.wallet { position: relative; display: flow-root; }      /* flow-root: the space under the stack stays inside it */
+.wallet .w-space { display: block; margin-top: calc((var(--n) - 1) * 40px); aspect-ratio: 1.586; }
+.w-card { all: unset; box-sizing: border-box; position: absolute; left: 0; right: 0; top: calc(var(--i) * 40px); display: block; cursor: pointer; border-radius: 16px; -webkit-tap-highlight-color: transparent; }
+.w-card .ccard { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 -8px 20px rgba(0, 0, 0, .35); transition: transform var(--t1) ease-out; }
+.w-card:active .ccard { transform: translateY(-5px); }
+.w-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+/* open: a row to swipe, one card at a time, its details under it */
+.w-row { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 16px; margin: 0 -16px; padding: 4px 16px 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.w-row::-webkit-scrollbar { display: none; }
+.w-row:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; border-radius: 8px; }
+.w-slide { flex: 0 0 88%; min-width: 0; scroll-snap-align: start;      /* lined up on the left, the next card peeking in on the right */
+  display: flex; flex-direction: column; gap: 12px; }
+.w-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+.w-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); transition: width var(--t1) ease-out, background var(--t1) ease-out; }
+.w-dots i.on { width: 18px; background: var(--ink-strong); }
+/* the computer: the wallet sits in the dashboard's grid, its row inside its column */
+@media (min-width: 921px) { .w-row { margin: 0; padding: 4px 0 8px; scroll-padding-left: 0; } .w-slide { flex-basis: 90%; } }
+/* the computer's dashboard: the cards small and side by side, five places in one row under the month's figures; a click opens one, large */
+.w-strip { display: grid; grid-template-columns: repeat(5, minmax(176px, 1fr)); gap: 14px; overflow-x: auto; padding: 2px 2px 6px; margin: -2px -2px 0; scrollbar-width: thin; }
+.w-mini { all: unset; box-sizing: border-box; display: block; min-width: 0; cursor: pointer; border-radius: 12px; transition: transform var(--t1) ease-out; }
+.w-mini:hover { transform: translateY(-3px); }
+.w-mini:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.w-mini .ccard { padding: 10px 12px 11px; border-radius: 12px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 6px 16px rgba(0, 0, 0, .3); }
+.w-mini .cc-top { gap: 7px; min-height: 24px; }
+.w-mini .cc-logo .inst { width: 24px; height: 24px; font-size: 9px; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .55); }
+.w-mini .cc-name { font-size: 12.5px; }
+.w-mini .cc-amt small { font-size: 8.5px; } .w-mini .cc-amt b { font-size: 13.5px; }
+.w-mini .cc-chip { width: 28px; height: 21px; } .w-mini .cc-nfc { width: 16px; height: 16px; }
+.w-mini .cc-holder { font-size: 9.5px; letter-spacing: .12em; } .w-mini .cc-kind { font-size: 8.5px; }
+.cv { gap: 18px; } .cv .ccard { max-width: 420px; }
+.cv > .ccard, .cv > .cc-meta, .cv > .cv-acts { flex-shrink: 0; }      /* with the transactions under them the panel scrolls; the card keeps its shape */
+/* a card's transactions, under it in its panel (owner, 2026-10-09, after a banking app's "Operations"): a sheet that reaches the panel's edges and
+   its foot, with a handle; the newest first, by day; a round mark, what it was and its category, the amount on the right, money in green with + */
+.cv-ops { flex: 1 0 auto; margin: 2px -22px -20px; padding: 10px 22px 24px; background: var(--well); border-radius: 26px 26px 0 0; }
+.op-grab { display: block; width: 38px; height: 4px; margin: 0 auto 14px; border-radius: var(--pill); background: var(--line-strong); }
+.op-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.op-head h3 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--ink-strong); }
+.op-head .linkbtn { position: relative; padding: 10px 0; color: var(--brand); font-size: 14.5px; }
+.op-head .linkbtn::after { content: ""; position: absolute; inset: 0 -10px; }
+.op-day { margin: 16px 0 2px; font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+.op-list { list-style: none; margin: 0; padding: 0; }
+.op-row { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 62px; padding: 8px 0; -webkit-tap-highlight-color: transparent; transition: opacity var(--t1) ease-out; }
+.op-row:active { opacity: .65; }
+.op-row:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 12px; }
+.op-row.ignored { opacity: .55; }
+.op-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .07); color: var(--c, var(--ink-strong)); font-size: 16px; font-weight: 600; }
+.op-ico svg { width: 20px; height: 20px; color: var(--ink-strong); }
+.op-ico.in svg { color: var(--pos); }
+.op-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.op-t b { font-size: 15px; font-weight: 500; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.op-t small { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.op-amt { flex: none; font-size: 15px; font-weight: 600; color: var(--ink-strong); white-space: nowrap; }
+.op-amt.in { color: var(--pos); }
+.op-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px 0 4px; color: var(--ink-2); }
+:root.app-light .op-ico { background: var(--surface); } :root.app-light .op-head .linkbtn { color: var(--brand-deep); }
+@media (max-width: 920px) { .cv-ops { margin: 2px -16px -16px; padding: 10px 16px calc(24px + env(safe-area-inset-bottom, 0px)); } }
+
+/* which cards the dashboard shows: a list with a switch each, the shown ones first with their two arrows */
+.wp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.wp-row { display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 8px 0; border-bottom: 1px solid var(--line-strong); }
+.wp-row:last-child { border-bottom: 0; }
+.wp-row .grow { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.wp-row b { font-weight: 500; font-size: 15px; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wp-row small { font-size: 13px; color: var(--ink-2); }
+.wp-row:not(.on) .wp-mark, .wp-row:not(.on) .grow { opacity: .6; }
+.wp-mark .inst { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; flex: none; background: var(--well); color: var(--ink); font-family: var(--mono); font-size: 11px; font-weight: 600; box-shadow: inset 0 0 0 1px rgba(128, 128, 128, .28); }
+.wp-mark .inst img { width: 100%; height: 100%; object-fit: cover; display: block; } .wp-mark .inst svg { width: 16px; height: 16px; }
+.wp-btn { all: unset; box-sizing: border-box; cursor: pointer; flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--ink); background: var(--well); }
+.wp-btn svg { width: 18px; height: 18px; } .wp-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; } .wp-btn[disabled] { opacity: .3; cursor: default; }
+@media (max-width: 920px) { .wp-btn { width: 44px; height: 44px; } }
+
+
+/* a phone's Accounts: every card, or stacked (features/accounts/wallet.js, owner 2026-10-08). The two views are two icons beside the side's name,
+   the one in use in the brand's green */
+.acc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.acc-head h2.sec { margin: 0; }
+.acc-view { display: inline-flex; padding: 2px; gap: 2px; background: #000000; border: 1px solid #1A1A1A; border-radius: var(--pill); }
+.acc-view button { width: 44px; height: 40px; display: grid; place-items: center; border: 0; border-radius: var(--pill); background: none; color: var(--ink-3); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
+.acc-view button[aria-pressed="true"] { background: #1A1A1A; color: var(--brand); }
+.acc-view button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.acc-view svg { width: 18px; height: 18px; }
+:root.app-light .acc-view { background: var(--surface-3); border-color: var(--line); }
+:root.app-light .acc-view button[aria-pressed="true"] { background: var(--surface); color: var(--brand-deep); }
+.acc-stack { margin-top: 14px; }
+
+/* a card is pressed to open it (the summary's row on a phone, owner 2026-10-08) */
+.w-tap { all: unset; box-sizing: border-box; display: block; cursor: pointer; border-radius: 16px; -webkit-tap-highlight-color: transparent; }
+.w-tap .ccard { transition: transform var(--t1) ease-out; }
+.w-tap:active .ccard { transform: scale(.98); }
+.w-tap:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+/* the opened card's actions: the quick things' round icons and words (screens/phone.css), on a computer too */
+.cv-acts { margin-top: 16px; padding: 0; }
+/* a computer: one row, the main action first and filled, the account's own edit apart on the right */
+.cv-acts.pc { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+.cv-acts.pc .btn { flex: none; white-space: nowrap; }
+.cv-acts.pc .btn svg { width: 15px; height: 15px; }
+.cv-acts.pc .cv-edit { margin-left: auto; }
+.cv-acts button { animation: none; }
+
+/* a phone's Accounts: add and delete on top; in the list of what to delete, an account with transactions is there but cannot be chosen */
+.acc-acts { margin: 14px 0 18px; }
+.acc-del button[aria-disabled="true"] { cursor: default; opacity: .55; }
+.acc-del button[aria-disabled="true"]:active { transform: none; }
+.acc-del .inst { flex: none; width: 36px; height: 36px; border-radius: 50%; overflow: hidden; }
+.acc-del .inst img { width: 100%; height: 100%; display: block; object-fit: cover; }
+
+/* the main account (owner, 2026-10-09): said under its card; its panel has the switch */
+.cc-mainchip { align-self: flex-start; }
+.cv-main { display: flex; flex-direction: column; gap: 4px; padding-top: 10px; border-top: 1px solid var(--line); }
+
+/* the savings, in Accounts & savings (features/accounts/wallet.js): the heading with what they hold (a phone's; a computer has them in its right column) */
+.sv-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 14px; }
+.sv-head h2.sec { margin: 0; }
+.sv-total { font-size: 15px; font-weight: 500; white-space: nowrap; }
+.sv-rows { display: flex; flex-direction: column; margin-top: 18px; }
+.sv-row { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-top: 1px solid var(--line); }
+.sv-row-h { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sv-row-h .grow { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.sv-row-h .num { font-weight: 500; }
+.sv-none { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+
+/* a computer's Accounts & savings (features/accounts/accounts.view.js): the cards on the left, seven tenths; what they add up to on the right */
+.acc-cols { display: grid; grid-template-columns: minmax(0, 7fr) minmax(270px, 3fr); gap: 28px; align-items: start; }
+.acc-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.acc-box .card-b { display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; }
+.acc-box h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.acc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.acc-list li { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.acc-list li:last-child { border-bottom: 0; }
+.acc-list li .inst { width: 28px; height: 28px; flex: none; font-size: 10px; }
+.acc-list li .inst img { width: 28px; height: 28px; }
+.acc-list li .grow { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.acc-list li > .num { font-weight: 500; white-space: nowrap; }
+.acc-list.cards li { align-items: flex-start; }
+.acc-list.cards li .grow { display: flex; flex-direction: column; gap: 2px; white-space: normal; }
+.acc-list.cards b { font-weight: 500; }
+.acc-list.cards small { font-size: 12.5px; line-height: 1.4; color: var(--ink-3); }
+.acc-total { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--line-strong); font-size: 14px; font-weight: 600; }
+.acc-row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--ink-2); }
+.acc-row .num { font-weight: 500; color: var(--ink); white-space: nowrap; }
+.acc-row .num.neg { color: var(--neg); }
+.acc-note { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ink-2); }
+.acc-big { margin: 0; font-size: 24px; font-weight: 500; letter-spacing: -.01em; }
+.acc-box .btn { align-self: flex-start; }
+/* a narrower computer: the column goes under the cards, its blocks side by side */
+@media (max-width: 1180px) { .acc-cols { grid-template-columns: minmax(0, 1fr); } .acc-side { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: start; } }

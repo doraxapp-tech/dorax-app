@@ -1,0 +1,27 @@
+/* Dorax Finance — interface texts: shared pieces: formats, lookups, fields. Each row: [English source, Español, Português]. English is the key.
+   Split out of i18n/translations.js on 2026-10-10 (owner: "separate the things that can be separated"); a new text goes in the file of the part that uses it. */
+addTexts([
+  ["Split · {n} categories","Dividido · {n} categorías","Dividido · {n} categorias"],
+  ["(general)","(general)","(geral)"],
+  ["Confirmed","Confirmado","Confirmado"],
+  ["Manual entry","Entrada manual","Lançamento manual"],
+  ["Toggle","Activar o desactivar","Ativar ou desativar"],
+  ["File saved.","Archivo guardado.","Arquivo salvo."],
+  ["Saved as {safe}. This hosted preview can only save .txt, so rename it to {name}.","Guardado como {safe}. Esta vista previa solo puede guardar .txt, así que renómbralo a {name}.","Salvo como {safe}. Esta prévia só consegue salvar .txt, então renomeie para {name}."],
+  ["Download started: {name}","Descarga iniciada: {name}","Download iniciado: {name}"],
+  ["Copied to clipboard.","Copiado al portapapeles.","Copiado para a área de transferência."],
+  ["Copy is blocked here. Select the text in the preview and copy it manually.","Aquí no se puede copiar automáticamente. Selecciona el texto de la vista previa y cópialo a mano.","A cópia está bloqueada aqui. Selecione o texto da prévia e copie manualmente."],
+  ["Over plan","Sobre el plan","Acima do plano"],
+  ["Under plan","Bajo el plan","Abaixo do plano"],
+  ["Not paid yet","Aún sin pagar","Ainda não pago"],
+  ["Previous year","Año anterior","Ano anterior"],
+  ["Next year","Año siguiente","Próximo ano"],
+  ["Spreadsheet","Hoja de cálculo","Planilha"],
+  ["No company account in {cur} yet.","Todavía no hay una cuenta de la empresa en {cur}.","Ainda não há uma conta da empresa em {cur}."],
+  ["You can plan here already. Add the company’s account to pay its bills from it and to keep its goals in it.","Ya puedes planificar aquí. Agrega la cuenta de la empresa para pagar sus cuentas desde ella y guardar sus metas en ella.","Você já pode planejar aqui. Adicione a conta da empresa para pagar as contas dela e guardar as metas nela."],
+  ["Bank connection","Conexión con el banco","Conexão com o banco"],
+  ["Written as a sentence","Escrita en una frase","Escrita em uma frase"],
+  ["A goal’s contribution or withdrawal","Aporte o retiro de una meta","Aporte ou retirada de uma meta"],
+  ["{name} (main)","{name} (principal)","{name} (principal)"],
+  ["Required","Obligatorio","Obrigatório"],
+]);

@@ -211,6 +211,27 @@ Without the two keys the page is still in the menu and says "Not available here 
 - The function refuses every address but the sandbox on purpose. Real banks mean changing that line, with the points above settled.
 - Not built: keeping connections fresh by themselves (Belvo's notifications), consent renewal, investments and loans.
 
+### Category suggestions with AI (built 2026-10-09, off until a person turns it on)
+
+Phase 3 of making imports less work (owner, 2026-10-09: "reduce human error, the user's work and the load of accepting and categorizing every expense"; asked before building because it sends words off the device). Each person decides: **Settings > Import preferences > Category suggestions with AI** is off by default. When it is on, an import's review has a button, **Suggest with AI (n)**, for the rows that the person's rules, their past choices, the plan's bills and the known merchants left without a category. Nothing is sent until that button is pressed, and what comes back waits in "To look at" marked "Suggested by AI": nothing is accepted by itself. Company accounts are never sent.
+
+| Piece | Where |
+| --- | --- |
+| The switch, the button, the notes | `app/js/features/settings/settings.view.js`, `features/imports/review-table.view.js` (`aiRows`, `aiButton`), `imports.actions.js` (`rv-ai`) |
+| The server | `supabase/functions/suggest/` (`index.ts`, `logic.mjs`) |
+| The daily limit | table `ai_calls` (`supabase/schema.sql`, section 7) |
+
+**What leaves the device, and what is kept.** Sent: the words of the rows asked about with every number taken out (no amounts, dates, ids or masked documents; the server takes them out again), whether the money went out or came in, and the names of the person's categories. They go to Anthropic (Claude) through the function, with the owner's key. Kept by Dorax: one line per call (who, when, how many rows) for the daily limit; never the words. The logs hold counts only. The privacy policy says this, with a PLACEHOLDER for Anthropic's own terms.
+
+**To switch it on.**
+
+1. Run `supabase/schema.sql` again in the SQL Editor (adds the table `ai_calls`). Without it the function answers "not set up" rather than run without a limit.
+2. Supabase > Edge Functions > Secrets: `ANTHROPIC_API_KEY`, a key from console.anthropic.com. Not in a file, not in a chat. Optional: `SUGGEST_MODEL` (default `claude-haiku-5-5`) and `SUGGEST_DAILY` (calls a person may make in 24 hours, default 20; each call is up to 80 rows).
+3. `npx supabase@latest functions deploy suggest --project-ref uhvfkyblfojcpqupmlbg`
+4. Deploy the site. Then Settings > Category suggestions with AI, import a statement, and press "Suggest with AI".
+
+**What has NOT been tried.** The function was built from Anthropic's documentation and tested against a stand-in, never against the real service. If the first call fails, the function's log says the status Anthropic answered with (never the words). The cost is the owner's: a call of 80 rows to Claude Haiku is small, and the daily limit caps it per person.
+
 ## 3. Google login
 
 In **Google Cloud Console > Google Auth Platform**:

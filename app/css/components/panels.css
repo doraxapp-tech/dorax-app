@@ -29,8 +29,9 @@
 .modal .field { margin-top: 4px; }
 .modal .field label b { font-family: var(--mono); font-weight: 500; color: var(--neg); padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 4px; }
 .modal footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
-#toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; background: var(--glass); -webkit-backdrop-filter: saturate(160%) blur(24px); backdrop-filter: saturate(160%) blur(24px); color: var(--ink-strong); border: 1px solid var(--glass-line); padding: 10px 16px; border-radius: 22px; display: flex; gap: 14px; align-items: center; max-width: calc(100% - 32px); font-size: 13px; }
-#toast button { all: unset; cursor: pointer; font-weight: 500; color: var(--link); white-space: nowrap; }
+#toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; background: var(--nt-bg); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); color: var(--nt-ink); border: 1px solid var(--nt-line); box-shadow: 0 16px 40px -14px rgba(0, 0, 0, .55); padding: 10px 16px; border-radius: 22px; display: flex; gap: 14px; align-items: center; max-width: calc(100% - 32px); font-size: 13px; }
+#toast button { all: unset; cursor: pointer; font-weight: 500; color: var(--nt-link); white-space: nowrap; flex: none; }
+#toast .t-msg { flex: 1 1 auto; min-width: 0; }
+#toast.act { width: max-content; }      /* a toast with a button is as wide as its sentence allows, up to the screen's width less its margins */
 #toast button:hover { text-decoration: underline; text-underline-offset: 3px; }
 #toast button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
-

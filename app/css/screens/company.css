@@ -1,0 +1,105 @@
+/* ---------- the company's side ----------
+   2026-10-07 (owner: "two separate dashboards, and the company's a bit different in its design, so the change is seen and not only the numbers";
+   chosen with him: a blue accent and another composition, the main buttons staying the brand's green).
+   The side is a class on the page's root (side-co, set in app/shell.js) while the company's side is on screen. It changes one thing: the accent.
+   Everything that wears the brand's green as an accent (links, focus, the active mark, meters, the chosen chart column, the current month's
+   column) wears blue here. What green MEANS is left alone: money that came in, "paid", "on track" stay green on both sides, and so do the
+   main buttons and the logo. Blue was checked on these surfaces: #5B9DFF on #000 is 7.9:1, white on #1F4E9E is 7.6:1, #1D5FD1 on #FFF is 5.6:1. */
+:root.side-co {
+  --brand: #5B9DFF; --link: #5B9DFF; --focus: #5B9DFF; --ring: #5B9DFF; --switch-on: #5B9DFF; --col: #5B9DFF;
+  --brand-deep: #1F4E9E; --brand-edge: #1D3557;
+  --cur: rgba(31, 78, 158, .5); --cur-sum: rgba(31, 78, 158, .66);
+  --side: #1F4E9E; --side-ink: #FAFAFA; --side-line: rgba(91, 157, 255, .5); --side-tint: rgba(91, 157, 255, .08);
+}
+:root.side-co.app-light {
+  --brand: #1D5FD1; --link: #1B55BD; --focus: #1B55BD; --ring: #1B55BD; --switch-on: #1D5FD1; --col: #17479B;
+  --brand-deep: #1F4E9E; --brand-edge: #BBD3F7;
+  --cur: rgba(29, 95, 209, .12); --cur-sum: rgba(29, 95, 209, .19);
+  --side-line: rgba(29, 95, 209, .5); --side-tint: rgba(29, 95, 209, .06);
+}
+:root { --glow: 0, 98, 57; } :root.side-co { --glow: 31, 78, 158; }      /* the phone's top panel: a breath of the side's colour (screens/phone.css) */
+:root { --side: var(--primary); --side-ink: var(--primary-ink); --side-line: var(--primary-line); --side-tint: var(--good-bg); }
+/* the phone's round +, the main action there, wears the side's bright colour with dark words (the household's is the main button's green) */
+:root { --fab: var(--cta); --fab-ink: var(--cta-ink); }
+:root.side-co { --fab: #5B9DFF; --fab-ink: #06162E; --nt-link: #5B9DFF; }      /* a notice's link on the company's side: its blue (the notice stays dark in both themes) */
+:root.side-co.app-light { --fab: #1D5FD1; --fab-ink: #FFFFFF; }
+
+/* Household | Company, in the menu under the logo: one choice for the whole app. The side in use is filled with its own colour. */
+/* the side's switch under the logo is gone (2026-10-08): the two arrows sit beside the eye (base/shell.css, .rail-flip) */
+.brand .logo .ac { transition: stroke 600ms ease-out; }      /* the quarter of the d is the side's colour: green at home, blue in the company (it is what the change of side animates) */
+.side-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: var(--pill); background: var(--bg); }
+.side-seg button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 0 8px; border-radius: var(--pill); font-size: 12.5px; font-weight: 500; color: var(--ink-2); white-space: nowrap; transition: background var(--t2) var(--ease), color var(--t1) ease-out; }
+.side-seg button svg { width: 15px; height: 15px; flex: none; }
+.side-seg button:hover { color: var(--ink-strong); }
+.side-seg button[aria-pressed="true"] { background: var(--side); color: var(--side-ink); box-shadow: inset 0 0 0 1px var(--side-line); }
+.side-seg button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+/* a phone has no side menu: the same choice sits in the panel at the top of the page (css/screens/phone.css) */
+.bar-left { display: contents; }
+.bar-who, .bar-name, .bar-side, .h-short { display: none; }
+.side-tag { padding: 3px 10px; border-radius: var(--pill); border: 1px solid var(--side-line); background: var(--side-tint); color: var(--brand); font-size: 12px; font-weight: 500; line-height: 1.3; white-space: nowrap; }
+.side-tag[hidden] { display: none; }
+.brand .side-tag { margin-block: -4px; }      /* beside the logo without making its row any taller: nothing under it moves when the side changes */
+/* the currency, for a company that holds more than one: beside the month, where the side's own switch used to be */
+.space { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.topbar .space { order: 1; margin: 0 12px 0 0; }
+.space .seg button[aria-pressed="true"] { background: var(--side); color: var(--side-ink); box-shadow: inset 0 0 0 1px var(--side-line); }
+/* a narrow window: the menu's choice already names the side, so its word and the currency's (i) give their room to the month and the main button */
+@media (max-width: 1180px) { .topbar .space .hint { display: none; } .topbar .space { margin-right: 4px; } }
+@media (max-width: 920px) {
+  .bar-left { display: flex; align-items: center; gap: 6px; min-width: 0; grid-column: 1; grid-row: 1; justify-self: start; }
+  .topbar .space { order: 0; flex: 1 0 100%; margin: 4px 0 0; }
+  .space .seg button { padding: 9px 16px; font-size: 14px; }
+}
+
+/* the band that opens the company's dashboard */
+.co-band { display: flex; align-items: center; gap: 14px; padding: 18px 22px; border: 1px solid var(--brand-edge); border-radius: var(--r-card); background: var(--side-tint); }
+.co-band .fl-ico { width: 42px; height: 42px; border-color: var(--brand-edge); }
+.co-band .fl-ico svg { width: 19px; height: 19px; }
+.co-band .grow { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.co-band h2 { font-size: 21px; font-weight: 600; letter-spacing: .011em; line-height: 1.2; color: var(--ink-strong); overflow-wrap: anywhere; }
+.co-band p { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; font-size: 13px; color: var(--ink-2); }
+@media (max-width: 640px) { .co-band { padding: 16px; flex-wrap: wrap; } .co-band .btn { flex: 1 1 100%; min-height: 44px; } }
+
+/* the company's month as a sum: received, less costs, is the result. One surface, the figures divided by their signs, not four boxes. */
+.kpis.eq { display: flex; align-items: stretch; gap: 0; padding: 4px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); }
+.kpis.eq .kpi { flex: 1 1 0; background: none; border: 0; border-radius: 0; padding: 16px; }
+.kpis.eq .op { align-self: center; flex: none; font-family: var(--fig); font-size: 22px; color: var(--ink-3); padding: 0 2px; }
+.kpis.eq .kpi.sum .value { color: var(--brand); }
+.kpis.eq .kpi.aside { border-left: 1px solid var(--line); margin-left: 10px; padding-left: 24px; }
+@media (max-width: 920px) {
+  .kpis.eq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 2px; }
+  .kpis.eq .op { display: none; }
+  .kpis.eq .kpi.sum, .kpis.eq .kpi.aside { grid-column: 1 / -1; border-left: 0; margin-left: 0; padding-left: 16px; border-top: 1px solid var(--line); }
+}
+
+/* the company's first-time setup: one card in the page's own place, the same slider fields as the household's */
+.co-setup { width: min(560px, 100%); margin: 8px auto 0; }
+.co-setup .card-b { display: flex; flex-direction: column; gap: 14px; padding: 28px; }
+.co-setup h1 { font-size: 24px; font-weight: 600; letter-spacing: -.01em; line-height: 1.2; color: var(--ink-strong); }
+.co-setup h1:focus { outline: none; }
+.co-setup .card-b > p { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+.co-setup .seg { align-self: flex-start; }
+.co-setup .seg button[aria-pressed="true"] { background: var(--side); color: var(--side-ink); box-shadow: inset 0 0 0 1px var(--side-line); }
+.co-setup .field > span:first-child { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+.co-setup .ob-foot { margin-top: 6px; }
+@media (max-width: 640px) { .co-setup .card-b { padding: 20px 16px; } .co-setup .seg button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; font-size: 14px; } }
+
+/* changing sides: for a blink the screen is the new side's colour with its name, then a ring opens from the button that was pressed
+   (sideShift, app/motion.js). One element makes the whole layer: a circle that grows, with a shadow so wide it covers the rest of the screen. */
+/* Changing sides is a short loading screen (owner, 2026-10-07: "back to basics: a black screen with background blur, the Dorax logo and a
+   loader under it, 'loading company account, one moment', and let it load about two seconds more; create drama; the loader is an animation of
+   the logo itself"). The page behind is blurred and darkened; the wordmark stands in the middle with its quarter in the colour of the side being
+   entered; under it the loader is the logo's own ring with that quarter going round it. app/motion.js times it. */
+#side-shift { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgba(0, 0, 0, .78); -webkit-backdrop-filter: blur(26px) saturate(120%); backdrop-filter: blur(26px) saturate(120%); color: #FFFFFF; }
+#side-shift.co { --shift-ac: #5B9DFF; } #side-shift.home { --shift-ac: #3ECF8E; }
+#side-shift .shift-in { display: flex; flex-direction: column; align-items: center; gap: 30px; padding: 24px; text-align: center; }
+#side-shift .shift-loader { width: 44px; height: 44px; overflow: visible; }
+#side-shift .shift-loader circle { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: 9; }
+#side-shift .shift-loader path { fill: none; stroke: var(--shift-ac); stroke-width: 9; stroke-linecap: butt; transform-origin: 30px 30px; animation: shift-spin 1.05s cubic-bezier(.6, .1, .4, .9) infinite; }
+#side-shift .shift-say { display: flex; flex-direction: column; gap: 4px; }
+#side-shift .shift-say b { font-size: 17px; font-weight: 600; letter-spacing: .005em; }
+#side-shift .shift-say small { font-size: 13.5px; color: rgba(255, 255, 255, .66); }
+@keyframes shift-spin { to { transform: rotate(360deg); } }
+/* on a phone the wordmark at 56% of the screen's width read as a billboard (owner, 2026-10-08: "it looks gigantic on the phone, make it much smaller"):
+   there it is the size it has on the login and on the closed screen, and the loader and the words come down with it */
+@media (max-width: 920px) { #side-shift .shift-in { gap: 22px; } #side-shift .shift-loader { width: 34px; height: 34px; } #side-shift .shift-say b { font-size: 15px; } #side-shift .shift-say small { font-size: 13px; } }

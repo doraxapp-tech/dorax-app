@@ -18,6 +18,10 @@
   --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090;
   /* roles */
   --primary: #006239; --primary-hover: #00754A; --primary-ink: #FAFAFA; --primary-line: rgba(62, 207, 142, .45);
+  /* the main action of a screen, a panel or a row wears the brand's bright green with dark words (owner, 2026-10-07: "primary actions deserve a
+     light colour; secondary ones can be less striking"). #06281A on #3ECF8E is 9.1:1. The deep green above stays for surfaces: the phone's panel,
+     the chosen side, the person's picture. */
+  --cta: #3ECF8E; --cta-hover: #6BDDAA; --cta-ink: #06281A;
   --btn: transparent; --btn-hover: rgba(255, 255, 255, .04); --btn-line: #393939;
   --select: #242424; --select-ink: #FAFAFA;
   --brand: #3ECF8E; --link: #3ECF8E; --focus: #3ECF8E; --ring: #3ECF8E; --on-brand: #121212;
@@ -25,24 +29,39 @@
   --edge: 0 0 0 0 transparent;
   --edge-strong: 0 0 0 1px var(--line);
   --glass: rgba(0, 0, 0, .86); --glass-line: #2E2E2E;
+  /* every notice the app shows (a toast, a curiosity, a milestone, a question): a medium-light black with a fine light edge, in the manner of an
+     iPhone's notifications, the same in the light theme (owner, 2026-10-10: "I don't like the green of the notifications; all of them a medium-light
+     black with an iOS-style border") */
+  --nt-bg: rgba(44, 44, 46, .94); --nt-line: rgba(255, 255, 255, .14); --nt-ink: #FFFFFF; --nt-ink-2: rgba(235, 235, 245, .66); --nt-ico: #48484A; --nt-link: #3ECF8E;
   --float: 0 0 0 0 transparent;
   --pos: #3ECF8E; --neg: #FF9592;
   --good: #3ECF8E; --warn: #FFCA16; --crit: #FF6465; --info: #B4B4B4;
   --good-bg: rgba(62, 207, 142, .10); --warn-bg: rgba(255, 202, 22, .10); --crit-bg: rgba(255, 100, 101, .11); --info-bg: rgba(255, 255, 255, .06);
+  /* insights, tips and curiosities: the brand's own green, used more boldly than anywhere else in the app (a tinted surface, a filled mark)
+     so they are noticed. Owner, 2026-10-07: "pink? use the brand's branding" (a pink was tried that morning; the brand has one chromatic
+     colour, claude/brand.md). On the company's side they follow its blue, like every accent there. */
+  --spark: var(--brand); --spark-bg: color-mix(in srgb, var(--brand) 10%, transparent); --spark-line: color-mix(in srgb, var(--brand) 46%, transparent); --spark-ink: var(--on-brand);
   --track: #2E2E2E; --hover-line: #666666; --knob: #FAFAFA; --switch-off: #393939; --switch-on: #3ECF8E;
   /* charts (validated on this surface: lightness band, chroma, colour-blind separation, contrast) */
   --s1: #1FA390; --s2: #C98500; --s3: #4A8FE8; --s4: #D95926; --s5: #9085E9; --s6: #D55181; --s7: #6AA637;
   --col: #3ECF8E; --col-muted: #626262; --grid: #1F1F1F;
-  --cur: rgba(255, 255, 255, .05); --cur-sum: rgba(255, 255, 255, .085);
+  --cur: rgba(0, 98, 57, .47); --cur-sum: rgba(0, 98, 57, .62);      /* the current month's column: the brand's deep green (owner, 2026-10-07: "it blends with the background, give it a more distinctive colour, like #00623978") */
   --scrim: rgba(0, 0, 0, .6);
   /* type and shape */
-  /* v22 (owner): Apple's typefaces. SF Pro and SF Mono are the system fonts on Apple devices and may not be embedded on a website, so they are asked for
-     through the system font; where they are not installed (Windows, Android) the text falls back to Inter and Source Code Pro, the closest web fonts. */
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* The text is Inter on every device (owner, 2026-10-08: "on my laptop, a Mac, the text still looks very tight: the characters are very close").
+     Until then (v22) an Apple device was given its own SF Pro through the system font and everything else Inter. SF Pro is drawn narrower than
+     Inter, so on a Mac the same 12 to 14px text closed up, while the spacing had been tuned on Inter (css/base/typography.css, 2026-10-07).
+     Inter is the font the home page already uses everywhere and the one loaded in index.html; the system font is only what is left when it
+     cannot load (no connection). Small labels and figures keep the monospace: SF Mono on Apple devices, Source Code Pro elsewhere. */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Source Code Pro", Consolas, monospace;
-  --fig: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --fig: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --r-card: 16px; --r-lg: 16px; --r: 8px; --r-sm: 8px; --r-mid: 16px; --pill: 9999px; --rail: 248px;
   --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
+  /* How far the phone's floating bar sits from the foot of the screen. With no inset: 10px. On an iPhone the inset is the room kept for the home
+     indicator (34px), and a bar that floats 10px above all of it reads as stranded in the middle of nowhere (owner, 2026-10-08: "move the main
+     menu a little lower on iOS"). The indicator itself ends 13px from the foot, so the bar comes down to 12px short of the inset: 22px there. */
+  --tab-b: calc(var(--safe-b) - 1px);      /* the bar sits on the foot and grows by the inset (2026-10-09): what goes above it keeps 20px from its top */
   /* motion */
   --ease: cubic-bezier(.16, 1, .3, 1); --ease-in: cubic-bezier(.4, 0, 1, 1); --ease-ios: cubic-bezier(.32, .72, 0, 1); --t1: 150ms; --t2: 220ms; --t3: 380ms;
 }
@@ -53,7 +72,7 @@
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; background: var(--bg); }
 html.in-app { scrollbar-gutter: stable; }      /* inside the app only: the pages before login are laid out as before */
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.43; letter-spacing: -.016em; -webkit-font-smoothing: antialiased; font-feature-settings: "calt", "kern", "liga"; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.43; letter-spacing: 0; -webkit-font-smoothing: antialiased; font-feature-settings: "calt", "kern", "liga"; }
 button, a, label, select, summary { touch-action: manipulation; }
 h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { text-wrap: balance; color: var(--ink-strong); }
@@ -63,7 +82,9 @@ th, dt, summary, legend, optgroup { font-weight: 500; }
 button, input, select, textarea { font: inherit; color: inherit; }
 a { color: var(--link); text-underline-offset: 2px; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r); }
-.num { font-family: var(--mono); font-size: .93em; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+/* 2026-10-09 (owner: "why are the numbers in different fonts? globalize it: numbers in the font of the green one; I don't like the 1 with a foot"): every
+   figure is set in the app's font, Inter, with its own proportional digits: no monospaced numbers and no tabular figures (whose 1 stands on a foot) */
+.num { font-family: var(--fig); letter-spacing: 0; }
 .mono { font-family: var(--mono); font-size: 12px; }
 .muted { color: var(--ink-3); }
 .pos { color: var(--pos); }

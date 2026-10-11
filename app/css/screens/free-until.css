@@ -1,0 +1,35 @@
+/* Dorax Finance — "You can spend": how much a day, until pay day (features/dashboard/free-until.view.js; as for a child since 2026-10-11). */
+.fu-big { display: block; color: var(--ink-2); font-size: 17px; font-weight: 500; line-height: 1.15; }
+.fu-n { font-family: var(--fig); font-size: 34px; font-weight: 600; letter-spacing: -.02em; color: var(--ink-strong); margin-right: 2px; }
+.fu-big.neg .fu-n { color: var(--neg); }
+.fu-say { display: block; margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.45; }
+.fu .card-b { display: flex; flex-direction: column; gap: 8px; }
+/* the bar of the money there is today, and its legend */
+.fu-bar { margin-top: 10px; }
+.fu-bar .stackbar { height: 12px; gap: 2px; border-radius: 4px; }
+.fu-legend { margin-top: 8px; }
+.fu-legend .legend-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+.fu-legend .legend-row.free span:nth-child(2), .fu-legend .legend-row.free .num { color: var(--ink-strong); font-weight: 600; }
+/* how it was worked out: steps with their icons */
+.fu-h { margin: 14px 0 2px; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.fu-steps { list-style: none; margin: 0; padding: 0; }
+.fu-steps li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.fu-steps li .grow { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fu-steps li .grow b { font-size: 15px; font-weight: 500; color: var(--ink-strong); }
+.fu-steps li .grow small { font-size: 13px; line-height: 1.35; color: var(--ink-3); }
+.fu-steps li > .num { font-size: 15px; font-weight: 500; color: var(--ink-strong); white-space: nowrap; }
+.fu-steps li.out > .num { color: var(--ink-2); font-weight: 400; }
+.fu-ico { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink-2); }
+.fu-ico svg { width: 18px; height: 18px; }
+.fu-steps li.fu-total { border-bottom: 0; }
+.fu-steps li.fu-total .fu-ico { border-color: var(--side-line); background: var(--side-tint); color: var(--brand); }
+.fu-steps li.fu-total > .num { font-size: 17px; font-weight: 600; }
+.fu-steps li.fu-total.neg .fu-ico { border-color: var(--neg); background: transparent; color: var(--neg); }
+.fu-steps li.fu-total.neg > .num { color: var(--neg); }
+.fu-div { margin: 2px 0 0; padding: 10px 12px; border-radius: var(--r-mid); background: var(--surface-2); color: var(--ink-2); font-size: 14px; }
+.fu-div b { color: var(--ink-strong); font-weight: 600; }
+.fu-note { margin-top: 10px; }
+.fu-view { gap: 8px; }
+.fu-view .fu-big { font-size: 19px; }
+.fu-view .fu-n { font-size: 40px; }
+@media (max-width: 920px) { .rw-ph.fu .fu-n { font-size: 36px; } }

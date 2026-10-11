@@ -76,7 +76,14 @@ const ROOT = path.join(__dirname, '..'), FN = path.join(ROOT, 'supabase', 'funct
     // it is still there: it says so, and offers nothing to press.
     for (const [lang, viewport] of [['en', { width: 1440, height: 900 }], ['es', { width: 390, height: 800 }], ['pt', { width: 390, height: 800 }]]) {
       const phone = viewport.width < 500, o = await open({ lang, account: 'example', plan: true, viewport, mobile: phone, touch: phone }), p = o.page, T = k => p.evaluate(k => t(k), k), where = `${tag}${lang} ${viewport.width}: `;
-      if (phone) { await p.click('#tabbar [data-a="sheet"]'); await p.waitForSelector('.sheet a[href="#openfinance"]'); }
+      if (phone) {
+        // a phone leaves connecting a bank to the computer (features/phone/desk-only.js, owner 2026-10-07): what the bank sends is reviewed in a wide table
+        await p.click('.navbar [data-a="sheet"]'); await p.waitForSelector('.sheet .nav a');
+        eq(await p.evaluate(() => [document.querySelectorAll('.sheet a[href="#openfinance"]').length, /Open Finance/.test(document.querySelector('#sheet-desk').innerText)]), [0, true], where + 'on a phone Open Finance is not a place to go: More names it among what is on the computer');
+        await p.evaluate(() => { A.close(); navigate('openfinance'); });
+        eq(await p.evaluate(() => [!!document.querySelector('#desk-openfinance'), document.querySelectorAll('#bank-card').length, document.documentElement.scrollWidth - innerWidth <= 0]), [true, 0, true], where + 'and its address shows a note, not the bank card');
+        eq(o.errors, [], where + 'no errors'); await o.browser.close(); continue;
+      }
       const link = phone ? '.sheet a[href="#openfinance"]' : '#nav a[href="#openfinance"]';
       eq(await p.evaluate(s => { const a = document.querySelector(s), r = a.getBoundingClientRect(), all = [...a.parentNode.querySelectorAll('a')].map(x => x.getAttribute('href')); return [a.innerText.trim(), !!a.querySelector('svg'), r.width > 0 && r.bottom <= innerHeight, all.indexOf('#openfinance') - all.indexOf('#imports'), a.scrollWidth <= a.clientWidth]; }, link),
         ['Open Finance', true, true, 1, true], where + 'Open Finance is in the menu, right after Imports, with its icon, in view and not cut');
@@ -88,7 +95,8 @@ const ROOT = path.join(__dirname, '..'), FN = path.join(ROOT, 'supabase', 'funct
       eq(o.errors, [], where + 'no errors'); await o.browser.close();
     }
   }
-  for (const [lang, viewport] of [['pt', { width: 1440, height: 900 }], ['en', { width: 390, height: 800 }]]) {
+  // (the second width was a phone until phones left this page to the computer; a tablet has the phone's frame and keeps the page)
+  for (const [lang, viewport] of [['pt', { width: 1440, height: 900 }], ['en', { width: 820, height: 1100 }]]) {
     const o = await open({ lang, account: 'example', plan: true, viewport, mobile: viewport.width < 500, touch: viewport.width < 500, server: { bankTrial: true } }), p = o.page, T = k => p.evaluate(k => t(k), k), where = `${tag}${lang} ${viewport.width}: `;
     const ready = () => p.waitForFunction(() => typeof UI !== 'undefined' && UI.session && UI.bank && UI.bank.known);
     await p.evaluate(() => navigate('openfinance')); await ready();
@@ -107,7 +115,7 @@ const ROOT = path.join(__dirname, '..'), FN = path.join(ROOT, 'supabase', 'funct
     await p.click('[data-a="bank-fetch"]'); await p.waitForSelector('[data-a="bank-review"]');
     eq(await p.evaluate(() => [...document.querySelectorAll('#bank-card .list .li')].map(li => [li.querySelector('.grow').innerText.split(' · ')[0].trim(), li.querySelector('[data-a="bank-review"]').disabled])), [['Conta corrente', false], ['Cartão', false]], where + '"Bring transactions" lists the bank’s accounts, each with its own review');
     eq(await p.evaluate(() => S.transactions.length), before, where + 'bringing them imports nothing by itself');
-    eq(await p.evaluate(() => [...document.querySelectorAll('#bank-card .list .li')].every(li => { const g = li.querySelector('.grow'), b = li.querySelector('button').getBoundingClientRect(), r = li.getBoundingClientRect(); return g.getBoundingClientRect().height <= 30 && b.right <= r.right + 1 && b.height >= (innerWidth < 500 ? 40 : 28); })), true, where + 'each account’s name stays on one line, with its button inside the row');
+    eq(await p.evaluate(() => [...document.querySelectorAll('#bank-card .list .li')].every(li => { const g = li.querySelector('.grow'), b = li.querySelector('button').getBoundingClientRect(), r = li.getBoundingClientRect(); return g.getBoundingClientRect().height <= (innerWidth <= 920 ? 46 : 30) && b.right <= r.right + 1 && b.height >= (innerWidth <= 920 ? 38 : 28); })), true, where + 'each account’s name stays on one line (two at most in a tablet’s narrower card), with its button inside the row');
     await p.click('[data-a="bank-review"]'); await p.waitForSelector('#imp-panel');
     eq(await p.evaluate(() => { const y = s => document.querySelector(s).getBoundingClientRect().top; return [UI.route, y('#imp-panel') > y('#bank-card')]; }), ['openfinance', true], where + 'the review opens on the same page, under the bank');
     await p.evaluate(() => navigate('imports')); eq(await p.evaluate(() => !!document.querySelector('#imp-panel')), false, where + 'and is not shown among the file imports'); await p.evaluate(() => navigate('openfinance')); await p.waitForSelector('#imp-panel');

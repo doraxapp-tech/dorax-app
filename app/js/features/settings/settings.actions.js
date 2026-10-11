@@ -27,6 +27,6 @@ const SETTINGS_ACTIONS = {
 };
 function wipeAll() {
     Object.keys(S.pay).forEach(y => { S.pay[y] = []; }); delete S.company; UI.space = 'personal';
-    Object.assign(S, { accounts: [], transactions: [], imports: [], exports: [], closes: {}, recurringManual: [], recurringDismissed: [], goals: [], goalMoves: [], plan: { lines: [] }, fii: { assets: {}, moves: [], sim: {} } });
+    Object.assign(S, { accounts: [], transactions: [], imports: [], exports: [], closes: {}, recurringManual: [], recurringDismissed: [], pairsNo: [], goals: [], goalMoves: [], plan: { lines: [] }, fii: { assets: {}, moves: [], sim: {} } });
     UI.conv = UI.imp = UI.sheetImp = UI.rulePrompt = UI.sim = UI.undo = UI.dist = UI.inc = null; Object.assign(UI.fii, { ticker: '', kind: '', month: null }); toast(t('All financial data deleted.')); render();
 }

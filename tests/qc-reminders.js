@@ -62,7 +62,7 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
   for (const lang of ['pt', 'es', 'en']) {
     const o = await open({ lang, account: 'example', plan: true }), p = o.page;
     for (const tone of ['friend', 'plain']) for (const day of ['2026-10-01', '2026-10-05', '2026-10-12', '2026-10-15', '2026-10-28', '2026-11-03']) {
-      const page = await p.evaluate(([day, tone]) => { S.today = day; S.user.tone = tone; S.user.notify = { bills: true, close: true, summary: true, goals: true }; const rs = activeReminders();
+      const page = await p.evaluate(([day, tone]) => { S.today = day; S.user.tone = tone; S.user.notify = { bills: true, close: true, summary: true, goals: true }; const rs = allReminders().filter(r => !snoozedNow(r));
         return { doc: JSON.parse(JSON.stringify(S)), said: { ids: messageReminders(rs).map(reminderKey), digest: reminderDigest(rs), push: reminderPush(rs), one: rs.slice(0, 1).map(r => reminderPush([r]))[0] || null, texts: reminderTexts() } }; }, [day, tone]);
       const e = openAccount(page.doc, day), mine = { ids: e.reminders.map(e.key), digest: e.digest(e.reminders), push: e.push(e.reminders), one: e.reminders.slice(0, 1).map(r => e.push([r]))[0] || null, texts: e.texts };
       compared++; if (JSON.stringify(mine) !== JSON.stringify(page.said)) different.push(`${lang} ${tone} ${day}`);
@@ -137,6 +137,8 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
     // send me a test
     eq([O.testAnon.status, O.testBad.status, O.testAnon.json.code], [401, 401, 'not_logged_in'], 'a test needs a logged-in person: no token and a made-up token are refused');
     eq([O.testPush.status, O.testPush.json.sent, said(O.testPushNet)], [200, 1, ['caio-phone: Notifications are on']], 'a test notification goes to the devices of the person who asked, nobody else’s');
+    // (owner, 2026-10-09: "notifications are not reaching my phone") the answer says, device by device, what its push service answered: no address
+    eq((O.testPush.json.results || []).map(x => [typeof x.agent, x.service, x.status, x.ok, Object.keys(x).includes('endpoint')]), [['string', 'apple', 201, true, false]], 'and it says, device by device, which push service took it and what it answered, without the device’s address');
     eq([O.testSoon.status, O.testSoon.json, O.testSoonNet.pushes.length], [200, { ok: false, code: 'too_soon' }, 0], 'a second test within 20 seconds is refused, with a reason the app can read');
     eq([O.testMail.status, to(O.testMailNet), O.testMailNet.mails[0] && O.testMailNet.mails[0].subject], [200, ['caio@example.org'], 'Reminder emails are on'], 'a test email goes to the address of the login, which a request cannot choose');
     eq([O.testMailSoon.json.code, O.testMailSoonNet.mails.length, O.testMailMinute.json.code, O.testMailHour.json.ok, to(O.testMailHourNet)], ['too_soon', 0, 'too_soon', true, ['caio@example.org']], 'one test email an hour per person: the email service’s allowance is not a button’s to spend');
@@ -164,6 +166,17 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
     eq([O.contactRun.json.contact, sum.subject, sum.text.split('\n').slice(2, 4), O.contactRunTold, O.contactRunAgain.json.contact, O.contactRunAgainNet.mails.length], [2, '2 contact messages are waiting', ['visitor3@example.org · question: A question about my plan, please.', 'visitor4@example.org · question: A question about my plan, please.'], [true, true, false], 0, 0],
       'the morning run sends the owner one summary of the messages not told yet (one written minutes ago is left to its own email), once');
     eq([O.contactRunNobody.json.contact, O.contactRunNobodyNet.mails.some(m => m.to[0] === 'owner@example.org'), O.contactStillWaiting], [0, false, true], 'with no address for the owner, messages wait in the table as before');
+    // tips by notification (owner, 2026-10-10: "notify about curiosities, tips, advice"; "any time from 8 in the morning to 11 at night, any day")
+    const slots = O.tipSlots.flat();
+    ok(slots.every(m => m >= 510 && m <= 1365 && m % 15 === 0) && new Set(O.tipSlots.map(x => x[0])).size >= 5 && new Set(slots).size >= 12, 'each person’s time for a tip is a quarter of an hour between 8:30 and 22:45, and changes from day to day and from person to person', O.tipSlots);
+    eq([O.tipNoSecret, O.tipNight.json.quiet, O.tipNight.g.length, O.tipLate.json.quiet, O.tipLate.g.length], [403, true, 0, true, 0], 'tips are asked for with the schedule’s secret only; before 8:00 and from 23:00 nothing is sent');
+    eq([O.tipEarly ? O.tipEarly.g.length : 0, O.tip1.json.tips >= 1, O.tip1.g.length, O.tip1.g[0] && O.tip1.g[0].title, !!(O.tip1.g[0] && O.tip1.g[0].body.length > 20), O.tip1.g[0] && O.tip1.g[0].tag, O.tip1.g[0] && O.tip1.g[0].url, O.tip1.mails],
+      [0, true, 1, 'Dato del día', true, 'dorax-tip-2026-11-09', 'https://dorax.app/', 0], 'not before the person’s time; once it has come, a tip by notification (never by email), in their language; the first is a fact about their own month');
+    eq([O.tipRemindH, O.tip1.h.length, O.tip1ivo], [1, 0, 0], 'a day that had a reminder (8:00) gets no tip, even with tips every day; with no device there is no tip and nothing is written down');
+    eq(O.tip1log.length, 2, 'the server remembers the day of the tip and which one it was', O.tip1log);
+    eq([O.tip1again.g.length, O.tip2.g.length, O.tip3.g.length, O.tip3.g[0] && O.tip3.g[0].title], [0, 0, 1, '¿Sabías que…?'], '“Up to three a week”: not twice a day, not two days in a row; two days on, the next kind (a curiosity, with its source)');
+    ok(O.tip3.g[0] && /Fuente: /.test(O.tip3.g[0].body), 'a curiosity says its source', O.tip3.g[0]);
+    eq([O.tipDownKept, O.tip5.g.length, O.tip5.g[0] && O.tip5.g[0].title, O.tipOff.g.length], [false, 1, 'Un consejo de Dorax', 0], 'a tip that reached no device is not counted and goes the next day (a practical tip, in turn); switched off, none');
     ok(!O.logsLeak && O.logs.every(l => /^(ERR )?reminders: /.test(l)), 'the logs hold counts and an account id: no address, no device, no bill, no key', O.logs.slice(0, 3));
   }
 

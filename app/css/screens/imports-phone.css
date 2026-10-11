@@ -1,0 +1,68 @@
+/* Dorax Finance — Imports on a phone (owner, 2026-10-10: "let phone users import from the phone, as simple as possible"):
+   one button to start, a review of only what needs a look, one button to finish. No table. */
+.ip-start { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 8px 0 4px; text-align: center; }
+.ip-hero { align-self: center; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--surface-3); color: var(--ink-strong); }
+.ip-hero svg { width: 28px; height: 28px; }
+.ip-hero.ok { background: rgba(62, 207, 142, .14); color: var(--brand); }
+.ip-start h2, .ip-step h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--ink-strong); }
+.ip-lead { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+.ip-note { margin: 0; color: var(--ink-3); font-size: 13px; line-height: 1.45; }
+.ip-start .mr-pick { margin-top: 6px; border: 1px solid var(--line); border-radius: var(--r-mid); text-align: left; }
+.ip-pick { justify-content: center; min-height: 52px; font-size: 16px; }
+.ip-file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }      /* opened by its label, or by the first-time page */
+.ip-how { align-self: center; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; }
+.ip-how svg { width: 15px; height: 15px; }
+.ip-hist { margin-top: 18px; }
+.ip-hist ul, .ip-list, .ip-mini, .ip-prev { list-style: none; margin: 0; padding: 0; }
+.ip-hist li, .ip-mini li, .ip-prev li { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 12px; border-bottom: 1px solid var(--line); }
+.ip-hist li:last-child, .ip-mini li:last-child, .ip-prev li:last-child { border-bottom: 0; }
+.ip-hist .grow, .ip-mini .grow, .ip-prev .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.ip-hist b, .ip-mini b, .ip-prev b { font-weight: 500; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-hist small, .ip-mini small, .ip-prev small { color: var(--ink-3); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-desk { display: flex; gap: 8px; align-items: flex-start; margin-top: 16px; text-align: left; }
+.ip-desk svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+.ip-step { display: flex; flex-direction: column; gap: 14px; padding: 4px 0; }
+.ip-head { display: flex; align-items: flex-start; gap: 10px; }
+.ip-head .grow { min-width: 0; flex: 1; }
+.ip-head h2 { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-into { display: flex; align-items: center; gap: 8px; margin-top: 6px; color: var(--ink-3); font-size: 14px; }
+.ip-into label { flex: none; white-space: nowrap; font-weight: 400; color: inherit; }
+.ip-into select { width: auto; max-width: 100%; min-height: 44px; font-size: 15px; }
+.ip-fields { display: flex; flex-direction: column; gap: 12px; }
+.ip-fields select { min-height: 46px; font-size: 16px; }
+.ip-sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.ip-sum span { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: var(--r-mid); background: var(--surface-3); color: var(--ink-3); font-size: 12.5px; }
+.ip-sum b { font-family: var(--fig); font-size: 22px; font-weight: 600; color: var(--ink-strong); }
+.ip-types { margin: 0; color: var(--ink-3); font-size: 13px; }
+.ip-types b { color: var(--ink-2); font-weight: 500; }
+.ip-lh { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ip-lh .mr-h { margin: 0; padding: 0; }
+.ip-look .ip-note { margin: 4px 0 10px; }
+.ip-list { display: flex; flex-direction: column; gap: 10px; }
+.ip-row { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-mid); transition: opacity var(--t1) ease-out, border-color var(--t1) ease-out; }
+.ip-row.on { border-color: rgba(62, 207, 142, .45); }
+.ip-row.off { opacity: .55; }
+.ip-top { display: flex; align-items: baseline; gap: 10px; }
+.ip-top b { flex: 1; min-width: 0; font-weight: 500; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-top .num, .ip-mini .num, .ip-prev .num { flex: none; font-weight: 500; color: var(--ink-2); }
+.num.pos { color: var(--brand); }
+.ip-sub { margin: -4px 0 0; color: var(--ink-3); font-size: 12.5px; }
+.ip-cat { min-height: 44px; font-size: 16px; }
+.ip-nocat { margin: 0; color: var(--ink-3); font-size: 13px; }
+.ip-dec { display: grid; grid-template-columns: 1fr 1fr; }
+.ip-dec button { min-height: 44px; justify-content: center; font-size: 15px; }
+.ip-dec button[aria-pressed="true"][data-op="accept"] { background: #006239; color: #FFFFFF; }
+.ip-dec button svg { width: 15px; height: 15px; }
+.ip-ok { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ink-2); }
+.ip-ok svg { width: 18px; height: 18px; color: var(--brand); }
+.ip-ready { border: 1px solid var(--line); border-radius: var(--r-mid); }
+.ip-rh { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 50px; padding: 0 14px; color: var(--ink-2); cursor: pointer; }
+.ip-rh svg { width: 16px; height: 16px; color: var(--ink-3); }
+.ip-rh:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; border-radius: var(--r-mid); }
+.ip-mini { border-top: 1px solid var(--line); }
+.ip-go { justify-content: center; min-height: 52px; font-size: 16px; }
+.ip-cols { align-self: center; min-height: 44px; }
+.ip-done { align-items: stretch; text-align: center; padding-top: 18px; }
+.ip-done .ip-hero { align-self: center; }
+.ip-again { justify-content: center; min-height: 48px; }
+.ip-prev { border: 1px solid var(--line); border-radius: var(--r-mid); }

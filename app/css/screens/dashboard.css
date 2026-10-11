@@ -24,3 +24,86 @@
 #fii-card > .card-b { flex-direction: column; } #fii-card .cols { flex: 1; min-height: 150px; }
 @media (max-width: 640px) { #todo .card-h .right { display: none; } }
 
+
+/* 2026-10-07: the household's summary opens with five figures. They share one row while each keeps room for its amount, and fold to fewer
+   columns before an amount is cut; a phone keeps its two columns (base/responsive.css). To do keeps its total on a line of its own, so the
+   way to the plan stays beside the title. */
+@media (min-width: 921px) { .kpis:has(> .kpi:nth-child(5)):not(.eq) { grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); } .kpis:has(> .kpi:nth-child(5)):not(.eq) .kpi .value { font-size: 23px; } }
+#todo .card-h .sub { order: 3; flex-basis: 100%; }
+
+/* 2026-10-08: the household's net balance leads the figures, a tile like the others with its amount in green (owner: "I did not like the white
+   background; only the green letters, the rest like the other cards"): the bright brand green on the dark theme, the deep green on the light one */
+.kpi.net .value { color: var(--brand); } .kpi.net.neg .value { color: var(--neg); }
+:root.app-light .kpi.net .value { color: var(--brand-deep); } :root.app-light .kpi.net.neg .value { color: var(--neg); }
+
+/* The order of the summary's parts: the list (a sheet on a phone, screens/phone.css; a side panel on a computer), each part with its place and two arrows */
+.d-order-note { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.ord-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ord-list li { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 6px 6px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-mid); background: var(--surface); }
+.ord-n { flex: none; width: 22px; font-size: 13px; color: var(--ink-3); }
+.ord-list b { flex: 1 1 auto; font-weight: 500; font-size: 15px; color: var(--ink-strong); min-width: 0; }
+.ord-btn { all: unset; box-sizing: border-box; cursor: pointer; flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: var(--ink); background: var(--well); -webkit-tap-highlight-color: transparent; transition: background var(--t1) ease-out; }
+.ord-btn svg { width: 20px; height: 20px; }
+.ord-btn:active { transform: scale(.92); }
+.ord-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ord-btn[disabled] { cursor: default; opacity: .3; }
+@media (hover: hover) and (pointer: fine) { .ord-btn { width: 40px; height: 40px; } .ord-btn:not([disabled]):hover { background: var(--soft-hover); } }
+.drawer .d-order { display: flex; flex-direction: column; gap: 14px; }
+/* the computer: "Reorder the dashboard" at the end of the greeting's line, or beside the company band's Edit */
+.hello.tools { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.d-order-btn { gap: 6px; } .d-order-btn svg { width: 15px; height: 15px; }
+/* the days of freedom beside the insight of the day (owner, 2026-10-08): in a narrow half the figure sits over its track; the insight's card is as
+   tall as the runway's, its words in the middle */
+#runway-card { container-type: inline-size; }
+@container (max-width: 520px) { #runway-card .rw.two { grid-template-columns: minmax(0, 1fr); gap: 18px; } }
+@media (min-width: 921px) { .grid > .insight { display: flex; flex-direction: column; } .grid > .insight .card-b { flex: 1 1 auto; align-content: center; } }
+/* the net balance leads: a little more room for its name and amount where the five share a row; where they fold, its name may take two lines */
+@media (min-width: 1181px) { .kpis:has(> .kpi.net):not(.eq) { grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(0, 1fr)); } }
+.kpi.net .label > span { white-space: normal; }
+
+/* To do: a late one's date in the warning colour with its dot, and "Late" at the start of its line (owner, 2026-10-08: the chip ran over the name) */
+.li.todo .when-late { display: inline-flex; align-items: center; gap: 5px; color: var(--warn); }
+.li.todo .when-late i { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); flex: none; }
+.li.todo .late-word { color: var(--warn); font-weight: 600; }
+.li.todo .when .chip { max-width: 100%; overflow: hidden; }
+
+/* a phone's summary: a part hidden waits in the list, dimmed, with its eye shut; the button at the foot says how many wait (usability QC, 2026-10-08) */
+.ord-list li.off b { color: var(--ink-3); }
+.ord-eye[aria-pressed="true"] { color: var(--brand); }
+.dash-order .d-off { margin-left: 8px; font-size: 12px; font-weight: 400; color: var(--ink-3); }
+/* the net balance's second line: how much of it is saved (features/dashboard/dashboard.home.js, homeTiles); it opens Accounts, where the savings are */
+.kpi-saved { color: inherit; text-decoration: none; border-radius: 4px; } .kpi-saved b { color: var(--ink-strong); font-weight: 500; }
+@media (hover: hover) and (pointer: fine) { .kpi-saved:hover { color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; } }
+
+/* a figure of the summary opens what it is made of (features/dashboard/kpi-explain.js): the whole tile is the button, its (i) and its link stay on top */
+.kpi.tap { position: relative; transition: border-color var(--t1) ease-out, transform var(--t1) ease-out; }
+.kpi-open { all: unset; position: absolute; inset: 0; z-index: 1; border-radius: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kpi-open:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.kpi.tap .hint, .kpi.tap a { position: relative; z-index: 2; }
+@media (hover: hover) and (pointer: fine) { .kpi.tap:hover { border-color: var(--hover-line); } }
+.kpi.tap:active { transform: scale(.99); }
+@media (prefers-reduced-motion: reduce) { .kpi.tap { transition: none; } .kpi.tap:active { transform: none; } }
+/* its card, in the middle of the screen (a sheet on a phone) */
+.kx { gap: 18px; }
+.kx-big { font-size: 30px; font-weight: 500; letter-spacing: -.02em; line-height: 1.1; }
+.kx-say { margin: -8px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.kx-sec h3 { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.kx-row { display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.kx-row .grow { flex: 1 1 auto; min-width: 0; }
+.kx-row .num { font-weight: 500; white-space: nowrap; }
+.kx-row.neg .num { color: var(--neg); }
+.kx-row.total { border-bottom: 0; border-top: 1px solid var(--line-strong); margin-top: -1px; font-weight: 600; }
+.kx-row.late .muted { color: var(--crit); }
+.kx-bar { all: unset; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 6px 0; font-size: 14px; }
+button.kx-bar { cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { button.kx-bar:hover .kx-name { color: var(--link); } }
+button.kx-bar:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.kx-name { display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.kx-track { height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.kx-track i { display: block; height: 100%; border-radius: 99px; }
+.kx-bar .num { font-weight: 500; white-space: nowrap; }
+.kx-note { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.kx-vs { margin: 0; font-size: 13px; } .kx-vs.up { color: var(--pos); } .kx-vs.down { color: var(--neg); }
+.kx-vs .muted { color: var(--ink-3); }
+.drawer.pop footer .btn svg { width: 14px; height: 14px; }
+@media (max-width: 920px) { .kx-bar { min-height: 44px; grid-template-columns: minmax(0, 120px) minmax(0, 1fr) auto; } }

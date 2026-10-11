@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dorax Finance</title>
-<!-- Kept out of search engines while it is being tested: the public pages get their own addresses, titles and descriptions in the Next.js build.
+<!-- Kept out of search engines while it is being tested. The public pages have their own addresses and titles (js/ui/pages.js); a description for each comes with the Next.js build.
      Remove this line (and the X-Robots-Tag header in vercel.json) only when the site is meant to be found. -->
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#000000">
@@ -29,7 +29,9 @@
 <link rel="stylesheet" href="css/components/meters-charts.css">
 <link rel="stylesheet" href="css/components/lists-banners.css">
 <link rel="stylesheet" href="css/screens/accounts-goals.css">
+<link rel="stylesheet" href="css/screens/wallet.css">
 <link rel="stylesheet" href="css/components/panels.css">
+<link rel="stylesheet" href="css/components/more-sheet.css">
 <link rel="stylesheet" href="css/components/find.css">
 <link rel="stylesheet" href="css/screens/imports-converter.css">
 <link rel="stylesheet" href="css/screens/profile.css">
@@ -41,6 +43,11 @@
 <link rel="stylesheet" href="css/public/plans-legal.css">
 <link rel="stylesheet" href="css/public/footer.css">
 <link rel="stylesheet" href="css/screens/dashboard.css">
+<link rel="stylesheet" href="css/screens/reports.css">
+<link rel="stylesheet" href="css/screens/ahead.css">
+<link rel="stylesheet" href="css/screens/company.css">
+<link rel="stylesheet" href="css/screens/phone.css">
+<link rel="stylesheet" href="css/screens/install.css">
 <link rel="stylesheet" href="css/public/contact.css">
 <link rel="stylesheet" href="css/public/hero.css">
 <link rel="stylesheet" href="css/base/typography.css">
@@ -49,6 +56,8 @@
 <link rel="stylesheet" href="css/public/header-controls.css">
 <link rel="stylesheet" href="css/public/depth-plans.css">
 <link rel="stylesheet" href="css/screens/transaction-filters.css">
+<link rel="stylesheet" href="css/screens/tx-form.css">
+<link rel="stylesheet" href="css/screens/lock.css">
 <link rel="stylesheet" href="css/screens/converter-extras.css">
 <link rel="stylesheet" href="css/base/theme-light.css">
 <link rel="stylesheet" href="css/screens/categories-pager.css">
@@ -56,17 +65,35 @@
 <link rel="stylesheet" href="css/public/steps.css">
 <link rel="stylesheet" href="css/public/auth.css">
 <link rel="stylesheet" href="css/public/landing-system.css">
+<link rel="stylesheet" href="css/screens/journey.css">
+<link rel="stylesheet" href="css/screens/onboarding.css">
+<link rel="stylesheet" href="css/screens/tours.css">
+<link rel="stylesheet" href="css/screens/imports-phone.css">
+<link rel="stylesheet" href="css/screens/help.css">
+<link rel="stylesheet" href="css/screens/free-until.css">
+<link rel="stylesheet" href="css/screens/yearly.css">
+<link rel="stylesheet" href="css/components/installments.css">
+<link rel="stylesheet" href="css/screens/month-close.css">
+<link rel="stylesheet" href="css/screens/plan-desk.css">
+<link rel="stylesheet" href="css/screens/dash-glance.css">
+<link rel="stylesheet" href="css/screens/limits.css">
+<link rel="stylesheet" href="css/screens/plan-guide.css">
+<link rel="stylesheet" href="css/components/cat-glyph.css">
+<link rel="stylesheet" href="css/components/issues.css">
+<link rel="stylesheet" href="css/components/quick-sheet.css">
+<link rel="stylesheet" href="css/screens/thumb.css">
 </head>
 <body>
 <noscript><p style="padding:24px;font:16px system-ui;color:#EDEDED;background:#000">O Dorax precisa de JavaScript para funcionar. Ative o JavaScript no navegador e recarregue a página.</p></noscript>
 <div id="public" hidden></div>
 <div class="app">
-  <aside class="rail">
-    <div class="brand"><svg class="logo" viewBox="0 10 306 90" role="img" aria-label="Dorax Finance"><g fill="none" stroke="currentColor" stroke-width="15"><circle cx="30" cy="70" r="22.5"/><circle cx="97" cy="70" r="22.5"/><circle cx="214" cy="70" r="22.5"/><path d="M141.5 70a22.5 22.5 0 0 1 33.75-19.49"/><path class="ac" d="M7.5 70a22.5 22.5 0 0 1 22.5-22.5"/></g><g fill="currentColor"><rect x="45" y="10" width="15" height="90"/><rect x="134" y="40" width="15" height="60"/><rect x="229" y="40" width="15" height="60"/><polygon points="288,40 306,40 268,100 250,100"/><polygon points="250,40 268,40 306,100 288,100"/></g></svg></div>
+  <aside class="rail" id="rail">
+    <div class="brand"><svg class="logo-mark" viewBox="4 10 60 90" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="15"><circle cx="30" cy="70" r="22.5"/><path class="ac" d="M7.5 70a22.5 22.5 0 0 1 22.5-22.5"/></g><rect x="45" y="10" width="15" height="90" fill="currentColor"/></svg><svg class="logo" viewBox="0 10 306 90" role="img" aria-label="Dorax Finance"><g fill="none" stroke="currentColor" stroke-width="15"><circle cx="30" cy="70" r="22.5"/><circle cx="97" cy="70" r="22.5"/><circle cx="214" cy="70" r="22.5"/><path d="M141.5 70a22.5 22.5 0 0 1 33.75-19.49"/><path class="ac" d="M7.5 70a22.5 22.5 0 0 1 22.5-22.5"/></g><g fill="currentColor"><rect x="45" y="10" width="15" height="90"/><rect x="134" y="40" width="15" height="60"/><rect x="229" y="40" width="15" height="60"/><polygon points="288,40 306,40 268,100 250,100"/><polygon points="250,40 268,40 306,100 288,100"/></g></svg><span class="side-tag" id="brand-tag" hidden></span><span class="rail-tools"><span id="rail-side"></span><span id="rail-eye"></span></span></div>
     <div class="rail-find" id="rail-find"></div>
     <nav class="nav" id="nav" aria-label="Sections"></nav>
     <div class="rail-foot" id="rail-foot"></div>
   </aside>
+  <button type="button" class="rail-toggle" id="rail-toggle" data-a="rail-toggle" aria-controls="rail" aria-expanded="true"></button>
   <div class="work">
     <header class="topbar" id="topbar"></header>
     <main class="content" id="view"></main>
@@ -76,7 +103,11 @@
 <div id="overlay"></div>
 <div id="find-root"></div>
 <div id="modal-root"></div>
+<div id="curio-root"></div>
+<div id="jstart-root"></div>
+<div id="tour-root"></div>
 <div id="toast-root" aria-live="polite"></div>
+<div id="lock-root"></div>
 <div id="tip" role="tooltip" hidden></div>
 
 <!-- Scripts. Plain files in dependency order (no bundler, no modules).
@@ -87,12 +118,26 @@
 <!-- Calculations and file readers: no page access, the same code the tests run -->
 <script src="js/core/dates.js"></script>
 <script src="js/core/merchants.js"></script>
+<script src="js/core/say.js"></script>
 <script src="js/core/reporting.js"></script>
 <script src="js/core/books.js"></script>
 <script src="js/core/plan.js"></script>
+<script src="js/core/payday.js"></script>
 <script src="js/core/cards.js"></script>
+<script src="js/core/budget-alerts.js"></script>
 <script src="js/core/reminders.js"></script>
 <script src="js/core/goals.js"></script>
+<script src="js/core/journey.js"></script>
+<script src="js/core/runway.js"></script>
+<script src="js/core/free-until.js"></script>
+<script src="js/core/limits.js"></script>
+<script src="js/core/plan-issues.js"></script>
+<script src="js/core/yearly.js"></script>
+<script src="js/core/installments.js"></script>
+<script src="js/core/month-close.js"></script>
+<script src="js/core/insights.js"></script>
+<script src="js/core/whatif.js"></script>
+<script src="js/core/curios.js"></script>
 <script src="js/core/investments.js"></script>
 <script src="js/core/statements-owed.js"></script>
 <script src="js/core/recurring.js"></script>
@@ -111,11 +156,52 @@
 
 <!-- Texts: Spanish and Portuguese, the friendly voice, the (i) hints -->
 <script src="js/i18n/translations.js"></script>
+<script src="js/i18n/text/common.js"></script>
+<script src="js/i18n/text/accounts.js"></script>
+<script src="js/i18n/text/ahead.js"></script>
+<script src="js/i18n/text/app.js"></script>
+<script src="js/i18n/text/auth.js"></script>
+<script src="js/i18n/text/categories.js"></script>
+<script src="js/i18n/text/company.js"></script>
+<script src="js/i18n/text/converter.js"></script>
+<script src="js/i18n/text/core.js"></script>
+<script src="js/i18n/text/dashboard.js"></script>
+<script src="js/i18n/text/find.js"></script>
+<script src="js/i18n/text/goals.js"></script>
+<script src="js/i18n/text/hints.js"></script>
+<script src="js/i18n/text/imports.js"></script>
+<script src="js/i18n/text/install.js"></script>
+<script src="js/i18n/text/investments.js"></script>
+<script src="js/i18n/text/journey.js"></script>
+<script src="js/i18n/text/lock.js"></script>
+<script src="js/i18n/text/onboarding.js"></script>
+<script src="js/i18n/text/phone.js"></script>
+<script src="js/i18n/text/plan.js"></script>
+<script src="js/i18n/text/profile.js"></script>
+<script src="js/i18n/text/public.js"></script>
+<script src="js/i18n/text/recurring.js"></script>
+<script src="js/i18n/text/reminders.js"></script>
+<script src="js/i18n/text/reports.js"></script>
+<script src="js/i18n/text/server.js"></script>
+<script src="js/i18n/text/settings.js"></script>
+<script src="js/i18n/text/tours.js"></script>
+<script src="js/i18n/text/transactions.js"></script>
+<script src="js/i18n/text/ui.js"></script>
+<script src="js/i18n/text/help.js"></script>
+<script src="js/i18n/text/limits.js"></script>
+<script src="js/i18n/text/plan-guide.js"></script>
+<script src="js/i18n/text/issues.js"></script>
+<script src="js/i18n/text/free.js"></script>
+<script src="js/i18n/text/yearly.js"></script>
+<script src="js/i18n/text/installments.js"></script>
+<script src="js/i18n/text/month-close.js"></script>
+<script src="js/i18n/text/unused.js"></script>
 <script src="js/i18n/voice.js"></script>
 
 <!-- Shared pieces: language, state, formatting, small components -->
 <script src="js/ui/language.js"></script>
 <script src="js/ui/state.js"></script>
+<script src="js/ui/pages.js"></script>
 
 <!-- The server: who is logged in, the account's data, the contact form; and keeping the open account saved -->
 <script src="js/server/server.js"></script>
@@ -124,12 +210,15 @@
 <!-- Shared pieces: formatting, small components -->
 <script src="js/ui/translate.js"></script>
 <script src="js/ui/format.js"></script>
+<script src="js/ui/hide-nums.js"></script>
 <script src="js/ui/pager.js"></script>
 <script src="js/ui/icons.js"></script>
+<script src="js/ui/cat-icons.js"></script>
 <script src="js/ui/lookups.js"></script>
 <script src="js/ui/bank-mark.js"></script>
 <script src="js/ui/components.js"></script>
 <script src="js/ui/feedback.js"></script>
+<script src="js/ui/haptic.js"></script>
 <script src="js/ui/input.js"></script>
 
 <!-- One folder per screen: its view, its panels, its clicks -->
@@ -144,27 +233,73 @@
 <!-- One folder per screen: its view, its panels, its clicks -->
 <script src="js/features/converter/statements-owed.view.js"></script>
 <script src="js/features/dashboard/dashboard.view.js"></script>
+<script src="js/features/dashboard/dashboard.home.js"></script>
+<script src="js/features/dashboard/free-until.view.js"></script>
+<script src="js/features/dashboard/dash-glance.view.js"></script>
+<script src="js/features/yearly/yearly.view.js"></script>
+<script src="js/features/yearly/yearly.actions.js"></script>
+<script src="js/features/installments/installments.view.js"></script>
+<script src="js/features/month-close/month-close.view.js"></script>
+<script src="js/features/month-close/month-close.actions.js"></script>
 <script src="js/features/transactions/transactions.view.js"></script>
 <script src="js/features/accounts/accounts.view.js"></script>
+<script src="js/features/accounts/wallet.js"></script>
 <script src="js/features/plan/income-panel.view.js"></script>
+<script src="js/features/plan/plan-desk.view.js"></script>
+<script src="js/features/plan/plan-desk.actions.js"></script>
+<script src="js/features/plan/payday.js"></script>
+<script src="js/features/plan/payday.actions.js"></script>
+<script src="js/features/dashboard/kpi-explain.js"></script>
+<script src="js/features/reports/report-rings.js"></script>
 <script src="js/features/reports/reports.view.js"></script>
 <script src="js/features/recurring/recurring.view.js"></script>
 <script src="js/features/categories/categories.view.js"></script>
 <script src="js/features/imports/review-table.view.js"></script>
 <script src="js/features/imports/imports.view.js"></script>
+<script src="js/features/imports/imports.phone.js"></script>
 <script src="js/features/imports/bank.view.js"></script>
 <script src="js/features/converter/converter.view.js"></script>
 <script src="js/features/settings/settings.view.js"></script>
 <script src="js/features/goals/goals.view.js"></script>
+<script src="js/features/journey/journey.view.js"></script>
 <script src="js/features/plan/plan.view.js"></script>
 <script src="js/features/investments/investments.view.js"></script>
 <script src="js/features/profile/profile.view.js"></script>
+<script src="js/features/profile/photo.js"></script>
 <script src="js/features/imports/spreadsheet.view.js"></script>
 <script src="js/features/imports/spreadsheet.actions.js"></script>
 <script src="js/features/reminders/reminder-messages.js"></script>
+<script src="js/features/reminders/tip-messages.js"></script>
 <script src="js/features/reminders/push.js"></script>
+<script src="js/features/reminders/push-ask.js"></script>
 <script src="js/features/reminders/reminders.view.js"></script>
+<script src="js/features/reminders/inbox.js"></script>
 <script src="js/features/reminders/reminders.actions.js"></script>
+<script src="js/features/reminders/issues.view.js"></script>
+<script src="js/features/reminders/issues.actions.js"></script>
+<script src="js/features/ahead/ahead.view.js"></script>
+<script src="js/features/ahead/insights.view.js"></script>
+<script src="js/features/ahead/whatif.view.js"></script>
+<script src="js/features/ahead/curios.view.js"></script>
+<script src="js/features/ahead/ahead.actions.js"></script>
+<script src="js/features/company/company.view.js"></script>
+<script src="js/features/company/company.dashboard.js"></script>
+<script src="js/features/company/company.actions.js"></script>
+<script src="js/features/phone/phone.view.js"></script>
+<script src="js/features/phone/quick-sheet.js"></script>
+<script src="js/features/phone/more-sheet.js"></script>
+<script src="js/features/phone/desk-only.js"></script>
+<script src="js/features/phone/phone.home.js"></script>
+<script src="js/features/phone/phone.company.js"></script>
+<script src="js/features/phone/phone.goals.js"></script>
+<script src="js/features/phone/phone.plan.js"></script>
+<script src="js/features/phone/phone.summary.js"></script>
+<script src="js/features/phone/phone.month.js"></script>
+<script src="js/features/phone/phone.actions.js"></script>
+<script src="js/features/install/install.js"></script>
+<script src="js/features/install/shortcuts.js"></script>
+<script src="js/features/install/install.view.js"></script>
+<script src="js/features/install/install.actions.js"></script>
 <script src="js/features/onboarding/onboarding.view.js"></script>
 <script src="js/features/onboarding/onboarding.actions.js"></script>
 <script src="js/features/public/public.shared.js"></script>
@@ -187,6 +322,8 @@
 <script src="js/features/transactions/transaction-form.view.js"></script>
 <script src="js/features/accounts/account-form.view.js"></script>
 <script src="js/features/settings/ofx-profile-form.view.js"></script>
+<script src="js/features/imports/known-merchants.js"></script>
+<script src="js/features/imports/pairs.js"></script>
 <script src="js/features/imports/import-session.js"></script>
 <script src="js/features/converter/converter-session.js"></script>
 <script src="js/features/converter/file-readers.js"></script>
@@ -209,19 +346,36 @@
 <!-- One folder per screen: its view, its panels, its clicks -->
 <script src="js/features/public/public.actions.js"></script>
 <script src="js/features/profile/profile.actions.js"></script>
+<script src="js/features/lock/lock.js"></script>
+<script src="js/features/lock/lock-warn.js"></script>
+<script src="js/features/lock/lock.view.js"></script>
+<script src="js/features/lock/lock.actions.js"></script>
+<script src="js/features/lock/lock-ask.js"></script>
+<script src="js/features/lock/lock.motion.js"></script>
 <script src="js/features/plan/plan.actions.js"></script>
 <script src="js/features/goals/goals.actions.js"></script>
+<script src="js/features/journey/journey.actions.js"></script>
+<script src="js/features/tours/tours.js"></script>
+<script src="js/features/help/help.view.js"></script>
+<script src="js/features/help/help.actions.js"></script>
+<script src="js/features/limits/limits.view.js"></script>
+<script src="js/features/limits/limits.actions.js"></script>
+<script src="js/features/limits/plan-guide.view.js"></script>
+<script src="js/features/limits/plan-guide.actions.js"></script>
 <script src="js/features/settings/settings.actions.js"></script>
 <script src="js/features/accounts/accounts.actions.js"></script>
 <script src="js/features/investments/investments.actions.js"></script>
 <script src="js/features/recurring/recurring.actions.js"></script>
 <script src="js/features/categories/categories.actions.js"></script>
+<script src="js/features/categories/cat-icon.view.js"></script>
+<script src="js/features/categories/cat-icon.actions.js"></script>
 <script src="js/features/converter/converter.actions.js"></script>
 
 <!-- The frame: routes, panels, events, start-up -->
 <script src="js/app/actions.js"></script>
 <script src="js/app/changes.js"></script>
 <script src="js/app/events.js"></script>
+<script src="js/app/back.js"></script>
 <script src="js/app/boot.js"></script>
 </body>
 </html>

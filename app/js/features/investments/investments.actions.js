@@ -15,19 +15,19 @@ const INVESTMENTS_ACTIONS = {
   },
   'fii-save'() {
     const d = UI.drawer, m = d.draft, isNew = m.kind === 'buy' && (m.ticker === '__new' || !fiiTickers(S).length), ticker = (isNew ? m.newTicker || '' : m.ticker).trim().toUpperCase(), opening = m.kind === 'buy' && m.opening;
-    if (!/^[A-Z0-9]{4,8}$/.test(ticker)) return fail(t('Enter the fund code, for example ABCD11.'));
-    if (!opening && !parseDate(m.date)) return fail(t('Enter a valid date.'));
-    if (!opening && m.date > S.today) return fail(t('The date cannot be in the future.'));
+    if (!/^[A-Z0-9]{4,8}$/.test(ticker)) return fail(t('Enter the fund code, for example ABCD11.'), 'fm-ticker');
+    if (!opening && !parseDate(m.date)) return fail(t('Enter a valid date.'), 'fm-date');
+    if (!opening && m.date > S.today) return fail(t('The date cannot be in the future.'), 'fm-date');
     let move;
     if (m.kind === 'income') {
       const amount = typedAmount(m.amountText || '');
-      if (amount === null || amount <= 0) return fail(t('Enter an amount greater than zero, for example 185,42.'));
+      if (amount === null || amount <= 0) return fail(t('Enter an amount greater than zero, for example 185,42.'), 'fm-amount');
       move = { ticker, kind: 'income', date: m.date, amount };
     } else {
       const qty = typedCount(m.qtyText), price = typedAmount(m.priceText || ''), fees = opening ? 0 : typedAmount(m.feesText || '0');
-      if (!Number.isInteger(qty) || qty <= 0) return fail(t('Quotas must be a whole number greater than zero.'));
-      if (price === null || price <= 0) return fail(t('Enter the price per quota, for example 9,80.'));
-      if (fees === null || fees < 0) return fail(t('Enter the costs as a number, or leave them empty.'));
+      if (!Number.isInteger(qty) || qty <= 0) return fail(t('Quotas must be a whole number greater than zero.'), 'fm-qty');
+      if (price === null || price <= 0) return fail(t('Enter the price per quota, for example 9,80.'), 'fm-price');
+      if (fees === null || fees < 0) return fail(t('Enter the costs as a number, or leave them empty.'), 'fm-fees');
       move = { ticker, kind: opening ? 'open' : m.kind, date: opening ? '' : m.date, qty, price, fees };
       if (m.kind === 'sell' && !fiiValid(S, move)) return fail(t('You cannot sell more quotas than you hold on that date ({n}).', { n: fiiQtyAt(ticker, m.date) }));
     }

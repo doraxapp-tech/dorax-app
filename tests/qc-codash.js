@@ -22,12 +22,12 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     const o = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }), p = o.page;
     await p.evaluate(() => { navigate('dashboard'); S.month = '2026-09'; render(); });
     // ---------------------------------------------------------------- 1. the switch, and the household's side
-    eq(await p.evaluate(() => [[...document.querySelectorAll('.pagehead [data-a="space"]')].map(b => b.innerText.trim() + ':' + b.getAttribute('aria-pressed')), [...document.querySelectorAll('.pagehead [data-a="space-cur"]')].filter(b => b.offsetParent && !b.closest('.space-ghost')).length, !!document.querySelector('.pagehead .month'), pageBookKey()]),
-      [['Household:true', 'Company:false'], 0, true, 'personal'], tag + 'the dashboard has the Household | Company switch beside the month, on Household');
-    const house = () => p.evaluate(() => document.querySelector('#view').innerHTML.replace(/<header class="hello">.*?<\/header>/, ''));
+    eq(await p.evaluate(() => [[...document.querySelectorAll('#rail-side [data-a="space"]')].map(b => b.dataset.v + ':' + b.getAttribute('aria-label')), document.querySelectorAll('.pagehead [data-a="space"], .pagehead [data-a="space-cur"]').length, !!document.querySelector('.pagehead .month'), pageBookKey()]),
+      [['business:Switch to Company'], 0, true, 'personal'], tag + 'the side is changed from the menu, on Household (the two arrows beside the eye); the dashboard has no switch of its own');
+    const house = () => p.evaluate(() => document.querySelector('#view').innerHTML.replace(/<header class="hello[^"]*">.*?<\/header>/, ''));
     const before = await house(), houseTiles = await tiles(p);
-    eq(houseTiles.map(x => x[0]), ['Income', 'Spending', 'Left over', 'Put into goals'], tag + 'the household’s four figures are the ones it had');
-    await p.click('.pagehead [data-a="space"][data-v="business"]');
+    eq(houseTiles.map(x => x[0]), ['Household net balance', 'Income', 'Spending', 'Left over', 'Still to pay'], tag + 'the household’s five figures, its net balance first (owner, 2026-10-08)');
+    await p.click('#rail-side [data-a="space"][data-v="business"]');
     eq(await p.evaluate(() => [pageBookKey(), [...document.querySelectorAll('.pagehead [data-a="space-cur"]')].filter(b => b.offsetParent && !b.closest('.space-ghost')).map(b => b.innerText.trim() + ':' + b.getAttribute('aria-pressed')), !!document.querySelector('#first-steps'), !!document.querySelector('#fii-card')]),
       ['business:BRL', ['BRL:true', 'USD:false'], false, false], tag + 'Company opens the company’s side in reais, with the choice of dollars; no first steps and no investments there');
 
@@ -63,12 +63,12 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     eq(await p.evaluate(a => { const rows = [...document.querySelectorAll('#cat-card .legend-row')].map(r => [r.dataset.cat, r.children[2].innerText.trim()]), pct = [...document.querySelectorAll('#cat-card .legend-row .pct')].map(e => parseInt(e.innerText, 10)).reduce((x, y) => x + y, 0); return [rows.find(r => r[0] === 'co-tax')[1] === fmt.money(-a, 'BRL'), rows.some(r => r[0] === 'none'), pct, getComputedStyle(document.querySelector('#cat-card .legend-row[data-cat="co-tax"] .dot')).backgroundColor !== getComputedStyle(document.querySelector('#cat-card .legend-row[data-cat="none"] .dot')).backgroundColor]; }, loose[0].amount),
       [true, true, 100, true], tag + 'filing one under Taxes gives Taxes its part, in its colour; the shares add up to 100');
     await p.click('#cat-card .legend-row[data-cat="none"]'); await p.waitForFunction(() => UI.route === 'transactions');
-    eq(await p.evaluate(() => { const cats = new Set(S.company.categories.map(c => c.id)), want = S.transactions.filter(x => isBiz(x.accountId) && x.date.slice(0, 7) === '2026-09' && x.type !== 'transfer' && !cats.has(x.categoryId)).length, rows = filteredTx(); return [UI.tx.scope, UI.tx.category, rows.length === want && want > 0, rows.every(x => isBiz(x.accountId) && !cats.has(x.categoryId) && x.type !== 'transfer')]; }),
+    eq(await p.evaluate(() => { const cats = new Set(S.company.categories.map(c => c.id)), want = S.transactions.filter(x => isBiz(x.accountId) && x.date.slice(0, 7) === '2026-09' && x.type !== 'transfer' && !cats.has(x.categoryId)).length, rows = filteredTx(); return [UI.space, UI.tx.category, rows.length === want && want > 0, rows.every(x => isBiz(x.accountId) && !cats.has(x.categoryId) && x.type !== 'transfer')]; }),
       ['business', 'none', true, true], tag + 'choosing “Not filed yet” opens the company’s transactions of the month that have no company category');
-    eq(await p.evaluate(() => { Object.assign(UI.tx, { scope: 'personal', category: 'none', month: '' }); const rows = filteredTx(); return [rows.length > 0, rows.every(x => !isBiz(x.accountId) && (!x.categoryId || x.categoryId === 'other'))]; }), [true, true], tag + 'the same filter on the household’s side is what it was: household transactions with no category or under Other');
-    await p.evaluate(() => { Object.assign(UI.tx, TX_DEFAULT); navigate('dashboard'); });
+    eq(await p.evaluate(() => { const k = pageBookKeyFor(); setPageBook('personal'); Object.assign(UI.tx, { category: 'none', month: '' }); const rows = filteredTx(); setPageBook(k); return [rows.length > 0, rows.every(x => !isBiz(x.accountId) && (!x.categoryId || x.categoryId === 'other'))]; }), [true, true], tag + 'the same filter on the household’s side is what it was: household transactions with no category or under Other');
+    await p.evaluate(() => { Object.assign(UI.tx, TX_DEFAULT); S.user.dashHidden = Object.assign({}, S.user.dashHidden, { 'co-pc': [] }); navigate('dashboard'); });      // the chart and the latest transactions are one click away on a computer (2026-10-11): shown here
     await p.click('#co-all'); await p.waitForFunction(() => UI.route === 'transactions');
-    eq(await p.evaluate(() => [UI.tx.scope, UI.tx.category || '', filteredTx().every(x => isBiz(x.accountId))]), ['business', '', true], tag + '“View all” under the company’s recent transactions opens the company’s transactions');
+    eq(await p.evaluate(() => [UI.space, UI.tx.category || '', filteredTx().every(x => isBiz(x.accountId))]), ['business', '', true], tag + '“View all” under the company’s recent transactions opens the company’s transactions');
     await p.evaluate(() => { Object.assign(UI.tx, TX_DEFAULT); S.month = '2026-10'; navigate('dashboard'); });
 
     // ---------------------------------------------------------------- 4. a company bill, from the dashboard
@@ -86,12 +86,12 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
       [1, true, 'BRL', -38000, 'co-tax', false, '1 of 1 bills paid'], tag + '“Mark as paid” records the payment from the company’s account, under Taxes; the bill leaves To do and counts as paid');
     eq([(await tiles(p))[1][1], tilesBefore[1][1]], [await p.evaluate(() => fmt.money(38000, 'BRL')), await p.evaluate(() => fmt.money(0, 'BRL'))], tag + 'and October’s costs go from nothing to the payment');
     // a reserve shows beside To do
-    await p.evaluate(() => { A['goal-new'](); Object.assign(UI.drawer.draft, { name: 'Tax reserve', targetText: '12000' }); A['goal-save'](); if (UI.drawer) A.close(); render(); }); await quiet(p);
+    await p.evaluate(() => { S.accounts.push({ id: 'co-brl-save', name: 'Reserva PJ', institution: 'Nubank', type: 'savings', currency: 'BRL', scope: 'business', monthly: false, purpose: '', opening: 0 }); A['goal-new'](); Object.assign(UI.drawer.draft, { name: 'Tax reserve', targetText: '12000' }); A['goal-save'](); if (UI.drawer) A.close(); render(); }); await quiet(p);
     eq(await p.evaluate(() => [S.company.books.BRL.goals.map(g => g.name).join(), S.goals.some(g => g.name === 'Tax reserve'), !!document.querySelector('#goals-card'), (document.querySelector('#goals-card') || document.body).innerText.includes('Tax reserve')]), ['Tax reserve', false, true, true], tag + 'a company reserve shows on the company’s dashboard, beside To do, and is not one of the household’s goals');
 
     // ---------------------------------------------------------------- 6. the chosen month's column is drawn
     eq(await p.evaluate(() => { const col = sel => { const i = document.querySelector(sel + ' .colbtn[aria-pressed="true"] i'), c = getComputedStyle(i).backgroundColor; return c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent' && c !== getComputedStyle(document.querySelector(sel + ' .colbtn[aria-pressed="false"] i')).backgroundColor; };
-      const out = [col('#trend-card'), document.querySelector('#trend-card h2').innerText.trim(), !!document.querySelector('#in-card')]; document.querySelector('.pagehead [data-a="space"][data-v="personal"]').click(); out.push(col('#trend-card'), document.querySelector('#trend-card h2').innerText.trim()); return out; }),
+      const out = [col('#trend-card'), document.querySelector('#trend-card h2').innerText.trim(), !!document.querySelector('#in-card')]; S.user.dashHidden = Object.assign({}, S.user.dashHidden, { 'home-pc': [] }); document.querySelector('#rail-side [data-a="space"][data-v="personal"]').click(); out.push(col('#trend-card'), document.querySelector('#trend-card h2').innerText.trim()); const h = Object.assign({}, S.user.dashHidden); delete h['home-pc']; S.user.dashHidden = h; render(); return out; }),
       [true, 'Costs by month', false, true, 'Monthly spending'], tag + 'the chosen month’s column is drawn in the accent colour, on both sides; with nothing received in reais there is no “Received by month”');
 
     // ---------------------------------------------------------------- 1 again: the household's side is what it was
@@ -99,7 +99,7 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     eq(await house() === before, true, tag + 'after all this, the household’s September dashboard is, to the letter, what it was before the company’s side was opened');
     eq((await tiles(p)).map(x => x.join('|')), houseTiles.map(x => x.join('|')), tag + 'and so are its four figures');
     // dollars have something received: its own chart
-    await p.evaluate(() => { document.querySelector('.pagehead [data-a="space"][data-v="business"]').click(); document.querySelector('.pagehead [data-a="space-cur"][data-v="USD"]').click(); });
+    await p.evaluate(() => { document.querySelector('#rail-side [data-a="space"][data-v="business"]').click(); document.querySelector('.pagehead [data-a="space-cur"][data-v="USD"]').click(); });
     eq(await p.evaluate(() => [!!document.querySelector('#in-card'), document.querySelector('#in-card h2').innerText.trim(), document.querySelectorAll('#in-card .colbtn').length, document.querySelector('#past-note') ? 'past' : 'now']), [true, 'Received by month', 6, 'past'], tag + 'the dollar side, where money was received, has “Received by month” with six months; a past month says so');
 
     // ---------------------------------------------------------------- 5. a company with nothing
@@ -112,9 +112,10 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
   for (const lang of ['es', 'pt']) {
     const o = await open({ lang, account: 'example', plan: true, viewport: { width: 390, height: 844 }, mobile: true, touch: true }), p = o.page, where = tag + lang + ', phone: ';
     await p.evaluate(() => { navigate('dashboard'); S.month = '2026-09'; if (document.documentElement.lang === 'pt') S.settings.theme = 'light'; render(); document.querySelector('[data-a="space"][data-v="business"]').click(); });
-    eq(await p.evaluate(() => { const en = ['Received', 'Costs', 'Result', 'Transfers out'], labels = [...document.querySelectorAll('.kpis .kpi .label span')]; return [labels.map(l => l.innerText.trim()).join() === en.map(k => t(k)).join(), labels.map(l => l.innerText.trim()).some(x => en.includes(x) && x !== 'Total'), labels.every(l => l.scrollWidth <= l.clientWidth), document.documentElement.scrollWidth <= innerWidth,
-      document.querySelector('#cat-card h2').innerText.trim() === t('Costs by category'), document.querySelector('#cat-card .legend-row span:nth-child(2)').innerText.trim() === t('Not filed yet'), [...document.querySelectorAll('#view .card')].every(c => c.getBoundingClientRect().right <= innerWidth + 1)]; }),
-      [true, false, true, true, true, true, true], where + 'the four figures and the cards are in the language, no label is cut and nothing runs off the screen');
+    // a phone's charts are in Reports, Costs (2026-10-08): the category card is read there (a ring since 2026-10-09, tests/qc-report-rings.js)
+    eq(await p.evaluate(() => { const en = ['Received', 'Costs', 'Result', 'Transfers out'], labels = [...document.querySelectorAll('.kpis .kpi .label span')]; return [labels.length === 0, labels.map(l => l.innerText.trim()).some(x => en.includes(x) && x !== 'Total'), labels.every(l => l.scrollWidth <= l.clientWidth), document.documentElement.scrollWidth <= innerWidth,
+      (UI.repView = 'out', navigate('reports'), document.querySelector('#rep-ring-cat h2').innerText.trim() === t('Costs by group, in detail')), [...document.querySelectorAll('#rep-ring-cat .rg-row .rg-name')].some(n => n.textContent.trim() === t('Not filed yet')), [...document.querySelectorAll('#view .card')].every(c => c.getBoundingClientRect().right <= innerWidth + 1)]; }),
+      [true, false, true, true, true, true, true], where + 'no row of figures on a phone (owner, 2026-10-08); the cards are in the language and nothing runs off the screen');
     eq(o.errors, [], where + 'no errors'); await o.browser.close();
   }
   done('qc-codash');

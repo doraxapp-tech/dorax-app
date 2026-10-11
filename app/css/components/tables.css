@@ -5,9 +5,9 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .tbl td { padding: 12px 22px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .tbl tr:last-child td { border-bottom: 0; }
 .tbl .r { text-align: right; }
-.tbl td.amt { text-align: right; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; color: var(--ink-strong); }
+.tbl td.amt { text-align: right; font-family: var(--fig); font-size: 13px; font-weight: 500; white-space: nowrap; color: var(--ink-strong); }
 .tbl td.amt .btn, .tbl td.amt .linkbtn { font-family: var(--font); }
-.tbl td.amt-s { text-align: right; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl td.amt-s { text-align: right; font-family: var(--fig); font-size: 12.5px; white-space: nowrap; }
 .tbl td.sm-row { display: none; }
 .tbl tbody tr { transition: background var(--t1) ease-out; }
 .tbl tbody tr.click { cursor: pointer; }
@@ -17,30 +17,47 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .tbl th button:hover { color: var(--ink-strong); }
 .tx-main { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
 .tx-main b { font-weight: 500; }
-.tx-main small { color: var(--ink-3); font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere; }
+.tx-main small { color: var(--ink-3); font-family: var(--mono); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }      /* the bank's description on one line, cut short (owner, 2026-10-09) */
+/* Transactions on a computer: fixed columns, so a long name or description is cut short instead of pushing the others (owner, 2026-10-09: "readjust the
+   columns so it fits without breaking") */
+.tx-tbl .acct-pc { display: none; }
+@media (min-width: 921px) {
+  .tbl.tx-tbl { table-layout: fixed; }
+  .tx-tbl th, .tx-tbl td { padding-left: 14px; padding-right: 14px; } .tx-tbl th:first-child, .tx-tbl td:first-child { padding-left: 22px; } .tx-tbl th:last-child, .tx-tbl td:last-child { padding-right: 22px; }
+  .tx-tbl .c-date { width: 84px; } .tx-tbl .c-cat { width: clamp(150px, 20vw, 300px); } .tx-tbl .c-acct { width: clamp(150px, 19vw, 260px); } .tx-tbl .c-amt { width: 128px; }
+  .tx-tbl td { overflow: hidden; }
+  .tx-tbl .acct-pc { display: block; } .tx-tbl .acct-ph { display: none; }
+  .tx-tbl td.t-acct .atag { display: flex; max-width: 100%; }
+  .tx-tbl .tx-main b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-tbl td .cat { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }      /* the category and its group on one line, cut short */
+  .tx-tbl td .cat .dot { display: inline-block; margin-right: 8px; vertical-align: 1px; }
+}
+@media (min-width: 921px) and (max-width: 1199px) {
+  .tx-tbl .c-date { width: 76px; } .tx-tbl .c-amt { width: 112px; } .tx-tbl .c-cat { width: max(130px, 17vw); } .tx-tbl .c-acct { width: max(130px, 16vw); }
+}
 .cat { display: inline-flex; align-items: center; gap: 8px; }
 tr.ignored td { opacity: .5; }
 tr.ignored .amt { text-decoration: line-through; }
 tr.sumrow.grand > th, tr.sumrow.grand > td { font-weight: 500; background: var(--surface-2); }
 
 /* editable month grid (fixed costs, goals) */
-table.plan { font-variant-numeric: tabular-nums; border-collapse: separate; border-spacing: 0; }
+table.plan { border-collapse: separate; border-spacing: 0; }
 .plan thead th { padding: 8px 7px; text-align: right; border-bottom: 1px solid var(--line); }
 .plan thead th:first-child { position: sticky; left: 0; background: var(--surface); z-index: 3; }
 .plan thead th button:disabled { opacity: .5; cursor: default; }
 .plan th[scope="row"] { position: sticky; left: 0; z-index: 2; background: var(--surface); text-align: left; font-family: var(--font); font-weight: 400; font-size: 13.5px; text-transform: none; letter-spacing: 0; color: var(--ink); padding: 6px 12px 6px 22px; min-width: 170px; max-width: 215px; white-space: normal; line-height: 1.3; border-bottom: 1px solid var(--line); box-shadow: 1px 0 0 var(--line); }
 .plan td.c, .plan th.c { text-align: right; padding: 3px 2px; white-space: nowrap; border-bottom: 1px solid var(--line); }
-.plan td.c { font-family: var(--mono); font-size: 12px; }
+.plan td.c { font-family: var(--fig); font-size: 12px; }
 .plan td.c > span, .plan td.c { color: var(--ink); }
 .plan td.c .z, .plan td.c input.z { color: var(--ink-3); }
-.plan td.c input { width: 54px; min-height: 30px; padding: 3px 4px; text-align: right; border: 1px solid transparent; border-radius: 6px; background: transparent; font-family: var(--mono); font-size: 12px; transition: background var(--t1) ease-out, border-color var(--t1) ease-out; }
+.plan td.c input { width: 54px; min-height: 30px; padding: 3px 4px; text-align: right; border: 1px solid transparent; border-radius: 6px; background: transparent; font-family: var(--fig); font-size: 12px; transition: background var(--t1) ease-out, border-color var(--t1) ease-out; }
 .plan.alloc td.c input { width: 62px; }
 .plan tbody tr:hover td.c input { background: var(--surface-3); }
 .plan td.c input:hover { border-color: var(--line-strong); }
 .plan td.c input:focus { outline: none; border-color: var(--focus); background: var(--surface); box-shadow: 0 0 0 1px var(--focus); opacity: 1; color: var(--ink-strong); }
 .plan td.c:not(:has(input)) { padding: 9px 5px; }
 .plan .cur { background: var(--cur); }
-.plan thead th.cur { color: var(--ink-strong); border-radius: 4px 4px 0 0; }
+.plan thead th.cur { color: var(--brand); border-radius: 4px 4px 0 0; }
 .plan td.tot { font-weight: 500; padding-right: 22px !important; color: var(--ink-strong); }
 .plan th.c:last-child { padding-right: 22px; }
 .plan td.due { color: var(--ink-3); font-size: 11.5px; text-align: left; padding-left: 10px !important; }
@@ -52,3 +69,7 @@ table.plan { font-variant-numeric: tabular-nums; border-collapse: separate; bord
 .plan tr.muted-row th[scope="row"], .plan tr.muted-row td, .plan tr.muted-row input { color: var(--ink-3); }
 .gridbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 22px 0; }
 
+#rep-year-tbl tr.now td { background: var(--cur); } #rep-year-tbl .linkbtn[aria-current] { color: var(--brand); }      /* the company's year: the month on screen */
+#rep-year-tbl tr.sumrow th { font-family: var(--font); font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ink-strong); padding-block: 12px; }
+#rep-year-tbl .m-short { display: none; }
+@media (max-width: 380px) { #rep-year-tbl .m-long { display: none; } #rep-year-tbl .m-short { display: inline; } }      /* the narrowest phones: Sep, not September, so three figures fit beside it */

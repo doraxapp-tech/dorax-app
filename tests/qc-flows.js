@@ -14,32 +14,33 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   await page.evaluate(() => A['pub-go']({ v: 'signup' }));
   await page.fill('#au-name', 'Bia'); await page.fill('#au-email', 'bia@example.org'); await page.fill('#au-pass', 'BiaSenha2026'); await page.check('#au-accept');
   await page.click('[data-a="auth-signup"]'); await page.waitForSelector('#ob-name');
-  await page.click('[data-a="onboard-save"]');
-  // step 2: account
-  await page.fill('#ob-acct', 'Conta principal');
+  // the first minute (2026-10-07): a dream and its cost, three numbers, what the money can already do, where to go next
   const fill = async (sel, v) => { const el = page.locator(sel).first(); if (await el.count()) await el.fill(v); return el.count(); };
-  await page.evaluate(() => { const b = document.querySelector('.onb input[id*="bal"], .onb input[id*="open"]'); if (b) b.dataset.qc = '1'; });
-  const obInputs = async () => page.evaluate(() => [...document.querySelectorAll('.onb input, .onb select')].map(e => e.id + ':' + e.type + ':' + (e.value || '')));
-  const step2 = await obInputs();
-  await fill('#ob-bal', '2.500,00');
-  await page.click('[data-a="ob-next"]');
-  const step3 = await obInputs();
-  await fill('#ob-pay0', '3.000'); await fill('#ob-pay1', '5.200,50');
-  await page.click('[data-a="ob-next"]');
-  const step4 = await obInputs();
-  await fill('#ob-bn0', 'Aluguel'); await fill('#ob-ba0', '1.800'); await fill('#ob-bd0', '5');
-  await page.click('[data-a="ob-next"]');
-  const step5 = await obInputs();
-  await fill('#ob-gname', 'Viagem'); await fill('#ob-gtarget', '6.000'); await fill('#ob-gsaved', '1.000'); await fill('#ob-gmonth', '500');
-  await page.click('[data-a="ob-next"]');
-  const summary = await page.locator('.onb').innerText().catch(() => '');
-  await page.click('[data-a="ob-finish"]'); await page.waitForFunction(() => !!UI.session);
+  await page.click('[data-a="ob-dream"][data-v="other"]'); await fill('#ob-dream-name', 'Viagem'); await fill('#ob-cost', '6.000');
+  ok(/Bia/.test(await page.locator('.ob-cheer').innerText()), 'setup: the dream is cheered by name');
+  await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0');
+  await fill('#ob-pay0', '8.200,50'); await fill('#ob-spend', '7.700,50'); await fill('#ob-saved', '1.000');
+  await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts');
+  const reveal = await page.locator('.onb').innerText();
+  ok(/R\$ 500 left each month/.test(reveal) && /Viagem: July 2027/.test(reveal) && /in 10 months/.test(reveal), 'setup: the reveal says what is left each month and when the dream is reached (5.000 to go at 500 a month, from October)', reveal.replace(/\n+/g, ' | ').slice(0, 400));
+  ok(/\b3\d days of freedom|\b3 days of freedom/.test(reveal.replace(/\n/g, ' ')), 'setup: the reveal shows days of freedom (1.000 saved at 7.700,50 a month is 3 days)', reveal.replace(/\n+/g, ' | ').slice(0, 200));
+  ok(!/NaN|undefined|null/.test(reveal), 'setup: no broken value in the reveal');
+  await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-ways');
+  eq(await page.locator('.ob-way').count(), 3, 'setup: three ways on (plan the month, fixed costs, a spreadsheet)');
+  await page.click('.ob-foot [data-a="ob-finish"]'); await page.waitForFunction(() => !!UI.session);
+  await page.click('#co-ask [data-a="co-answer"][data-v="no"]');      // the company is asked about on the dashboard now
+  // the account and the first fixed cost are added in the app now, the way the dashboard's first steps offer them
+  await page.click('#first-steps [data-a="edit-account"]'); await page.fill('#a-name', 'Conta principal'); await page.fill('#a-open', '2.500,00'); await page.click('[data-a="save-account"]');
+  await page.evaluate(() => { navigate('plan'); A['line-new'](); }); await page.waitForSelector('.pg');      // the first fixed cost of a household with no limit: “Plan your month” first (v146)
+  await page.click('[data-a="pg-only-line"]'); await page.fill('#l-name', 'Aluguel'); await page.fill('#l-amount', '1.800'); await page.fill('#l-due', '5'); await page.click('[data-a="line-save"]');
+  await page.evaluate(() => { A.close(); navigate('dashboard'); });
   const st = await page.evaluate(() => ({ user: S.user.name, accounts: S.accounts.map(a => [a.name, a.opening]), pay: Object.values(S.pay).flat().map(r => [r.to, r.half, r.values[+S.today.slice(5, 7) - 1]]), lines: S.plan.lines.map(l => [l.name, l.due, planValue(S, l, ymOf(S.today))]),
-    goals: S.goals.map(g => [g.name, g.target, goalSaved(S, g.id), goalPlan(g, ymOf(S.today))]), moves: S.goalMoves.map(m => [m.amount, !!m.start]), net: planTotals(S, ymOf(S.today)), goalStatus: S.goals.map(g => goalStatus(S, g, S.today).state) }));
-  if (!st.accounts.length || !st.pay.length) console.log('  setup inputs seen:', JSON.stringify({ step2, step3, step4, step5 }));
+    goals: S.goals.map(g => [g.name, g.target, goalSaved(S, g.id), goalPlan(g, ymOf(S.today))]), moves: S.goalMoves.map(m => [m.amount, !!m.start]), net: planTotals(S, ymOf(S.today)), goalStatus: S.goals.map(g => goalStatus(S, g, S.today).state),
+    arrival: goalArrival(S, S.goals[0], S.today), spend: S.user.spend, company: S.user.company }));
   eq(st.user, 'Bia', 'setup: name');
   eq(st.accounts, [['Conta principal', 250000]], 'setup: account with its balance (2.500,00)');
-  eq(st.pay.map(r => r[2]).sort((a, b) => a - b), [300000, 520050], 'setup: two payments read as 3.000 and 5.200,50');
+  eq(st.pay, [['fixed', 0, 770050], ['savings', 0, 50000]], 'setup: 8.200,50 comes in; what goes out is routed to fixed costs and the 500 left over to savings');
+  eq([st.arrival.ym, st.arrival.by, st.spend, st.company], ['2027-07', 'pace', 770050, false], 'setup: the goal carries the date the reveal showed, and the monthly spending and the company answer are kept');
   eq(st.lines, [['Aluguel', 5, 180000]], 'setup: fixed cost with its due day');
   eq(st.goals, [['Viagem', 600000, 100000, 50000]], 'setup: goal with target, already saved and monthly amount');
   eq(st.moves, [[100000, true]], 'setup: what was already saved is a starting balance, not a contribution of this month');
@@ -63,9 +64,8 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   const drawerInputs = await page.evaluate(() => [...document.querySelectorAll('#overlay input, #overlay select')].map(e => e.id + ':' + e.type));
   await page.fill('#l-name', 'Internet'); await page.fill('#l-amount', '110,905'); await page.click('[data-a="line-save"]');
   ok(await page.evaluate(() => !!UI.drawer && S.plan.lines.length === 1) && await page.locator('#l-amount').count() === 1, 'a slip like 110,905 is refused, not saved as 110.905,00', drawerInputs);
-  await page.fill('#l-amount', '1o0'); await page.click('[data-a="line-save"]');
-  ok(await page.evaluate(() => S.plan.lines.length === 1) && await page.locator('#l-amount').count() === 1, 'an amount with a letter in it is refused');
-  await page.fill('#l-amount', '110,90'); await page.click('[data-a="line-save"]');
+  await page.fill('#l-amount', '1o0'); eq(await page.inputValue('#l-amount'), '10', 'a letter cannot even be typed in an amount: “1o0” is “10” (owner, 2026-10-09)');
+  await page.fill('#l-amount', '110,90'); await page.fill('#l-due', '10'); await page.click('[data-a="line-save"]');
   eq(await page.evaluate(() => S.plan.lines.filter(l => l.name === 'Internet').map(l => planValue(S, l, ymOf(S.today)))), [11090], 'the corrected amount is saved as typed');
   await page.evaluate(() => { UI.drawer = null; render(); });
   // ids: things created after a reload never take the id of something that exists
@@ -75,8 +75,9 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   await page.evaluate(() => { S.accounts = S.accounts.filter(a => !/^Extra /.test(a.name)); S.goals = S.goals.filter(g => !/^G\d/.test(g.name)); S.plan.lines = S.plan.lines.filter(l => !/^L\d/.test(l.name)); render(); });
   // deleting: a centred dialog; the important ones ask for the word
   await page.evaluate(() => navigate('goals'));
-  await page.click('[data-a="goal-open"]');
+  await page.click('[data-a="goal-open"]'); await page.click('#goal-menu-btn');      // Delete is under More (owner, 2026-10-09)
   const del = page.locator('#overlay [data-a="goal-delete-ask"]').first();
+  eq(await del.count(), 1, 'the goal’s More holds Delete');
   if (await del.count()) {
     await del.click();
     const m = await page.evaluate(() => { const el = document.querySelector('#modal-root .modal'); if (!el) return null; const b = el.getBoundingClientRect(); return { centred: Math.abs((b.left + b.right) / 2 - (r => (r.left + r.right) / 2)(document.querySelector('.app').getBoundingClientRect())) < 3, role: el.getAttribute('role') || (el.closest('[role]') || {}).getAttribute && el.closest('[role]').getAttribute('role'), word: UI.modal.word || null, okDisabled: document.querySelector('#modal-ok').disabled }; });
@@ -145,7 +146,7 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   eq(errors, [], 'converter: no console errors');
 
   // ---------- 3. statement imports: a second import of the same file adds nothing ----------
-  await page.evaluate(() => { UI.conv = null; navigate('imports'); });
+  await page.evaluate(() => { UI.conv = null; A.space({ v: 'personal' }); navigate('imports'); });      // the converter is on the company's side; the card is the household's
   const n0 = await page.evaluate(() => S.transactions.length);
   // an OFX file of the card: three movements the account already has (same bank IDs) and two new ones
   const ofxFile = await page.evaluate(() => { const id = 'nu-card', p = { ...(S.ofxProfiles[0] || OFX_BASE), accountType: 'CREDITCARD', currency: acct(id).currency };

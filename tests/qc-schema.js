@@ -161,7 +161,7 @@ try {
   const server = fs.readFileSync(path.join(__dirname, '..', 'app', 'js', 'server', 'server.js'), 'utf8');
   eq([...new Set([...server.matchAll(/\.from\('(\w+)'\)/g)].map(m => m[1]))].sort(), ['contact_messages', 'user_data'], 'the app uses exactly the two tables the script makes');
   eq([...server.matchAll(/\.rpc\('(\w+)'/g)].map(m => m[1]).sort(), ['delete_my_account', 'remove_push_subscription', 'save_push_subscription'], 'and the three functions');
-  eq([...server.matchAll(/functions\.invoke\('(\w+)'/g)].map(m => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['reminders', 'bank'], 'and the two server jobs, which are in supabase/functions');
+  eq([...server.matchAll(/functions\.invoke\('(\w+)'/g)].map(m => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['reminders', 'bank', 'suggest'], 'and the three server jobs, which are in supabase/functions (suggest: the AI category suggestions, since v108)');
   ok(fs.existsSync(path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'index.ts')), 'supabase/functions/reminders/index.ts is there');
 } finally { stop(); }
 console.log(`qc-schema: ${pass} passed, ${fail} failed`);

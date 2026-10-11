@@ -49,7 +49,13 @@
 #toast { animation: toast-in 260ms var(--ease) both; }
 #toast.out { animation: toast-out 160ms var(--ease-in) both; }
 #tip:not([hidden]) { animation: fade-in 120ms ease-out both; }
-.flash > td, .card.flash, .li.flash { animation: wash 1400ms ease-out both; }
-.tick { animation: tick 360ms var(--ease) both; }
+.flash > td, .card.flash, .li.flash, .pl-row.flash { animation: wash 1400ms ease-out both; }
+.pl-row.flash { animation-delay: calc(var(--k, 0) * 40ms); }      /* several marked at once: the wash runs down them (2026-10-08) */
+.v-tick { animation: tick 240ms var(--ease) both; }      /* a figure that changed: 240 ms, inside the budget for feedback (2026-10-08, was 360). Not ".tick": that name is the home page's round check (public/home.css), whose 18 px box squeezed the phone's balance when the eye hid it (owner, 2026-10-08: "the eye toggle on the phone has a bug, the figure hides and gets lost") */
+/* the month arrows: the new month comes in from the side of the arrow pressed, 12 px, 180 ms; no exit, no stagger */
+@keyframes from-next { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+@keyframes from-prev { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+#view.from-next { animation: from-next 180ms var(--ease) both; }
+#view.from-prev { animation: from-prev 180ms var(--ease) both; }
 .banner { animation: fade-in var(--t2) ease-out both; }
 

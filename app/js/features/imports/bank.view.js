@@ -8,9 +8,10 @@ const BANK_KIND = () => ({ checking: t('Checking'), savings: t('Savings'), credi
 
 /** The page: the banks, and under them the review of whatever was brought from one. */
 function viewOpenFinance() {
+  if (deskOnly('openfinance')) return deskNote('openfinance', true);      // on a phone this screen is left to the computer (features/phone/desk-only.js)
   const imp = UI.imp;
   return `${bankCard()}
-  ${UI.impError ? banner('crit', esc(UI.impError)) : ''}
+  ${UI.impError ? errBanner(UI.impError) : ''}
   ${imp && imp.source === 'bank' ? importPanel(imp) : ''}`;
 }
 /** The card. What the server says about this person is asked once per visit; until it answers, and when the server's side is not there

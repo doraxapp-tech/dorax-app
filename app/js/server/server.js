@@ -33,7 +33,7 @@ const SERVER = (() => {
   if (!client && cfg.supabaseUrl && cfg.supabaseKey && typeof supabase !== 'undefined' && supabase.createClient)
     client = supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
-  const here = () => location.origin + location.pathname;       // where the links in the emails, and Google, send the person back to
+  const here = () => PAGES.root();       // where the links in the emails, and Google, send the person back to: the site's root, whatever page they left from (ui/pages.js)
   let user = null;                                               // the person logged in, as the server knows them
   // 23505: the row is already there (a save that did arrive, sent again). 23503: the person the row belongs to no longer exists.
   const codeOf = e => !e ? 'unknown' : e.code === '23505' ? 'conflict' : e.code === '23503' ? 'gone' : e.code && typeof e.code === 'string' && !/^\d+$/.test(e.code) ? e.code
@@ -113,11 +113,16 @@ const SERVER = (() => {
     pushSave: d => ask(() => client.rpc('save_push_subscription', { p_endpoint: d.endpoint, p_p256dh: d.p256dh, p_auth: d.auth, p_agent: d.agent || null })),
     pushRemove: endpoint => ask(() => client.rpc('remove_push_subscription', { p_endpoint: endpoint })),
     /** channel: 'push' (a notification to the person's devices) or 'email'. The server sends it to the person logged in, nobody else. */
-    async remindTest(channel) { const r = await ask(() => client.functions.invoke('reminders', { body: { action: 'test', channel } })); return !r.ok ? r : r.data && r.data.ok ? { ok: true } : { ok: false, code: (r.data && r.data.code) || 'unknown' }; },
+    // a notification's test also says what each device's push service answered (results: [{ agent, service, status, ok, gone }]), since 2026-10-09
+    async remindTest(channel, delay) { const r = await ask(() => client.functions.invoke('reminders', { body: { action: 'test', channel, ...(delay ? { delay } : {}) } })); const results = (r.ok && r.data && Array.isArray(r.data.results) && r.data.results) || []; return !r.ok ? r : r.data && r.data.ok ? { ok: true, results } : { ok: false, code: (r.data && r.data.code) || 'unknown', results }; },
 
     /** Connecting a bank (a trial; supabase/functions/bank). action: 'status' | 'start' | 'finish' | 'fetch' | 'disconnect'. The answer is the
         function's own: { ok: true, ... } or { ok: false, code }. */
     async bank(action, body) { const r = await ask(() => client.functions.invoke('bank', { body: { ...(body || {}), action } })); return !r.ok ? r : r.data && typeof r.data === 'object' ? r.data : { ok: false, code: 'unknown' }; },
+
+    /** Category suggestions with AI (supabase/functions/suggest): rows [{ id, text, dir }] and the person's groups [{ key, name, dir }].
+        The answer is the function's own: { ok: true, suggestions: [{ id, key, name }] } or { ok: false, code }. */
+    async suggest(rows, groups) { const r = await ask(() => client.functions.invoke('suggest', { body: { rows, groups } })); return !r.ok ? r : r.data && typeof r.data === 'object' ? r.data : { ok: false, code: 'unknown' }; },
 
     // ----- the contact form: anyone can write, nobody can read through the app
     sendContact: ({ email, topic, message, lang }) => ask(() => client.from('contact_messages').insert({ email, topic, message, lang })),

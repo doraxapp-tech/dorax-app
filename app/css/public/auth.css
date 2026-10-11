@@ -51,6 +51,10 @@
 .auth.single .auth-card { position: static; width: min(400px, 100%); padding: 0; border: 0; border-radius: 0; background: none; gap: 18px; }
 .auth.single .auth-card h1, .auth.single .auth-card > p { text-align: center; text-wrap: balance; }
 .auth.single .auth-card > .brand { align-self: center; align-items: center; padding: 4px 0 10px; }
+/* the logo on the login, the sign-up and the wait before an account opens: these screens have nothing else of the brand on them, so it is
+   drawn at nearly twice the size it has in the app's side bar (owner, 2026-10-07: "make the logo on login and signup bigger") */
+.auth .brand .logo { height: 40px; } .auth .brand.tag { gap: 10px; } .auth .brand small { font-size: 12px; letter-spacing: .36em; padding-left: .36em; }
+@media (max-width: 480px) { .auth .brand .logo { height: 36px; } .auth .brand small { font-size: 11px; } }
 .auth.single .auth-card > .modal-icon { align-self: center; }
 .auth.single .auth-card > .row { justify-content: center; }
 .auth.single .auth-alt { justify-content: center; text-align: center; }

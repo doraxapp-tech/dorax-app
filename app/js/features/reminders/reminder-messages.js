@@ -16,20 +16,27 @@ function reminderLine(r) {
   const CUR = r.cur || BASE_CURRENCY;
   return ofCompany(r) + reminderSentence(r, CUR);
 }
+/** Pay day (core/payday.js): today, or the day it was. */
+const payTitle = r => r.days === 0 ? t('Today is pay day.') : t('Pay day was on {date}.', { date: fmt.date(r.date) });
 function reminderSentence(r, CUR) {
   return r.kind === 'bill' ? t('{name}: {amount}, due {date} ({when}).', { name: r.name, amount: (r.pay === 'variable' ? '≈ ' : '') + fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
     : r.kind === 'card' ? t('{name}: invoice of {amount}, due {date} ({when}).', { name: r.name, amount: (r.estimate ? '≈ ' : '') + fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
     : r.kind === 'past' ? tn(r.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(r.ym) }) + ': ' + r.lines.map(x => x.name).join(', ') + '.'
+    : r.kind === 'pay' ? payTitle(r) + ' ' + t('{name}: {amount}. Open Dorax to record it.', { name: r.name, amount: fmt.money(r.amount, CUR) })
     : r.kind === 'handout' ? t('Savings for {month}: {amount} still to hand out.', { month: fmt.month(r.ym), amount: fmt.money(r.amount, CUR) })
+    : r.kind === 'jmark' ? (r.streak ? tn(r.streak, 'Journey: if you added no debt yesterday, mark it and keep your {n} day streak.', 'Journey: if you added no debt yesterday, mark it and keep your {n} days streak.') : t('Journey: if you added no debt yesterday, mark it.'))
+    : r.kind === 'budget' ? (r.when === 'over' ? t('{name}: {amount} over this month’s limit.', { name: r.name, amount: fmt.money(r.amount, CUR) }) : tn(r.daysLeft, '{name}: {pct}% of this month’s limit used; {amount} left for {n} day.', '{name}: {pct}% of this month’s limit used; {amount} left for {n} days.', { name: r.name, pct: r.pct, amount: fmt.money(r.amount, CUR) }))
+    : r.kind === 'debt' ? t('{name}: payment of {amount}, due {date} ({when}).', { name: r.name, amount: fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
+    : r.kind === 'sprint' ? (r.done ? t('Your sprint ended: you paid {paid} of {target}.', { paid: fmt.money(r.paid, CUR), target: fmt.money(r.target, CUR) }) : r.days === 0 ? t('Your sprint ends today: {amount} to go.', { amount: fmt.money(r.amount, CUR) }) : t('Your sprint ends tomorrow: {amount} to go.', { amount: fmt.money(r.amount, CUR) }))
     : r.kind === 'close' ? t('{name}: the {month} statements are due by {date} ({when}). {sent} of {total} sent.', { name: platLabel(), month: fmt.month(r.ym), date: fmt.date(r.date, true), when: whenText(r), sent: r.sent, total: r.total })
       : r.saved >= 0 ? t('{month} closed with {amount} left over.', { month: fmt.month(r.ym), amount: fmt.money(r.saved, CUR) }) : t('{month} closed with spending {amount} above income.', { month: fmt.month(r.ym), amount: fmt.money(-r.saved, CUR) });
 }
 
-/** The email: its subject and one line per reminder. One bill says its own name in the subject; several are counted. */
+/** The email: its subject and one line per reminder. One bill says its own name in the subject, pay day says itself; several are counted. */
 function reminderDigest(rs) {
   rs = messageReminders(rs); if (!rs.length) return null;
   const bills = rs.filter(r => r.kind === 'bill' || r.kind === 'card');
-  return { subject: rs.length === 1 && bills.length ? `${ofCompany(bills[0])}${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today'), lines: rs.map(reminderLine) };
+  return { subject: rs.length === 1 && rs[0].kind === 'pay' ? payTitle(rs[0]) : rs.length === 1 && bills.length ? `${ofCompany(bills[0])}${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today'), lines: rs.map(reminderLine) };
 }
 
 /** The notification: a title and a short body. One bill shows its name and amount, then when it is due; several are counted, the first three named. */
@@ -38,6 +45,7 @@ function reminderPush(rs) {
   if (rs.length === 1) {
     const r = rs[0];
     if (r.kind === 'bill' || r.kind === 'card') return { title: `${ofCompany(r)}${r.kind === 'card' ? t('{name}: invoice', { name: r.name }) : r.name} · ${(r.pay === 'variable' || r.estimate ? '≈ ' : '') + fmt.money(r.amount, r.cur || BASE_CURRENCY)}`, body: `${t('Due {date}', { date: fmt.date(r.date) })} · ${whenText(r)}` };
+    if (r.kind === 'pay') return { title: payTitle(r), body: t('{name}: {amount}. Open Dorax to record it.', { name: r.name, amount: fmt.money(r.amount, r.cur || BASE_CURRENCY) }) };
     return { title: 'Dorax Finance', body: reminderLine(r) };
   }
   const more = rs.length - 3;
@@ -49,7 +57,7 @@ function reminderPush(rs) {
 const reminderKey = r => r.id + '|' + (r.when || r.kind);
 
 /** What the person asked to hear about, read from the account the way the app reads it. */
-const reminderOptions = state => { const u = state.user || {}, n = u.notify || {}, cfg = u.remind || {}; return { ...n, goals: n.goals !== false, lead: cfg.lead == null ? 3 : cfg.lead, askDue: cfg.askDue !== false, closeDay: (state.settings || {}).closeDay }; };
+const reminderOptions = state => { const u = state.user || {}, n = u.notify || {}, cfg = u.remind || {}; return { ...n, goals: n.goals !== false, pay: n.pay !== false, journey: n.journey !== false, budgets: n.budgets !== false, lead: cfg.lead == null ? 3 : cfg.lead, askDue: cfg.askDue !== false, closeDay: (state.settings || {}).closeDay }; };
 
 /** The few texts of a reminder email that are not reminders themselves, and the ones of the "send me a test" messages. */
 const reminderTexts = () => ({

@@ -40,3 +40,16 @@ function typedAmount(str) {
   const cents = Number(whole || '0') * 100 + Number(frac.padEnd(2, '0') || '0');
   return m[1] === '-' || m[2] ? -cents : cents;
 }
+
+// ---------- no letters where money or a count is typed (owner, 2026-10-09: "check that no field where money is typed accepts letters") ----------
+// A field that takes an amount (inputmode="decimal") keeps only digits, the two marks and a minus at the start; one that takes a count
+// (inputmode="numeric") keeps only digits and the marks. A letter typed or pasted never appears, and a pasted "R$ 1.234,56" keeps its number.
+// This runs first, before the app's own handlers, so they read the clean value. Every money field in the app is marked decimal (tests/qc-money-fields.js).
+const NUM_FIELD = 'input[inputmode="decimal"], input[inputmode="numeric"]';
+function numberOnly(v, signed) { const s = String(v).replace(/\u2212/g, '-'); return (signed && /^\s*-/.test(s) ? '-' : '') + s.replace(/[^\d.,]/g, ''); }
+document.addEventListener('input', e => {
+  const el = e.target; if (!el || !el.matches || !el.matches(NUM_FIELD)) return;
+  const signed = el.getAttribute('inputmode') === 'decimal', v = el.value, clean = numberOnly(v, signed); if (clean === v) return;
+  const at = el.selectionStart, pos = at === null ? null : numberOnly(v.slice(0, at), signed).length;
+  el.value = clean; if (pos !== null) try { el.setSelectionRange(pos, pos); } catch (err) { /* a field that keeps no caret */ }
+}, true);

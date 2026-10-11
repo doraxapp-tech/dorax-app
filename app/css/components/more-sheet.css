@@ -1,0 +1,39 @@
+/* Dorax Finance — More, on a phone (features/phone/more-sheet.js). Moved out of panels.css on 2026-10-10 (owner: "separate the things that can be separated"). */
+/* ---------- More, on a phone (owner, 2026-10-10: "order this menu"): the person, the app's places, the preferences, then the account's buttons ---------- */
+.sheet.more { max-height: 90dvh; }
+.mr-me { display: flex; align-items: center; gap: 14px; margin: 2px 0 12px; padding: 10px 12px; border-radius: var(--r-mid); color: var(--ink-strong); text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.mr-me .avatar { width: 52px; height: 52px; flex: none; }
+.mr-me .avatar svg, .mr-me .avatar img { width: 100%; height: 100%; }
+.mr-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mr-who b { font-size: 19px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mr-who small { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mr-me:active, .mr-row:active { background: var(--surface-3); }
+.mr-me:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.sheet .mr-group + .mr-group, .sheet .mr-nav + .mr-help { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line-strong); }
+.sheet .mr-nav > .mr-group:first-child .mr-h { margin-top: 14px; }
+.mr-h { margin: 8px 0 2px; padding: 0 12px; font-size: 12.5px; font-weight: 500; letter-spacing: .02em; color: var(--ink-3); }
+.mr-chev { margin-left: auto; display: inline-flex; color: var(--ink-3); flex: none; }
+.mr-chev svg { width: 16px; height: 16px; }
+.sheet .mr-nav a { box-sizing: border-box; min-height: 48px; padding: 0 12px; font-size: 16px; }
+.sheet .mr-nav a .count { margin-left: auto; }
+.sheet .mr-nav a .count + .mr-chev { margin-left: 8px; }
+.mr-row { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 11px; width: 100%; min-height: 48px; padding: 0 12px; border-radius: var(--r); color: var(--ink-2); font-size: 16px; cursor: pointer; }
+.mr-row:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.mr-ic { display: inline-flex; flex: none; }
+.mr-ic svg, .mr-row svg { width: 17px; height: 17px; }
+.mr-pick { position: relative; display: flex; align-items: center; gap: 11px; min-height: 48px; padding: 0 12px; border-radius: var(--r); color: var(--ink-2); font-size: 16px; }
+.mr-pick label { font-weight: 400; color: inherit; }
+.mr-pick .mr-val { margin-left: auto; color: var(--ink-3); font-size: 15px; }
+.mr-pick .mr-val + .mr-chev { margin-left: 6px; }
+.mr-pick select { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; }      /* the system's picker, over the whole row */
+.mr-pick:focus-within { outline: 2px solid var(--focus); outline-offset: -2px; }
+.mr-pick:active { background: var(--surface-3); }
+.mr-acts { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.mr-btn { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 50px; padding: 0 18px; border-radius: var(--pill); background: var(--surface-3); color: var(--ink-strong); font-size: 16px; font-weight: 500; cursor: pointer; text-align: center; }
+.mr-btn.out { color: var(--neg); }
+.mr-btn:active { opacity: .75; }
+.mr-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mr-legal { margin: 16px 0 4px; text-align: center; font-size: 12.5px; color: var(--ink-3); }
+.mr-legal .linkbtn { font-size: 12.5px; color: var(--ink-3); text-decoration: underline; text-underline-offset: 2px; }
+.sheet.more .sheet-desk { margin: 0; padding: 8px 12px 4px; }
+

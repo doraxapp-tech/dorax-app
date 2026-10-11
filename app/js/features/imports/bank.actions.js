@@ -30,7 +30,7 @@ async function bankArrival() {
 }
 
 const BANK_ACTIONS = {
-  'bank-open'() { if (!personal().length) return toast(t('Add an account first.')); UI.sheet = false; UI.drawer = { kind: 'bank-start', title: t('Connect a bank'), draft: { cpf: '', name: S.user.name || '' } }; renderOverlay(); const el = $('bk-cpf'); if (el) el.focus(); },
+  'bank-open'() { if (!personal().length) return needAccount(); UI.sheet = false; UI.drawer = { kind: 'bank-start', title: t('Connect a bank'), draft: { cpf: '', name: S.user.name || '' } }; renderOverlay(); const el = $('bk-cpf'); if (el) el.focus(); },
   async 'bank-start'() {
     const d = UI.drawer, m = d.draft; if (d.busy) return;
     if (String(m.cpf || '').replace(/\D/g, '').length !== 11) return fail(BANK_SAYS().bad_cpf);
@@ -52,7 +52,7 @@ const BANK_ACTIONS = {
   },
   /** One of the bank's accounts goes to the review table, like an OFX file: the bank's own ids catch what was already imported. */
   'bank-review'(ds) {
-    const g = UI.bank && UI.bank.got, a = g && g.accounts.find(x => x.id === ds.acc), mine = personal(); if (!a) return; if (!mine.length) return toast(t('Add an account first.'));
+    const g = UI.bank && UI.bank.got, a = g && g.accounts.find(x => x.id === ds.acc), mine = personal(); if (!a) return; if (!mine.length) return needAccount();
     const raw = g.transactions.filter(x => x.account === a.id).map(x => ({ date: x.date, description: x.description, amount: x.amount, sourceTxnId: 'bank:' + x.id, confidence: 100 }));
     const fit = mine.find(m => m.currency === a.currency && m.type === a.kind) || mine.find(m => m.currency === a.currency) || mine[0];
     UI.impError = null; UI.imp = { source: 'bank', file: [g.institution, a.name].filter(Boolean).join(' · '), accountId: fit.id, step: 'review', raw, real: true,

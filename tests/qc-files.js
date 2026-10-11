@@ -27,7 +27,9 @@ function makePdf() {
   for (const mode of modes) {
     const web = mode === 'http' ? await serve(path.dirname(PAGE)) : null, tag = `${TARGET}, ${mode}: `;
     const { browser, page, errors } = await open({ lang: 'en', plan: true, url: web ? web.url + '/' : undefined, server: { confirmEmail: false } });
-    const failed = []; page.on('requestfailed', r => { if (!/fonts\.(googleapis|gstatic)/.test(r.url())) failed.push(r.url()); }); page.on('response', r => { if (r.status() >= 400) failed.push(r.status() + ' ' + r.url()); });
+    const failed = [];
+    // a request the browser itself gave up on because the page was loaded again under it (the favicon, asked for after everything else) is not a missing file: a missing file answers 404, which the next line catches
+    page.on('requestfailed', r => { if (!/fonts\.(googleapis|gstatic)/.test(r.url()) && !/ERR_ABORTED/.test((r.failure() || {}).errorText || '')) failed.push(r.url()); }); page.on('response', r => { if (r.status() >= 400) failed.push(r.status() + ' ' + r.url()); });
     await page.reload();
     eq(failed, [], tag + 'every file the page asks for is found');
     ok(await page.locator('.lp-actions').isVisible(), tag + 'the home page opens');

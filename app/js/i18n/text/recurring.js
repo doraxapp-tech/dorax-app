@@ -1,0 +1,27 @@
+/* Dorax Finance — interface texts: features/recurring. Each row: [English source, Español, Português]. English is the key.
+   Split out of i18n/translations.js on 2026-10-10 (owner: "separate the things that can be separated"); a new text goes in the file of the part that uses it. */
+addTexts([
+  ["Recurring payments","Pagos recurrentes","Pagamentos recorrentes"],
+  ["Monthly total","Total mensual","Total mensal"],
+  ["Due in the next 30 days","Vence en los próximos 30 días","Vence nos próximos 30 dias"],
+  ["Next payment","Próximo pago","Próximo pagamento"],
+  ["Recurring transactions","Transacciones recurrentes","Transações recorrentes"],
+  ["Detected: same merchant in at least 3 of the last 4 months, similar amount and day","Detectados: mismo comercio en al menos 3 de los últimos 4 meses, con importe y día parecidos","Detectados: mesmo estabelecimento em pelo menos 3 dos últimos 4 meses, com valor e dia parecidos"],
+  ["Next expected","Próximo esperado","Próximo previsto"],
+  ["Typical amount","Importe habitual","Valor habitual"],
+  ["Manual","Manual","Manual"],
+  ["Detected · {n} months","Detectado · {n} meses","Detectado · {n} meses"],
+  ["Not recurring","No es recurrente","Não é recorrente"],
+  ["No recurring payments yet","Aún no hay pagos recurrentes","Ainda não há pagamentos recorrentes"],
+  ["They appear after a merchant shows up for three months, or you can add one below.","Aparecen cuando un comercio se repite tres meses, o puedes agregar uno abajo.","Aparecem quando um estabelecimento se repete por três meses, ou você pode adicionar um abaixo."],
+  ["Add a recurring payment manually","Agregar un pago recurrente a mano","Adicionar um pagamento recorrente manualmente"],
+  ["Day of month","Día del mes","Dia do mês"],
+  ["Enter a name for the recurring payment.","Escribe un nombre para el pago recurrente.","Informe um nome para o pagamento recorrente."],
+  ["Enter an amount greater than zero.","Escribe un importe mayor que cero.","Informe um valor maior que zero."],
+  ["Recurring payment added.","Pago recurrente agregado.","Pagamento recorrente adicionado."],
+  ["Marked as not recurring.","Marcado como no recurrente.","Marcado como não recorrente."],
+  ["Delete this recurring payment?","¿Eliminar este pago recurrente?","Excluir este pagamento recorrente?"],
+  ["{name}, {amount}, day {d} of each month.","{name}, {amount}, el día {d} de cada mes.","{name}, {amount}, dia {d} de cada mês."],
+  ["Delete recurring payment","Eliminar pago recurrente","Excluir pagamento recorrente"],
+  ["The day of the month must be between 1 and 31.","El día del mes debe estar entre 1 y 31.","O dia do mês deve estar entre 1 e 31."],
+]);

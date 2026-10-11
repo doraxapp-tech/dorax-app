@@ -1,0 +1,52 @@
+/* ---------- the app lock ----------
+   The closed screen covers everything and shows nothing of the account: the page underneath is not blurred, it is not drawn. */
+html.locked body > :not(#lock-root) { visibility: hidden !important; }
+.lock { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; overflow-y: auto; background: var(--bg); padding: calc(var(--safe-t) + 20px) 20px calc(var(--safe-b) + 20px); }
+.lock-in { width: min(320px, 100%); display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+.lock .brand { padding: 0; align-items: center; } .lock .brand .logo { height: 34px; } .lock .brand small { font-size: 11px; letter-spacing: .36em; padding-left: .36em; }
+.lock h1 { font-size: 20px; font-weight: 500; letter-spacing: 0; text-wrap: balance; margin-top: 10px; }
+.lock-note { color: var(--ink-2); font-size: 14px; line-height: 1.5; margin: 0; }
+.lock-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.lock-dots { display: flex; gap: 16px; padding: 6px 0; }
+.lock-dots i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-3); transition: background var(--t1) ease-out, border-color var(--t1) ease-out; }
+.lock-dots i.on { background: var(--brand); border-color: var(--brand); }
+.lock-dots.no { animation: lock-no 360ms var(--ease); }
+@keyframes lock-no { 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+.lock-say { min-height: 2.9em; margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--crit); text-wrap: balance; } .lock-say.wait { color: var(--ink-2); }
+.lock-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px 22px; justify-content: center; }
+.lock-pad button { all: unset; box-sizing: border-box; cursor: pointer; width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; font-weight: 500; color: var(--ink-strong); background: var(--btn); border: 1px solid var(--line); transition: background var(--t1) ease-out, transform var(--t1) ease-out; -webkit-tap-highlight-color: transparent; user-select: none; }
+.lock-pad button:hover { background: var(--btn-hover); } .lock-pad button:active { transform: scale(.94); background: var(--select); }
+.lock-pad button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.lock-pad button:disabled { opacity: .35; cursor: default; }
+.lock-pad .aux { background: none; border-color: transparent; color: var(--ink-2); } .lock-pad .aux svg { width: 28px; height: 28px; }
+.lock .linkbtn { min-height: 44px; }
+@media (max-height: 620px) { .lock-in { gap: 10px; } .lock-pad { grid-template-columns: repeat(3, 60px); gap: 10px 20px; } .lock-pad button { width: 60px; height: 60px; font-size: 22px; } .lock h1 { margin-top: 2px; } }
+@media (prefers-reduced-motion: reduce) { .lock-dots.no { animation: none; } .lock-pad button, .lock-dots i { transition: none; } }
+/* ---------- the lock opening (features/lock/lock.motion.js) ----------
+   A layer over the app, the colour of the closed screen: a copy of that screen fading, and the padlock that opens in the middle of it. */
+#unlock-fx { position: fixed; inset: 0; z-index: 401; background: var(--bg); overflow: hidden; cursor: default; }
+#unlock-fx .un-was, #unlock-fx .un-in { position: absolute; inset: 0; }
+#unlock-fx .un-was .lock { position: absolute; z-index: 0; background: none; overflow: hidden; }
+#unlock-fx .un-in { z-index: 1; display: grid; place-content: center; justify-items: center; gap: 20px; padding: 0 24px; text-align: center; pointer-events: none; }
+#unlock-fx .un-lock { width: 78px; height: 91px; overflow: visible; }
+#unlock-fx .un-shackle { fill: none; stroke: var(--ink-strong); stroke-width: 9; stroke-linecap: round; transform-origin: 30px 54px; }
+#unlock-fx .un-body { fill: var(--ink-strong); }
+#unlock-fx .un-key { fill: var(--bg); }
+#unlock-fx .un-ring { fill: none; stroke: var(--brand); stroke-width: 3; transform-origin: 48px 75px; opacity: 0; }
+#unlock-fx .un-say { font-size: 18px; font-weight: 500; color: var(--ink-strong); text-wrap: balance; opacity: 0; }
+/* its settings in the profile */
+.guard-form { flex: 1 1 100%; display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+.guard-pins { align-items: flex-end; gap: 12px; } .guard-pins .field { flex: 0 1 130px; }
+input.pin { letter-spacing: .5em; font-family: var(--mono); text-align: center; }
+/* the minute before a page left alone locks (features/lock/lock-warn.js, owner 2026-10-08): at the foot of the screen, counting down */
+.idle-warn { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 95; display: flex; align-items: center; gap: 14px; width: max-content; max-width: calc(100% - 32px); padding: 12px 12px 12px 14px; border-radius: 18px; background: var(--lift); border: 1px solid var(--line-strong); box-shadow: 0 14px 44px rgba(0, 0, 0, .45); color: var(--ink-strong); animation: toast-in 260ms var(--ease) both; }
+.idle-warn .iw-ico { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--well); color: var(--brand); }
+.idle-warn .iw-ico svg { width: 18px; height: 18px; }
+.idle-warn .iw-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.idle-warn .iw-t b { font-size: 15px; font-weight: 600; }
+.idle-warn .iw-time { font-family: var(--fig); color: var(--brand); }
+.idle-warn small { font-size: 13px; color: var(--ink-2); }
+.idle-warn .btn { flex: none; }
+@media (max-width: 920px) { .idle-warn { left: 16px; right: 16px; bottom: calc(94px + var(--tab-b)); transform: none; width: auto; max-width: none; animation-name: none; } }
+@media (max-width: 480px) { .idle-warn .iw-ico { display: none; } }      /* a narrow phone keeps its room for the words */
+

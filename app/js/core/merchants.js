@@ -49,6 +49,9 @@ function findDuplicate(row, accountId, txns) {
     if (t.accountId !== accountId || t.amount !== row.amount) continue;
     if (row.sourceTxnId && t.sourceTxnId && row.sourceTxnId === t.sourceTxnId) return { txn: t, certainty: 'exact' };
     const gap = Math.abs(dayDiff(t.date, row.date));
+    // an installment recorded by hand (core/installments.js) and the bank's line of it ("LOJA 02/10"), which the bank may date on another day:
+    // flagged as possible when the line says the same installment of the same count, within 40 days
+    if (gap > 2 && t.inst && gap <= 40) { const m = /(?:^|\D)(\d{1,2})\s*\/\s*(\d{1,2})(?:\D|$)/.exec(row.description || row.merchant || ''); if (m && +m[1] === t.inst.i && +m[2] === t.inst.n) possible = possible || { txn: t, certainty: 'possible' }; }
     if (gap > 2) continue;
     const a = normalizeText(row.merchant || row.description), b = normalizeText(t.merchant);
     const rawA = normalizeText(row.description), rawB = normalizeText(t.description);

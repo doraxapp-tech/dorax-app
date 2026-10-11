@@ -6,7 +6,7 @@
 .findbtn svg { width: 15px; height: 15px; flex: none; } .findbtn span { flex: 1; min-width: 0; }
 kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 5px; border: 1px solid var(--line-strong); background: var(--well); color: var(--ink-2); font-family: var(--mono); font-size: 10.5px; line-height: 1; }
 /* the panel: near the top of the page, the field first, the results under it. A surface with a border, like every panel: no shadow */
-#find-root .scrim { z-index: 70; animation: fade-in var(--t1) ease-out both; }
+#find-root .scrim { z-index: 70; animation: fade-in var(--t1) ease-out both; }      /* its entrance is kept (owner, 2026-10-08: "bring it back, I liked it") */
 .find { position: fixed; z-index: 71; top: min(14vh, 120px); left: 50%; width: min(560px, calc(100% - 24px)); transform: translateX(-50%); display: flex; flex-direction: column; max-height: min(70vh, 560px); background: var(--lift); border: 1px solid var(--line-strong); border-radius: var(--r-lg); overflow: hidden; animation: find-in 200ms var(--ease) both; }
 @keyframes find-in { from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(.985); } to { opacity: 1; transform: translateX(-50%); } }
 .find-top { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 16px; border-bottom: 1px solid var(--line); flex: none; }

@@ -7,6 +7,7 @@ const ICONS = {
   list: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v10a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2z"/><path d="M16.5 14h.01"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  gauge: '<path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1"/>',      // a spending limit (features/limits, 2026-10-10)
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   upload: '<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
   bank: '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3 21h18"/>',
@@ -17,16 +18,22 @@ const ICONS = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
   trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  home: '<path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 10v9.5h12V10"/><path d="M10 19.5v-5h4v5"/>',
   briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/>',
   filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
-  left: '<path d="M15 6l-6 6 6 6"/>', right: '<path d="M9 6l6 6-6 6"/>', down: '<path d="M6 9l6 6 6-6"/>',
+  left: '<path d="M15 6l-6 6 6 6"/>', right: '<path d="M9 6l6 6-6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', up: '<path d="M6 15l6-6 6 6"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+  sort: '<path d="M7 20V4M3.5 7.5 7 4l3.5 3.5M17 4v16M13.5 16.5 17 20l3.5-3.5"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.4a2.6 2.6 0 1 1 3.9 2.2c-.9.5-1.4 1-1.4 2"/><path d="M12 16.9v.1"/>',
   more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
   alert: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
   check: '<path d="M5 12l5 5L20 7"/>',
+  pause: '<path d="M9 5v14M15 5v14"/>',
+  archive: '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/>',
   coins: '<circle cx="9" cy="9" r="6"/><path d="M15.2 9.6a6 6 0 1 1-5.6 5.6"/><path d="M9 7v4"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
@@ -34,6 +41,14 @@ const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/>',
   moon: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5z"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>', trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>', copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  // 2026-10-07 (owner: "no emoji, draw the icons in our style"): the dreams of the first-time setup and the tip of its reveal. Same grid and stroke as the rest.
+  car: '<path d="M5 11l1.5-4.1A2 2 0 0 1 8.4 5.5h7.2a2 2 0 0 1 1.9 1.4L19 11"/><rect x="3" y="11" width="18" height="6" rx="2"/><path d="M6.5 17v2M17.5 17v2M7 14h.01M17 14h.01"/>',
+  plane: '<path transform="rotate(45 12 12)" d="M12 2.5c1 0 1.6 1 1.6 2.4V9l6.9 4v2l-6.9-2v4.2l2.2 1.6V20L12 19l-3.8 1v-1.2l2.2-1.6V13l-6.9 2v-2l6.9-4V4.9c0-1.4.6-2.4 1.6-2.4z"/>',
+  flame: '<path d="M12 3c.5 3-1.2 4.7-2.7 6.3C7.8 10.9 6.5 12.5 6.5 15a5.5 5.5 0 0 0 11 0c0-2.2-1-3.9-2.2-5.2-.3 1.3-1 2.3-2 2.8.3-3.3-.4-6.8-1.3-9.6z"/>',      // the Journey's streak (features/journey)
+  shield: '<path d="M12 3l7 2.8v5.4c0 4.3-2.8 7.8-7 9.8-4.2-2-7-5.5-7-9.8V5.8z"/><path d="M9 12.2l2.2 2.2 3.8-4"/>',
+  spark: '<path d="M10.5 4l1.8 4.7 4.7 1.8-4.7 1.8-1.8 4.7-1.8-4.7L4 10.5l4.7-1.8z"/><path d="M18 15v5M15.5 17.5h5"/>',
+  bulb: '<path d="M8.5 14.5a6 6 0 1 1 7 0c-.6.5-.9 1.1-.9 1.8v1.2H9.4v-1.2c0-.7-.3-1.3-.9-1.8z"/><path d="M10 20.5h4"/>',
+  open: '<path d="M7 17L17 7M9 7h8v8"/>',      // an arrow up and to the right: this opens something
   download: '<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>', file: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/>',
 };
 const icon = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;

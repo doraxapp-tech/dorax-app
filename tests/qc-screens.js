@@ -72,6 +72,7 @@ const fs = require('fs'), path = require('path');
   }
   // 9. plan cells typed in the grid; a cost that ends; a new year
   await page.evaluate(() => navigate('plan'));
+  await page.evaluate(() => A['plan-year-open']());      // a computer keeps the year one click away (2026-10-11)
   await page.fill('#pl-pl-alquiler-10', '1.950,50'); await page.locator('#pl-pl-alquiler-10').blur();
   eq(await page.evaluate(() => S.plan.lines.find(l => l.id === 'pl-alquiler').plan[2026][10]), 195050, 'a typed cell is read as 1.950,50');
   await page.evaluate(() => { endLine(S.plan.lines.find(l => l.id === 'pl-gym' || /gym/i.test(l.name)), '2026-11'); render(); });

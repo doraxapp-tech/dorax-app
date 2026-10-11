@@ -13,11 +13,17 @@ function headersFor(url) {
   for (const r of rules) if (new RegExp('^' + r.source + '$').test(url)) for (const h of r.headers) out[h.key] = h.value;
   return out;
 }
+/** The file vercel.json answers a path with (its "rewrites"): the pages before login have addresses of their own (app/js/ui/pages.js), all answered with index.html. */
+function rewriteFor(url) {
+  let rules = []; try { rules = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).rewrites || []; } catch (e) { /* no file: no rewrites */ }
+  for (const r of rules) if (new RegExp('^' + r.source + '$').test(url)) return r.destination;
+  return url;
+}
 /** opts.preview: the stand-in server takes the place of config.js. opts.files: { '/path': 'text' } served instead of the file (the tests use it). */
 function createServer(opts) {
   const o = opts || {}, files = { ...(o.files || {}) };
   return http.createServer((req, res) => {
-    const url = decodeURIComponent(req.url.split('?')[0]), head = { 'Cache-Control': 'no-store', ...headersFor(url) };
+    const asked = decodeURIComponent(req.url.split('?')[0]), url = rewriteFor(asked), head = { 'Cache-Control': 'no-store', ...headersFor(asked) };
     if (files[url] != null) { res.writeHead(200, { ...head, 'Content-Type': TYPES[url.split('.').pop()] || TYPES.html }); return res.end(files[url]); }
     if (o.preview && url === '/config.js') { res.writeHead(200, { ...head, 'Content-Type': TYPES.js }); return res.end(fs.readFileSync(path.join(__dirname, 'preview-backend.js'))); }       // the stand-in takes the place of the project's address
     const file = path.join(DIR, url === '/' ? 'index.html' : url);
@@ -27,4 +33,4 @@ function createServer(opts) {
 }
 if (require.main === module) { try { require('./build-banks.js').write({ quiet: true }); } catch (e) { console.warn('banks: the list of logos could not be written: ' + e.message); } }
 if (require.main === module) createServer({ preview: PREVIEW }).listen(PORT, '127.0.0.1', () => console.log(`Dorax Finance${PREVIEW ? ' (preview: stand-in server, nothing leaves this browser)' : ''}: http://localhost:${PORT}`));
-module.exports = { createServer, headersFor };
+module.exports = { createServer, headersFor, rewriteFor };

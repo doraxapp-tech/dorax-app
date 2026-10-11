@@ -4,6 +4,10 @@
   "installCommand": "",
   "buildCommand": "node tools/vercel-build.js",
   "outputDirectory": "app",
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/(entrar|criar-conta|recuperar-senha|privacidade|termos|contato)", "destination": "/index.html" }
+  ],
   "redirects": [
     {
       "source": "/:path*",

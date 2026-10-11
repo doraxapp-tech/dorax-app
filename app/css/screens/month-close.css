@@ -1,0 +1,50 @@
+/* Dorax Finance — the close of the month, guided (features/month-close/month-close.view.js). The whole screen of a phone, a card in the middle of a
+   computer (the .drawer.full rules: css/screens/plan-guide.css). */
+.mc-ask { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 12px 12px 12px 14px; border: 1px solid var(--side-line); border-radius: var(--r-card); background: var(--side-tint); }
+.mc-ask-ico { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--surface); color: var(--brand); }
+.mc-ask-ico svg { width: 18px; height: 18px; }
+.mc-ask-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mc-ask-t b { font-size: 15px; font-weight: 600; color: var(--ink-strong); }
+.mc-ask-t small { font-size: 13px; color: var(--ink-2); }
+.mc-ask .btn { flex: none; min-height: 44px; }
+.mc-ask-x { flex: none; width: 44px; height: 44px; }
+.mc { gap: 14px; }
+.mc-big { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; color: var(--ink-strong); }
+.mc-big .num { font-family: var(--fig); }
+.mc-big.good .num { color: var(--brand); }
+.mc-lead { margin: 0; color: var(--ink-2); font-size: 15px; }
+/* what came in and what went out, side by side */
+.mc-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.mc-bars li { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.mc-bl { font-size: 14px; color: var(--ink-2); }
+.mc-track { height: 12px; border-radius: 4px; background: var(--track); overflow: hidden; }
+.mc-track i { display: block; height: 100%; border-radius: 4px; }
+.mc-bars .in .mc-track i { background: var(--brand); }
+.mc-bars .out .mc-track i { background: var(--col-muted); }
+.mc-bars b { font-size: 15px; font-weight: 500; color: var(--ink-strong); white-space: nowrap; }
+.mc-lims { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 0; padding: 10px 12px; border-radius: var(--r-mid); background: var(--surface-2); color: var(--ink-2); font-size: 14px; line-height: 1.4; }
+.mc-lims svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--brand); }
+/* the goals */
+.mc-goals { list-style: none; margin: 0; padding: 0; }
+.mc-goals li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.mc-goals li:first-child { border-top: 0; }
+.mc-goals .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.mc-goals b { font-size: 15px; font-weight: 500; color: var(--ink-strong); }
+.mc-goals small { font-size: 13px; color: var(--ink-2); }
+.mc-gi { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line-strong); color: var(--ink-3); }
+.mc-gi svg { width: 16px; height: 16px; }
+.mc-goals li.ok .mc-gi { border-color: var(--side-line); background: var(--side-tint); color: var(--brand); }
+/* the end */
+.mc-end { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 6px 8px; text-align: center; }
+.mc-end p { margin: 0; max-width: 40ch; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+.mc-end-ico { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink-2); }
+.mc-end-ico svg { width: 28px; height: 28px; }
+.mc-end.good .mc-end-ico { border-color: var(--side-line); background: var(--side-tint); color: var(--brand); }
+.mc-end .mc-h { font-size: 24px; }
+.mc-dots { list-style: none; display: flex; justify-content: center; gap: 6px; margin: 6px 0 0; padding: 0; }
+.mc-dots li { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.mc-dots li.done { background: var(--side-line); }
+.mc-dots li.on { width: 22px; border-radius: 4px; background: var(--brand); }
+@media (prefers-reduced-motion: no-preference) { .mc-track i { animation: grow-x 640ms var(--ease) 120ms both; transform-origin: left center; } .mc-end.good .mc-end-ico { animation: rise 420ms var(--ease) both; } }
+.mc .fu-big { font-size: 19px; }
+.mc .fu-n { font-size: 40px; }

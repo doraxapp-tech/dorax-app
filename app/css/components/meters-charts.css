@@ -26,7 +26,7 @@ div.legend-row.still:hover { background: none; }
 .card:has(> .card-b > .cols) { display: flex; flex-direction: column; }
 .card:has(> .card-b > .cols) > .card-b { flex: 1; display: flex; }
 .card:has(> .card-b > .cols) .cols { flex: 1; height: auto; min-height: 220px; max-height: 340px; }
-.cols .yaxis { display: flex; flex-direction: column-reverse; justify-content: space-between; padding-bottom: 24px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); text-align: right; }
+.cols .yaxis { display: flex; flex-direction: column-reverse; justify-content: space-between; padding-bottom: 24px; font-family: var(--fig); font-size: 10.5px; color: var(--ink-3); text-align: right; }
 .cols .yaxis span { transform: translateY(50%); line-height: 1; }
 .cols .plot { position: relative; display: flex; align-items: stretch; gap: 6px; padding-bottom: 24px; }
 .cols .gl { position: absolute; left: 0; right: 0; height: 1px; background: var(--grid); }
@@ -36,7 +36,7 @@ div.legend-row.still:hover { background: none; }
 .colbtn[aria-pressed="true"] i { background: var(--col); }
 .colbtn:hover i { background: var(--ink-3); }
 .colbtn[aria-pressed="true"]:hover i { background: var(--col); }
-.colbtn .v { flex: none; font-family: var(--mono); font-size: 11px; color: var(--ink-strong); margin-bottom: 6px; white-space: nowrap; position: relative; z-index: 1; }
+.colbtn .v { flex: none; font-family: var(--fig); font-size: 11px; color: var(--ink-strong); margin-bottom: 6px; white-space: nowrap; position: relative; z-index: 1; }
 .colbtn .x { position: absolute; bottom: -22px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
 .colbtn[aria-pressed="true"] .x { color: var(--ink-strong); }
 .colbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r); }

@@ -10,6 +10,7 @@
   --line: #E4E4E4; --line-strong: #D2D2D2; --graphite: #B4B4B4; --field: #8C8C8C;
   --ink: #262626; --ink-strong: #121212; --ink-2: #525252; --ink-3: #666666;
   --primary: #006239; --primary-hover: #00754A; --primary-ink: #FAFAFA; --primary-line: rgba(0, 98, 57, .5);
+  --cta: #006239; --cta-hover: #00754A; --cta-ink: #FAFAFA;      /* on white the bright green is too faint to be a button (1.9:1): the deep green is the main action here */
   --btn: transparent; --btn-hover: rgba(0, 0, 0, .04); --btn-line: #D2D2D2; --soft-hover: #E0E0E0;
   --select: #EAEAEA; --select-ink: #121212;
   --brand: #0F8F62; --link: #00754A; --focus: #00754A; --ring: #00754A; --on-brand: #FFFFFF;
@@ -22,7 +23,8 @@
   --track: #E2E2E2; --hover-line: #8C8C8C; --knob: #FFFFFF; --switch-off: #C4C4C4; --switch-on: #0F8F62;
   --s1: #1FA390; --s2: #B87A00; --s3: #4A8FE8; --s4: #D95926; --s5: #9085E9; --s6: #D55181; --s7: #5F9A31;
   --col: #004D2E; --col-muted: #949494; --grid: #EDEDED;
-  --cur: rgba(0, 0, 0, .04); --cur-sum: rgba(0, 0, 0, .07);
+  --spark: var(--link); --spark-bg: color-mix(in srgb, var(--link) 7%, transparent); --spark-line: color-mix(in srgb, var(--link) 40%, transparent); --spark-ink: #FFFFFF;
+  --cur: rgba(15, 143, 98, .13); --cur-sum: rgba(15, 143, 98, .2);
   --scrim: rgba(0, 0, 0, .38);
 }
 /* amber as a small label needs a darker step than amber as a dot; the reminder count sits on the deep green so its number reads */

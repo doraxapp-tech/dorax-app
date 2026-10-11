@@ -4,19 +4,19 @@
    The app keeps its compact 14px text for tables and grids; the home page reads at 17px and 21px. */
 /* the page's title in the bar: 20px on a computer (owner, 2026-10-05). Phones keep their large title, which shrinks into the bar on scroll. */
 .topbar h1 { font-size: 20px; font-weight: 600; letter-spacing: .011em; line-height: 1.2; }
-.card-h h2 { font-size: 17px; font-weight: 600; letter-spacing: -.022em; line-height: 1.24; }
-.drawer header h2, .modal h2 { font-weight: 600; letter-spacing: -.022em; }
+.card-h h2 { font-size: 17px; font-weight: 600; letter-spacing: -.008em; line-height: 1.24; }
+.drawer header h2, .modal h2 { font-weight: 600; letter-spacing: -.008em; }
 .hello h2, .pf-head h2 { font-size: 21px; font-weight: 600; letter-spacing: .011em; line-height: 1.19; }
 .auth-card h1 { font-size: 28px; font-weight: 600; letter-spacing: .007em; line-height: 1.14; }
 .kpi .value, .figure b { font-weight: 600; letter-spacing: .007em; }
 .tile .value, .acct .bal, .bal, .tally b { font-weight: 600; }
-.empty b { font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+.empty b { font-size: 17px; font-weight: 600; letter-spacing: -.008em; }
 .legal-page h1 { font-weight: 600; letter-spacing: 0; line-height: 1.1; }
 .legal-page h2, .legal-body h2 { font-weight: 600; letter-spacing: -.022em; }
 .contact-done h2 { font-size: 21px; letter-spacing: .011em; }
 @media (max-width: 920px) {
-  .topbar h1 { font-size: 32px; font-weight: 700; letter-spacing: .004em; line-height: 1.125; }
-  .bar-title { font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+  .topbar h1 { font-size: 20px; font-weight: 600; letter-spacing: -.01em; line-height: 1.2; }      /* 2026-10-08 (owner): 32 px was "gigantic" on a phone */
+  .bar-title { font-size: 17px; font-weight: 600; letter-spacing: -.008em; }
 }
 .lp h1 { font-size: clamp(38px, 7.2vw, 64px); font-weight: 600; letter-spacing: -.005em; line-height: 1.07; }
 .lp h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 600; letter-spacing: 0; line-height: 1.1; }
@@ -36,3 +36,20 @@
 .lp-note { font-size: 14px; line-height: 1.43; }
 @media (min-width: 1180px) { .lp-hero h1 { font-size: clamp(44px, 3.9vw, 56px); } .lp-hero .lp-copy .lead { max-width: 30em; } }
 
+
+/* ================= 2026-10-07: room between the letters =================
+   Owner: "the text on the dashboard is hard to read, the space between letters is very small, the small letters above all."
+   The v22 tracking steps above are Apple's, made for SF Pro. On Windows and Android the text is Inter, which is drawn wider and wants no
+   negative tracking at these sizes: with SF's figures on it, 12 and 14px text closed up. So the text itself is set at 0 (css/base/tokens.css),
+   small text opens a little, the headings keep only a hair of tightening, and the smallest lines of the dashboard grow half a pixel to a pixel.
+   The pages before login keep their own steps (css/public).
+   2026-10-08: on a Mac the app was still in SF Pro, which these values were not tuned on; it is Inter there too now (css/base/tokens.css). */
+small, .note, .sub, .delta, .meta, .muted, .kpi .label, .tile .label, .figure span, .legend-row, .li small, .rw-delta, .rw-basis, .rw-next, .hint + .sub { letter-spacing: .012em; }
+.chip, .mono, .num { letter-spacing: .01em; }
+#tip, #tip.long { letter-spacing: .01em; }
+.note, .card-h .sub, .figure span, .rw-basis { font-size: 13px; }
+.kpi .delta, .budget .meta, .legend-row .pct, .rw-delta, .co-ask small, .ob-way small { font-size: 12.5px; }
+.kpi .label { font-size: 13.5px; }
+.chip { font-size: 11.5px; }
+.rw-seg .lbl { font-size: 11px; }
+.insight small, .ob-fact small { font-size: 13.5px; }

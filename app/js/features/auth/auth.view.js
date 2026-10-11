@@ -29,19 +29,19 @@ const auGoogle = () => { const real = !SERVER.preview; return `${auBtn('auth-goo
 
 function viewAuth() {
   const p = UI.pub, signup = p.mode === 'signup';
-  const back = `<button type="button" class="btn ghost sm auth-back" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</button>`;
+  const back = `<a class="btn ghost sm auth-back" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</a>`;
   const top = `${SERVER.ready ? '' : banner('warn', esc(serverSays('not_connected')))}${p.error ? banner('crit', esc(p.error)) : ''}${p.notice ? banner('', esc(p.notice)) : ''}`;
   // One block: the logo, then the form, centred on the page with no box round it (owner, 2026-10-05: "remove the 2 block design of the sign-up and login").
   const card = (inner, plain) => `<main class="auth single"><div class="auth-main"><div class="auth-card">${plain ? '' : back}${brandMark(true)}${inner}</div></div></main>`;
   if (p.screen === 'onboard') return viewOnboard();
 
   // a short wait: the server is being asked who is logged in, or the account is on its way
-  if (p.screen === 'loading') return `<main class="auth gate">${weaveAuth()}<div class="gate-wait" role="status">${brandMark(true)}<span class="spinner" aria-hidden="true"></span><span class="sr">${t('One moment…')}</span></div></main>`;
+  if (p.screen === 'loading') return `<main class="auth gate"><div class="gate-wait" role="status">${brandMark(true)}<span class="spinner" aria-hidden="true"></span><span class="sr">${t('One moment…')}</span></div></main>`;
 
   // the person is logged in, but the account could not be read
   if (p.screen === 'offline') return card(`<div class="modal-icon neutral">${icon('alert')}</div><h1 id="au-title" tabindex="-1">${t('Your account could not be opened')}</h1>
       <p>${esc(p.error || '')}</p>
-      <div class="row">${p.fixed ? `<button type="button" class="btn primary" data-a="pub-go" data-v="contact">${t('Contact form')}</button>` : `<button type="button" class="btn primary" data-a="gate-retry">${t('Try again')}</button>`}<button type="button" class="btn" data-a="logout">${t('Log out')}</button></div>`, true);
+      <div class="row">${p.fixed ? `<a class="btn primary" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${t('Contact form')}</a>` : `<button type="button" class="btn primary" data-a="gate-retry">${t('Try again')}</button>`}<button type="button" class="btn" data-a="logout">${t('Log out')}</button></div>`, true);
 
   // an email is on its way: the one that confirms a new account, or the one that lets a password be chosen again
   if (p.screen === 'sent') {
@@ -50,7 +50,7 @@ function viewAuth() {
       <p>${reset ? t('If {email} has an account, a link to choose a new password is on its way.', { email: `<b>${esc(p.email)}</b>` }) : t('We sent a link to {email}. Open it to finish creating your account.', { email: `<b>${esc(p.email)}</b>` })}</p>
       ${top}
       <p class="note">${t('It can take a minute. If it does not arrive, look in your spam folder.')}</p>
-      <div class="row auth-alt"><button type="button" class="linkbtn" data-a="auth-resend" ${p.resent || p.busy ? 'disabled' : ''}>${p.busy === 'auth-resend' ? t('One moment…') : t('Send it again')}</button><span class="muted">·</span><button type="button" class="linkbtn" data-a="pub-go" data-v="${reset ? 'forgot' : 'signup'}">${t('Use another email')}</button><span class="muted">·</span><button type="button" class="linkbtn" data-a="pub-go" data-v="login">${t('Back to log in')}</button></div>
+      <div class="row auth-alt"><button type="button" class="linkbtn" data-a="auth-resend" ${p.resent || p.busy ? 'disabled' : ''}>${p.busy === 'auth-resend' ? t('One moment…') : t('Send it again')}</button><span class="muted">·</span><a class="linkbtn" href="${PAGES.href(reset ? 'forgot' : 'signup')}" data-a="pub-go" data-v="${reset ? 'forgot' : 'signup'}">${t('Use another email')}</a><span class="muted">·</span><a class="linkbtn" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Back to log in')}</a></div>
       ${p.resent ? `<p class="note" role="status">${t('Sent again. If it does not arrive in a minute, look in your spam folder.')}</p>` : ''}`);
   }
 
@@ -60,7 +60,7 @@ function viewAuth() {
       ${top}
       <form class="au-form" novalidate data-enter="auth-forgot-send">${auEmail()}
         ${auBtn('auth-forgot-send', t('Send me the link'), 'primary lg')}</form>
-      <p class="auth-alt"><button type="button" class="linkbtn" data-a="pub-go" data-v="login">${t('Back to log in')}</button></p>`);
+      <p class="auth-alt"><a class="linkbtn" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Back to log in')}</a></p>`);
 
   // forgotten password, step 2: the link from the email was opened
   if (p.screen === 'reset') return card(`<h1 id="au-title" tabindex="-1">${t('Choose a new password')}</h1>
@@ -72,7 +72,7 @@ function viewAuth() {
       <p class="auth-alt"><button type="button" class="linkbtn" data-a="auth-reset-cancel">${t('Cancel')}</button></p>`, true);
 
   // create account / log in
-  const legal = `${t('I have read and accept the')} <button type="button" class="linkbtn" data-a="pub-go" data-v="terms">${t('Terms of use')}</button> ${t('and the')} <button type="button" class="linkbtn" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</button> (${t('drafts')}).`;
+  const legal = `${t('I have read and accept the')} <a class="linkbtn" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a> ${t('and the')} <a class="linkbtn" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a> (${t('drafts')}).`;
   return card(`<h1 id="au-title" tabindex="-1">${signup ? t('Create your account') : t('Welcome back')}</h1>
       <p>${signup ? t('With Google, or with your email and a password.') : t('Log in with Google, or with your email and password.')}</p>
       ${top}
@@ -80,9 +80,9 @@ function viewAuth() {
       <form class="au-form" novalidate data-enter="${signup ? 'auth-signup' : 'auth-login'}">
         ${signup ? auText('au-name', t('Your name'), 'name', 'type="text" name="name" autocomplete="name" maxlength="80"', t('A nickname works')) : ''}
         ${auEmail()}
-        ${signup ? auPassword(t('Password'), true) : auPassword(t('Password'), false, `<button type="button" class="linkbtn" data-a="pub-go" data-v="forgot">${t('Forgot your password?')}</button>`)}
+        ${signup ? auPassword(t('Password'), true) : auPassword(t('Password'), false, `<a class="linkbtn" href="${PAGES.href('forgot')}" data-a="pub-go" data-v="forgot">${t('Forgot your password?')}</a>`)}
         ${signup ? `<div class="field${p.errs.accept ? ' bad' : ''}"><label class="check accept" for="au-accept"><input type="checkbox" id="au-accept" ${p.accept ? 'checked' : ''} data-c="pub-check" data-k="accept"${auAria('au-accept', p.errs.accept)}><span>${legal}</span></label>${auErr('au-accept', p.errs.accept)}</div>` : ''}
         ${signup ? auBtn('auth-signup', t('Create account'), 'primary lg') : auBtn('auth-login', t('Log in'), 'primary lg')}</form>
-      <p class="auth-alt">${signup ? `${t('Already have an account?')} <button type="button" class="linkbtn" data-a="pub-go" data-v="login">${t('Log in')}</button>` : `${t('New here?')} <button type="button" class="linkbtn" data-a="pub-go" data-v="signup">${t('Create account')}</button>`}</p>`);
+      <p class="auth-alt">${signup ? `${t('Already have an account?')} <a class="linkbtn" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>` : `${t('New here?')} <a class="linkbtn" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${t('Create account')}</a>`}</p>`);
 }
 function viewPublic() { const sc = UI.pub.screen; return sc === 'landing' ? viewLanding() : sc === 'privacy' || sc === 'terms' ? viewLegal(sc) : sc === 'contact' ? viewContact() : viewAuth(); }

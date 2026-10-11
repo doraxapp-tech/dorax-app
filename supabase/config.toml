@@ -8,3 +8,7 @@ verify_jwt = false
 # The bank function also checks its callers itself: every request must carry a person's login, which it confirms with the login service.
 [functions.bank]
 verify_jwt = false
+
+# The suggest function (category suggestions with AI) checks its callers itself too: a person's login, confirmed with the login service.
+[functions.suggest]
+verify_jwt = false

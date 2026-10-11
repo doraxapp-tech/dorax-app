@@ -1,0 +1,49 @@
+/* Dorax Finance — what is paid once a year, on Goals (features/yearly/yearly.view.js). */
+.yr { display: flex; flex-direction: column; gap: 10px; }
+.yr .sec { margin-bottom: 0; }
+.yr-lead { margin: -2px 0 4px; max-width: 62ch; }
+.yr-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.yr-card { display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
+.yr-main { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; -webkit-tap-highlight-color: transparent; }
+.yr-main:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; border-radius: var(--r-card); }
+.yr-main:active { background: var(--surface-2); }
+.yr-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.yr-top b { flex: 1; min-width: 0; font-size: 15px; font-weight: 500; line-height: 1.25; color: var(--ink-strong); overflow-wrap: anywhere; }
+.yr-top .chip { flex: none; }
+.yr-ico { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--side-line); background: var(--side-tint); color: var(--brand); }
+.yr-ico svg { width: 17px; height: 17px; }
+.yr-amt { font-family: var(--fig); font-size: 22px; font-weight: 600; color: var(--ink-strong); }
+.yr-amt .muted { font-size: 14px; font-weight: 500; }
+.yr-say { color: var(--ink-2); font-size: 14px; line-height: 1.4; }
+.yr-foot { display: flex; padding: 0 16px 14px; }
+.yr-foot .btn { min-height: 44px; }
+/* the ideas to add one */
+.yr-ideas { display: flex; flex-wrap: wrap; gap: 8px; }
+.yr-idea { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px 8px 10px; border: 1px dashed var(--line-strong); border-radius: 999px; color: var(--ink-strong); font-size: 14px; font-weight: 500; }
+.yr-idea svg { width: 16px; height: 16px; color: var(--brand); }
+.yr-idea small { color: var(--ink-3); font-size: 12px; font-weight: 400; margin-left: 2px; }
+.yr-idea:hover { border-color: var(--brand); }
+.yr-idea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* its details */
+.yr-view { gap: 10px; }
+.yr-big { font-family: var(--fig); font-size: 30px; font-weight: 600; color: var(--ink-strong); }
+.yr-big .muted { font-size: 16px; font-weight: 500; }
+.yr-view .yr-say { margin: 2px 0 0; font-size: 15px; color: var(--ink-strong); }
+.yr-strip { list-style: none; margin: 4px 0 2px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
+.yr-strip li { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-mid); background: var(--surface-2); }
+.yr-strip li span { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.yr-strip li b { font-size: 14px; font-weight: 500; color: var(--ink-strong); }
+.yr-strip li i { position: absolute; top: 7px; right: 7px; display: grid; place-items: center; color: var(--brand); }
+.yr-strip li i svg { width: 14px; height: 14px; }
+.yr-strip li.cur { border-color: var(--line-strong); }
+.yr-strip li.done { border-color: var(--side-line); background: var(--side-tint); }
+.yr-strip li.due { border-style: dashed; border-color: var(--brand); background: transparent; }
+.yr-strip li.due b { color: var(--brand); }
+/* the forms */
+.yr-preview { margin: 4px 0 0; padding: 12px 14px; border-radius: var(--r-mid); background: var(--surface-2); color: var(--ink-2); font-size: 14px; line-height: 1.45; }
+.yr-preview b { color: var(--ink-strong); font-weight: 600; }
+.yr-steps { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.yr-steps li { display: flex; align-items: flex-start; gap: 10px; color: var(--ink-2); font-size: 14px; line-height: 1.4; }
+.yr-steps li svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--brand); }
+.yr-steps li b { color: var(--ink-strong); font-weight: 600; }
+@media (max-width: 920px) { .yr-list { grid-template-columns: 1fr; } }

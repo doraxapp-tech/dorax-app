@@ -20,6 +20,12 @@ The app shows a bank's own logo next to each account when its file is in this fo
 | Caixa | `caixa.svg` |
 | Inter | `inter.svg` |
 | C6 Bank | `c6-bank.svg` |
+| PicPay | `picpay.svg` |
+| BTG Pactual | `btg-pactual.svg` |
+| XP | `xp.svg` |
+| Sicredi | `sicredi.svg` |
+| Agibank | `agibank.svg` |
+| Banco BV | `bv.svg` |
 
 (`.png`, `.webp` or `.jpg` in place of `.svg` is fine.)
 

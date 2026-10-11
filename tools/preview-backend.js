@@ -47,7 +47,7 @@
   // The token says whose it is in its middle part, the way a real one does (the app reads that to know who a recovery link is for).
   const b64url = o => btoa(JSON.stringify(o)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   function mail(db, to, type, userId, extra) { const m = Object.assign({ to, type, userId, token: 'preview-' + type + '-' + db.seq++ + '.' + b64url({ sub: userId }) + '.x', sentAt: Date.now(), used: false, expired: false }, extra || {}); db.outbox.push(m); return m; }
-  const linkOf = m => location.origin === 'null' || location.protocol === 'file:' ? location.href.split('#')[0] + '#access_token=' + m.token + '&type=' + m.type : location.origin + location.pathname + '#access_token=' + m.token + '&type=' + m.type;
+  const linkOf = m => location.origin === 'null' || location.protocol === 'file:' ? location.href.split('#')[0] + '#access_token=' + m.token + '&type=' + m.type : location.origin + location.pathname.replace(/[^/]*$/, '') + '#access_token=' + m.token + '&type=' + m.type;      // served: the site's root, where the app asks to be sent back to (app/js/ui/pages.js), whatever page the email was asked from
   // A link was opened: read it out of the address now, before the app looks, the way the real library does while it starts.
   let arrivedBy = null;
   (function openLink() {
@@ -203,6 +203,17 @@
   const functions = { invoke: (name, opt) => answer(() => {
     const body = (opt && opt.body) || {}, db = load(), me = store.get(SESSION_KEY);
     if (name === 'bank') return bankStandIn(body, db, me);
+    // the AI suggestions: no AI here. A group is suggested when one of its name's words (four letters or more) is in the row; a test can
+    // say the server is not set up (option aiOff) or that the day's limit was reached (aiLimit). What was asked is kept for the tests to read.
+    if (name === 'suggest') {
+      if (!me) return { data: { ok: false, code: 'not_logged_in' }, error: null };
+      if (OPT.aiOff) return { data: { ok: false, code: 'not_set_up' }, error: null };
+      if (OPT.aiLimit) return { data: { ok: false, code: 'limit' }, error: null };
+      (db.aiAsked = db.aiAsked || []).push(body); keep(db);
+      const fold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+      const suggestions = (body.rows || []).map(r => { const g = (body.groups || []).find(g => g.dir === r.dir && fold(g.name).split(/[^A-Z]+/).some(w => w.length >= 4 && (' ' + fold(r.text) + ' ').includes(' ' + w + ' '))); return { id: r.id, key: g ? g.key : null, name: null }; }).filter(s => s.key);
+      return { data: { ok: true, suggestions }, error: null };
+    }
     if (name !== 'reminders') return { data: null, error: { message: 'function not found', status: 404 } };
     if (body.action === 'key') return { data: { ok: true, publicKey: 'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8' }, error: null };
     if (body.action === 'test') { if (!me) return { data: { ok: false, code: 'not_logged_in' }, error: null };

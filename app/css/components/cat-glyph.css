@@ -1,0 +1,26 @@
+/* Dorax Finance — a category's icon in its colour on a soft circle of it (ui/cat-icons.js: catGlyph). */
+.cg { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: var(--c, var(--ink-2)); background: color-mix(in srgb, var(--c, var(--ink-3)) 20%, transparent); }
+.cg svg { width: 16px; height: 16px; }
+.cg.sm { width: 22px; height: 22px; }
+.cg.sm svg { width: 13px; height: 13px; stroke-width: 2; }
+.cg.lg { width: 40px; height: 40px; }
+.cg.lg svg { width: 21px; height: 21px; }
+.cat .cg { margin-right: 2px; vertical-align: middle; }
+/* on Categories & rules: the icon is the button that changes it */
+.cat-card .cat-ic { all: unset; display: inline-grid; place-items: center; flex: none; border-radius: 50%; cursor: pointer; margin: -2px 2px -2px -2px; }
+.cat-card .cat-ic:hover .cg { background: color-mix(in srgb, var(--c) 30%, transparent); }
+.cat-card .cat-ic:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.cat-card .sub:has(.cat-ic) { padding-left: 4px; }
+.cat-card .sub .cat-ic { margin: 0 2px 0 0; }
+@media (max-width: 920px) { .cat-card .cat-ic { min-width: 44px; min-height: 44px; margin: 0 0 0 -8px; } .cat-card .sub:has(.cat-ic) { padding-left: 0; gap: 4px; } .cat-card .sub .cat-ic { margin: 0 -4px 0 -10px; } }      /* the whole 44 px theirs: no margin into the row under them */
+/* a phone's movements of an account: the category's icon, in its colour */
+.op-ico.cat { background: color-mix(in srgb, var(--c) 18%, transparent); }
+.op-ico.cat svg { color: var(--c); }
+/* the icon picker */
+.cgi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; }
+.cgi-b { all: unset; display: grid; place-items: center; height: 52px; border-radius: var(--r-mid); border: 1px solid transparent; cursor: pointer; }
+.cgi-b:hover { border-color: var(--line-strong); }
+.cgi-b:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.cgi-b.on { border-color: var(--c, var(--brand)); background: var(--surface); }
+.cgi-b .cg { width: 36px; height: 36px; }
+.cgi-b .cg svg { width: 19px; height: 19px; }

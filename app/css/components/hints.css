@@ -7,5 +7,5 @@
 @media (pointer: coarse) { .hint::after { inset: -12px; } }
 .kpi .label { display: flex; align-items: center; gap: 6px; overflow: visible; }
 .kpi .label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#tip.long { font-family: var(--font); font-size: 13px; line-height: 1.4; letter-spacing: -.01em; max-width: min(300px, calc(100vw - 16px)); padding: 10px 12px; white-space: normal; }
+#tip.long { font-family: var(--font); font-size: 13px; line-height: 1.4; letter-spacing: .01em; max-width: min(300px, calc(100vw - 16px)); padding: 10px 12px; white-space: normal; }
 

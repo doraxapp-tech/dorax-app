@@ -1,0 +1,50 @@
+/* Dorax Finance — "Plan your month" (features/limits/plan-guide.view.js): a card in the middle of a computer, the whole screen of a phone. */
+@media (min-width: 921px) { .drawer.pop.full { width: min(560px, calc(100% - 32px)); } }
+@media (max-width: 920px) {
+  .drawer.full { top: 0; max-height: none; height: 100dvh; border-radius: 0; border-width: 0; padding-top: var(--safe-t); }
+  .drawer.full .grab { display: none; }
+}
+.pg { gap: 14px; }
+.pg-step { margin: 0; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.pg-h { margin: 0; font-size: 22px; font-weight: 500; line-height: 1.25; color: var(--ink-strong); letter-spacing: -.01em; outline: none; }
+.pg-lead { margin: -4px 0 0; color: var(--ink-2); }
+.pg-big { font-size: 34px; font-weight: 500; color: var(--ink-strong); letter-spacing: -.01em; }
+.pg-inc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.pg-inc li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); color: var(--ink-2); }
+.pg-inc li:first-child { border-top: 0; }
+/* step 2: the share */
+.pg-pct { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.pg-pct .field { flex: 0 1 180px; margin: 0; }
+.pg-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.pg-chips button { min-width: 56px; min-height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--pill); background: transparent; color: var(--ink); font: inherit; font-family: var(--fig); cursor: pointer; }
+.pg-chips button:hover { border-color: var(--brand); }
+.pg-chips button.on { border-color: var(--brand); background: var(--spark-bg); color: var(--ink-strong); }
+.pg-say { margin: 0; color: var(--ink-2); }
+.pg-say b { color: var(--ink-strong); font-weight: 500; }
+/* step 3: a field per category */
+.pg-left { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.pg-left span { color: var(--ink-2); }
+.pg-left b { font-size: 20px; font-weight: 500; color: var(--ink-strong); }
+.pg-left small { grid-column: 1 / -1; color: var(--ink-3); font-size: 12.5px; }
+.pg-avg { align-self: flex-start; }
+.pg-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.pg-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); }
+.pg-row:first-child { border-top: 0; }
+.pg-row label { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 0; cursor: pointer; }
+.pg-row label .grow { display: flex; flex-direction: column; min-width: 0; }
+.pg-row label b { font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-row label small { color: var(--ink-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-row input { flex: 0 0 120px; width: 120px; text-align: right; }
+.pg-free { position: sticky; bottom: -20px; margin: 0 -22px -20px; padding: 12px 22px; background: var(--lift); border-top: 1px solid var(--line); color: var(--ink-2); }
+.pg-free b { color: var(--ink-strong); font-weight: 500; }
+/* the end */
+.pg-end { gap: 16px; }
+.pg-ok { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--spark-bg); color: var(--brand); }
+.pg-ok svg { width: 26px; height: 26px; }
+@media (max-width: 920px) {
+  .pg-row input { flex-basis: 108px; width: 108px; min-height: 44px; font-size: 16px; }
+  .pg-free { bottom: -16px; margin: 0 -16px -16px; padding: 12px 16px; }
+  .pg-chips button { min-height: 44px; }
+}
+/* each step's words come in (the overlay is drawn again at every step) */
+@media (prefers-reduced-motion: no-preference) { .pg .pg-h, .pg .pg-lead, .pg .pg-big { animation: rise 300ms var(--ease) both; } .pg .pg-lead, .pg .pg-big { animation-delay: 60ms; } }

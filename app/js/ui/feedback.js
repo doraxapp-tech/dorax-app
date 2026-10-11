@@ -9,7 +9,8 @@ function hideToast() {
 }
 function renderToast() {
   const el = document.getElementById('toast-root');
-  el.innerHTML = UI.toast ? `<div id="toast" role="status">${esc(UI.toast.msg)}${UI.toast.action ? `<button data-a="${UI.toast.action.a}">${esc(UI.toast.action.label)}</button>` : ''}</div>` : '';
+  // the words in an element of their own, so that next to a button they keep their width and wrap as a sentence, not one word a line
+  el.innerHTML = UI.toast ? `<div id="toast" role="status"${UI.toast.action ? ' class="act"' : ''}><span class="t-msg">${esc(UI.toast.msg)}</span>${UI.toast.action ? `<button data-a="${UI.toast.action.a}">${esc(UI.toast.action.label)}</button>` : ''}</div>` : '';
 }
 /** Rows that just changed are washed with the accent once, on the next render. */
 function flash(...ids) { UI.flash = new Set(ids); }

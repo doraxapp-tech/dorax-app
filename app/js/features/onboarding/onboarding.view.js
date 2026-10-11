@@ -1,124 +1,162 @@
-/* Dorax Finance — the first minutes of a new account.
-   Five short questions, each one optional after the name: where the money is, what comes in, what goes out every month, what it is saved for.
-   The answers become real accounts, income rows, fixed costs and a goal, so the dashboard opens with the person's own month instead of an empty page.
-   Nothing here is invented: an answer left blank creates nothing. */
+/* Dorax Finance — the first minute of a new account.
+   2026-10-07 (owner: "an onboarding in under 60 seconds that already motivates and gives value, without losing the key questions"):
+   four screens. A dream and its cost; three numbers (what comes in, what goes out, what is saved), each a slider that starts at Brazil's average
+   (owner, same day: "use sliders, by default at the average salary, spending and savings of Brazilians"); what that money can already do (days of
+   freedom, the date the dream is reached, the step that brings it closer); and where to go next to make that date sharper.
+   The answers become real income rows, a goal with its monthly plan and a starting balance, so the dashboard opens with the person's own month.
+   Nothing here is invented: every figure shown comes from what was typed (core/runway.js), and an answer left blank creates nothing.
+   Before this (v11 to v41) it was five longer questions: an account, the pay, every fixed cost, a goal, a summary. Fixed costs and accounts are
+   now added from the last screen or from the dashboard's first steps. */
 
-const OB_STEPS = 5;
-const freshOb = () => ({ step: 0, error: null, done: {}, sheet: false,
-  account: { name: '', inst: BANKS[0], balance: '' },
-  pays: 2, pay: [{ amount: '', to: 'savings' }, { amount: '', to: 'fixed' }], save: '',
-  bills: null,       // one empty row to start: nothing is suggested, people add the costs they have
-  goal: { name: '', target: '', gm: '', gy: '', saved: '', monthly: '' } });
-const obBills = () => [{ name: '', amount: '', due: '' }];
+const OB_STEPS = 4;
+// Where the sliders start (owner: "the average of Brazilians"), in cents. They are starting points, said so on the screen, never shown as the person's own figures
+// until the screen is confirmed. Read 2026-10-07; to be refreshed when IBGE publishes a new quarter:
+//   income  R$ 3.738: average real monthly income from all jobs (IBGE, PNAD Contínua, 2nd quarter of 2026), rounded to the slider's step
+//   spend   86% of income: families' total monthly expense over their income, R$ 4.649 / R$ 5.427 (IBGE, POF 2017-2018; the latest there is)
+//   saved   one month of spending: no average amount is published; 51% of Brazilians have nothing put aside or a month at most (Anbima, Raio X do Investidor 2026)
+const OB_AVG = { income: 370000, spend: 320000, saved: 320000 };
+const OB_MAX = { income: 30000, spend: 30000, saved: 100000 };      // the sliders' far end, in reais; a larger amount can still be typed in the field
+const freshOb = () => ({ step: 0, error: null, seen: false, dream: '', dreamName: '', cost: '', costTouched: false, pay: plain(OB_AVG.income), spend: plain(OB_AVG.spend), saved: plain(OB_AVG.saved),
+  ...(typeof calcCarry === 'function' ? calcCarry() : {}) });      // a dream chosen in the home page's calculator, with its cost and what is put aside, comes along (features/public/landing.view.js)
 const ob = () => UI.ob || (UI.ob = freshOb());
 const obSet = (path, v) => { const ks = path.split('.'); let o = ob(); for (const k of ks.slice(0, -1)) o = o[k]; o[ks[ks.length - 1]] = v; };
 const obField = (id, label, path, val, extra, cls) => `<div class="field ${cls || ''}"><label for="${id}">${label}</label><input type="text" id="${id}" value="${esc(val)}" data-c="ob" data-k="${path}" data-live="1" ${extra || ''}></div>`;
 const obMoney = 'inputmode="decimal" class="num" placeholder="0,00" autocomplete="off"';
-
-/** What the answers add up to. Each part is null when its step was skipped or left empty, or { error } when something typed cannot be read. */
-function obRead() {
-  const o = ob(), out = { account: null, income: [], bills: [], goal: null, errors: {} }, amt = v => String(v || '').trim() === '' ? 0 : typedAmount(v);
-  if (o.done[1]) {
-    const bal = amt(o.account.balance);
-    if (bal === null) out.errors[1] = t('Enter the balance as a number, for example 1500,00. You can also leave it empty.');
-    else out.account = { ...(o.account.name.trim() ? { name: o.account.name.trim() } : appName('Main account')), institution: o.account.inst, opening: bal };
-  }
-  if (o.done[2]) {
-    const a = amt(o.pay[0].amount), b = o.pays === 2 ? amt(o.pay[1].amount) : 0, save = o.pays === 1 ? amt(o.save) : 0;
-    if (a === null || b === null || save === null || a < 0 || b < 0 || save < 0) out.errors[2] = t('Enter the amount as a number, for example 1500 or 9,90.');
-    else if (!a && !b) out.errors[2] = t('Type how much you are paid, or skip this step.');
-    else if (save > a) out.errors[2] = t('What you set aside cannot be more than what you are paid.');
-    else if (o.pays === 2) { if (a) out.income.push({ ...appName('Salary · 1st payment'), to: o.pay[0].to, amount: a, half: 1 }); if (b) out.income.push({ ...appName('Salary · 2nd payment'), to: o.pay[1].to, amount: b, half: 2 }); }
-    else { if (a - save) out.income.push({ ...appName('Salary'), to: 'fixed', amount: a - save, half: 0 }); if (save) out.income.push({ ...appName('Salary · savings part'), to: 'savings', amount: save, half: 0 }); }
-  }
-  if (o.done[3]) {
-    for (const x of o.bills || []) {
-      const v = amt(x.amount), due = String(x.due || '').trim() === '' ? null : Number(x.due);
-      if (!v && !String(x.amount || '').trim()) continue;
-      if (v === null || v <= 0) { out.errors[3] = t('Enter the amount as a number, for example 1500 or 9,90.'); break; }
-      if (!x.name.trim()) { out.errors[3] = t('Give a name to every cost that has an amount.'); break; }
-      if (due !== null && !(Number.isInteger(due) && due >= 1 && due <= 31)) { out.errors[3] = t('{name}: the due day must be between 1 and 31.', { name: x.name.trim() }); break; }
-      out.bills.push({ name: x.name.trim(), amount: v, due, pay: x.pay || 'fixed' });
-    }
-    if (!out.errors[3] && !out.bills.length && !o.sheet) out.errors[3] = t('Add at least one cost with its amount, or skip this step.');
-  }
-  if (o.done[4]) {
-    const g = o.goal, target = amt(g.target), saved = amt(g.saved), monthly = amt(g.monthly), deadline = g.gm && g.gy ? g.gy + '-' + g.gm : '';
-    if (!g.name.trim()) out.errors[4] = t('Enter a name for the goal.');
-    else if (target === null || saved === null || monthly === null || target < 0 || saved < 0 || monthly < 0) out.errors[4] = t('Enter the amount as a number, for example 1500 or 9,90.');
-    else if ((g.gm || g.gy) && !deadline) out.errors[4] = t('Choose both the month and the year, or leave both empty.');
-    else if (deadline && deadline < ymOf(S.today)) out.errors[4] = t('The target date has already passed.');
-    else out.goal = { name: g.name.trim(), target, deadline: target && deadline ? deadline : null, saved, monthly };
-  }
-  return out;
+/** A number asked with a slider: the amount can be dragged, or typed in the field beside its label (a slider alone is no good for an exact figure, a keyboard or a
+    screen reader). The two follow each other without redrawing the screen (onboarding.actions.js). max and step are in reais. */
+const obPct = (n, max) => max ? Math.round(Math.min(n, max) * 1000 / max) / 10 : 0;
+function obSlide(id, label, path, val, max, step, who, sym) {      // who: whose field it is (data-c): the setup's by default. sym: the currency's sign, R$ by default
+  who = who || 'ob'; sym = sym || 'R$'; const cur = sym === 'US$' ? 'USD' : CUR;
+  const c = typedAmount(val), n = c === null || c < 0 ? 0 : Math.min(max, Math.round(c / 100));
+  return `<div class="field ob-slide"><div class="ob-slide-h"><label for="${id}">${label}</label><span class="ob-val"><span aria-hidden="true">${sym}</span><input type="text" id="${id}" value="${esc(val)}" ${obMoney} aria-label="${label} (${sym})" data-c="${who}" data-k="${path}" data-live="1" data-range="${id}-r"></span></div>
+    <input type="range" id="${id}-r" min="0" max="${max}" step="${step}" value="${n}" aria-label="${label}" aria-valuetext="${esc(fmt.money(n * 100, cur, { trim: true }))}" data-cur="${cur}" data-c="${who}-range" data-k="${path}" data-live="1" data-text="${id}" style="--p:${obPct(n, max)}%"></div>`;
 }
-/** Turns the answers into the account's first data. Uses the same building blocks as the rest of the app. */
+const emo = e => `<span class="e" aria-hidden="true">${e}</span>`;      // the one emoji kept (the waving hand of the greeting, owner's choice): decoration, hidden from screen readers
+const obIco = n => `<span class="fl-ico">${icon(n)}</span>`;           // everything else is drawn with the app's own icons (owner: "no emoji, icons in our style")
+/** The dreams offered: [id, icon, what the button says, the goal's name (one the app writes, so it follows the language) or '' when the person names it,
+    where its cost slider starts, its far end, its step (reais)]. The starting costs are round figures to move away from, not statistics. */
+const obDreams = () => [['car', 'car', t('Buy or change my car'), 'Car', 50000, 300000, 1000], ['trip', 'plane', t('Holiday or dream trip'), 'Trip', 6000, 60000, 500],
+  ['safety', 'shield', t('Emergency fund and peace of mind'), 'Emergency fund', 10000, 100000, 500], ['other', 'spark', t('Another dream'), '', 10000, 200000, 500]];
+const obCheer = () => { const name = firstName(UI.pub.name); return name ? t('Great goal, {name}! Let’s put a date on it.', { name }) : t('Great goal! Let’s put a date on it.'); };
+/** The name is typed after the dream was chosen: the line that cheers follows it without redrawing the screen under the person's fingers. */
+function obCheerLive() { const el = document.querySelector('.ob-cheer'); if (el) el.textContent = obCheer(); }
+
+/** The income rows the plan starts with. What is left after what goes out (income minus spend) is routed to savings, the rest to fixed costs:
+    [{ key, to, amount, half }], amounts in cents. One payment a month; a second pay date is added in Plan (owner, 2026-10-07: "remove the two payments toggle"). */
+function obIncome(a, spend) {
+  const save = spend > 0 ? Math.max(0, a - spend) : 0, rows = [];
+  if (a - save > 0) rows.push({ key: 'Salary', to: 'fixed', amount: a - save, half: 0 });
+  if (save > 0) rows.push({ key: 'Salary · savings part', to: 'savings', amount: save, half: 0 });
+  return rows;
+}
+/** What the answers add up to. errors[0] and errors[1] say what cannot be read on the first two screens.
+    strict: the numbers screen is being left through its own button, so what comes in and what goes out are both needed for the look ahead.
+    The numbers count only once that screen was confirmed (o.seen): its sliders start at Brazil's averages, and someone who leaves before saying
+    "these are mine" must not get an average person's income written into their account. */
+function obRead(strict) {
+  const o = ob(), errors = {}, amt = v => String(v || '').trim() === '' ? 0 : typedAmount(v), bad = t('Enter the amount as a number, for example 1500 or 9,90.');
+  let goal = null;
+  if (o.dream) {
+    const target = amt(o.cost), row = obDreams().find(x => x[0] === o.dream), typed = (o.dreamName || '').trim();
+    if (!row[3] && !typed) errors[0] = t('Give your dream a name.');
+    else if (target === null || target < 0) errors[0] = bad;
+    else if (!target) errors[0] = t('Type about how much it costs, so I can put a date on it. A rough figure works.');
+    else goal = row[3] ? { key: row[3], name: nameIn(row[3], S.settings.lang, S), target } : { key: null, name: typed, target };
+  }
+  const use = strict || o.seen, a = use ? amt(o.pay) : 0, spend = use ? amt(o.spend) : 0, saved = use ? amt(o.saved) : 0;
+  if ([a, spend, saved].some(v => v === null || v < 0)) errors[1] = bad;
+  else if (strict && (!a || !spend)) errors[1] = t('Type what comes in and what goes out each month. A rough figure works.');
+  const ok = !errors[1], income = ok ? a : 0;
+  return { goal, income, rows: ok ? obIncome(a, spend) : [], spend: ok ? spend : 0, saved: ok ? saved : 0,
+    look: firstLook(income, ok ? spend : 0, ok ? saved : 0, goal ? goal.target : 0, ymOf(S.today)), errors };
+}
+/** Turns the answers into the account's first data, with the same building blocks as the rest of the app.
+    The goal's plan is what is left each month, from this month until the goal is reached or the year ends; from there its date is carried by that
+    pace (goalArrival, core/runway.js), so the date on the goal is the one this setup showed. */
 function applyOnboarding(d) {
   const now = ymOf(S.today), year = +now.slice(0, 4), m0 = +now.slice(5) - 1, from = v => Array.from({ length: 12 }, (_, i) => i >= m0 ? v : 0);
-  let acctId = null;
-  if (d.account) { acctId = newId('a'); S.accounts.push({ id: acctId, name: d.account.name, ...(d.account.k ? { k: d.account.k } : {}), institution: d.account.institution, type: 'checking', currency: BASE_CURRENCY, scope: 'personal', purpose: '', opening: d.account.opening }); }
-  if (d.income.length) { const sub = S.categories.find(c => c.income).subs[0]; S.pay[year] = d.income.map(r => ({ id: newId('pay'), name: r.name, ...(r.k ? { k: r.k } : {}), sub: sub.id, half: r.half, to: r.to, values: from(r.amount) })); }
-  const cat = S.categories.find(c => !c.income);
-  for (const b of d.bills) {
-    const sub = { id: newId('s'), name: b.name }; cat.subs.push(sub);
-    const l = { id: newId('pl'), categoryId: cat.id, subcategoryId: sub.id, name: b.name, pay: b.pay, accountId: acctId, end: null, note: '', plan: {} }; if (b.due) l.due = b.due;
-    S.plan.lines.push(l); setLinePlan(S, l, now, b.amount);
-  }
-  if (d.goal) {
-    const g = { id: newId('g'), name: d.goal.name, kind: d.goal.target ? 'goal' : 'fund', target: d.goal.target || null, deadline: d.goal.deadline, accountId: acctId, status: 'active', note: '', plan: { [year]: Array(12).fill(0) } };
-    if (d.goal.monthly) setGoalPlan(g, now, g.deadline || Math.max(year, ...goalYears(S)) + '-12', d.goal.monthly);
-    S.goals.push(g); if (d.goal.saved) S.goalMoves.push({ id: newId('gm'), goalId: g.id, date: S.today, amount: d.goal.saved, accountId: acctId, start: true, ...appName('Starting balance', 'note') });
+  if (d.spend) S.user.spend = d.spend;                       // the pace days of freedom are counted with, until real months say more
+  if (d.rows.length) { const sub = S.categories.find(c => c.income).subs[0]; S.pay[year] = d.rows.map(r => ({ id: newId('pay'), ...appName(r.key), sub: sub.id, half: r.half, to: r.to, values: from(r.amount) })); }
+  if (d.goal || d.saved) {
+    const g = { id: newId('g'), ...(d.goal ? (d.goal.key ? appName(d.goal.key) : { name: d.goal.name }) : appName('My savings')), kind: d.goal ? 'goal' : 'fund', target: d.goal ? d.goal.target : null,
+      deadline: null, accountId: null, status: 'active', note: '', plan: { [year]: Array(12).fill(0) } };
+    if (d.goal && d.look.free > 0 && !d.look.covered) setGoalPlan(g, now, [d.look.arrival, year + '-12'].sort()[0], d.look.free);
+    S.goals.push(g);
+    if (d.saved) S.goalMoves.push({ id: newId('gm'), goalId: g.id, date: S.today, amount: d.saved, accountId: null, start: true, ...appName('Starting balance', 'note') });
   }
   S.goals.forEach(g => goalYears(S).forEach(y => { g.plan[y] = g.plan[y] || Array(12).fill(0); }));
-  return !!(d.account || d.income.length || d.bills.length || d.goal);
+  return !!(d.rows.length || d.goal || d.saved || d.spend);
 }
 
-function viewOnboard() {
-  const p = UI.pub, o = ob(), step = o.step, months = Array.from({ length: 12 }, (_, i) => [String(i + 1).padStart(2, '0'), mon(i, true)]), y0 = +S.today.slice(0, 4);
-  const head = `<button type="button" class="btn ghost sm auth-back" data-a="logout">${icon('logout')}${t('Log out')}</button>${brandMark(true)}<div class="ob-prog" role="img" aria-label="${t('Step {a} of {b}', { a: Math.min(step + 1, OB_STEPS), b: OB_STEPS })}">${Array.from({ length: OB_STEPS }, (_, i) => `<i class="${i < step ? 'done' : i === step ? 'now' : ''}"></i>`).join('')}</div>
-    ${step < OB_STEPS ? `<p class="ob-count">${t('Step {a} of {b}', { a: step + 1, b: OB_STEPS })}</p>` : ''}`;
-  const err = o.error || p.error ? banner('crit', esc(o.error || p.error)) : '';
-  const foot = (skip) => `<div class="ob-foot">${step ? `<button class="btn ghost" data-a="ob-back">${icon('left')}${t('Back')}</button>` : ''}<span class="spacer"></span>${skip ? `<button class="btn ghost" data-a="ob-skip">${t('Skip this step')}</button>` : ''}<button class="btn primary" data-a="${step ? 'ob-next' : 'onboard-save'}">${t('Continue')}</button></div>`;
-  const later = step ? `<p class="ob-later"><button class="linkbtn" data-a="ob-finish">${t('Finish later and open my dashboard')}</button></p>` : '';
-  let body;
-  if (step === 0) body = `<h1>${t('Let’s set up your month')}</h1><p>${t('What should I call you?')} ${t('Then four quick questions, so your dashboard opens with your own numbers. Each one can be skipped.')}</p>${err}
-      <div class="field"><label for="ob-name">${t('Your name')}</label><input type="text" id="ob-name" autocomplete="given-name" value="${esc(p.name)}" placeholder="${t('A nickname works')}" data-c="pub" data-k="name" data-live="1"></div>
-      <div class="field"><label for="ob-lang">${t('Language')}</label><select id="ob-lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>${foot(false)}`;
-  else if (step === 1) body = `<h1>${t('Where does your money live?')}</h1><p>${t('The account you pay your bills from. You can add cards and savings accounts later.')}</p>${err}
-      <div class="form-grid">${obField('ob-acct', t('Account name'), 'account.name', o.account.name, `placeholder="${t('Main account')}"`)}
-        <div class="field"><label for="ob-inst">${t('Institution')}</label><select id="ob-inst" data-c="ob" data-k="account.inst">${options([...new Set([...BANKS, t('Other')])].map(b => [b, b]), o.account.inst)}</select></div>
-        ${obField('ob-bal', t('Balance today (R$, optional)'), 'account.balance', o.account.balance, obMoney, 'full')}</div>
-      <p class="note">${t('Nothing connects to your bank. The balance is only the starting point for this account.')}</p>${foot(true)}`;
-  else if (step === 2) body = `<h1>${t('What comes in each month?')}</h1><p>${t('Your pay after taxes. It is the base for everything else: what is left after bills, and what you can save.')}</p>${err}
-      <div class="field"><span id="ob-pays-l">${t('How many times a month are you paid?')}</span>${seg('ob-pays', [[1, t('Once')], [2, t('Twice')]], o.pays, t('How many times a month are you paid?'))}</div>
-      ${o.pays === 2 ? [0, 1].map(i => `<div class="form-grid">${obField('ob-pay' + i, i ? t('2nd payment (R$)') : t('1st payment (R$)'), `pay.${i}.amount`, o.pay[i].amount, obMoney)}
-          <div class="field"><label for="ob-to${i}">${t('It goes to')}</label><select id="ob-to${i}" data-c="ob" data-k="pay.${i}.to">${options([['fixed', t('Fixed costs')], ['savings', t('Savings and goals')]], o.pay[i].to)}</select></div></div>`).join('')
-        + `<p class="note">${t('For example: one payment covers the bills and the other goes to savings. Choose what fits you.')}</p>`
-        : `<div class="form-grid">${obField('ob-pay0', t('Monthly pay (R$)'), 'pay.0.amount', o.pay[0].amount, obMoney)}${obField('ob-save', t('Of that, set aside to save (R$, optional)'), 'save', o.save, obMoney)}</div>
-          <p class="note">${t('What you set aside is what your goals are funded from. The rest pays the fixed costs.')}</p>`}${foot(true)}`;
-  else if (step === 3) body = `<h1>${t('What do you pay every month?')}</h1><p>${t('Only the ones that repeat: rent, services, subscriptions. Add the ones you have. You can also skip this and add them later.')}</p>${err}
-      <div class="ob-bills"><div class="ob-bill hd" aria-hidden="true"><span>${t('Fixed cost')}</span><span>${t('Each month (R$)')}</span><span>${t('Due day')}</span></div>
-        ${o.bills.map((x, i) => `<div class="ob-bill"><label class="sr" for="ob-bn${i}">${t('Fixed cost')} ${i + 1}</label><input type="text" id="ob-bn${i}" value="${esc(x.name)}" placeholder="${t('Name')}" data-c="ob" data-k="bills.${i}.name" data-live="1">
-          <label class="sr" for="ob-ba${i}">${t('Each month (R$)')}: ${esc(x.name) || i + 1}</label><input type="text" id="ob-ba${i}" value="${esc(x.amount)}" ${obMoney} data-c="ob" data-k="bills.${i}.amount" data-live="1">
-          <label class="sr" for="ob-bd${i}">${t('Due day')}: ${esc(x.name) || i + 1}</label><input type="number" class="day" id="ob-bd${i}" min="1" max="31" inputmode="numeric" placeholder="${t('Day')}" value="${esc(x.due)}" data-c="ob" data-k="bills.${i}.due" data-live="1"></div>`).join('')}</div>
-      <div class="row"><button class="btn sm" data-a="ob-add-bill">${icon('plus')}${t('Add another')}</button><span class="note">${t('With the due day, the app reminds you before each bill is due.')}</span></div>
-      <label class="ob-check"><input type="checkbox" id="ob-sheet" data-c="ob-sheet" ${o.sheet ? 'checked' : ''}><span><b>${t('I have these in a spreadsheet')}</b><span class="note">${t('After the set-up I take you to the import, so you do not type them one by one.')}</span></span></label>${foot(true)}`;
-  else if (step === 4) body = `<h1>${t('What are you saving for?')}</h1><p>${t('One goal is enough to start: a trip, an emergency fund, a car. Leave the target empty if it is just money you keep apart.')}</p>${err}
-      <div class="form-grid">${obField('ob-gname', t('Name'), 'goal.name', o.goal.name, `placeholder="${t('e.g. Viaje, Carro, Emergencias')}"`, 'full')}
-        ${obField('ob-gtarget', t('Target (R$, optional)'), 'goal.target', o.goal.target, obMoney)}
-        <div class="field"><span id="ob-gd-l">${t('By when (optional)')}</span><div class="row" style="flex-wrap:nowrap"><select id="ob-gm" aria-label="${t('Month')}" data-c="ob" data-k="goal.gm">${options([['', '—'], ...months], o.goal.gm)}</select><select id="ob-gy" aria-label="${t('Year')}" data-c="ob" data-k="goal.gy" style="max-width:110px">${options([['', '—'], ...[0, 1, 2, 3, 4, 5].map(k => [y0 + k, y0 + k])], o.goal.gy)}</select></div></div>
-        ${obField('ob-gsaved', t('Already saved (R$)'), 'goal.saved', o.goal.saved, obMoney)}${obField('ob-gmonth', t('Each month (R$)'), 'goal.monthly', o.goal.monthly, obMoney)}</div>${foot(true)}`;
-  else {
-    const d = obRead(), inc = sum(d.income.map(r => r.amount)), fixedIn = sum(d.income.filter(r => r.to === 'fixed').map(r => r.amount)), bills = sum(d.bills.map(b => b.amount)), days = d.bills.filter(b => b.due).length;
-    const row = (ok, ic, title, text) => `<div class="li step ${ok ? 'ok' : ''}"><span class="fl-ico">${icon(ic)}</span><span class="grow"><b style="font-weight:500">${title}</b><div class="note">${ok ? text : t('Skipped. You can add it later.')}</div></span>${ok ? `<span class="tick">${icon('check')}</span>` : ''}</div>`;
-    body = `<h1>${t('Ready, {name}', { name: esc(p.name.trim()) })}</h1><p>${d.account || inc || d.bills.length || d.goal ? t('This is what your dashboard starts with. Everything can be changed later.') : t('You skipped every question, so the dashboard starts empty with a short list of first steps.')}</p>
-      <div class="list">${row(!!d.account, 'wallet', d.account ? esc(d.account.name) : t('Account'), d.account ? `${esc(d.account.institution)} · ${fmt.money(d.account.opening, CUR)}` : '')}
-        ${row(inc > 0, 'trend', t('Income'), inc ? `${fmt.money(inc, CUR)} ${t('a month')} · ${tn(d.income.length, '{n} payment', '{n} payments')}` : '')}
-        ${row(d.bills.length > 0, 'calendar', t('Fixed costs'), d.bills.length ? `${tn(d.bills.length, '{n} fixed cost', '{n} fixed costs')} · ${fmt.money(bills, CUR)} ${t('a month')}${days ? ' · ' + tn(days, '{n} due day', '{n} due days') : ''}` : '')}
-        ${row(!!d.goal, 'flag', d.goal ? esc(d.goal.name) : t('Goal'), d.goal ? [d.goal.target ? t('target {amount}', { amount: fmt.money(d.goal.target, CUR, { trim: true }) }) : t('Fund without a target'), d.goal.saved ? t('{amount} already saved', { amount: fmt.money(d.goal.saved, CUR, { trim: true }) }) : '', d.goal.monthly ? `${fmt.money(d.goal.monthly, CUR, { trim: true })} ${t('a month')}` : ''].filter(Boolean).join(' · ') : '')}</div>
-      ${fixedIn && bills ? banner(fixedIn - bills < 0 ? 'warn' : '', `<b>${t('Income minus fixed costs')}: <span class="num">${fmt.money(fixedIn - bills, CUR)}</span></b> ${fixedIn - bills < 0 ? t('The fixed costs are higher than the income that pays them. The plan shows it month by month.') : t('That is what is left of the income that pays your fixed costs.')}`) : ''}
-      ${o.sheet ? `<p class="note">${t('Next stop: the spreadsheet import.')}</p>` : ''}
-      <div class="ob-foot"><button class="btn ghost" data-a="ob-back">${icon('left')}${t('Back')}</button><span class="spacer"></span><button class="btn primary lg" data-a="ob-finish">${t('Open my dashboard')}</button></div>`;
+/** What the money can already do: days of freedom first, then the facts that follow from the same four figures. */
+function obReveal(d) {
+  const L = d.look, money = v => fmt.money(v, CUR, { trim: true }), dream = d.goal ? esc(d.goal.name) : '';
+  const fact = (lead, title, note) => `<div class="ob-fact">${lead}<span class="grow"><b>${title}</b>${note ? `<small>${note}</small>` : ''}</span></div>`;
+  let hero = '';
+  if (L.days > 0) { const f = rwFigure(L.days, false); hero = `<div class="ob-hero"><div class="rw-fig"><b class="rw-n" data-count="${f.n}" data-dec="${f.dec}">${fmt.num(f.n)}</b><span class="rw-u">${f.unit}</span></div><p>${t('That is how long what you have saved lasts at the pace you spend.')}</p>${rwTrack(L.days)}</div>`; }
+  else if (L.days === 0) hero = `<div class="ob-hero zero"><b>${t('Your days of freedom start today.')}</b><p>${L.to30 ? tn(L.to30, 'Putting aside what is left each month, you have 30 days of freedom in {n} month.', 'Putting aside what is left each month, you have 30 days of freedom in {n} months.') : t('Everything you put aside from now on buys you time.')}</p></div>`;
+  const left = L.free > 0 ? fact(`<span class="fl-ico">${icon('trend')}</span>`, t('{amount} left each month', { amount: money(L.free) }), t('What comes in minus what goes out.'))
+    : fact(`<span class="fl-ico">${icon('trend')}</span>`, L.free < 0 ? t('Today {amount} more goes out than comes in each month.', { amount: money(-L.free) }) : t('Today as much goes out as comes in.'), t('No drama. Seeing it is the first step.'));
+  let goal = '';
+  if (d.goal) {
+    if (L.covered) goal = fact(obIco('target'), t('{dream}: you already have it covered.', { dream }), t('What you have saved reaches what it costs.'));
+    else if (L.months === null) goal = fact(obIco('target'), t('{dream}: no date yet.', { dream }), t('To get there in 12 months you need {amount} free each month. Let’s find it.', { amount: money(L.in12) }));
+    else if (L.far) goal = fact(obIco('target'), t('{dream}: more than 10 years away at this pace.', { dream }), t('Your plan will show which costs can make room for it.'));
+    else goal = fact(obIco('target'), `${dream}: <span class="ob-when">${fmt.month(L.arrival)}</span>`, tn(L.months, 'At this pace you get there in {n} month.', 'At this pace you get there in {n} months.'));
   }
-  return `<main class="auth">${weaveAuth()}<div class="auth-card onb" data-step="${step}">${head}${body}</div>${step && step < OB_STEPS ? later : ''}</main>`;
+  const tip = d.goal && L.lever && !L.far ? fact(obIco('bulb'), tn(L.lever.sooner, 'With {amount} more a month, you get there {n} month sooner.', 'With {amount} more a month, you get there {n} months sooner.', { amount: money(L.lever.extra) })) : '';
+  return `${hero}<div class="ob-facts">${left}${goal}${tip}</div><p class="note">${t('A simple sum with what you told me, with no investment returns. It gets sharper with your real plan.')}</p>`;
+}
+
+// 2026-10-10 (owner, on the Journey's first page: "that is an onboarding! Make the web app's onboarding like that, when the person creates an account";
+// then: "not the same as it is, and don't overdo it either"). The same kind of page, with its own look: the whole screen, black with a soft green
+// light drifting slowly behind, large words and no card; the bar in parts and one large button at the foot. What moves is what matters in each step:
+// the dream chosen lights up, the figures follow the sliders, the days of freedom count up, the last choices come in one after the other.
+// Its steps and fields are the ones it had (name and dream, the month's numbers, what the money can already do, where to go next).
+let obShown = -1;      // the step last drawn: a new step's words come in
+function viewOnboard() {
+  const p = UI.pub, o = ob(), step = Math.min(o.step, OB_STEPS - 1), name = esc(firstName(p.name)), enter = step !== obShown;      // a full name typed at sign-up: the first one is how the app talks to the person
+  const top = `<div class="ob-bar"><span class="ob-brand">${brandMark(true)}</span><span class="spacer"></span><select id="ob-lang" class="lang" aria-label="${t('Language')}" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select>
+    <button type="button" class="ob-out" data-a="logout" aria-label="${t('Log out')}" data-tip="${t('Log out')}">${icon('logout')}</button></div>`;
+  // the dots of before (owner, 2026-10-07: "dots, the active one green, at the bottom") are now the bar in parts of the Journey's page; a screen reader still hears "Step 2 of 4"
+  const dots = `<div class="ob-dots js-progress" role="img" aria-label="${t('Step {a} of {b}', { a: step + 1, b: OB_STEPS })}">${Array.from({ length: OB_STEPS }, (_, i) => `<i class="${i === step ? 'now' : i < step ? 'done' : ''}"></i>`).join('')}</div>`;
+  const err = o.error || p.error ? `<p class="banner crit js-warn" role="alert">${esc(o.error || p.error)}</p>` : '';
+  const later = `<p class="ob-later"><button class="linkbtn" data-a="ob-finish">${t('Finish later and open my dashboard')}</button></p>`;
+  const foot = (label, action, lead) => `<footer class="js-foot ob-foot">${lead || ''}${dots}<div class="js-actions">${step ? `<button class="btn ghost js-back" data-a="ob-back" aria-label="${t('Back')}">${icon('left')}</button>` : ''}<button class="btn primary js-go" data-a="${action}">${label}${icon('right')}</button></div>${step === 1 || step === 2 ? later : ''}</footer>`;
+  let body, end;
+  if (step === 0) {
+    body = `<p class="js-eyebrow">${t('Your first dream')}</p><h1 id="ob-h" tabindex="-1">${t('Hi, welcome!')} ${emo('👋')}</h1><p class="js-lead">${t('What’s your name, and what dream do you want to reach first?')}</p>${err}
+      <div class="field ob-name"><label for="ob-name">${t('Your name')}</label><input type="text" id="ob-name" autocomplete="given-name" value="${esc(p.name)}" placeholder="${t('A nickname works')}" data-c="pub" data-k="name" data-live="1"></div>
+      <div class="ob-dreams" role="group" aria-label="${t('Your first dream')}">${obDreams().map(([k, e, label], i) => `<button type="button" class="ob-dream" style="--i:${i}" data-a="ob-dream" data-v="${k}" aria-pressed="${o.dream === k}">${obIco(e)}<span>${label}</span></button>`).join('')}</div>
+      ${o.dream ? (row => `${row[3] ? '' : obField('ob-dream-name', t('What is it?'), 'dreamName', o.dreamName, `placeholder="${t('e.g. My own place, a new laptop')}"`)}
+        ${obSlide('ob-cost', o.dream === 'safety' ? t('How much do you want to have put aside?') : t('How much does it cost, more or less?'), 'cost', o.cost, row[5], row[6])}
+        <p class="js-soft">${t('A rough figure works. You adjust it later.')}</p>`)(obDreams().find(x => x[0] === o.dream)) : ''}`;
+    end = foot(t('Next'), 'onboard-save', o.dream ? `<p class="ob-cheer" role="status">${esc(obCheer())}</p>` : '');      // the cheer sits over the Next button (owner, 2026-10-07)
+  } else if (step === 1) {
+    body = `<p class="js-eyebrow">${t('Your month')}</p><h1 id="ob-h" tabindex="-1">${name ? t('How do your numbers look today, {name}?', { name }) : t('How do your numbers look today?')}</h1><p class="js-lead">${t('Don’t worry about the cents, we adjust it later.')}</p>${err}
+      ${obSlide('ob-pay0', t('Comes in each month, after taxes'), 'pay', o.pay, OB_MAX.income, 100)}
+      ${obSlide('ob-spend', t('Goes out each month'), 'spend', o.spend, OB_MAX.spend, 100)}
+      ${obSlide('ob-saved', t('Already saved'), 'saved', o.saved, OB_MAX.saved, 100)}
+      <p class="js-soft ob-avg">${t('They start at Brazil’s averages. Move them to yours.')} ${info(t('Where the sliders start. Comes in: R$ 3.738, the average monthly income from work in Brazil (IBGE, PNAD Contínua, 2nd quarter of 2026). Goes out: 86% of that, the share of their income that families spend (IBGE, POF 2017-2018). Already saved: one month of spending; about half of Brazilians have a month or less put aside (Anbima, Raio X do Investidor 2026). They are only where the sliders start: nothing is kept until you confirm your own numbers.'))}</p>`;
+    end = foot(t('See my projection'), 'ob-next');
+  } else if (step === 2) {
+    body = `<p class="js-eyebrow">${t('What your money can already do')}</p><h1 id="ob-h" tabindex="-1">${name ? t('{name}, this is what your money can already do', { name }) : t('This is what your money can already do')}</h1>${obReveal(obRead())}`;
+    end = foot(t('Start taking control'), 'ob-next');
+  } else {
+    const way = (go, ic, title, text, i) => `<button type="button" class="ob-way" style="--i:${i}" data-a="ob-finish" data-go="${go}"><span class="fl-ico">${icon(ic)}</span><span class="grow"><b>${title}</b><small>${text}</small></span>${icon('right')}</button>`;
+    body = `<p class="js-eyebrow">${t('Your next step')}</p><h1 id="ob-h" tabindex="-1">${t('Let’s make your date sharper')}</h1><p class="js-lead">${t('The more Dorax knows about your month, the truer what it shows you. Pick where to start, or go straight to your dashboard.')}</p>${err}
+      <div class="ob-ways">${way('limits', 'gauge', t('Plan my month'), t('How much to spend on each category. Dorax lets you know at 80%.'), 0)}${way('plan', 'calendar', t('Add my fixed costs and due days'), t('Rent, internet, cards. Dorax reminds you before each one is due.'), 1)}
+        ${deskOnly('sheet') ? '' : way('sheet', 'upload', t('Bring my spreadsheet'), t('Fixed costs, income and goals come in without typing them.'), 2)}</div>`;
+    end = foot(t('Open my dashboard'), 'ob-finish');
+  }
+  return `<main class="auth plain ob-wrap"><div class="onb ob-page js-page" id="obpage" data-step="${step}"><div class="ob-glow" aria-hidden="true"><i></i><i></i></div>${top}
+    <div class="js-body ob-body${enter ? ' in' : ''}"><div class="js-step">${body}</div></div>${end}</div></main>`;
+}
+/** After the page is drawn, on a new step: the figures count up and the title takes the focus. */
+function obAfter() {
+  const root = $('obpage'); document.documentElement.classList.toggle('ob-open', !!root);
+  if (!root) { obShown = -1; return; }
+  const step = +root.dataset.step; if (step === obShown) return;
+  obShown = step; root.querySelectorAll('[data-count]').forEach(countUp);
+  const h = $('ob-h'); if (h) h.focus({ preventScroll: true });
 }

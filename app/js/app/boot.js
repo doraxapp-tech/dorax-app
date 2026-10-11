@@ -2,7 +2,7 @@
 // The pages before login open at once, in the language this device used last. Whether somebody is logged in is the server library's to
 // say, and it may have to read a link from an email (or the way back from Google) out of the address first: nothing here touches the
 // address until it has answered.
-UI.pub = freshPub();
+UI.pub = { ...freshPub(), ...PAGES.state(PAGES.arrived) };      // the page the address names (ui/pages.js): the home page, the login, the privacy policy...
 (async function start() {
   // somebody was logged in on this device, or is arriving through a link: a short wait instead of a flash of the home page
   let waiting = false;
@@ -21,9 +21,16 @@ UI.pub = freshPub();
     // the link did not work: nobody is ever asked to set a password for an account the link was not for.
     const mine = SERVER.arrived.recovery && SERVER.arrived.owner === r.session.user.id;
     if (mine) return startRecovery();
+    // Protection kept on this device (features/lock): too long without use and the session is closed here, before the account is read;
+    // with an app lock, the screen is closed first and the account opens underneath it.
+    const gid = r.session.user.id;
+    if (guardIdleOver(gid)) { const say = guardIdleSays(gid); await PUSH.off(); await SERVER.signOut(); UI.pub = { ...freshPub(), screen: 'auth', mode: 'login', notice: say }; renderNow(); return; }
+    if (lockSet(gid)) lockNow();
     await openAccount();
+    pageArrival();                                   // the address named a page before login (privacy, terms, contact): it opens in the app's side panel
     bankArrival();                                   // back from the bank's consent page (the trial of connecting a bank)
     pushArrival();                                   // a notification was tapped while the app was closed: open the reminders
+    shortcutArrival();                               // a shortcut of the app's icon: the expense form, or Imports (features/install/shortcuts.js)
     if (SERVER.arrived.recovery && UI.session) toast(serverSays('otp_expired')); else if (SERVER.arrived.halfway && UI.session) toast(halfway);
     return;
   }
@@ -36,7 +43,7 @@ UI.pub = freshPub();
   const why = SERVER.arrived.failure;
   if (why) { UI.pub = { ...freshPub(), screen: 'auth', mode: 'login', [why === 'cancelled' ? 'notice' : 'error']: serverSays(why === 'cancelled' ? 'access_denied' : why === 'link' ? 'otp_expired' : 'login_failed') }; renderNow(); return; }
   if (SERVER.arrived.halfway) { UI.pub = { ...freshPub(), screen: 'auth', mode: 'login', notice: halfway }; renderNow(); return; }
-  if (waiting) { UI.pub = freshPub(); renderNow(); enterView(); }
+  if (waiting) { UI.pub = { ...freshPub(), ...PAGES.state(PAGES.arrived) }; renderNow(); enterView(); }
 })();
 // Installing as an app: the manifest is linked only where it can be read (a web server). Opened from disk, or inside the one-file preview, there is none.
 if (/^https?:$/.test(location.protocol) && !document.getElementById('lib-pdf')) { const l = document.createElement('link'); l.rel = 'manifest'; l.href = 'manifest.webmanifest'; document.head.appendChild(l); }

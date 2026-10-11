@@ -5,6 +5,8 @@
 //   version  anyone                a short name for the exact code that is running, to check a deploy (node tools/build-functions.js --version).
 //   test     a logged-in person    sends that person a test: a notification to their devices (channel "push") or an email (channel "email").
 //   run      the daily schedule    looks at every account and tells each person what is NEW for them today, by notification and by email.
+//   tips     a schedule every 15'  between 8:00 and 23:00 (Brasília): the people whose time for a tip has come today get one by notification,
+//                                  as often as they chose, at a different time each day (logic.mjs: tipFor, tipSlot; supabase/tips-schedule.sql).
 //   contact  the database          a message came in through the contact form: emails it to the owner (the address in CONTACT_TO).
 //
 // What is where:
@@ -18,10 +20,11 @@
 // name RESEND_API_KEY. Without it, emails are skipped and everything else works. CONTACT_TO, set in the same place, is the address that
 // gets the contact-form messages; without it they wait in the table contact_messages as before.
 //
-// What is never written to the logs: what a reminder says, an email address, a device's address. Only counts, and the id of an account
+// What is never written to the logs: what a reminder says, an email address, a device's address. Only counts (and, for a push service, its
+// name and its answer, with the kind of device as its browser named it), and the id of an account
 // that could not be read.
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { messageFor, testTexts, todayIn, sameSecret, versionOf, PARTS as LOGIC } from './logic.mjs';
+import { messageFor, tipFor, tipSlot, minuteIn, TIP_FROM, TIP_UNTIL, testTexts, todayIn, sameSecret, versionOf, PARTS as LOGIC } from './logic.mjs';
 import { sendPush, generateVapidKeys, PARTS as WEBPUSH } from './webpush.mjs';
 import { reminderEmail, PARTS as EMAIL } from './email.mjs';
 
@@ -77,21 +80,27 @@ async function sendEmail(to: string, subject: string, mail: { html: string; text
   } catch (_e) { return { ok: false, reason: 'unreachable' }; }
 }
 
-/** One notification to every device of one person. Devices that no longer take messages are forgotten. */
+/** The push service a device's address belongs to, for the logs and the test's answer (never the address itself). */
+const serviceOf = (endpoint: string) => { try { const h = new URL(endpoint).hostname; return /apple\.com$/.test(h) ? 'apple' : /googleapis\.com$/.test(h) ? 'google' : /mozilla\.com$/.test(h) ? 'mozilla' : /windows\.com$/.test(h) ? 'microsoft' : 'other'; } catch (_e) { return 'other'; } };
+/** One notification to every device of one person. Devices that no longer take messages are forgotten. Each device's outcome is kept:
+    which kind of device (as the browser named it when it was switched on), which push service, and what that service answered. */
 async function pushTo(admin: Any, devices: Any[], payload: { title: string; body: string; [k: string]: unknown }) {
-  const keys = await pushKeys(admin); let sent = 0, failed = 0;
+  const keys = await pushKeys(admin); let sent = 0, failed = 0; const results: Any[] = [];
   const message = JSON.stringify({ ...payload, title: clip(payload.title, 120, true), body: clip(payload.body, 600) });
   for (const d of devices) {
     const r = await sendPush(d, message, keys, { ttl: 20 * 3600 });
+    results.push({ agent: clip(d.agent || '', 40, true), service: serviceOf(d.endpoint), status: r.status, ok: r.ok, gone: !!r.gone });
     if (r.ok) sent++;
     else if (r.gone) await admin.from('push_subscriptions').delete().eq('endpoint', d.endpoint);
     else failed++;
   }
-  return { sent, failed };
+  return { sent, failed, results };
 }
 
-/** "Send me a test". A refusal the app should explain comes back as { ok: false, code } with status 200, so the app can read the code. */
-async function test(req: Request, admin: Any, channel: string) {
+/** "Send me a test". A refusal the app should explain comes back as { ok: false, code } with status 200, so the app can read the code.
+    delay (seconds, notifications only, at most 30): the answer comes at once and the notification follows, so the person can close Dorax and see one
+    arrive with the app closed (owner, 2026-10-10: "I still get no notification at all on the phone with the web app closed"). */
+async function test(req: Request, admin: Any, channel: string, delay = 0) {
   const user = await whoAsks(req, admin);
   if (!user) return answer(req, { ok: false, code: 'not_logged_in' }, 401);
   // a button, not a way to flood an inbox or use up the email service: one test notification every 20 seconds, one test email an hour
@@ -107,11 +116,24 @@ async function test(req: Request, admin: Any, channel: string) {
     if (r.ok) await done();
     return answer(req, { ok: r.ok, code: r.ok ? '' : r.reason });
   }
-  const { data: devices } = await admin.from('push_subscriptions').select('endpoint, p256dh, auth').eq('user_id', user.id);
+  const { data: devices } = await admin.from('push_subscriptions').select('endpoint, p256dh, auth, agent').eq('user_id', user.id);
   if (!devices || !devices.length) return answer(req, { ok: false, code: 'no_device' });
-  const r = await pushTo(admin, devices, { title: texts.testTitle, body: texts.testBody, url: SITE + '/', tag: 'dorax-test', lang });
-  if (r.sent) await done();
-  return answer(req, { ok: r.sent > 0, code: r.sent > 0 ? '' : 'not_delivered', devices: devices.length, sent: r.sent });
+  const send = async () => {
+    const r = await pushTo(admin, devices, { title: texts.testTitle, body: texts.testBody, url: SITE + '/', tag: 'dorax-test', lang });
+    if (r.sent) await done();
+    console.log('reminders: test', JSON.stringify({ delay, results: r.results.map((x: Any) => ({ agent: x.agent, service: x.service, status: x.status })) }));
+    return r;
+  };
+  const wait = Math.max(0, Math.min(30, Math.round(Number(delay) || 0)));
+  if (wait) {      // the answer now; the notification after the wait, kept alive by the runtime once the answer has gone
+    await done();      // counts as the test of the next 20 seconds, so it is not pressed twice in a row
+    const later = new Promise(res => setTimeout(res, wait * 1000)).then(send).catch((e: Any) => console.log('reminders: test later failed', String(e)));
+    const rt = (globalThis as Any).EdgeRuntime; if (rt && typeof rt.waitUntil === 'function') rt.waitUntil(later); else await later;
+    return answer(req, { ok: true, code: '', devices: devices.length, delayed: wait, results: [] });
+  }
+  const r = await send();
+  // what each device's push service answered, so the person can see which phone or computer was reached (and the logs say it, without addresses: send)
+  return answer(req, { ok: r.sent > 0, code: r.sent > 0 ? '' : 'not_delivered', devices: devices.length, sent: r.sent, results: r.results });
 }
 
 /** The secret the database presents (the daily schedule, the contact form's trigger), when the request carries it; otherwise null. */
@@ -187,7 +209,8 @@ async function run(req: Request, admin: Any, body: Any) {
   if (error || !rows) { console.error('reminders: accounts could not be read'); return answer(req, { ...out, ok: false, code: 'cannot_read_accounts' }, 500); }
   const ids = rows.map((r: Any) => r.user_id);
   const { data: logs } = ids.length ? await admin.from('reminder_log').select('user_id, key').in('user_id', ids) : { data: [] };
-  const { data: subs } = ids.length ? await admin.from('push_subscriptions').select('user_id, endpoint, p256dh, auth').in('user_id', ids) : { data: [] };
+  const { data: subs } = ids.length ? await admin.from('push_subscriptions').select('user_id, endpoint, p256dh, auth, agent').in('user_id', ids) : { data: [] };
+  const answers: Record<string, number> = {};      // what the push services answered, counted by service and status: "apple 201", "google 410"…
   for (const row of rows) {
     out.people++;
     try {
@@ -199,6 +222,7 @@ async function run(req: Request, admin: Any, body: Any) {
       if (devices.length) {
         const r = await pushTo(admin, devices, { title: msg.push.title, body: msg.push.body, url: SITE + '/?open=reminders', tag: 'dorax-' + today, lang: msg.lang });
         out.notifications += r.sent; out.problems += r.failed; reached = reached || r.sent > 0;
+        for (const x of r.results) answers[x.service + ' ' + x.status] = (answers[x.service + ' ' + x.status] || 0) + 1;
       }
       if (msg.emailOn && Deno.env.get('RESEND_API_KEY')) {
         const { data: u } = await admin.auth.admin.getUserById(row.user_id);
@@ -225,7 +249,44 @@ async function run(req: Request, admin: Any, body: Any) {
     // and the contact-form messages the owner was not emailed about (the day's limit, or the email service was down): one summary
     try { out.contact = await contactWaiting(admin); } catch (_e) { out.problems++; }
   }
-  console.log('reminders:', JSON.stringify({ ...out, page: hop }));
+  console.log('reminders:', JSON.stringify({ ...out, page: hop, answers }));
+  return answer(req, out);
+}
+
+/** Tips by notification, between 8:00 and 23:00 (owner, 2026-10-10: "the notifications need not be at 8:00, any time from 8 in the morning to 11 at
+    night, any day; with the app closed, of course: the idea is to bring the person back to the app"). The schedule calls this every 15 minutes.
+    Each person has a time of their own for each day (tipSlot: from the id and the date, so it changes every day and nobody has to remember it);
+    once that time has come, and while no tip and no reminder reached them today, today's tip goes, if their rhythm says today is a day for one.
+    Only people with a device are looked at, and only their accounts are read. */
+async function tips(req: Request, admin: Any) {
+  if (!await fromDatabase(req, admin)) return answer(req, { ok: false, code: 'not_allowed' }, 403);
+  const now = new Date(), today = todayIn(TZ, now), minute = minuteIn(TZ, now);
+  const out = { ok: true, day: today, minute, waiting: 0, tips: 0, notifications: 0, problems: 0, quiet: false };
+  if (minute < TIP_FROM || minute >= TIP_UNTIL) { out.quiet = true; return answer(req, out); }      // the night: nothing
+  const { data: subs } = await admin.from('push_subscriptions').select('user_id, endpoint, p256dh, auth, agent');
+  const ids = [...new Set((subs || []).map((s: Any) => s.user_id))].filter((id: Any) => tipSlot(String(id), today) <= minute) as string[];
+  if (!ids.length) return answer(req, out);
+  const { data: logs } = await admin.from('reminder_log').select('user_id, key, sent_at').in('user_id', ids);
+  const mine = (id: string) => (logs || []).filter((l: Any) => l.user_id === id);
+  // one a day at most: not when a tip already went today, nor on a day a reminder went (a test does not count)
+  const waiting = ids.filter(id => !mine(id).some((l: Any) => l.key === 'tip|' + today || (!/^(tip|test)/.test(l.key) && todayIn(TZ, new Date(l.sent_at)) === today)));
+  out.waiting = waiting.length;
+  const answers: Record<string, number> = {};
+  for (let i = 0; i < waiting.length; i += PAGE) {
+    const { data: rows } = await admin.from('user_data').select('user_id, data').in('user_id', waiting.slice(i, i + PAGE));
+    for (const row of rows || []) {
+      try {
+        const tip = tipFor(row.data, today, new Set<string>(mine(row.user_id).map((l: Any) => l.key)), false);
+        if (!tip) continue;
+        const r = await pushTo(admin, (subs || []).filter((s: Any) => s.user_id === row.user_id), { title: tip.push.title, body: tip.push.body, url: SITE + '/', tag: 'dorax-tip-' + today, lang: tip.lang });
+        out.notifications += r.sent; out.problems += r.failed;
+        for (const x of r.results) answers[x.service + ' ' + x.status] = (answers[x.service + ' ' + x.status] || 0) + 1;
+        // remembered once it reached a device, so the rhythm the person chose counts what they actually got
+        if (r.sent) { out.tips++; await admin.from('reminder_log').upsert(tip.keys.map((key: string) => ({ user_id: row.user_id, key: clip(key, 200, true) })), { onConflict: 'user_id,key', ignoreDuplicates: true }); }
+      } catch (_e) { out.problems++; console.error('reminders: tips, account', row.user_id, 'could not be read'); }
+    }
+  }
+  if (out.waiting) console.log('reminders: tips', JSON.stringify({ ...out, answers }));
   return answer(req, out);
 }
 
@@ -238,8 +299,9 @@ Deno.serve(async (req: Request) => {
     if (body.action === 'version') return answer(req, { ok: true, version: versionKept || (versionKept = await versionOf([...LOGIC, ...WEBPUSH, ...EMAIL])) });
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false, autoRefreshToken: false } });
     if (body.action === 'key') return answer(req, { ok: true, publicKey: (await pushKeys(admin)).publicKey });
-    if (body.action === 'test') return await test(req, admin, body.channel === 'email' ? 'email' : 'push');
+    if (body.action === 'test') return await test(req, admin, body.channel === 'email' ? 'email' : 'push', body.channel === 'email' ? 0 : body.delay);
     if (body.action === 'run') return await run(req, admin, body);
+    if (body.action === 'tips') return await tips(req, admin);
     if (body.action === 'contact') return await contact(req, admin, body);
     return answer(req, { ok: false, code: 'unknown_action' }, 400);
   } catch (e) {

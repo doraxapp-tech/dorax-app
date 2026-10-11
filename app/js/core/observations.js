@@ -1,6 +1,6 @@
 /* Dorax Finance — calculations: the factual sentences of the report and the plan alerts. */
 // ---------- factual observations & alerts (data-driven statements, never advice) ----------
-function observations(state, ym, currency, today, fmt, catName) {
+function observations(state, ym, currency, today, fmt, catName, co) {
   // A month in progress is compared with the same days of the month before, never with the whole month (the dashboard's rule since v15;
   // before v39 the report compared, say, two days of October with all of September and read "92,9% less").
   const t = fmt.t, out = [], cur = monthSummary(state, ym, currency), prevYm = addMonths(ym, -1), open = !!today && ym === ymOf(today), upTo = open ? isoDate(prevYm, +today.slice(8)) : null, prev = monthSummary(state, prevYm, currency, upTo);
@@ -20,7 +20,7 @@ function observations(state, ym, currency, today, fmt, catName) {
   const pt = planTotals(state, ym);
   if (pt.expenses) out.push(t('Planned fixed costs were {a}; actual spending on those lines was {b}.', { a: fmt.money(pt.expenses, currency), b: fmt.money(sum(planProgress(state, ym, currency).map(p => p.spent)), currency) }));
   if (cur.transfers) out.push(t('{amount} moved between your own accounts and is not counted as spending.', { amount: fmt.money(cur.transfers, currency) }));
-  if (cur.income === 0 && cur.count) out.push(t('No income has been recorded for this month yet, so no savings rate is shown.'));
+  if (cur.income === 0 && cur.count) out.push(co ? t('Nothing has been received this month yet, so the result in % is not shown.') : t('No income has been recorded for this month yet, so no savings rate is shown.'));      // co: the company's report speaks of its result, not of a savings rate
   return out;
 }
 function planAlerts(state, ym, currency, today, fmt) {

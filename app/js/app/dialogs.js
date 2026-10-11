@@ -19,7 +19,7 @@ function renderModal() {
     <div class="modal-icon ${m.tone === 'danger' ? '' : 'neutral'}">${icon(m.tone === 'danger' ? 'trash' : 'alert')}</div>
     <h2 id="modal-title">${esc(m.title)}</h2><p id="modal-text">${esc(m.text)}</p>
     ${m.word ? `<div class="field"><label for="modal-word">${t('Type {word} to confirm', { word: `<b>${esc(m.word)}</b>` })}</label><input type="text" id="modal-word" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="${esc(m.typed)}" data-c="modal-word" data-live="1"></div>` : ''}
-    <footer><button class="btn" data-a="modal-cancel">${t('Cancel')}</button><button class="btn ${m.tone === 'danger' ? 'danger' : 'primary'}" id="modal-ok" data-a="modal-confirm" ${modalReady() ? '' : 'disabled'}>${esc(m.label)}</button></footer></div></div>`;
+    <footer><button class="btn" data-a="modal-cancel">${esc(m.cancelLabel || t('Cancel'))}</button><button class="btn ${m.tone === 'danger' ? 'danger' : 'primary'}" id="modal-ok" data-a="modal-confirm" ${modalReady() ? '' : 'disabled'}>${esc(m.label)}</button></footer></div></div>`;
   setInert();
   const el = m.word ? $('modal-word') : root.querySelector('button.btn[data-a="modal-cancel"]'); if (el) el.focus();   // the safe choice has focus; a typed word starts in its field
 }

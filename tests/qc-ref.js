@@ -16,7 +16,9 @@ window.QC = function () {
   const month = (m, upTo) => { const tx = S.transactions.filter(t => home(t) && ymOf(t.date) === m && (!upTo || t.date <= upTo)); const inc = tx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), exp = tx.filter(t => t.type === 'expense').reduce((s, t) => s - t.amount, 0); return { income: inc, expenses: exp, left: inc - exp, count: tx.length }; };
   const spend = (m, upTo) => { const cat = {}, line = {}; S.transactions.filter(t => home(t) && t.type === 'expense' && ymOf(t.date) === m && (!upTo || t.date <= upTo)).forEach(t => (t.splits && t.splits.length ? t.splits : [t]).forEach(p => { const c = p.categoryId || 'other'; cat[c] = (cat[c] || 0) - p.amount; const k = p.subcategoryId || c; line[k] = (line[k] || 0) - p.amount; })); return { cat, line }; };
   const planOf = (l, m) => ((l.plan[m.slice(0, 4)] || [])[+m.slice(5) - 1]) || 0;
-  const spentOf = (l, sp) => l.subcategoryId ? (sp.line[l.subcategoryId] || 0) : (sp.cat[l.categoryId] || 0);
+  // a whole category's line takes what its subcategories with running lines of their own did not (v146: a limit on "everything else in Home")
+  const ownSum = (l, sp, m) => l.subcategoryId ? 0 : [...new Set(S.plan.lines.filter(k => k !== l && k.categoryId === l.categoryId && k.subcategoryId && !(k.end && m && k.end < m)).map(k => k.subcategoryId))].reduce((a, id) => a + (sp.line[id] || 0), 0);
+  const spentOf = (l, sp, m) => l.subcategoryId ? (sp.line[l.subcategoryId] || 0) : (sp.cat[l.categoryId] || 0) - ownSum(l, sp, m);
   const payRows = (y, to) => ((S.pay || {})[y] || []).filter(r => !to || r.to === to);
   const payPlan = (m, to) => payRows(+m.slice(0, 4), to).reduce((s, r) => s + (r.values[+m.slice(5) - 1] || 0), 0);
   const isStart = x => !!(x.start || (x.k && x.k.note === 'Starting balance'));
@@ -39,27 +41,32 @@ window.QC = function () {
   { const d = P.expenses ? r1(M.expenses - P.expenses, P.expenses) : null; eq(tag + 'dash spending vs', k['Spending'][1], d === null ? '' : `${d > 0 ? '▲' : d < 0 ? '▼' : '•'} ${pct(Math.abs(d))} ${open ? 'vs the same days of ' + mon(prev) : 'vs ' + mon(prev)}`); }
   eq(tag + 'dash left over', k['Left over'][0], M.income ? money(M.left) : '—');
   if (M.income) eq(tag + 'dash left over share', k['Left over'][1], pct(r1(M.left, M.income)) + ' of income');
-  eq(tag + 'dash into goals', k['Put into goals'][0], money(S.goals.reduce((s, g) => s + goalIn(g, ym), 0)));
-  { const live = S.goals.filter(g => g.status === 'active'), pl = live.reduce((s, g) => s + ((g.plan[ym.slice(0, 4)] || [])[+ym.slice(5) - 1] || 0), 0); eq(tag + 'dash goals planned', k['Put into goals'][1], pl ? 'of ' + money(pl, { trim: true }) + ' planned' : ''); }
+  // 2026-10-08: the household's net balance leads the figures in place of what was put into goals (owner)
+  eq(tag + 'dash household net', k['Household net balance'][0], money(S.accounts.filter(a => a.scope !== 'business' && a.currency === CURR).reduce((s, a) => s + balance(a.id), 0)));
+  eq(tag + 'dash no goals tile', k['Put into goals'], undefined);
   { const cats = S.categories.filter(c => !c.income && SP.cat[c.id] > 0).sort((a, b) => SP.cat[b.id] - SP.cat[a.id]), sh = cats.length && cats.reduce((s, c) => s + SP.cat[c.id], 0) === M.expenses ? shares(cats.map(c => SP.cat[c.id]), M.expenses) : cats.map(c => Math.round(SP.cat[c.id] * 100 / M.expenses));
     eq(tag + 'dash category legend', [...document.querySelectorAll('#cat-card .legend-row')].map(r => norm(r.innerText)).join(' ; '), cats.map((c, i) => `${c.name} ${money(SP.cat[c.id])} ${sh[i]}%`).join(' ; '));
     if (cats.length && cats.reduce((s, c) => s + SP.cat[c.id], 0) === M.expenses) eq(tag + 'dash shares add up to 100', sh.reduce((a, b) => a + b, 0), 100); }
   if (document.querySelector('#goals-card')) eq(tag + 'dash goals total', norm((document.querySelector('#goals-card .figure b') || {}).innerText), money(S.goals.reduce((s, g) => s + goalSaved(g), 0)));
   if (document.querySelector('#todo')) { const head = norm((document.querySelector('#todo .card-h .sub, #todo .figure b, #todo .todo-total') || {}).innerText), rows = [...document.querySelectorAll('#todo .li.todo')].filter(li => li.querySelector('[data-a="line-pay-now"], [data-a="line-pay"], [data-a="card-pay"]') && li.querySelector('small') && !li.classList.contains('past'));
-    const total = rows.reduce((s, li) => s + parse(norm(li.querySelector('small').innerText).split('·')[0]), 0), txt = norm(document.querySelector('#todo').innerText);
-    if (rows.length) eq(tag + 'dash to-do total = its rows', /R\$ [\d.,]+ to pay in the next 30 days/.test(txt) ? txt.match(/(R\$ [\d.,]+) to pay in the next 30 days/)[1] : txt.slice(0, 60), money(total)); }
+    const total = rows.reduce((s, li) => s + parse(norm(li.querySelector('small').innerText).split('·').find(p => /\d/.test(p))), 0), txt = norm(document.querySelector('#todo').innerText);
+    // a computer's summary lists the next four (2026-10-11) and says how many more: then the total covers more than the rows shown
+    if (rows.length && !/more bills? in the plan/.test(txt)) eq(tag + 'dash to-do total = its rows', /R\$ [\d.,]+ to pay in the next 30 days/.test(txt) ? txt.match(/(R\$ [\d.,]+) to pay in the next 30 days/)[1] : txt.slice(0, 60), money(total));
+    else if (rows.length) eq(tag + 'dash to-do total covers its rows', /R\$ [\d.,]+ to pay in the next 30 days/.test(txt) && parse(txt.match(/(R\$ [\d.,]+) to pay in the next 30 days/)[1]) >= total, true); }
 
   // ----- plan -----
   navigate('plan');
-  { const tl = tiles(), lines = S.plan.lines, fixed = lines.reduce((s, l) => s + planOf(l, ym), 0), paid = lines.reduce((s, l) => s + spentOf(l, SP), 0);
-    const toPay = lines.reduce((s, l) => { const p = planOf(l, ym), sp = spentOf(l, SP); return s + (l.pay !== 'budget' ? (sp === 0 ? p : 0) : Math.max(0, p - sp)); }, 0);
+  // v146: the tiles speak of the bills; what is left subtracts the bills and the limits (the limits have their own card)
+  { const tl = tiles(), lines = S.plan.lines, bills = lines.filter(l => l.pay !== 'budget'), all = lines.reduce((s, l) => s + planOf(l, ym), 0), fixed = bills.reduce((s, l) => s + planOf(l, ym), 0), paid = bills.reduce((s, l) => s + spentOf(l, SP, ym), 0);
+    const toPay = bills.reduce((s, l) => { const p = planOf(l, ym), sp = spentOf(l, SP, ym); return s + (sp === 0 ? p : 0); }, 0), netKey = lines.some(l => l.pay === 'budget' && planOf(l, ym) > 0) ? 'Left after bills and limits' : 'Income minus fixed costs';
     eq(tag + 'plan fixed costs', tl['Fixed costs, ' + mon(ym)][0], money(fixed)); eq(tag + 'plan paid so far', tl['Paid so far'][0], money(paid)); eq(tag + 'plan still to pay', tl['Still to pay'][0], money(toPay));
-    eq(tag + 'plan income minus fixed', tl['Income minus fixed costs'][0], money(payPlan(ym, 'fixed') - fixed)); }
+    eq(tag + 'plan income minus fixed and limits', (tl[netKey] || [])[0], money(payPlan(ym, 'fixed') - all)); }
+  if (!document.querySelector('#plan-year')) A['plan-year-open']();      // a computer keeps the year one click away (2026-10-11)
   for (const mode of ['plan', 'actual', 'diff']) {
     UI.planMode = mode; renderNow();
     const year = +document.querySelector('#plan-year .stepper').innerText.match(/\d{4}/)[0], g = grid('#plan-year table'), months = Array.from({ length: 12 }, (_, i) => year + '-' + String(i + 1).padStart(2, '0'));
     const sp = months.map(m => m <= nowYm ? spend(m) : null);
-    const lineVal = (l, i) => mode === 'plan' ? planOf(l, months[i]) : !sp[i] ? null : mode === 'actual' ? spentOf(l, sp[i]) : spentOf(l, sp[i]) - planOf(l, months[i]);
+    const lineVal = (l, i) => mode === 'plan' ? planOf(l, months[i]) : !sp[i] ? null : mode === 'actual' ? spentOf(l, sp[i], months[i]) : spentOf(l, sp[i], months[i]) - planOf(l, months[i]);
     const arrived = (r, m) => { const all = S.transactions.filter(t => home(t) && t.type === 'income' && ymOf(t.date) === m && t.subcategoryId === r.sub && (!r.half || (r.half === 1) === (+t.date.slice(8) <= 15))).reduce((s, t) => s + t.amount, 0); const tw = payRows(year).filter(x => x.sub === r.sub && (x.half || 0) === (r.half || 0)); if (tw.length < 2) return all; const i = +m.slice(5) - 1, tot = tw.reduce((s, x) => s + (x.values[i] || 0), 0); if (!tot) return tw[0] === r ? all : 0; const cum = n => Math.round(all * tw.slice(0, n).reduce((s, x) => s + (x.values[i] || 0), 0) / tot), at = tw.indexOf(r); return cum(at + 1) - cum(at); };
     const payVal = (r, i) => mode === 'plan' ? r.values[i] || 0 : !sp[i] ? null : mode === 'actual' ? arrived(r, months[i]) : arrived(r, months[i]) - (r.values[i] || 0);
     const show = v => v === null ? '—' : mode === 'diff' ? (v === 0 ? '0' : money(v, { bare: true, trim: true, sign: true })) : (v === 0 ? '0' : money(v, { bare: true, trim: true }));
@@ -70,17 +77,20 @@ window.QC = function () {
     for (const r0 of inc) { const r = byName(r0.name); eq(`${tag}plan grid ${mode}: ${r0.name}`, r ? r.cells.slice(1).join(' | ') : 'ROW MISSING', rowWant(months.map((m, i) => payVal(r0, i)))); }
     const colSum = (xs, f) => months.map((m, i) => { const v = xs.map(x => f(x, i)); return v.some(x => x === null) ? null : v.reduce((a, b) => a + b, 0); });
     eq(`${tag}plan grid ${mode}: income total`, byName('Income for fixed costs').cells.slice(1).join(' | '), rowWant(colSum(inc, payVal)));
-    for (const c of S.categories.filter(c => lines.some(l => l.categoryId === c.id))) eq(`${tag}plan grid ${mode}: Total ${c.name}`, byName('Total ' + c.name).cells.slice(1).join(' | '), rowWant(colSum(lines.filter(l => l.categoryId === c.id), lineVal)));
-    eq(`${tag}plan grid ${mode}: total fixed`, byName('Total fixed monthly costs').cells.slice(1).join(' | '), rowWant(colSum(lines, lineVal)));
+    const billLines = lines.filter(l => l.pay !== 'budget'), limLines = lines.filter(l => l.pay === 'budget');
+    for (const c of S.categories.filter(c => billLines.some(l => l.categoryId === c.id))) eq(`${tag}plan grid ${mode}: Total ${c.name}`, byName('Total ' + c.name).cells.slice(1).join(' | '), rowWant(colSum(billLines.filter(l => l.categoryId === c.id), lineVal)));
+    if (limLines.length) eq(`${tag}plan grid ${mode}: total limits`, byName('Total limits').cells.slice(1).join(' | '), rowWant(colSum(limLines, lineVal)));
+    eq(`${tag}plan grid ${mode}: total fixed`, byName(limLines.length ? 'Total bills and limits' : 'Total fixed monthly costs').cells.slice(1).join(' | '), rowWant(colSum(lines, lineVal)));
     { const a = colSum(inc, payVal), b = colSum(lines, lineVal), net = months.map((m, i) => a[i] === null || b[i] === null ? null : a[i] - b[i]), fmtNet = v => v === null ? '—' : mode === 'diff' ? show(v) : money(v, { bare: true, trim: true });
-      eq(`${tag}plan grid ${mode}: income minus fixed`, byName('Income minus fixed costs').cells.slice(1).join(' | '), [...net.map(fmtNet), fmtNet(net.reduce((x, y) => x + (y || 0), 0))].join(' | ')); }
+      eq(`${tag}plan grid ${mode}: income minus fixed`, byName(limLines.length ? 'Left after bills and limits' : 'Income minus fixed costs').cells.slice(1).join(' | '), [...net.map(fmtNet), fmtNet(net.reduce((x, y) => x + (y || 0), 0))].join(' | ')); }
   }
+  if (UI.drawer && UI.drawer.kind === 'plan-year') { UI.drawer = null; renderOverlay(); }
   UI.planMode = 'plan';
 
   // ----- goals -----
   navigate('goals');
   { const tl = tiles(), live = S.goals.filter(g => g.status === 'active'), y = ym.slice(0, 4), i = +ym.slice(5) - 1, pl = live.reduce((s, g) => s + ((g.plan[y] || [])[i] || 0), 0);
-    eq(tag + 'goals saved total', tl['Saved in goals and funds'][0], money(S.goals.reduce((s, g) => s + goalSaved(g), 0)));
+    eq(tag + 'goals saved total', tl['Set aside in goals and funds'][0], money(S.goals.reduce((s, g) => s + goalSaved(g), 0)));
     eq(tag + 'goals plan', tl['Plan for ' + mon(ym)][0], money(pl)); eq(tag + 'goals recorded', tl['Recorded in ' + mon(ym)][0], money(live.reduce((s, g) => s + goalIn(g, ym), 0)));
     eq(tag + 'goals left over', (tl['Left over'] || tl[S.remainderLabel] || Object.values(tl)[3])[0], money(payPlan(ym, 'savings') - pl));
     for (const mode of ['plan', 'actual', 'diff']) {
@@ -111,21 +121,25 @@ window.QC = function () {
   // ----- reports -----
   navigate('reports');
   if (M.count) { const tl = tiles(); eq(tag + 'rep income', tl['Income'][0], money(M.income)); eq(tag + 'rep expenses', tl['Expenses'][0], money(M.expenses)); eq(tag + 'rep left over', tl['Left over'][0], money(M.left)); eq(tag + 'rep share', tl['Left over, share of income'][0], M.income > 0 ? pct(r1(M.left, M.income)) : '—');
-    const g = grid('#view table.tbl'), PS = spend(prev, upTo), row = (cur, pv) => { const d = cur - pv, pc = pv ? r1(d, Math.abs(pv)) : null; return [money(cur), P.count ? money(pv) : '—', P.count ? money(d, { sign: true }) : '—', pc === null || !P.count ? '—' : `${pc > 0 ? '▲' : pc < 0 ? '▼' : ''} ${pct(Math.abs(pc))}`.trim()].join(' | '); };
+    const g = P.count ? grid('#rep-compare') : [{ cells: ['Income'] }, { cells: ['Expenses'] }, { cells: ['Left over'] }], PS = spend(prev, upTo), row = (cur, pv) => { const d = cur - pv, pc = pv ? r1(d, Math.abs(pv)) : null; return [money(cur), P.count ? money(pv) : '—', P.count ? money(d, { sign: true }) : '—', pc === null || !P.count ? '—' : `${pc > 0 ? '▲' : pc < 0 ? '▼' : ''} ${pct(Math.abs(pc))}`.trim()].join(' | '); };
     const find = n => g.find(r => r.cells[0] === n);
-    eq(tag + 'rep compare income', find('Income').cells.slice(1).join(' | '), row(M.income, P.income)); eq(tag + 'rep compare expenses', find('Expenses').cells.slice(1).join(' | '), row(M.expenses, P.expenses)); eq(tag + 'rep compare left over', find('Left over').cells.slice(1).join(' | '), row(M.left, P.left));
-    for (const c of S.categories.filter(c => !c.income && (SP.cat[c.id] || PS.cat[c.id]))) { const r = find(c.name); if (r) eq(tag + 'rep compare ' + c.name, r.cells.slice(1).join(' | '), row(SP.cat[c.id] || 0, PS.cat[c.id] || 0)); }
+    if (!P.count) eq(tag + 'rep compare: none with an empty month before', String(!!document.querySelector('#rep-compare')), 'false');      // nothing to compare (2026-10-09)
+    else { eq(tag + 'rep compare income', find('Income').cells.slice(1).join(' | '), row(M.income, P.income)); eq(tag + 'rep compare expenses', find('Expenses').cells.slice(1).join(' | '), row(M.expenses, P.expenses)); eq(tag + 'rep compare left over', find('Left over').cells.slice(1).join(' | '), row(M.left, P.left));
+    for (const c of S.categories.filter(c => !c.income && (SP.cat[c.id] || PS.cat[c.id]))) { const r = find(c.name); if (r) eq(tag + 'rep compare ' + c.name, r.cells.slice(1).join(' | '), row(SP.cat[c.id] || 0, PS.cat[c.id] || 0)); } }
     const top = Object.entries(SP.line).filter(l => l[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    eq(tag + 'rep largest lines', [...document.querySelectorAll('#view .hbar')].map(h => norm(h.querySelector('.num').innerText)).join(' ; '), top.map(([id, v]) => `${Math.round(v * 100 / M.expenses)}% · R$ ${group(Math.round(v / 100))}`).join(' ; ')); }
+    eq(tag + 'rep largest lines', [...document.querySelectorAll('#view .hbar:not(.rep-mer)')].map(h => norm(h.querySelector('.num').innerText)).join(' ; '), top.map(([id, v]) => `${Math.round(v * 100 / M.expenses)}% · R$ ${group(Math.round(v / 100))}`).join(' ; ')); }
 
   // ----- accounts -----
   navigate('accounts');
-  { const tl = tiles(), hh = S.accounts.filter(a => a.scope !== 'business' && a.currency === CURR);
-    eq(tag + 'accounts household net', tl['Household net balance'][0], money(hh.reduce((s, a) => s + balance(a.id), 0)));
-    eq(tag + 'accounts company BRL', (tl['Company, BRL'] || ['—'])[0], money(S.accounts.filter(a => a.scope === 'business' && a.currency === 'BRL').reduce((s, a) => s + balance(a.id), 0)));
-    const cards = [...document.querySelectorAll('#view .card.acct')];
-    S.accounts.forEach((a, i) => { const txt = norm(cards[i].innerText), b = balance(a.id), want = money(a.type === 'credit' ? -b : b, { usd: a.currency === 'USD' }); eq(tag + 'account ' + a.name, txt.includes(want) ? want : txt.slice(0, 120), want);
-      if (a.type === 'credit' && a.creditLimit) eq(tag + 'card limit used ' + a.name, (txt.match(/(\d+[,.]?\d*)% of/) || [])[1], String(Math.min(100, Math.max(0, Math.round(-b * 100 / a.creditLimit))))); }); }
+  {      // no figures on top of Accounts (owner, 2026-10-09): the cards, each with its balance
+    // the page follows the side chosen in the menu (2026-10-07): the household's accounts here, the company's on its own side
+    const each = list => { const cards = [...document.querySelectorAll('#view .card.acct')]; eq(tag + 'account cards', cards.length, list.length);
+      list.forEach((a, i) => { const txt = norm(cards[i].innerText), b = balance(a.id), want = money(a.type === 'credit' ? -b : b, { usd: a.currency === 'USD' }); eq(tag + 'account ' + a.name, txt.includes(want) ? want : txt.slice(0, 120), want);
+        if (a.type === 'credit' && a.creditLimit) eq(tag + 'card limit used ' + a.name, (txt.match(/(\d+[,.]?\d*)% of/) || [])[1], String(Math.min(100, Math.max(0, Math.round(-b * 100 / a.creditLimit))))); }); };
+    each(S.accounts.filter(a => a.scope !== 'business'));
+    const biz = S.accounts.filter(a => a.scope === 'business');
+    if (biz.length) { UI.space = 'business'; navigate('accounts');
+      each(biz); UI.space = 'personal'; navigate('accounts'); } }
 
   // ----- transactions (the default view: this month, household) -----
   navigate('transactions');

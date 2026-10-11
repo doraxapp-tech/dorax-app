@@ -1,0 +1,22 @@
+/* Dorax Finance — the Plan on a computer (features/plan/plan-desk.view.js): the payments beside the month and its limits, in one screen; the income
+   and the year one click away, as panels. */
+.plan-tools { display: flex; justify-content: flex-end; gap: 8px; margin: -4px 0 -6px; }
+.plan-desk { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.plan-desk > div { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+.plan-desk #plan-month .lim-month { margin: 0; }
+.plan-desk #paylist td { white-space: nowrap; }
+.plan-desk #paylist td:first-child { white-space: normal; }
+/* beside the month, under 1600 px: the payments without their "Paid" column (the status says it), so the buttons stay in sight */
+@media (max-width: 1600px) { .plan-desk #paylist thead th:nth-child(4), .plan-desk #paylist tbody tr:not(.grp) > td:nth-child(4) { width: 0; max-width: 0; padding: 0; overflow: hidden; font-size: 0; } }      /* kept as a cell, so the group rows still line up */
+@media (max-width: 1240px) { .plan-desk { grid-template-columns: 1fr; } }
+/* the income and the year: panels */
+@media (min-width: 921px) {
+  .drawer.pop.mid { width: min(820px, calc(100% - 48px)); }
+  .drawer.pop.wide { width: min(1280px, calc(100% - 48px)); max-height: calc(100% - 48px); }
+}
+.pyr { padding: 0; }
+.py-panel .card-h { padding: 4px 18px 0; }
+.pyr .plan thead th:first-child, .pyr .plan th[scope="row"] { background: var(--lift); }
+@media (max-width: 1600px) { .plan-desk #paylist th, .plan-desk #paylist td { padding-left: 10px; padding-right: 10px; } .plan-desk #paylist th:first-child, .plan-desk #paylist td:first-child { padding-left: 22px; } }
+.lim-edit { margin-left: 6px; font-size: 13px; }

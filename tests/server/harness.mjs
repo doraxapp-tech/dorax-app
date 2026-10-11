@@ -86,7 +86,8 @@ const runAll = async () => { const first = await call({ action: 'run' }, cron), 
   json.more = pages[pages.length - 1].json.more; return { status: first.status, json, pages: pages.length, asked: pages.slice(1).map(p => [p.asked.after.slice(0, 1), p.asked.hop]), statuses: pages.map(p => p.status) }; };
 const flush = () => { const out = { pushes: NET.pushes.splice(0), mails: NET.mails.splice(0), other: NET.other.splice(0) }; return out; };
 const cron = { 'x-reminders-secret': 'the-cron-secret' };
-const person = (id, email, doc, opt = {}) => { USERS[id] = { id, email, token: 'token-' + id, confirmed: opt.confirmed !== false }; if (doc) T.user_data.push({ user_id: id, data: JSON.parse(JSON.stringify(doc)) }); };
+// tips by notification (2026-10-10) are off for the people of the reminder runs, so those runs count reminders only; part 7 has its own people
+const person = (id, email, doc, opt = {}) => { USERS[id] = { id, email, token: 'token-' + id, confirmed: opt.confirmed !== false }; if (doc) { const data = JSON.parse(JSON.stringify(doc)); if (data.user) data.user.notify = { ...(data.user.notify || {}), tips: opt.tips || 'off' }; T.user_data.push({ user_id: id, data }); } };
 const OUT = {};
 
 // ---- 1. the public key
@@ -176,6 +177,35 @@ NOW = '2026-11-06T11:00:00Z'; m5.created_at = '2026-11-06T10:55:00Z';
 OUT.contactRun = await runAll(); OUT.contactRunNet = flush(); OUT.contactRunTold = [!!told(m3.id), !!told(m4.id), !!told(m5.id)];
 OUT.contactRunAgain = await runAll(); OUT.contactRunAgainNet = flush();
 delete ENV.CONTACT_TO; NOW = '2026-11-07T11:00:00Z'; OUT.contactRunNobody = await runAll(); OUT.contactRunNobodyNet = flush(); OUT.contactStillWaiting = !told(m5.id);
+// ---- 7. tips by notification (owner, 2026-10-10: "notify about curiosities, tips, advice, to help and motivate"; then: "not at 8:00: any time from 8 in
+// the morning to 11 at night, any day, with the app closed"). Their own schedule calls { action: 'tips' } every 15 minutes.
+const logic = await import(new URL('../../supabase/functions/reminders/logic.mjs', here).href);
+const G = '99999999-9999-4999-8999-999999999999', H = '88888888-8888-4888-8888-888888888888', I = '77777777-7777-4777-8777-777777777777';
+const quiet = doc => { const d = JSON.parse(JSON.stringify(doc)); d.user.notify = { bills: false, close: false, summary: false, goals: false, pay: false, journey: false }; return d; };
+person(G, 'gil@example.org', quiet(input.accounts.es), { tips: 'three' });      // nothing to be reminded of, tips up to three a week
+person(H, 'hana@example.org', input.accounts.pt, { tips: 'daily' });            // reminders on, and tips every day
+person(I, 'ivo@example.org', quiet(input.accounts.en), { tips: 'three' });      // tips on, but no device: a tip goes by notification only
+const g1 = await device('gil-phone', 'web.push.apple.com'), h1 = await device('hana-phone');
+for (const [u, d] of [[G, g1], [H, h1]]) T.push_subscriptions.push({ user_id: u, endpoint: d.endpoint, p256dh: d.p256dh, auth: d.auth });
+const mine = (net, who) => net.pushes.filter(p => p.to === who).map(p => p.said), gLog = () => T.reminder_log.filter(l => l.user_id === G).map(l => l.key).sort();
+const at = (day, minute) => new Date(Date.parse(day + 'T00:00:00Z') + (minute + 180) * 60000).toISOString();      // a time in Brasília (UTC-3), as the clock sees it
+const tipsAt = async (day, minute) => { NOW = at(day, minute); const r = await call({ action: 'tips' }, cron); const n = flush(); return { status: r.status, json: r.json, g: mine(n, 'gil-phone'), h: mine(n, 'hana-phone'), mails: n.mails.length }; };
+const slot = day => logic.tipSlot(G, day), late = day => Math.max(slot(day), logic.tipSlot(H, day));
+OUT.tipSlots = ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15'].map(d => [logic.tipSlot(G, d), logic.tipSlot(H, d), logic.tipSlot(I, d)]);
+OUT.tipNoSecret = (await call({ action: 'tips' })).status;
+OUT.tipNight = await tipsAt('2026-11-09', 7 * 60 + 45);                                   // 7:45: before the day's window
+OUT.tipLate = await tipsAt('2026-11-09', 23 * 60 + 15);                                   // 23:15: after it (the evening before the day's first tip)
+NOW = '2026-11-09T11:00:00Z'; await runAll(); { const n = flush(); OUT.tipRemindH = mine(n, 'hana-phone').length; }      // 8:00: the reminders' own run
+OUT.tipEarly = slot('2026-11-09') > 8 * 60 + 30 ? await tipsAt('2026-11-09', slot('2026-11-09') - 15) : null;      // a quarter of an hour before Gil's time
+OUT.tip1 = await tipsAt('2026-11-09', late('2026-11-09'));                                // both times have come
+OUT.tip1log = gLog(); OUT.tip1ivo = T.reminder_log.filter(l => l.user_id === I).length;
+OUT.tip1again = await tipsAt('2026-11-09', Math.min(22 * 60 + 45, late('2026-11-09') + 15));   // the next quarter: not twice a day
+OUT.tip2 = await tipsAt('2026-11-10', 22 * 60 + 45);                                      // the next day: too soon for "three a week"
+OUT.tip3 = await tipsAt('2026-11-11', 22 * 60 + 45);                                      // two days on: the next one, of the next kind
+g1.status = 500; OUT.tipDown = await tipsAt('2026-11-13', 22 * 60 + 45); OUT.tipDownKept = gLog().includes('tip|2026-11-13'); g1.status = 201;   // not delivered: not counted
+OUT.tip5 = await tipsAt('2026-11-14', 22 * 60 + 45);
+T.user_data.find(x => x.user_id === G).data.user.notify.tips = 'off';
+OUT.tipOff = await tipsAt('2026-11-17', 22 * 60 + 45);
 OUT.logs = logs;
 OUT.logsLeak = logs.some(l => /@example\.org|fcm\.googleapis|Aluguel|Internet|re_test_key|the-cron-secret|question about|First line/.test(l));
 process.stdout.write(JSON.stringify(OUT));

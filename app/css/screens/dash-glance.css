@@ -1,0 +1,15 @@
+/* Dorax Finance — the summary on a computer, at a glance (features/dashboard/dash-glance.view.js): three parts to a row, two on a narrower window. */
+.dash-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.dash-grid > * { min-width: 0; margin: 0; }
+@media (max-width: 1240px) { .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* the cards made short enough for one screen */
+.dash-grid .fu .card-b { gap: 10px; }
+.dash-grid .fu .fu-bar { margin-top: 2px; }
+.fu-how { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; padding-top: 4px; font-size: 14px; }
+.fu-how svg, .cat-all svg { width: 14px; height: 14px; }
+.cat-all { display: inline-flex; align-items: center; gap: 4px; margin-top: 10px; font-size: 14px; }
+/* the parts left one click away */
+.dash-more { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 10px 16px; border: 1px dashed var(--line-strong); border-radius: var(--r-card); color: var(--ink-2); font-size: 14px; }
+.dash-more svg { width: 16px; height: 16px; flex: none; color: var(--brand); }
+.dash-more:hover { border-color: var(--brand); color: var(--ink-strong); }
+.dash-more:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }

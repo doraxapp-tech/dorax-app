@@ -185,7 +185,7 @@ async function project(route) {
   eq(await page.evaluate(() => Object.keys(localStorage).filter(k => /auth-token/.test(k)).length), 0, 'and this browser forgets the login');
   await login('rui@example.org', 'RuiSenha2026'); ok(/Email or password is not right/.test(await txt('.banner.crit')), 'the old password: "invalid credentials" is read');
   M.next = { status: 429, code: 'over_request_rate_limit', message: 'Request rate limit reached' }; await login('rui@example.org', 'RuiNova2026'); ok(/Too many tries/.test(await txt('.banner.crit')), 'too many tries: the server’s limit is said in words');
-  await login('rui@example.org', 'RuiNova2026'); await inApp(); ok(/Good to see you again, Rui Costa/.test(await toastText()), 'login: the account opens');
+  await login('rui@example.org', 'RuiNova2026'); await inApp(); ok(/Good to see you again, Rui\./.test(await toastText()), 'login: the account opens, greeted by first name');
   q = last('POST', '/auth/v1/token'); eq([q.query.grant_type, q.body.email, q.apikey], ['password', 'rui@example.org', KEY], 'login sends the email and password with the public key');
 
   // 5. forgotten password
@@ -254,9 +254,9 @@ async function project(route) {
     q = last('POST', '/functions/v1/reminders'); eq([q.body, q.apikey, /^Bearer ey/.test(q.auth || '')], [{ action: 'key' }, KEY, true], 'the function is called with the public key and the person’s login');
     eq(await page.evaluate(d => SERVER.pushSave(d).then(r => r.ok), dev), true, 'a device is given to the server');
     q = last('POST', '/rest/v1/rpc/save_push_subscription'); eq([q.body, /^Bearer ey/.test(q.auth || ''), M.push.map(d => d.user)], [{ p_endpoint: dev.endpoint, p_p256dh: dev.p256dh, p_auth: dev.auth, p_agent: dev.agent }, true, [rui.id]], 'through save_push_subscription, with the four values the function of schema.sql takes');
-    eq([await page.evaluate(() => SERVER.remindTest('push')), await page.evaluate(() => SERVER.remindTest('email')), last('POST', '/functions/v1/reminders').body], [{ ok: true }, { ok: true }, { action: 'test', channel: 'email' }], 'a test is asked of the function, for a notification or an email');
+    eq([await page.evaluate(() => SERVER.remindTest('push')), await page.evaluate(() => SERVER.remindTest('email')), last('POST', '/functions/v1/reminders').body], [{ ok: true, results: [] }, { ok: true, results: [] }, { action: 'test', channel: 'email' }], 'a test is asked of the function, for a notification or an email (with what each device’s push service answered, none here)');
     M.tooSoon = true; const soon = await page.evaluate(() => SERVER.remindTest('push')); M.tooSoon = false;
-    eq(soon, { ok: false, code: 'too_soon' }, 'a refused test is read with its reason, so the app can say why');
+    eq(soon, { ok: false, code: 'too_soon', results: [] }, 'a refused test is read with its reason, so the app can say why');
     eq([await page.evaluate(d => SERVER.pushRemove(d.endpoint).then(r => r.ok), dev), last('POST', '/rest/v1/rpc/remove_push_subscription').body, M.push.length], [true, { p_endpoint: dev.endpoint }, 0], 'and a device is taken back through remove_push_subscription');
     // The background script, served with the site's own headers, in a browser that can show notifications (the full Chromium; the
     // windowless one the other checks use refuses them): it registers, and a message the server would push becomes a notification.

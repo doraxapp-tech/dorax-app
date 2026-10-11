@@ -1,0 +1,107 @@
+/* Dorax Finance — Reports on a computer (owner, 2026-10-09: "the Reports tab on the computer is very basic, it gives me almost no information").
+   Income and spending side by side over a year, the balance as one line, each category over six months, who the money went to.
+   The two series are the chart palette's teal and violet (tokens.css), checked as a pair on both themes: lightness, chroma, colour-blind
+   separation and contrast. Their names are always written beside them, so colour never carries the meaning alone. */
+.rep-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); }
+.card-h .rep-legend.right { margin-left: auto; }
+.rep-legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 7px; vertical-align: -1px; }
+.rep-legend b { margin-left: 4px; font-family: var(--fig); font-weight: 600; color: var(--ink-strong); }
+.rep-legend .sw.in { background: var(--s1); } .rep-legend .sw.out { background: var(--s5); }
+
+/* the columns: a month is one place to point at and press; the month shown and the one under the pointer get a quiet band */
+#rep-trend > .card-b, #rep-balance > .card-b { display: block; }      /* the chart over its average line, not beside it (meters-charts.css makes a chart's card a row) */
+#rep-trend .cols.pair { height: 260px; min-height: 0; max-height: none; } #rep-balance .cols.line { height: 240px; min-height: 0; max-height: none; }
+.cols.pair .plot { gap: 4px; } .cols.line .plot { gap: 0; }      /* no gap on the line: each point sits at the middle of its month, as the line does */
+.cols.pair .colbtn, .cols.line .colbtn { border-radius: var(--r) var(--r) 0 0; transition: background var(--t1) ease-out; }
+.cols.pair .colbtn:hover, .cols.line .colbtn:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.cols.pair .colbtn[aria-pressed="true"], .cols.line .colbtn[aria-pressed="true"] { background: var(--surface-2); }
+.cols.pair .bars { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 2px; pointer-events: none; }
+.cols.pair .colbtn i { width: min(18px, 32%); min-height: 0; border-radius: 4px 4px 0 0; }
+.cols.pair .colbtn i.in, .cols.pair .colbtn:hover i.in, .cols.pair .colbtn[aria-pressed="true"] i.in { background: var(--s1); }
+.cols.pair .colbtn i.out, .cols.pair .colbtn:hover i.out, .cols.pair .colbtn[aria-pressed="true"] i.out { background: var(--s5); }
+
+/* the balance: one line over the months, a dot on each month-end, the month shown ringed */
+.cols.line svg.nw { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - 24px); overflow: visible; pointer-events: none; z-index: 1; }
+.cols.line .ln { fill: none; stroke: var(--col); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cols.line .area { fill: color-mix(in srgb, var(--col) 10%, transparent); }
+.cols.line .dot { position: absolute; left: 50%; width: 8px; height: 8px; margin: 0 0 -4px -4px; border-radius: 50%; background: var(--col); box-shadow: 0 0 0 2px var(--surface); z-index: 2; }
+.cols.line .colbtn[aria-pressed="true"] .dot { width: 10px; height: 10px; margin: 0 0 -5px -5px; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--col); }
+
+.rep-avg { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+.rep-avg > b { color: var(--ink); font-weight: 500; }
+.rep-avg b.num { margin-left: 4px; font-family: var(--fig); font-weight: 600; color: var(--ink-strong); }
+
+/* categories over six months: fixed columns, the month shown in a band, a name that opens its transactions */
+#rep-matrix-tbl { table-layout: fixed; min-width: 660px; }
+#rep-matrix-tbl th:first-child { width: 18%; }
+#rep-matrix-tbl th:last-child { width: 16%; }
+#rep-matrix-tbl th.now, #rep-matrix-tbl td.now { background: var(--surface-2); color: var(--ink-strong); }
+#rep-matrix-tbl tr.grand td.now { background: var(--surface-3); }
+#rep-matrix-tbl .linkbtn.cat { display: flex; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 400; }
+#rep-matrix-tbl .linkbtn.cat:hover { color: var(--link); }
+
+/* who the money went to: the name opens its transactions */
+.hbar.rep-mer { grid-template-columns: 160px minmax(0, 1fr) auto; }
+.hbar.rep-mer .linkbtn { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 400; }
+.hbar.rep-mer .linkbtn:hover { color: var(--link); }
+
+/* the month day by day (owner, 2026-10-09: "no charts, only text"): this month in the teal series colour, the month before as a quiet dashed
+   line, the plan as a thin dashed level; a day is pointed at for its figures */
+#rep-daily > .card-b, #rep-split > .card-b { display: block; }
+#rep-daily .rep-legend { margin-bottom: 14px; }
+#rep-daily .cols.line { height: 220px; min-height: 0; max-height: none; margin-top: 4px; }
+.rep-legend .sw.was { background: none; border-top: 2px dashed var(--col-muted); height: 0; width: 14px; border-radius: 0; vertical-align: 3px; }
+.rep-legend .sw.plan { background: none; border-top: 1px dashed var(--ink-2); height: 0; width: 14px; border-radius: 0; vertical-align: 3px; }
+#rep-daily .ln { stroke: var(--s1); }
+#rep-daily .area { fill: color-mix(in srgb, var(--s1) 12%, transparent); }
+#rep-daily .was { fill: none; stroke: var(--col-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+#rep-daily path.plan { fill: none; stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 4; }
+#rep-daily .dhit { flex: 1; min-width: 0; position: relative; cursor: default; }
+#rep-daily .dhit:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+#rep-daily .dhit .dot { position: absolute; left: 50%; width: 8px; height: 8px; margin: 0 0 -4px -4px; border-radius: 50%; background: var(--s1); box-shadow: 0 0 0 2px var(--surface); z-index: 2; }
+#rep-daily .dhit .x { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+
+/* where the income went: one bar as long as the income; what was left is the bar's empty part */
+.stackbar.rep-bar { height: 14px; border-radius: 4px; background: var(--track); }
+.stackbar.rep-bar > button:disabled { cursor: default; }
+.stackbar.rep-bar > span.left { background: transparent; }
+.dot.left { background: transparent !important; box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+.rep-over { margin: 10px 0 0; color: var(--warn); }
+
+/* the plan against what was spent: one line each, the bar between the name and the figures */
+.rp-list { display: flex; flex-direction: column; }
+.rp-row { display: grid; grid-template-columns: minmax(0, 128px) minmax(60px, 1fr) auto 104px; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.rp-row:last-child { border-bottom: 0; }
+.rp-row .rp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-row .num { font-family: var(--fig); white-space: nowrap; }
+.rp-row .rp-st { font-size: 12px; color: var(--ink-3); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-row .rp-st.over { color: var(--warn); } .rp-row .rp-st.late { color: var(--crit); }
+
+/* the rings (features/reports/report-rings.js): the ring, its total in the middle, its legend beside it; on a phone the ring above its legend.
+   The parts are cut apart by the card's own colour (the gaps in the arcs show it); a part that opens something grows a little under the pointer */
+.rg-wrap { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 22px; align-items: center; }
+.rg-wrap.solo { grid-template-columns: minmax(0, 1fr); }
+.rg { position: relative; width: 168px; aspect-ratio: 1; }
+.rg svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.rg-seg { fill: none; stroke-width: 15; transition: stroke-width var(--t1) ease-out; }
+.rg-seg[data-a] { cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .rg-seg:hover { stroke-width: 18; } }
+.rg-mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 32px; text-align: center; pointer-events: none; }
+.rg-mid b { font-size: 16px; font-weight: 500; letter-spacing: -.01em; }
+.rg-mid small { margin-top: 2px; font-size: 11.5px; line-height: 1.3; color: var(--ink-3); max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rg-legend { min-width: 0; }
+.rg-row { align-items: start; }
+.rg-row .dot { margin-top: 5px; }
+.rg-row { row-gap: 2px; }
+.rg-row .dot { width: 10px; height: 10px; }
+.rg-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rg-more { grid-column: 2 / -1; font-size: 12px; line-height: 1.45; color: var(--ink-3); }
+.rg-acct { all: unset; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.rg-sep { color: var(--ink-3); }
+@media (hover: hover) and (pointer: fine) { button.rg-acct:hover { color: var(--link); text-decoration: underline; text-underline-offset: 2px; } }
+button.rg-acct:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.rg-back svg { width: 14px; height: 14px; }
+@media (prefers-reduced-motion: reduce) { .rg-seg { transition: none; } }
+@media (max-width: 920px) { .rg-wrap { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 16px; } .rg { width: 184px; } .rg-legend { width: 100%; } }
+/* a phone: each account under a way of paying is its own row, a thumb's height, its name and its amount at the two ends */
+@media (max-width: 920px) { .rg-accts { display: flex; flex-direction: column; } .rg-sep { display: none; } .rg-acct { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; border-top: 1px solid var(--line); } .rg-acct .num { color: var(--ink); } }

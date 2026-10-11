@@ -2,10 +2,12 @@
 const RECURRING_ACTIONS = {
   // recurring
   'add-recurring'() {
-    const name = $('rc-name').value.trim(), amt = typedAmount($('rc-amt').value), day = Math.min(31, Math.max(1, +$('rc-day').value || 1)), [c, s] = $('rc-cat').value.split('|');
-    if (!name) return toast(t('Enter a name for the recurring payment.'));
-    if (!amt || amt <= 0) return toast(t('Enter an amount greater than zero.'));
-    if (!$('rc-acct').value) return toast(t('Add an account first.'));
+    const name = $('rc-name').value.trim(), amt = typedAmount($('rc-amt').value), dayN = Math.round(+$('rc-day').value), day = dayN, [c, s] = $('rc-cat').value.split('|');
+    const bad = (m, id) => { toast(m); const el = $(id); if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); } };      // what is needed is said, and the cursor goes there
+    if (!name) return bad(t('Enter a name for the recurring payment.'), 'rc-name');
+    if (!amt || amt <= 0) return bad(t('Enter an amount greater than zero.'), 'rc-amt');
+    if (!$('rc-day').value.trim() || !(dayN >= 1 && dayN <= 31)) return bad(t('The day of the month must be between 1 and 31.'), 'rc-day');
+    if (!$('rc-acct').value) return needAccount();
     S.recurringManual.push({ id: newId('m'), merchant: name, amount: amt, day, accountId: $('rc-acct').value, categoryId: c, subcategoryId: s || null }); toast(t('Recurring payment added.')); render();
   },
   'remove-recurring'(ds) {

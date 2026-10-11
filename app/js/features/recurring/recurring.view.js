@@ -15,10 +15,10 @@ function viewRecurring() {
       <td class="wide r"><button class="iconbtn" data-a="${r.source === 'manual' ? 'remove-recurring' : 'dismiss-recurring'}" data-id="${r.id}">${r.source === 'manual' ? t('Remove') : t('Not recurring')}</button></td></tr>`).join('') || `<tr><td colspan="7"><div class="empty"><b>${t('No recurring payments yet')}</b>${t('They appear after a merchant shows up for three months, or you can add one below.')}</div></td></tr>`}
     </tbody></table>${paged('recurring', list).html}</div></section>
   <section class="card"><div class="card-h"><h2>${t('Add a recurring payment manually')}</h2>${hint('recAdd')}</div><div class="card-b"><div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
-      <div class="field"><label for="rc-name">${t('Name')}</label><input type="text" id="rc-name"></div>
-      <div class="field"><label for="rc-amt">${t('Amount')}</label><input type="text" inputmode="decimal" id="rc-amt" placeholder="0,00"></div>
-      <div class="field"><label for="rc-day">${t('Day of month')}</label><input type="number" id="rc-day" min="1" max="31" value="10"></div>
-      <div class="field"><label for="rc-acct">${t('Account')}</label><select id="rc-acct">${acctOptions(personal()[0] && personal()[0].id, null, personal())}</select></div>
+      ${fld('rc-name', t('Name'), `<input type="text" id="rc-name">`)}
+      ${fld('rc-amt', t('Amount'), `<input type="text" inputmode="decimal" class="num" id="rc-amt" placeholder="0,00">`)}
+      ${fld('rc-day', t('Day of month'), `<input type="number" id="rc-day" min="1" max="31" inputmode="numeric" value="10">`)}
+      <div class="field"><label for="rc-acct">${t('Account')}</label><select id="rc-acct">${acctOptions((mainOf('personal', BASE_CURRENCY) || personal()[0] || {}).id, null, personal())}</select></div>
       <div class="field"><label for="rc-cat">${t('Category')}</label><select id="rc-cat">${catOptions('vitales|', { expenseOnly: true })}</select></div>
       <div class="field" style="justify-content:flex-end"><button class="btn primary" data-a="add-recurring">${icon('plus')}${t('Add')}</button></div></div></div></section>`;
 }

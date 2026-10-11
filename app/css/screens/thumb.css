@@ -1,0 +1,74 @@
+/* ---------- a phone is used with a thumb ----------
+   Owner, 2026-10-07: "the whole mobile version must be thought out and optimised for the thumb; if something does not fit or has limits, the
+   person will have to use a computer (for the less important parts)". Three rules, kept by tests/qc-thumb.js on every screen and panel:
+     1. nothing pressable is under 44 px, either way (the real area a finger hits, not the drawing);
+     2. no text under 12 px (the labels of the bar at the foot are the one exception: four names beside the round +, as phones' own bars do);
+     3. nothing has to be dragged sideways to be read or filled in. What cannot follow these on a phone is left to the computer, with a note in
+        its place (features/phone/desk-only.js).
+   This file loads last, so it is the last word on a phone. */
+@media (max-width: 920px) {
+  /* 1. targets */
+  .seg button { box-sizing: border-box; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .seg { flex: none; }      /* in a tall panel a row of choices must not be squeezed flat */
+  .drawer header .btn { width: 44px; min-height: 44px; flex: none; }
+  .navbar .bell, .more-btn { width: 44px; height: 44px; }
+  .month button { position: relative; } .month button::before { content: ""; position: absolute; inset: 0 -4px; }      /* the arrows stay 38 px to look at, so a long title still fits; a finger gets 46 */
+  .iconbtn, .cat-card .iconbtn { min-width: 44px; min-height: 44px; display: inline-grid; place-items: center; }
+  .cat-card .cat-more { min-height: 44px; }
+  .fchip { min-height: 44px; }
+  .legend-row { min-height: 44px; }
+  select.lang, .field.inline select, .field.inline input, .srow-c select, input.day, .sheet-row select, .toolbar select, .pager select { min-height: 44px; }
+  .paylist .linkbtn, .tbl .linkbtn, .li .linkbtn { position: relative; z-index: 1; padding-block: 12px; margin-block: -12px; min-width: 44px; }      /* a name that opens its details: the whole height of its row, over the note under it */
+  .hint::after { inset: -12px; }
+  .install-bar .btn.primary, .install-bar .x, .curio.nudge .btn.primary { min-height: 44px; min-width: 44px; }
+  /* before the account: log in, sign up, the first-time setup */
+  .lbl-row .linkbtn, .auth-back.linkbtn { position: relative; z-index: 1; padding-block: 12px; margin-block: -12px; }
+  .pw-eye { top: 0; bottom: 0; }
+  .field > label.check.accept { min-height: 44px; align-items: center; padding-left: 12px; margin-left: -12px; }      /* the box sits at the label's edge: the label reaches a little past it */
+  .lbl-row { margin-bottom: 6px; }      /* "Forgot your password?" sits right over the field's eye: room for both under a thumb */
+  .onb select.lang, #ob-lang { min-height: 44px; }
+  .ob-val input[type=text] { min-height: 44px; }
+  .card-h { row-gap: 14px; position: relative; z-index: 1; }      /* room under a heading's (i) for its wider reach: it must not land on the button wrapped below it, nor be covered by the card's body */
+  /* a chart is read on a phone, not pressed: its parts are too thin for a finger, and the list under it does the same job */
+  .stackbar > button, .colbtn { pointer-events: none; }
+
+  /* A date field on an iPhone (owner, 2026-10-07: "the date input in add transaction is too long and makes the panel overflow sideways").
+     Safari on iOS draws a date field as a native control with a width of its own: it ignores width: 100% inside a grid or a flex row and pushes
+     its panel wider than the screen. Drawn as a plain field it takes the width it is given; tapping it still opens the phone's own date wheel. */
+  input[type=date] { -webkit-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; text-align: left; line-height: 1.3; }
+  input[type=date]::-webkit-date-and-time-value { text-align: left; margin: 0; min-height: 1.3em; }
+  .drawer .body, .sheet { overflow-x: hidden; }      /* and whatever a browser does with a native control, a panel is never dragged sideways */
+
+  /* 2. text */
+  .chip, .li.todo .when .chip, .pill, .tile .note, .tbl.stackable td[data-l]::before, .rw-seg .lbl, h2.sec, .li .when, .cols .yaxis, .cols .yaxis span, .colbtn .v, .colbtn .x, #tip, .tbl th, .tx-main small,
+  .plan td.due, .plan tr.grp th, .cat-card .n, .steps li b, .tree .n, .paylist tr.grp .note, .who-t small, .pick .say, .rem-group h3, .due-group h3, .nav .count, .btn .count, .save-badge { font-size: 12px; }
+  .tbl th { letter-spacing: .06em; }
+  .num { font-size: max(12px, .93em); }      /* figures are set a touch smaller than the text around them: never under 12 px */
+}
+@media (max-width: 640px) {
+  /* 3. a table that is only read fits the phone: fewer columns, less air */
+  #rep-compare .hide-sm, #rep-compare th:last-child, #rep-compare td:last-child { display: none; }
+  #rep-compare th, #rep-compare td { padding-inline: 12px; } #rep-compare th:first-child, #rep-compare td:first-child { padding-left: 18px; white-space: normal; }
+  #rep-year-tbl th, #rep-year-tbl td { padding-inline: 10px; } #rep-year-tbl th:first-child, #rep-year-tbl td:first-child { padding-left: 16px; }
+}
+@media (max-width: 380px) {
+  /* the narrowest phones: a row of choices takes the whole width and a long name may take two lines; the table gives up a little more air */
+  .toolbar .seg, .drawer .body > .seg, .drawer .field .seg { display: flex; width: 100%; align-self: stretch; } .toolbar .seg button, .drawer .body > .seg button, .drawer .field .seg button { flex: 1 1 0; min-width: 0; white-space: normal; text-align: center; line-height: 1.15; padding: 6px; font-size: 13px; }
+  /* the company's year on the narrowest phones: four columns that share the width, short month names, headings in plain letters so "Resultado" fits */
+  #rep-year-tbl { table-layout: fixed; width: 100%; } #rep-year-tbl th:first-child { width: 25%; }
+  #rep-year-tbl th, #rep-year-tbl td { padding-inline: 5px; } #rep-year-tbl th:first-child, #rep-year-tbl td:first-child { padding-left: 14px; } #rep-year-tbl .amt { font-size: 12.5px; }
+  #rep-year-tbl thead th { font-family: var(--font); letter-spacing: 0; text-transform: none; } #rep-year-tbl tr.sumrow th { white-space: normal; font-size: 13px; }
+  #rep-compare th, #rep-compare td { padding-inline: 7px; } #rep-compare th:first-child, #rep-compare td:first-child { padding-left: 14px; } #rep-compare .amt { font-size: 12.5px; }
+}
+/* More: its places in groups, a faint line between them */
+.sheet .nav-group + .nav-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line-strong); }
+/* what a phone leaves to the computer: a note where the part would be */
+.desk-note { display: flex; gap: 14px; align-items: flex-start; padding: 18px; }
+.desk-note > svg { width: 22px; height: 22px; flex: none; margin-top: 1px; color: var(--ink-2); }
+.desk-note h2 { font-size: 15px; font-weight: 500; letter-spacing: 0; text-wrap: balance; }
+.desk-note p { margin: 5px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.5; max-width: 60ch; }
+.desk-note.page { padding: 24px 18px; }
+.sheet-desk { display: flex; gap: 10px; align-items: flex-start; margin: 6px 0 2px; padding: 12px; color: var(--ink-3); font-size: 13px; line-height: 1.45; }
+.sheet-desk svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+/* a toast's button ("Add account", "Undo"): 44px to the thumb on a phone, reaching into the toast's own padding so the toast stays the same height */
+@media (max-width: 920px) { #toast button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; margin: -12px -10px -12px -4px; } }

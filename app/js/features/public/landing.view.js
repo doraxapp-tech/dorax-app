@@ -1,33 +1,33 @@
 /* Dorax Finance — public page: the home page. */
 // ---------- the home page ----------
-// The pictures are the product: a phone running the app and one small graphic per feature, all built from HTML and SVG with example figures.
+// The pictures are the product: the app on two phones (one for each side) and one small graphic per feature, all built from HTML and SVG with example figures.
 // They are decoration for people who can see them (aria-hidden); the heading and the paragraph next to each one say the same thing in words.
 const ring = (pct, size) => { const r = 42, c = 2 * Math.PI * r; return `<svg class="ring" viewBox="0 0 100 100" width="${size}" height="${size}"><circle cx="50" cy="50" r="${r}" class="ring-bg"/><circle cx="50" cy="50" r="${r}" class="ring-fg" style="--c:${c.toFixed(1)};--o:${(c * (1 - pct / 100)).toFixed(1)}" transform="rotate(-90 50 50)"/></svg>`; };
 const miniCols = (hs, hot) => `<div class="mcols">${hs.map((h, i) => `<i class="${i === hot ? 'hot' : ''}" style="--h:${h}%;--i:${i}"></i>`).join('')}</div>`;
-function lpPhone() {
-  const rows = [
-    [t('Rent'), 'R$ 1.800', `<span class="chip good"><i></i>${t('Paid')}</span>`],
-    [t('Internet'), 'R$ 110', `<span class="chip info"><i></i>${tn(3, 'Due in {n} day', 'Due in {n} days')}</span>`],
-    [t('Electricity'), 'R$ 180', `<span class="chip">${t('To pay')}</span>`],
-    [t('Gym'), 'R$ 100', `<span class="chip">${t('To pay')}</span>`],
-  ];
-  return `<div class="phone"><div class="ph-screen">
-      <div class="ph-status"><b>9:41</b><span class="ph-island"></span><span class="ph-sig"><i></i><i></i><i></i><i></i></span></div>
-      <div class="ph-bar"><span class="ph-name">dorax</span><span class="ph-ico">${icon('bell')}<em>1</em></span><span class="ph-ico lit">${icon('plus')}</span></div>
-      <div class="ph-title"><b>${t('Plan')}</b><span>${mon(9, true)}</span></div>
-      <div class="ph-card"><span>${t('Still to pay')}</span><b>R$ 390</b>${miniCols([62, 58, 70, 64, 74, 30], 5)}</div>
-      <div class="ph-list">${rows.map(([name, amount, chip]) => `<div><span><b>${name}</b>${chip}</span><span class="num">${amount}</span></div>`).join('')}</div>
-      <div class="ph-tab">${['grid', 'list', 'calendar', 'briefcase', 'more'].map((ic, k) => `<span class="${k === 2 ? 'on' : ''}">${icon(ic)}</span>`).join('')}</div></div></div>`;
+/** The hero's picture since 2026-10-07 (owner chose the "home and company" hero, then "do the next steps": the picture that goes with it).
+    The app on two phones, one for each side, the way a phone draws its dashboard (features/phone/): the panel at the top in the colour of the
+    side in use, with the Household | Company choice in it; the side's "days of freedom" card, drawn with the app's own rwFigure and rwTrack so its
+    words follow the language; a goal with the month it is reached; what is still to pay this month. The two are built alike on purpose: one plan,
+    seen from each side. Example figures that agree with the other pictures of the page, on the 12th of October 2026: the household keeps 13.320 and
+    4.345 goes out a month (91 days: 3 months); the company keeps 18.400 and 3.600 goes out a month (153 days: 5 months). The trip is at 68% of
+    10.000 and is reached in February keeping 800 a month; 2.015 of the household's fixed costs are still to pay, as in "how it calculates". */
+function lpPhoneSide(co) {
+  const days = co ? 153 : 91, f = rwFigure(days, co), money = v => fmt.money(v * 100, CUR, { trim: true });
+  const [goal, pct, when] = co ? [t('Taxes'), 80, '2026-12'] : [t('Trip'), 68, '2027-02'];
+  return `<div class="phone duo ${co ? 'co' : 'home'}"><div class="ph-screen">
+      <div class="ph-top"><div class="ph-status"><b>9:41</b><span class="ph-island"></span><span class="ph-sig"><i></i><i></i><i></i><i></i></span></div>
+        <div class="ph-bar"><span class="ph-name">dorax</span><span class="ph-ico">${icon('bell')}</span></div>
+        <div class="ph-seg"><span class="${co ? '' : 'on'}">${icon('home')}${t('Household')}</span><span class="${co ? 'on' : ''}">${icon('briefcase')}${t('Company')}</span></div></div>
+      <div class="ph-rw"><span class="ph-k">${co ? t('Company runway') : t('Days of freedom')}</span>
+        <div class="rw-fig"><b class="rw-n">${fmt.num(f.n)}</b><span class="rw-u">${f.unit}</span></div>${rwTrack(days)}</div>
+      <div class="ph-goal"><div class="ph-gh">${icon('flag')}<b>${goal}</b><span class="num">${fmt.pct(pct)}</span></div><div class="meter"><i style="width:${pct}%"></i></div>
+        <p><small>${t('You get there in')}</small><b>${fmt.month(when)}</b></p></div>
+      <div class="ph-pay"><small>${t('Still to pay')}</small><b class="num">${money(co ? 1240 : 2015)}</b></div>
+      <div class="ph-tab">${['grid', 'list', 'calendar', 'flag', 'more'].map((ic, k) => `<span class="${k ? '' : 'on'}">${icon(ic)}</span>`).join('')}</div></div></div>`;
 }
 function lpStage() {
-  return `<div class="lp-stage" role="img" aria-label="${t('Example of the app on a phone: the bills of the month, what is still to pay, a reminder and a goal.')}">
-    <div class="lp-floats left" aria-hidden="true">
-      <div class="lp-float"><span class="fl-ico">${icon('bell')}</span><div><small>${t('Reminder')}</small><b>${t('Internet')} · ${tn(3, 'in {n} day', 'in {n} days')}</b><span class="num">R$ 110</span></div></div>
-      <div class="lp-float"><span class="fl-ico">${icon('upload')}</span><div><small>${t('Your spreadsheet')}</small><b>.xlsx → ${t('Plan')}</b><span class="fl-cells"><i></i><i></i><i></i><i class="bad"></i><i></i><i></i><i></i><i></i></span></div></div></div>
-    <div aria-hidden="true">${lpPhone()}</div>
-    <div class="lp-floats right" aria-hidden="true">
-      <div class="lp-float goal">${ring(68, 64)}<div><small>${t('Goal')}</small><b>${t('Trip')}</b><span class="num">68%</span></div></div>
-      <div class="lp-float"><span class="fl-ico">${icon('trend')}</span><div><small>FIIs</small><b>${t('Income received')}</b>${miniCols([30, 42, 40, 58, 66, 84], 5)}</div></div></div></div>`;
+  return `<div class="lp-stage duo" role="img" aria-label="${t('Example of the app on two phones: the household’s side with its days of freedom, the month a goal is reached and what is still to pay, and the company’s side with the same three for the company.')}">
+    <div aria-hidden="true">${lpPhoneSide(false)}</div><div aria-hidden="true">${lpPhoneSide(true)}</div></div>`;
 }
 /** The entrepreneurs section: four small graphics, one idea each. One green for what is the household's, grey for the rest; text in ink, never in the data colour;
     two series always carry a key. They illustrate (the caption under each says the same in words), so they are hidden from screen readers. */
@@ -115,14 +115,78 @@ function lpShotStep(n) {
   return `<figure class="shot mini" aria-hidden="true" inert>${body}</figure>`;
 }
 
+// ---------- "When do you get there?": the home page's own calculator ----------
+/** 2026-10-07 (owner, after the read of Organizze and Mobills: "do phase 3": the piece neither of them has). A visitor picks a dream, says about
+    how much it costs, what is already put aside and what is put aside each month, and reads the month it is reached: the same sum the app does
+    (monthsToTarget, arrivalMonth and lever, core/runway.js), on the page, with no account. No investment return is assumed, and it says so.
+    It is built from the first-time setup's own parts (obDreams, obSlide), so what is chosen here can be handed to that setup: the button keeps
+    the dream, its cost and what is put aside on this device (CALC_KEY) and opens sign-up; the setup of a new account starts from them
+    (calcCarry, read by freshOb in features/onboarding/onboarding.view.js). Nothing leaves the device before an account is created.
+    Where the sliders start is not anybody's figures: a trip at the setup's own round cost, nothing put aside, and R$ 500 a month, which is what
+    the setup's starting income leaves after its starting spending (OB_AVG). */
+const CALC_KEY = 'dorax.calc', CALC_KEEP = 24 * 60 * 60 * 1000, CALC_MONTHLY_MAX = 5000, CALC_MARKS = 36;
+const freshCalc = () => ({ dream: 'trip', cost: plain(obDreams().find(x => x[0] === 'trip')[4] * 100), costTouched: false, saved: plain(0), monthly: plain(OB_AVG.income - OB_AVG.spend) });
+const calcState = () => UI.calc || (UI.calc = freshCalc());
+/** What the fields say, in cents, and what follows from them. bad: something typed cannot be read as an amount. */
+function calcLook() {
+  const c = calcState(), amt = v => String(v || '').trim() === '' ? 0 : typedAmount(v), target = amt(c.cost), saved = amt(c.saved), monthly = amt(c.monthly);
+  if ([target, saved, monthly].some(v => v === null || v < 0)) return { bad: true };
+  const from = ymOf(S.today), months = target > 0 ? monthsToTarget(target, saved, monthly) : null;
+  return { target, saved, monthly, from, months, covered: target > 0 && saved >= target, far: months !== null && months > 120,
+    arrival: target > 0 && months ? arrivalMonth(target, saved, monthly, from) : null, lever: target > saved ? lever(target, saved, monthly) : null, in12: target > saved ? Math.ceil((target - saved) / 1200) * 100 : 0 };      // in whole reais, rounded up, so twelve of them are enough
+}
+/** The answer, in two parts: [the date and the way there, the tip and the note on how it is counted]. On a phone the first part sits above the
+    sliders, in sight while one is dragged, and the second under them. Both are drawn again as the sliders move, without the page being drawn
+    again under the person's fingers (calcShow, public.actions.js). */
+function calcParts() {
+  const L = calcLook(), money = v => fmt.money(v, CUR, { trim: true });
+  const when = (label, big, line) => `<div class="calc-when">${label ? `<small>${label}</small>` : ''}<b class="calc-month">${big}</b><p>${line}</p></div>`;
+  const sum = `<p class="note">${t('A simple sum: every month like this one, and no investment returns.')}</p>`;
+  if (L.bad) return [when('', t('No date yet'), t('Enter the amount as a number, for example 1500 or 9,90.')), ''];
+  if (!L.target) return [when('', t('No date yet'), t('Type about how much it costs, so I can put a date on it. A rough figure works.')), ''];
+  if (L.covered) return [when('', t('Already covered'), t('What you have saved reaches what it costs.')), ''];
+  if (L.months === null) return [when('', t('No date yet'), t('Put something aside each month and it gets a date. To get there in 12 months: {amount} a month.', { amount: money(L.in12) })), sum];
+  const tip = L.lever ? `<div class="calc-tip">${icon('bulb')}<span>${tn(L.lever.sooner, 'With {amount} more a month, you get there {n} month sooner.', 'With {amount} more a month, you get there {n} months sooner.', { amount: money(L.lever.extra) })}</span><button type="button" class="btn sm" id="calc-try" data-a="calc-try">${t('Try it')}</button></div>` : '';
+  if (L.far) return [when('', t('More than 10 years'), t('At this pace it is too far to put a date on it.')), tip + sum];
+  // the way there: one mark for each month of putting aside (or for a few months, when there are more months than marks), the last one the month it is reached
+  const per = Math.ceil(L.months / CALC_MARKS), marks = Math.ceil(L.months / per), pace = tn(L.months, 'At this pace you get there in {n} month.', 'At this pace you get there in {n} months.');
+  return [`${when(t('You get there in'), fmt.month(L.arrival), pace)}
+    <div class="calc-way" aria-hidden="true"><div class="calc-line">${Array.from({ length: marks }, () => '<i></i>').join('')}</div>
+      <div class="calc-ends"><span>${fmt.month(L.from)}</span>${per > 1 ? `<span>${t('Each mark is {n} months.', { n: per })}</span>` : ''}<span>${fmt.month(L.arrival)}</span></div></div>`, tip + sum];
+}
+/** The whole tool: the dreams, the three amounts, the answer and the way in. */
+function calcTool() {
+  const c = calcState(), row = obDreams().find(x => x[0] === c.dream);
+  return `<div class="calc-dreams"><div class="ob-dreams" role="group" aria-label="${t('Your first dream')}">${obDreams().map(([k, e, label]) => `<button type="button" class="ob-dream" data-a="calc-dream" data-v="${k}" aria-pressed="${c.dream === k}">${obIco(e)}<span>${label}</span></button>`).join('')}</div></div>
+    <div class="calc-in">${obSlide('calc-cost', c.dream === 'safety' ? t('How much do you want to have put aside?') : t('How much does it cost, more or less?'), 'cost', c.cost, row[5], row[6], 'calc')}
+      ${obSlide('calc-saved', t('Already saved'), 'saved', c.saved, OB_MAX.saved, 100, 'calc')}
+      ${obSlide('calc-monthly', t('I put aside each month'), 'monthly', c.monthly, CALC_MONTHLY_MAX, 50, 'calc')}
+      <p class="note">${t('The numbers are only where the sliders start. Move them to yours.')}</p></div>
+    ${(([main, more]) => `<div class="calc-out" id="calc-out" aria-live="polite">${main}</div><div class="calc-more" id="calc-more">${more}</div>`)(calcParts())}
+    <div class="calc-go"><button class="btn primary lg" data-a="calc-go">${t('Start with this goal')}</button><p class="note">${t('Free, no card. This goal is waiting for you when you create your account.')}</p></div>`;
+}
+/** What the calculator hands to the first-time setup of a new account: the dream, its cost and what is put aside, when they were kept on this
+    device less than a day ago. Anything that cannot be read gives nothing, and the setup starts as it always did. */
+function calcCarry() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CALC_KEY) || 'null'); if (!c || !(Date.now() - c.at >= 0 && Date.now() - c.at < CALC_KEEP) || !obDreams().some(x => x[0] === c.dream)) return {};
+    const cost = typedAmount(String(c.cost)), saved = typedAmount(String(c.saved)); if (!(cost > 0)) return {};
+    return { dream: c.dream, cost: plain(cost), costTouched: true, ...(saved !== null && saved >= 0 ? { saved: plain(saved) } : {}) };
+  } catch (e) { return {}; }
+}
+
+/** The home page. Order since 2026-10-07 (owner chose the "home and company" hero after the read of Organizze and Mobills, claude/landing-strategy.md):
+    hero (who it is for, the promise, one button, what trying costs) > "when do you get there?" (the calculator, since the same evening) >
+    for entrepreneurs > how it works > what Dorax answers (each feature under the question it answers) > how it calculates > questions >
+    closing call to action. */
 function viewLanding() {
   const features = [
-    ['sheet', 'wide', t('Bring your spreadsheet'), t('Choose your .xlsx or .csv. Dorax reads the tabs, shows what it found and imports only what you approve: fixed costs, income, goals, investment records and due days.')],
-    ['remind', '', t('Fixed costs and due days'), t('See what still needs to be paid: every bill in one list, with its due day and whether it is paid. Dorax reminds you before a bill is due and shows when one is late.')],
-    ['pay', '', t('Plan the month'), t('Give your money a job before you spend it. Set up income, fixed costs and planned savings, and see what is left of each payment, whether you are paid once or twice a month.')],
-    ['goals', '', t('Savings goals'), t('Save with a destination in mind. Create goals and funds, assign planned amounts, and track progress toward targets and dates.')],
-    ['fii', '', t('Investment records (FIIs)'), t('Keep your investment information with the rest of your financial picture. Record purchases, sales and income received. Dorax records what you enter; it does not tell you what to buy or sell.')],
-    ['ofx', 'full', t('Bank statement converter'), t('Your accounting platform asks for OFX and your bank gives you a CSV, a spreadsheet or a PDF? Dorax turns the statement into an OFX file and checks its format before you download it. What you send to your accounting platform, and when, stays your decision.')],
+    ['sheet', 'wide', t('Do I have to type everything again?'), t('Choose your .xlsx or .csv, see what Dorax found and import only what you approve.')],
+    ['remind', '', t('What is still to pay this month?'), t('Every bill in one list with its due day, and a reminder before it is due.')],
+    ['pay', '', t('How much is left of each payment?'), t('Income, fixed costs and savings for the month, and what is left of each payment.')],
+    ['goals', '', t('When do I reach my goal?'), t('Each goal with its plan, its progress and the month you get there.')],
+    ['fii', '', t('How much have my FIIs paid me?'), t('Record purchases, sales and income received. Dorax does not tell you what to buy or sell.')],
+    ['ofx', 'full', t('My accountant asks for OFX and my bank has none?'), t('Your bank gives you a CSV, a spreadsheet or a PDF. Dorax turns it into an OFX file and checks its format before you download it.')],
   ];
   const steps = [
     [t('Add your financial information'), t('Add accounts, income, fixed costs, goals and investment records. Import a spreadsheet or statements, or type transactions by hand.')],
@@ -145,17 +209,19 @@ function viewLanding() {
     ['days', t('Home bills do not wait for invoices'), t('Due days and reminders, whatever day a client pays.')],
     ['close', t('The month-end your accountant asks for'), t('The list of statements to send, and the bank’s file turned into OFX.')],
   ];
-  // nine questions (owner, v23: "too long, condense it"). The answers that used to be separate are merged; contact and the independence line live in the footer.
+  // nine questions (owner, v23: "too long, condense it"), in the order the doubts come up (2026-10-07): is it free, the bank, the phone, then the rest.
+  // The bank question promises only what stays true with or without a bank connection: the bank password is never asked for.
+  // "No ads, data not sold" is the owner's commitment (2026-10-07) and the privacy page says the same. The investment answer lives in the advice answer.
   const faq = [
-    [t('Does Dorax connect to my bank?'), t('No. Your bank password is never asked for. You type what you want or import a file.')],
-    [t('Does Dorax give financial advice?'), t('No. Dorax organises your own numbers. It gives no financial, tax or investment advice, does not tell you what to buy, sell or save, and does not replace an accountant.')],
-    [t('Can I bring my spreadsheet and my bank statements?'), t('Yes. A spreadsheet in .xlsx or .csv, with the months across the top or down the side, and bank statements in CSV or OFX. You see what was found and import only what you approve; rows you already have are flagged as possible duplicates.')],
-    [t('How does the bank statement converter work?'), t('You choose the statement as your bank gives it (CSV, Excel, PDF and the other usual formats), confirm what was read, and download an OFX file whose format was checked. A scanned PDF, which is a picture, cannot be read. Nothing is sent to your accountant for you. Files made this way were imported in Contabilizei in October 2026 without errors; that is our own test, not a statement by Contabilizei.')],
-    [t('Are my investment figures market values?'), t('No. Dorax does not fetch market prices. You type the price of each fund; position and average price are records of what you entered.')],
-    [t('How do I log in, and how am I reminded?'), t('You log in with your email and a password, or with your Google account. Reminders come in the app, by email and, if you turn them on, as notifications on your phone or computer. You can also download a calendar file.')],
-    [t('Where is my data, and can I delete it?'), t('In your account, on Dorax’s server, the same on every device. In Settings you can download a backup, delete all your data or delete the account.')],
     LP_PLANS ? [t('How much does it cost, and can I cancel?'), t('Free costs R$ 0. Plus is R$ 7,99 a month or R$ 79,90 a year; Premium is R$ 14,99 a month or R$ 149,90 a year. Cancel whenever you want: the plan stays active until the end of the period you already paid for.')]
-      : [t('How much does it cost?'), t('Nothing for now: Dorax is free, and no card is asked for. Paid plans may come later; nothing is charged unless you choose one.')],
+      : [t('Is it really free?'), t('Yes, for now: Dorax is free, no card is asked for and nothing is charged. There are no ads and your data is not sold. Paid plans may come later; nothing is charged unless you choose one.')],
+    [t('Do I have to connect my bank?'), t('No. Your bank password is never asked for. You type what you want or import a file.')],
+    [t('Does it work on my phone?'), t('Yes. Dorax opens in the browser of a phone or a computer, with the same account. On a phone you can add it to the home screen and open it like an app; there is nothing to download from a store.')],
+    [t('Can I bring my spreadsheet and my bank statements?'), t('Yes. A spreadsheet in .xlsx or .csv, with the months across the top or down the side, and bank statements in CSV or OFX. You see what was found and import only what you approve; rows you already have are flagged as possible duplicates.')],
+    [t('Where is my data, and can I delete it?'), t('In your account, on Dorax’s server, the same on every device. In Settings you can download a backup, delete all your data or delete the account.')],
+    [t('How do I log in, and how am I reminded?'), t('You log in with your email and a password, or with your Google account. Reminders come in the app, by email and, if you turn them on, as notifications on your phone or computer. You can also download a calendar file.')],
+    [t('How does the bank statement converter work?'), t('You choose the statement as your bank gives it (CSV, Excel, PDF and the other usual formats), confirm what was read, and download an OFX file whose format was checked. A scanned PDF, which is a picture, cannot be read. Nothing is sent to your accountant for you. Files made this way were imported in Contabilizei in October 2026 without errors; that is our own test, not a statement by Contabilizei.')],
+    [t('Does Dorax give financial advice?'), t('No. Dorax organises your own numbers. It gives no financial, tax or investment advice, does not tell you what to buy, sell or save, and does not replace an accountant. Investment figures are a record of what you typed, not market values.')],
     [t('Does it work outside Brazil?'), t('The plan, the fixed costs and the goals work anywhere, but every amount is shown in reais (R$): other currencies are not handled. Investments are built for Brazilian FIIs and the converter for Brazilian accounting.')],
   ];
   const plans = [
@@ -166,38 +232,41 @@ function viewLanding() {
     { id: 'premium', name: 'Premium', price: 'R$ 14,99', year: 'R$ 149,90', who: t('Home and company (PJ), together.'), plus: t('Everything in Plus, and:'),
       items: [t('Bank statement converter: CSV, Excel or PDF to OFX, checked before you download it'), t('The monthly list of statements your accounting platform is waiting for'), t('OFX profiles per account, in versions 1.0.2 and 2.2')] },
   ];
-  const legalLinks = `<button class="linkbtn" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</button> · <button class="linkbtn" data-a="pub-go" data-v="terms">${t('Terms of use')}</button>`;
+  const legalLinks = `<a class="linkbtn" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a> · <a class="linkbtn" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a>`;
   // one phrase for the main action everywhere on the page; the bar keeps the short "Create account"
-  const cta = (cls) => `<button class="btn primary ${cls || ''}" data-a="pub-go" data-v="signup">${t('Start free')}</button>`;
+  const cta = (cls) => `<a class="btn primary ${cls || ''}" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${t('Start free')}</a>`;
   const bill = UI.lpBill === 'year' ? 'year' : 'month';
   const seePlans = LP_PLANS ? `<button class="btn lg" data-a="pub-scroll" data-id="lp-plans">${t('See the plans')}</button>` : '';
   const go = (id, label) => `<button class="lp-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   return `<div class="lp">
   <header class="lp-nav">${brandMark()}
-    <nav aria-label="${t('Sections')}"><button class="lp-link" data-a="pub-scroll" data-id="lp-what">${t('What’s inside')}</button><button class="lp-link" data-a="pub-scroll" data-id="lp-method">${t('How it calculates')}</button>${LP_PLANS ? `<button class="lp-link" data-a="pub-scroll" data-id="lp-plans">${t('Plans')}</button>` : ''}<button class="lp-link" data-a="pub-scroll" data-id="lp-faq">${t('Questions')}</button></nav>
-    <div class="lp-actions">${langPill('lp-lang')}<button class="btn sm" data-a="pub-go" data-v="login">${t('Log in')}</button><button class="btn primary sm" data-a="pub-go" data-v="signup">${t('Create account')}</button></div></header>
+    <nav aria-label="${t('Sections')}"><button class="lp-link" data-a="pub-scroll" data-id="lp-how">${t('How it works')}</button><button class="lp-link" data-a="pub-scroll" data-id="lp-what">${t('What’s inside')}</button>${LP_PLANS ? `<button class="lp-link" data-a="pub-scroll" data-id="lp-plans">${t('Plans')}</button>` : ''}<button class="lp-link" data-a="pub-scroll" data-id="lp-faq">${t('Questions')}</button></nav>
+    <div class="lp-actions">${langPill('lp-lang')}<a class="btn sm" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a><a class="btn primary sm" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${t('Create account')}</a></div></header>
   <main>
-    <section class="lp-hero"><div class="lp-copy"><span class="eyebrow">${t('Personal finance, without the guesswork')}</span>
-        <h1>${t('See your money.')} <span class="hl">${t('Plan what’s next.')}</span></h1>
-        <p class="lead">${t('Dorax brings your income, accounts, expenses, fixed costs, savings goals, investment records and financial reports into one clear workspace, so you can understand your month without piecing together spreadsheets, notes and separate tools.')}</p>
-        <div class="row">${cta('lg')}<button class="btn lg" data-a="pub-scroll" data-id="lp-how">${t('How it works')}</button></div></div>
+    <section class="lp-hero"><div class="lp-copy"><span class="eyebrow">${t('For people with a company (PJ or MEI)')}</span>
+        <h1>${t('Home & company.')} <span class="hl">${t('One plan.')}</span></h1>
+        <p class="lead">${t('Home money and company money in one place, never mixed.')}</p>
+        <div class="row">${cta('lg')}</div>
+        <p class="note lp-trust">${t('Free · No card · Your bank password is never asked for')}</p></div>
       ${lpStage()}</section>
-    <section class="lp-sec" id="lp-what"><div class="lp-sec-h"><div class="lp-sec-t"><h2>${t('One financial picture instead of five separate ones.')}</h2><p class="lead sm">${t('Dorax connects the parts of personal finance that are usually managed separately.')}</p></div></div>
+    <section class="lp-sec" id="lp-calc"><div class="calc-h"><h2>${t('When do you get there?')}</h2><p class="lead">${t('Pick a dream and move the numbers. It is the same sum Dorax does with yours.')}</p></div>
+      <div class="calc" id="calc-tool">${calcTool()}</div></section>
+    <section class="lp-sec" id="lp-pj"><div class="lp-duo">
+        <div class="duo-head"><span class="eyebrow">${t('For entrepreneurs (PJ)')}</span><h2>${t('Company pays you. Home needs a plan.')}</h2>
+          <p class="lead">${t('When you pay yourself from your own company, home money and company money blur. In Dorax each one has its own side.')}</p><div class="row">${cta('lg')}${seePlans}</div></div>
+        ${lpShotPj()}
+        <ul class="duo-list">${pj.map(([, title, text], i) => `<li data-reveal="pj-${i}"><h3>${title}</h3><p>${text}</p></li>`).join('')}</ul></div>
+      ${LP_PLANS ? `<p class="lp-note">${t('One account holds both. Company money never counts in the household figures.')} ${t('The company side is part of Premium.')}</p>` : ''}</section>
+    <section class="lp-sec" id="lp-how"><div class="lp-split-h"><h2>${t('How it works')}</h2><p class="lead big">${t('A clear path from raw transactions to a usable picture of your month.')}</p></div>
+      <ol class="lp-flow">${steps.map(([title, text], i) => `<li data-reveal="s-${i}">${lpShotStep(i)}<div class="fl-txt"><span class="fl-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><h3>${title}</h3><p>${text}</p></div></li>`).join('')}</ol>
+      <p class="lp-note">${t('You do not have to connect your bank. The workflow is based on information you enter and files you choose to import.')}</p>
+      <div class="lp-go">${cta('lg')}${seePlans}</div></section>
+    <section class="lp-sec" id="lp-what"><div class="lp-sec-h"><div class="lp-sec-t"><h2>${t('What Dorax answers')}</h2><p class="lead sm">${t('The questions of every month, answered with your own numbers.')}</p></div></div>
       <div class="bento">${features.map(([kind, size, title, text]) => `<article class="${size}" data-reveal="f-${kind}">${lpIll(kind)}<div class="txt"><h3>${title}</h3><p>${text}</p></div></article>`).join('')}</div></section>
     <section class="lp-sec" id="lp-method"><div class="lp-split-h"><h2>${t('How Dorax calculates what you see')}</h2><p class="lead big">${t('Financial software should explain how its numbers work. Every figure starts with information you enter or import; these are the rules behind what you see.')}</p></div>
       ${lpShotPlan()}
       <div class="lp-plain">${method.map(([, title, text], i) => `<div data-reveal="m-${i}"><h3>${title}</h3><p>${text}</p></div>`).join('')}</div>
 </section>
-    <section class="lp-sec" id="lp-how"><div class="lp-split-h"><h2>${t('How it works')}</h2><p class="lead big">${t('A clear path from raw transactions to a usable picture of your month.')}</p></div>
-      <ol class="lp-flow">${steps.map(([title, text], i) => `<li data-reveal="s-${i}">${lpShotStep(i)}<div class="fl-txt"><span class="fl-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><h3>${title}</h3><p>${text}</p></div></li>`).join('')}</ol>
-      <p class="lp-note">${t('Nothing connects directly to your bank. The workflow is based on information you enter and files you choose to import.')}</p>
-      <div class="lp-go">${cta('lg')}${seePlans}</div></section>
-    <section class="lp-sec" id="lp-pj"><div class="lp-duo">
-        <div class="duo-head"><span class="eyebrow">${t('For entrepreneurs (PJ)')}</span><h2>${t('Company pays you. Home needs a plan.')}</h2>
-          <p class="lead">${t('When you pay yourself from your own company, home money and company money blur. Dorax keeps both in one account, and apart.')}</p><div class="row">${cta('lg')}${seePlans}</div></div>
-        ${lpShotPj()}
-        <ul class="duo-list">${pj.map(([, title, text], i) => `<li data-reveal="pj-${i}"><h3>${title}</h3><p>${text}</p></li>`).join('')}</ul></div>
-      ${LP_PLANS ? `<p class="lp-note">${t('One account holds both. Company money never counts in the household figures.')} ${t('The company side is part of Premium.')}</p>` : ''}</section>
     ${!LP_PLANS ? '' : `<section class="lp-sec" id="lp-plans"><div class="lp-sec-h center"><div class="lp-sec-t"><h2>${t('Start with the level of organization you need.')}</h2><p class="lead sm">${t('Three plans. Start with the free one and change whenever you want.')}</p></div></div>
       <div class="seg bill" role="group" aria-label="${t('Billing')}">${[['month', t('Monthly')], ['year', t('Yearly')]].map(([v, l]) => `<button data-a="lp-bill" data-v="${v}" aria-pressed="${bill === v}">${l}</button>`).join('')}</div>
       <div class="lp-plans" data-bill="${bill}">${plans.map(p => `<article class="tier ${p.id}" data-reveal="p-${p.id}"><span class="tier-glow" aria-hidden="true"></span><span class="tier-orb" aria-hidden="true"></span>
@@ -205,23 +274,23 @@ function viewLanding() {
         <div class="tier-h"><h3>${p.name}</h3></div>
         <div class="price">${p.year ? `<span class="per m"><b class="num">${p.price}</b><span>${t('a month')}</span><small>${t('or {price} a year: two months free', { price: p.year })}</small></span><span class="per y"><b class="num">${p.year}</b><span>${t('a year')}</span><small>${t('Two months free. Or {price} a month.', { price: p.price })}</small></span>` : `<span class="per"><b class="num">${p.price}</b><small>${t('No card needed')}</small></span>`}</div>
         <p class="tier-who">${p.who}</p>
-        <div class="tier-f"><button class="btn ${p.id === 'plus' ? 'primary' : 'glass'}" data-a="pub-go" data-v="signup">${p.label || t('Choose {plan}', { plan: p.name })}</button></div>
+        <div class="tier-f"><a class="btn ${p.id === 'plus' ? 'primary' : 'glass'}" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${p.label || t('Choose {plan}', { plan: p.name })}</a></div>
         <div class="tier-sep" aria-hidden="true"><span>${t('What’s included')}</span></div>
         <ul>${p.plus ? `<li class="plus">${p.plus}</li>` : ''}${p.items.map(x => `<li>${icon('check')}<span>${x}</span></li>`).join('')}</ul></article>`).join('')}</div>
       <p class="lp-note">${t('Every account starts on Free. You choose Plus or Premium inside the app, and you can cancel whenever you want.')}</p></section>`}
     <section class="lp-sec lp-two" id="lp-faq"><div><h2>${t('Questions before you start')}</h2></div>
       <div class="lp-faq">${faq.map(([q, a]) => `<details><summary>${q}${icon('plus')}</summary><p>${a}</p></details>`).join('')}</div></section>
-    <section class="lp-cta"><h2>${t('Make sense of the numbers you have.')}</h2><div class="row">${cta('lg')}<button class="btn lg" data-a="pub-go" data-v="login">${t('Log in')}</button></div></section>
+    <section class="lp-cta"><h2>${t('Make sense of the numbers you have.')}</h2><div class="row">${cta('lg')}<a class="btn lg" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a></div></section>
   </main>
   <footer class="lp-foot">
     <div class="ft-top">
       <div class="ft-brand">${brandMark(true)}<p>${t('Your money, organized clearly enough to make better decisions yourself.')}</p>
         <div class="ft-lang">${icon('globe')}${langSelect('ft-lang', true)}</div></div>
       <nav class="ft-cols" aria-label="${t('Footer')}">
-        <div><h3>${t('Product')}</h3><ul><li>${go('lp-what', t('What’s inside'))}</li><li>${go('lp-method', t('How it calculates'))}</li><li>${go('lp-pj', t('For entrepreneurs'))}</li>${LP_PLANS ? `<li>${go('lp-plans', t('Plans'))}</li>` : ''}<li>${go('lp-faq', t('Questions'))}</li></ul></div>
-        <div><h3>${t('Account')}</h3><ul><li><button class="lp-link" data-a="pub-go" data-v="signup">${t('Create account')}</button></li><li><button class="lp-link" data-a="pub-go" data-v="login">${t('Log in')}</button></li></ul></div>
-        <div><h3>${t('Legal')}</h3><ul><li><button class="lp-link" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</button></li><li><button class="lp-link" data-a="pub-go" data-v="terms">${t('Terms of use')}</button></li></ul></div>
-        <div><h3>${t('Contact')}</h3><ul><li><button class="lp-link" data-a="pub-go" data-v="contact">${t('Contact form')}</button></li></ul></div>
+        <div><h3>${t('Product')}</h3><ul><li>${go('lp-pj', t('For entrepreneurs'))}</li><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${go('lp-method', t('How it calculates'))}</li>${LP_PLANS ? `<li>${go('lp-plans', t('Plans'))}</li>` : ''}<li>${go('lp-faq', t('Questions'))}</li></ul></div>
+        <div><h3>${t('Account')}</h3><ul><li><a class="lp-link" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${t('Create account')}</a></li><li><a class="lp-link" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a></li></ul></div>
+        <div><h3>${t('Legal')}</h3><ul><li><a class="lp-link" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a></li><li><a class="lp-link" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a></li></ul></div>
+        <div><h3>${t('Contact')}</h3><ul><li><a class="lp-link" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${t('Contact form')}</a></li></ul></div>
       </nav></div>
     <div class="ft-bottom"><p class="lp-meta left"><span>© 2026 Dorax Finance</span></p>
       <p class="note">${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></footer></div>`;

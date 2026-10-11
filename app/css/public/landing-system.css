@@ -55,18 +55,18 @@ html { font-optical-sizing: none; }
 /* the section links stand in the middle of the bar, whatever the width of the logo and of the buttons (owner, 2026-10-05) */
 .lp .lp-nav nav { position: absolute; left: 50%; top: var(--safe-t); bottom: 0; transform: translateX(-50%); align-items: center; gap: 0; margin: 0; white-space: nowrap; }
 @media (max-width: 999px) { .lp .lp-nav nav { display: none; } }      /* under 1000px the links would crowd the buttons (English is the longest) */
-.lp .lp-link { padding: 6px 8px; border-radius: 9999px; color: #8a8f98; font-size: 14px; font-weight: 510; letter-spacing: -.011em; }
+.lp .lp-link { padding: 6px 8px; border-radius: 9999px; color: #8a8f98; font-size: 14px; font-weight: 510; letter-spacing: 0; }
 .lp .lp-link:hover { color: #f7f8f8; }
 .lp .lp-actions { gap: 4px; }
 /* a vertical rule between the language and the two account buttons */
 .lp .lp-actions .lang-pill { margin-right: 12px; }
 .lp .lp-actions .lang-pill::after { content: ""; position: absolute; right: -9px; top: 50%; width: 1px; height: 16px; margin-top: -8px; background: #23252a; pointer-events: none; }
-.lp .lang-pill { border-color: #23252a; color: #8a8f98; font-weight: 510; letter-spacing: -.011em; }
+.lp .lang-pill { border-color: #23252a; color: #8a8f98; font-weight: 510; letter-spacing: 0; }
 .lp .lang-pill:hover { border-color: #34343a; color: #f7f8f8; }
 .lp .lang-pill svg { color: #62666d; }
 
 /* ---------- buttons: the main action is Dorax green, filled (owner); the others are plain text. Pills, no shadow, Inter at 510 ---------- */
-:is(.lp, .auth.single) .btn { border-radius: 9999px; font-family: var(--font); font-size: 14px; font-weight: 510; letter-spacing: -.011em; line-height: 20px; box-shadow: none; background-image: none; transition: background-color var(--t1) ease-out, color var(--t1) ease-out, border-color var(--t1) ease-out; }
+:is(.lp, .auth.single) .btn { border-radius: 9999px; font-family: var(--font); font-size: 14px; font-weight: 510; letter-spacing: 0; line-height: 20px; box-shadow: none; background-image: none; transition: background-color var(--t1) ease-out, color var(--t1) ease-out, border-color var(--t1) ease-out; }
 :is(.lp, .auth.single) .btn.primary { background-color: #006239; color: #f7f8f8; border: 1px solid rgba(62, 207, 142, .45); }
 :is(.lp, .auth.single) .btn.primary:hover:not(:disabled) { background-color: #00754A; border-color: #3ECF8E; }
 .lp .btn:not(.primary) { background-color: transparent; border-color: transparent; color: #8a8f98; padding-inline: 8px; }
@@ -75,7 +75,7 @@ html { font-optical-sizing: none; }
 /* the second button beside a main one (hero, closing call to action): a dark pill, as in the owner's reference. In the bar it stays plain text */
 .lp .btn.lg:not(.primary) { padding-inline: 20px; background-color: #141516; border-color: #23252a; color: #f7f8f8; }
 .lp .btn.lg:not(.primary):hover:not(:disabled) { background-color: #1c1c1f; border-color: #34343a; color: #f7f8f8; }
-.lp .lp-actions .btn { font-size: 14px; font-weight: 510; letter-spacing: -.011em; }
+.lp .lp-actions .btn { font-size: 14px; font-weight: 510; letter-spacing: 0; }
 .lp .lp-actions .btn.primary { padding-inline: 16px; }
 
 /* ---------- type: weight 510 for headings; text 15px; small print 12px ---------- */
@@ -88,15 +88,16 @@ html { font-optical-sizing: none; }
 .lp h3 { font-size: 16px; line-height: 1.5; letter-spacing: -.011em; }
 .lp .lead { font-size: 17px; line-height: 1.5; letter-spacing: -.011em; color: #d0d6e0; }
 .lp .lead.sm { font-size: 16px; line-height: 1.5; letter-spacing: -.011em; color: #8a8f98; }
-.lp .eyebrow { padding: 2px 8px; border-radius: 4px; border: 1px solid #23252a; background: #141516; color: #8a8f98; font-size: 12px; line-height: 1.6; letter-spacing: -.12px; font-weight: 510; }
+.lp .eyebrow { padding: 2px 8px; border-radius: 4px; border: 1px solid #23252a; background: #141516; color: #8a8f98; font-size: 12px; line-height: 1.6; letter-spacing: 0; font-weight: 510; }
 .lp #lp-pj .eyebrow { color: #8a8f98; border-color: #23252a; }
-.lp .lp-note, .lp .note { color: #8a8f98; font-size: 13px; line-height: 1.5; letter-spacing: -.01em; }
+.lp .lp-note, .lp .note { color: #8a8f98; font-size: 13px; line-height: 1.5; letter-spacing: 0; }
 .lp .lp-note .linkbtn, .lp a, .lp .linkbtn { color: #f7f8f8; font-weight: 510; text-decoration: none; }
 .lp .lp-note .linkbtn:hover, .lp a:hover, .lp .linkbtn:hover { text-decoration: underline; }
-.lp .lp-meta { font-family: var(--font); font-size: 12px; line-height: 1.6; letter-spacing: -.12px; color: #8a8f98; }
+.lp a.btn:hover, .lp a.lp-link:hover { text-decoration: none; }      /* the links to the other pages (ui/pages.js) that are drawn as buttons or menu entries */
+.lp .lp-meta { font-family: var(--font); font-size: 12px; line-height: 1.6; letter-spacing: 0; color: #8a8f98; }
 /* small labels inside the pictures: plain small text, not spaced capitals. The monospace is kept for file names and cells */
-.lp .lp-float small, .lp .ill small, .lp .f-axis, .lp .ph-title span { font-family: var(--font); font-size: 11px; letter-spacing: -.01em; text-transform: none; color: #8a8f98; }
-.lp .num, .lp .ph-card > b { font-family: var(--font); font-variant-numeric: tabular-nums; }
+.lp .lp-float small, .lp .ill small, .lp .f-axis, .lp .ph-title span { font-family: var(--font); font-size: 11px; letter-spacing: 0; text-transform: none; color: #8a8f98; }
+.lp .num, .lp .ph-card > b { font-family: var(--font); }
 
 /* ---------- the pictures of the product and the graphs: what is measured is Dorax green, the rest is grey (owner, 2026-10-05: "add the green
    to the data graph and circle"). One green, as in the app: rings, progress bars, the bar of the current month, the line of a chart, the
@@ -109,6 +110,8 @@ html { font-optical-sizing: none; }
 .lp .lp-hero::before { content: none; }
 .lp .lp-copy { gap: 20px; }
 .lp .lp-copy .row { gap: 8px; }
+/* what trying costs, right under the hero's button (2026-10-07): one muted line, closer to the button than the other parts of the hero are to each other */
+.lp .lp-copy .lp-trust { margin: -8px 0 0; text-wrap: balance; }
 .lp .lp-float { padding: 12px; gap: 12px; border-radius: 8px; background: #141516; border: 1px solid #23252a; box-shadow: none; }
 .lp .lp-float b { font-size: 13px; font-weight: 510; color: #f7f8f8; }
 .lp .lp-float .num { color: #8a8f98; }
@@ -127,7 +130,122 @@ html { font-optical-sizing: none; }
 .lp .ph-tab span { border-radius: 9999px; color: #8a8f98; }
 .lp .ph-tab span.on { background: #23252a; }
 .lp .ph-ico { background: #1c1c1f; color: #d0d6e0; }
-.lp .chip { border-radius: 4px; border-color: #23252a; font-family: var(--font); letter-spacing: -.01em; color: #8a8f98; }
+
+/* ---------- the hero's picture: the app on two phones, one for each side (2026-10-07) ----------
+   These wear the app's own look, as the pieces in .shot do: its black, its surfaces, its figures. The panel at the top is the colour of the side
+   in use (the brand's deep green at home, the company's blue), with the Household | Company choice in it, as on a real phone (css/screens/phone.css).
+   Side by side at every width: the second one starts lower, so the pair reads as two and not as a table. */
+.lp .lp-stage.duo { display: flex; justify-content: center; align-items: flex-start; gap: 16px; width: 100%; max-width: 512px; }
+.lp .lp-stage.duo > div { flex: 1 1 0; min-width: 0; max-width: 248px; }
+.lp .lp-stage.duo > div + div { margin-top: 44px; }
+.lp .phone.duo { --bg: #000000; --surface: #070707; --line: #1A1A1A; --track: #2E2E2E; --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090; --brand: #3ECF8E; --side: #006239;
+  width: 100%; padding: 6px; border-radius: 38px; background: #141516; border: 1px solid #34343a; color: var(--ink); letter-spacing: 0; -webkit-user-select: none; user-select: none; }
+.lp .phone.duo.co { --brand: #5B9DFF; --side: #1F4E9E; }
+.lp .phone.duo .ph-screen { border-radius: 32px; background: var(--bg); gap: 8px; padding: 0 0 64px; min-width: 0; }
+.lp .phone.duo .ph-screen > * { min-width: 0; }
+.lp .phone.duo .ph-top { display: flex; flex-direction: column; gap: 8px; padding: 0 12px 12px; background: var(--side); color: #FFFFFF; border-radius: 0 0 20px 20px; }
+.lp .phone.duo .ph-status { padding: 9px 4px 0; font-size: 11px; color: #FFFFFF; }
+.lp .phone.duo .ph-island { width: 54px; height: 16px; background: #000000; }
+.lp .phone.duo .ph-sig i { background: #FFFFFF; }
+.lp .phone.duo .ph-bar { justify-content: space-between; padding-top: 0; }
+.lp .phone.duo .ph-name { font-size: 16px; font-weight: 600; letter-spacing: -.01em; color: #FFFFFF; }
+.lp .phone.duo .ph-ico { width: 28px; height: 28px; background: rgba(0, 0, 0, .18); border: 1px solid rgba(255, 255, 255, .3); color: #FFFFFF; }
+.lp .ph-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; border-radius: 9999px; background: rgba(0, 0, 0, .26); }
+.lp .ph-seg span { display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 26px; border-radius: 9999px; font-size: 11.5px; font-weight: 500; color: rgba(255, 255, 255, .88); white-space: nowrap; }
+.lp .ph-seg span.on { background: #FAFAFA; color: var(--side); }
+.lp .ph-seg svg { width: 13px; height: 13px; flex: none; }
+.lp .ph-rw, .lp .ph-goal, .lp .ph-pay { margin-inline: 10px; padding: 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.lp .ph-k { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--ink-strong); }
+.lp .phone.duo .rw-fig { gap: 2px 6px; margin-bottom: 12px; }
+.lp .phone.duo .rw-n { font-family: var(--font); font-size: 34px; font-weight: 600; letter-spacing: -.01em; }
+.lp .phone.duo .rw-u { font-size: 12px; line-height: 1.3; color: var(--ink-2); }
+.lp .phone.duo .rw-track { gap: 4px; }
+.lp .phone.duo .rw-seg .bar { height: 5px; }
+.lp .phone.duo .rw-seg .lbl { margin-top: 5px; font-family: var(--font); font-size: 9.5px; color: var(--ink-3); }
+.lp .ph-gh { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
+.lp .ph-gh svg { width: 14px; height: 14px; flex: none; color: var(--brand); }
+.lp .ph-gh b { margin-right: auto; min-width: 0; font-weight: 600; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lp .ph-gh .num { font-size: 11.5px; color: var(--ink-2); }
+.lp .ph-goal .meter { height: 5px; margin: 8px 0 10px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.lp .ph-goal .meter > i { display: block; height: 100%; border-radius: 99px; background: var(--brand); }
+.lp .ph-goal p { margin: 0; display: flex; flex-direction: column; gap: 1px; }
+.lp .ph-goal small, .lp .ph-pay small { font-size: 11px; line-height: 1.35; color: var(--ink-3); }
+.lp .ph-goal p b { font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--ink-strong); }
+.lp .ph-pay { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.lp .ph-pay b { font-size: 14px; font-weight: 600; color: var(--ink-strong); white-space: nowrap; }
+.lp .phone.duo .ph-tab { left: 8px; right: 8px; bottom: 8px; padding: 3px; background: #171717; border-color: var(--line); }
+.lp .phone.duo .ph-tab span { height: 34px; color: var(--ink-3); }
+.lp .phone.duo .ph-tab span.on { background: #242424; color: var(--brand); }
+.lp .phone.duo .ph-tab svg { width: 15px; height: 15px; }
+#public.enter .lp-stage.duo > div + div .phone { animation-delay: 320ms; }
+#public.enter .lp-stage.duo .rw-seg .bar > i { animation: grow-x 640ms var(--ease) both; animation-delay: calc(760ms + var(--i, 0) * 90ms); }
+#public.enter .lp-stage.duo > div + div .rw-seg .bar > i { animation-delay: calc(900ms + var(--i, 0) * 90ms); }
+@media (min-width: 1180px) { .lp .lp-hero .lp-stage.duo { justify-self: end; } }
+/* a narrow phone: the pair still stands side by side, each one narrower, so its parts are set smaller and the words under the track give way */
+@media (max-width: 560px) {
+  .lp .lp-stage.duo { gap: 10px; } .lp .lp-stage.duo > div + div { margin-top: 28px; }
+  .lp .phone.duo { padding: 5px; border-radius: 30px; } .lp .phone.duo .ph-screen { border-radius: 25px; gap: 6px; padding-bottom: 54px; }
+  .lp .phone.duo .ph-top { gap: 6px; padding: 0 8px 8px; border-radius: 0 0 16px 16px; } .lp .phone.duo .ph-status { font-size: 9.5px; padding-top: 7px; } .lp .phone.duo .ph-island { width: 40px; height: 12px; }
+  .lp .phone.duo .ph-name { font-size: 14px; } .lp .phone.duo .ph-ico { width: 24px; height: 24px; }
+  .lp .ph-seg span { min-height: 22px; font-size: 10.5px; gap: 0; } .lp .ph-seg svg { display: none; }
+  .lp .ph-rw, .lp .ph-goal, .lp .ph-pay { margin-inline: 6px; padding: 9px; border-radius: 12px; }
+  .lp .ph-k { font-size: 11px; margin-bottom: 6px; } .lp .phone.duo .rw-n { font-size: 28px; } .lp .phone.duo .rw-u { font-size: 11px; } .lp .phone.duo .rw-fig { margin-bottom: 9px; }
+  .lp .phone.duo .rw-seg .lbl { display: none; }
+  .lp .ph-gh { font-size: 11.5px; } .lp .ph-goal p b { font-size: 12px; } .lp .ph-pay b { font-size: 12.5px; } .lp .ph-goal small, .lp .ph-pay small { font-size: 10.5px; }
+  .lp .phone.duo .ph-tab { left: 6px; right: 6px; bottom: 6px; } .lp .phone.duo .ph-tab span { height: 30px; }
+}
+
+/* ---------- "When do you get there?": the home page's own calculator (2026-10-07) ----------
+   A piece of the app that can be touched: the first-time setup's own dream buttons and sliders (css/screens/ahead.css), on the app's black, inside
+   the same hairline as the other pieces. One frame, parted by lines, not boxes inside boxes: the dreams across the top, the three amounts on the
+   left, the answer on the right with the way in under it. On a phone the answer comes right after the dreams, above the sliders, so it stays in
+   sight while a slider is dragged (the order in the page's code stays: what is asked, then the answer). */
+.lp .calc-h { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.lp .calc-h .lead { max-width: 52ch; }
+.lp .calc {
+  --bg: #000000; --surface: #070707; --surface-2: #171717; --surface-3: #242424; --well: #1C1C1C; --line: #1A1A1A; --line-strong: #393939; --hover-line: #666666; --track: #2E2E2E;
+  --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090; --brand: #3ECF8E; --focus: #3ECF8E; --knob: #FAFAFA; --frame: #34343a;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "dreams dreams" "in out" "in more" "in go"; grid-template-rows: auto auto 1fr auto;
+  background: var(--bg); border: 1px solid var(--frame); border-radius: 16px; color: var(--ink); font-size: 14px; line-height: 1.43; letter-spacing: 0; }
+.lp .calc-dreams { grid-area: dreams; padding: 20px; border-bottom: 1px solid var(--line); }
+.lp .calc .ob-dreams { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.lp .calc .ob-dream { min-width: 0; line-height: 1.3; }
+.lp .calc .ob-dream .fl-ico { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-3); border-color: var(--line-strong); color: var(--ink); flex: none; }
+.lp .calc .ob-dream[aria-pressed="true"] .fl-ico { background: #006239; border-color: #006239; color: #FAFAFA; }
+.lp .calc-in { grid-area: in; display: flex; flex-direction: column; gap: 22px; padding: 28px 24px 24px; border-right: 1px solid var(--line); min-width: 0; }
+.lp .calc-in .field { margin: 0; }
+.lp .calc-in .note { margin: 0; color: var(--ink-3); }
+.lp .calc-out { grid-area: out; display: flex; flex-direction: column; gap: 20px; padding: 28px 24px 20px; min-width: 0; }
+.lp .calc-more { grid-area: more; display: flex; flex-direction: column; gap: 16px; padding: 0 24px 12px; min-width: 0; }
+.lp .calc-more:empty { display: none; }
+.lp .calc-more .note { margin: 0; color: var(--ink-3); }
+.lp .calc-when { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lp .calc-when small { font-size: 13px; color: var(--ink-2); }
+.lp .calc-month { font-size: clamp(32px, 4.2vw, 52px); font-weight: 600; line-height: 1.06; letter-spacing: -.02em; color: var(--ink-strong); overflow-wrap: anywhere; }
+.lp .calc-when p { margin: 4px 0 0; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+.lp .calc-way { display: flex; flex-direction: column; gap: 8px; }
+.lp .calc-line { display: flex; gap: 3px; height: 26px; }
+.lp .calc-line i { flex: 1 1 0; min-width: 0; border-radius: 3px; background: rgba(62, 207, 142, .34); }
+.lp .calc-line i:last-child { background: var(--brand); }
+.lp .calc-ends { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--ink-3); }
+.lp .calc-tip { display: flex; align-items: center; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+.lp .calc-tip > svg { width: 18px; height: 18px; flex: none; color: var(--brand); }
+.lp .calc-tip > span { flex: 1; min-width: 0; font-size: 14px; color: var(--ink); }
+.lp .calc-tip .btn { min-height: 32px; padding: 5px 14px; background: transparent; border: 1px solid var(--line-strong); color: var(--ink-strong); }
+.lp .calc-tip .btn:hover { border-color: var(--hover-line); background: var(--surface-2); }
+.lp .calc-go { grid-area: go; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 24px 28px; min-width: 0; }
+.lp .calc-go .note { margin: 0; color: var(--ink-3); }
+@media (max-width: 900px) {
+  .lp .calc { grid-template-columns: minmax(0, 1fr); grid-template-areas: "dreams" "out" "in" "more" "go"; grid-template-rows: none; }
+  .lp .calc .ob-dreams { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lp .calc-dreams { padding: 14px; }
+  .lp .calc-out { padding: 20px 16px; border-bottom: 1px solid var(--line); gap: 16px; }
+  .lp .calc-more { padding: 0 16px 16px; } .lp .calc-tip .btn { min-height: 44px; padding-inline: 18px; }
+  .lp .calc-in { padding: 20px 16px; border-right: 0; gap: 18px; }
+  .lp .calc-go { padding: 4px 16px 20px; align-items: stretch; } .lp .calc-go .btn { justify-content: center; } .lp .calc-go .note { text-align: center; }
+  .lp .calc-tip { padding-top: 16px; }
+}
+.lp .chip { border-radius: 4px; border-color: #23252a; font-family: var(--font); letter-spacing: 0; color: #8a8f98; }
 .lp .chip.good, .lp .chip.warn, .lp .chip.crit, .lp .chip.info { color: #d0d6e0; }
 
 /* ---------- sections: room to breathe, and a faint rule between them (owner, 2026-10-05: "add space between sections, make the page breathe;
@@ -150,7 +268,7 @@ html { font-optical-sizing: none; }
 .lp .bento article:hover { border-color: #34343a; box-shadow: none; }
 .lp .bento { gap: 16px; }
 .lp .bento .txt { padding: 16px; gap: 4px; }
-.lp .bento p, .lp .lp-plain p, .lp .lp-flow p { color: #8a8f98; font-size: 14px; line-height: 1.5; letter-spacing: -.01em; }
+.lp .bento p, .lp .lp-plain p, .lp .lp-flow p { color: #8a8f98; font-size: 14px; line-height: 1.5; letter-spacing: 0; }
 /* the picture in a card sits one step back, on the canvas; what is inside it is one step forward */
 .lp .ill { background: #08090a; border-bottom-color: #23252a; padding: 20px; }
 .lp .bento article.full .ill { border-right-color: #23252a; }
@@ -180,22 +298,23 @@ html { font-optical-sizing: none; }
   --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090;
   --brand: #3ECF8E; --link: #3ECF8E; --focus: #3ECF8E; --on-brand: #121212; --col: #3ECF8E; --col-muted: #626262; --info: #B4B4B4;
   --btn: transparent; --btn-line: #393939; --select: #242424;
+  --frame: #34343a;      /* the hairline round a piece of the app (2026-10-07): the app is black on an almost black page, so its frame is the lighter grey the phone already had, 1.6:1 against the page where the app's own line is 1.1:1 */
   --r-card: 16px; --r-lg: 16px; --r-mid: 16px; --r: 8px; --r-sm: 8px;
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif; --fig: var(--font);
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; --fig: var(--font);      /* the app's own font, Inter on every device (css/base/tokens.css, 2026-10-08) */
   --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Source Code Pro", Consolas, monospace;
-  position: relative; margin: 0; height: 540px; color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.43; letter-spacing: -.016em; font-feature-settings: "calt", "kern", "liga";
+  position: relative; margin: 0; height: 540px; color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.43; letter-spacing: 0; font-feature-settings: "calt", "kern", "liga";
   -webkit-user-select: none; user-select: none; }
 .lp .shot b, .lp .shot strong { font-weight: 500; }
 .lp .shot .chip { border-radius: 9999px; border-color: var(--line); font-family: var(--mono); letter-spacing: 0; color: var(--ink-2); } .lp .shot .chip.good, .lp .shot .chip.warn, .lp .shot .chip.info { color: var(--ink); }
 .lp .shot .meter { height: 6px; border-radius: 99px; background: var(--track); } .lp .shot .meter > i { border-radius: 99px; background: var(--ink); }
 .lp .shot .num, .lp .shot .tbl td.amt-s { font-family: var(--mono); }
-.lp .shot .note { color: var(--ink-3); font-size: 12.5px; line-height: 1.43; letter-spacing: -.016em; }
+.lp .shot .note { color: var(--ink-3); font-size: 12.5px; line-height: 1.43; letter-spacing: .012em; }
 .lp .shot .shot-h { font-size: 17px; font-weight: 600; letter-spacing: -.022em; line-height: 1.24; color: var(--ink-strong); }
 .lp .shot .tile .value { font-weight: 600; }
 .lp .shot .hint { cursor: default; } .lp .shot .ln { color: var(--ink-strong); } .lp .shot tr.done .ln { font-weight: 400; color: var(--ink-2); }
 /* behind: the Plan screen, as wide as the rest of the column and a little more, fading out to the right and at the bottom */
 .lp .shot-back { position: absolute; top: 0; bottom: 0; left: 34%; width: 80%; padding: 18px 22px 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden;
-  background: var(--bg); border: 1px solid var(--line); border-bottom: 0; border-radius: 16px 16px 0 0;
+  background: var(--bg); border: 1px solid var(--frame); border-bottom: 0; border-radius: 16px 16px 0 0;
   -webkit-mask-image: linear-gradient(90deg, #000 66%, transparent 99%), linear-gradient(180deg, #000 70%, transparent 100%); -webkit-mask-composite: source-in;
   mask-image: linear-gradient(90deg, #000 66%, transparent 99%), linear-gradient(180deg, #000 70%, transparent 100%); mask-composite: intersect; }
 .lp .shot-bar { display: flex; align-items: center; gap: 12px; }
@@ -205,7 +324,7 @@ html { font-optical-sizing: none; }
 .lp .shot .tile { position: relative; padding: 16px; } .lp .shot .tile .label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .lp .shot .tile .label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 /* the app's own explanation of a figure, open on one of them: this is how the app says how it counts */
-.lp .shot-tip { position: absolute; z-index: 2; left: 16px; top: calc(100% - 10px); width: max-content; max-width: 250px; padding: 10px 12px; border-radius: 8px; background: var(--lift); border: 1px solid var(--line-strong); color: var(--ink-strong); font-size: 13px; line-height: 1.4; letter-spacing: -.01em; white-space: normal; }
+.lp .shot-tip { position: absolute; z-index: 2; left: 16px; top: calc(100% - 10px); width: max-content; max-width: 250px; padding: 10px 12px; border-radius: 8px; background: var(--lift); border: 1px solid var(--line-strong); color: var(--ink-strong); font-size: 13px; line-height: 1.4; letter-spacing: 0; white-space: normal; }
 .lp .shot .tbl th, .lp .shot .tbl td { padding-inline: 18px; }
 .lp .shot .tbl td.first { min-width: 150px; }
 /* in front: the dashboard's "Plan vs actual" card, solid, over the left edge of the screen behind it */
@@ -226,7 +345,7 @@ html { font-optical-sizing: none; }
 .lp .duo-list h3 { font-size: 15px; font-weight: 590; line-height: 1.5; letter-spacing: -.011em; }
 .lp .duo-list p { font-size: 14px; line-height: 1.5; }
 .lp .shot.duo { grid-area: pic; align-self: center; height: auto; display: flex; flex-direction: column; gap: 0; }
-.lp .duo-pane { display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; }
+.lp .duo-pane { display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--bg); border: 1px solid var(--frame); border-radius: 16px; }
 .lp .duo-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .lp .shot .duo-h .shot-sec { margin: 0; }
 .lp .duo-t { display: flex; align-items: baseline; gap: 10px; min-width: 0; } .lp .duo-t .note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -244,7 +363,7 @@ html { font-optical-sizing: none; }
 .lp .shot .grid { gap: 12px; } .lp .shot .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .lp .shot .acct { padding: 16px 18px; gap: 10px; } .lp .shot .acct .bal { font-family: var(--mono); font-size: 20px; font-weight: 600; }
 .lp .shot .acct .row { gap: 10px; flex-wrap: nowrap; } .lp .shot .acct .row .note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .lp .shot .acct .bal { white-space: nowrap; } .lp .shot .acct b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.lp .shot .btn { border-radius: 9999px; padding: 5px 11px; min-height: 30px; font-family: var(--font); font-size: 12.5px; font-weight: 500; letter-spacing: -.016em; line-height: 1.43; background-color: transparent; border: 1px solid var(--btn-line); color: var(--ink-strong); white-space: nowrap; }
+.lp .shot .btn { border-radius: 9999px; padding: 5px 11px; min-height: 30px; font-family: var(--font); font-size: 12.5px; font-weight: 500; letter-spacing: 0; line-height: 1.43; background-color: transparent; border: 1px solid var(--btn-line); color: var(--ink-strong); white-space: nowrap; }
 .lp .shot .btn svg { width: 14px; height: 14px; }
 .lp .shot .sub { color: var(--ink-3); font-size: 12.5px; }
 .lp .shot .li.todo b { color: var(--ink-strong); } .lp .shot .li.todo .when { width: auto; min-width: 62px; }
@@ -254,11 +373,11 @@ html { font-optical-sizing: none; }
 .lp .lp-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px clamp(24px, 3vw, 40px); }
 .lp .lp-flow li { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 .lp .fl-txt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: baseline; }
-.lp .fl-n { grid-row: 1 / span 2; font-size: 13px; font-weight: 510; letter-spacing: -.01em; color: #62666d; font-variant-numeric: tabular-nums; }
+.lp .fl-n { grid-row: 1 / span 2; font-size: 13px; font-weight: 510; letter-spacing: 0; color: #62666d; }
 .lp .lp-flow h3 { font-size: 17px; font-weight: 590; line-height: 1.4; letter-spacing: -.012em; }
 .lp .lp-flow p { max-width: 46ch; }
 /* a small piece of the app: on the app's own black, inside a hairline, cut off at the bottom with a fade */
-.lp .shot.mini { height: 236px; display: block; padding: 20px 20px 0; overflow: hidden; background: var(--bg); border: 1px solid var(--line); border-bottom: 0; border-radius: 16px 16px 0 0;
+.lp .shot.mini { height: 236px; display: block; padding: 20px 20px 0; overflow: hidden; background: var(--bg); border: 1px solid var(--frame); border-bottom: 0; border-radius: 16px 16px 0 0;
   -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%); mask-image: linear-gradient(180deg, #000 62%, transparent 100%); }
 .lp .shot.mini .tbl th, .lp .shot.mini .tbl td { padding-inline: 18px; } .lp .shot.mini .tbl td.first { min-width: 0; }
 @media (max-width: 1100px) { .lp .shot .c4 { display: none; } }
@@ -306,8 +425,8 @@ html { font-optical-sizing: none; }
 /* ---------- the footer ---------- */
 .lp .lp-foot { position: relative; gap: 32px; padding: 64px 0 8px; }
 .lp .ft-top { gap: 32px 56px; }
-.lp .ft-brand p, .lp .ft-cols p { color: #8a8f98; font-size: 14px; line-height: 1.5; letter-spacing: -.01em; }
-.lp .ft-cols h3 { font-size: 13px; font-weight: 510; line-height: 1.5; letter-spacing: -.01em; color: #f7f8f8; margin-bottom: 8px; }
+.lp .ft-brand p, .lp .ft-cols p { color: #8a8f98; font-size: 14px; line-height: 1.5; letter-spacing: 0; }
+.lp .ft-cols h3 { font-size: 13px; font-weight: 510; line-height: 1.5; letter-spacing: 0; color: #f7f8f8; margin-bottom: 8px; }
 .lp .ft-cols ul { gap: 0; }
 .lp .ft-cols .lp-link { padding: 4px 0; border-radius: 4px; font-size: 14px; font-weight: 400; color: #8a8f98; }
 .lp .ft-cols .lp-link:hover { color: #f7f8f8; }

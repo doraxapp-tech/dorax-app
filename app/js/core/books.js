@@ -10,7 +10,7 @@
 // thing they ask is state.scope ('business' for a company book), which decides whose accounts count (inScope, reporting.js).
 // A book's key is 'personal', or 'business:' and the currency.
 const COMPANY_GROUPS = [['co-tax', 'Taxes', 's4'], ['co-services', 'Accounting and services', 's3'], ['co-tools', 'Tools and software', 's5'], ['co-people', 'Pay and people', 's1'], ['co-other', 'Other', 's2']];
-const BOOK_PARTS = ['goals', 'goalMoves', 'plan', 'pay'];
+const BOOK_PARTS = ['goals', 'goalMoves', 'plan', 'pay', 'journey'];      // journey: the way out of debt (core/journey.js)
 
 /** The currencies the company's side can be planned in, the account's own currency first: every currency a company account holds, every
     currency a company book already has something in (so a plan is never lost with its account), and, when there is neither, the account's
@@ -52,8 +52,10 @@ function bookOf(state, key) {
   const cur = String(key || '').startsWith('business:') ? key.slice(9) : null;
   return cur && companyCurrencies(state).includes(cur) ? companyBook(state, cur, true) : state;
 }
-/** The company books that exist, each with its currency. Nothing is created: an account whose company side was never opened answers an empty list. */
+/** The company books that exist, each with its currency. Nothing is created: an account whose company side was never opened answers an empty list,
+    and so does one whose owner said the company is no more. */
 function companyBooks(state) {
+  if ((state.user || {}).company === false) return [];      // "I no longer have a company": its books are kept, and left alone (features/company)
   return companyCurrencies(state).map(cur => ({ cur, key: bookKeyOf(cur), book: companyBook(state, cur, false) })).filter(x => x.book);
 }
 /** Everything the company keeps that can carry a name the app wrote (see namedThings, data/defaults.js). */

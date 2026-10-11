@@ -35,9 +35,18 @@
 @media (max-width: 560px) {
   .f-grid { grid-template-columns: minmax(0, 1fr); }
   .tx-bar { flex-wrap: wrap; } .tx-bar .search { flex-basis: 100%; }
-  .tx-tools { width: 100%; } .tx-tools .btn { flex: 1 1 0; justify-content: center; }
+  .tx-tools { width: auto; flex: 1 1 0; min-width: 0; } .tx-tools .btn { flex: 1 1 0; justify-content: center; }
+  .tx-bar > .hint { flex: none; }      /* the help sits at the end of the Filters row, not alone on a line of its own (usability QC, 2026-10-08) */
   .pager { justify-content: center; } .pager .pg { width: 100%; justify-content: space-between; }
   .pager .pg:first-child { justify-content: flex-start; } .pager .pg:first-child .note.num { margin-right: auto; }
   .drawer.pop footer .btn.primary { flex: 1 1 100%; } .drawer.pop footer .btn.ghost { flex: 1 1 0; }
 }
 
+/* pairs that look like one move between the person's accounts (features/transactions/transactions.view.js: pairsDrawer) */
+.pr-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 0; }
+.pr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+.pr .pr-amt { grid-column: 1 / -1; font-family: var(--fig); font-size: 16px; font-weight: 600; color: var(--ink-strong); }
+.pr-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pr-side b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-side .note:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr .pr-act { grid-column: 1 / -1; gap: 8px; }

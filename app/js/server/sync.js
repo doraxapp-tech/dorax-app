@@ -90,6 +90,8 @@ function adoptState(data, rev) {
   S = data; Object.assign(SYNC, { rev, last: accountJson(), unsure: [], dirty: false, failed: false, tries: 0, savedAt: Date.now() });
   // what belongs to this visit: today is this device's day, and the month shown is the current one
   const now = deviceToday(), y = +now.slice(0, 4); S.today = now; S.month = ymOf(now); if (!S.pay[y]) S.pay[y] = [];
+  anchorCards(S, now);      // a card's day given before its month was kept: from its next due date, whichever way the account arrives (core/cards.js)
+  dropLeftLedgers(S);      // what deleting an account left behind before deleting took its whole card (features/accounts/wallet.js)
   if (SERVER.user && SERVER.user.email) { if (S.user.pendingEmail === SERVER.user.email) S.user.pendingEmail = null; S.user.email = SERVER.user.email; }       // the login's address is the server's to say
 }
 /** Whether the account is saved changed: the top bar says so, and so does Settings if it is the screen in view. Nothing else is drawn

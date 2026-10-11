@@ -1,0 +1,411 @@
+/* ---------- the phone, laid out for a hand ----------
+   2026-10-07 (owner: "separate the mobile version too: it has to be intuitive, easy to use, fun in a way, with the main and most important
+   functions in the palm of the person's hand"). A phone is any screen up to 920 px wide. Its pages are its own (js/features/phone/): this file
+   is how they look.
+   · the page itself stays still and the app's column scrolls inside it, so nothing pinned to the screen can move;
+   · the top is a panel in the side's colour: who is using it, the bell, More, and the choice of side for someone with a company;
+   · the bar at the foot has the round + in its middle, where a thumb rests: it opens the things a person does most;
+   · the dashboard opens with what is still to be set up, the days of freedom, and the same things as a row of round buttons to swipe;
+   · the month's figures are one row to swipe; the day's insight and a curiosity arrive as a small signal that opens when touched.
+   A computer shows none of this. */
+.more-btn { display: none; }
+.sheet.quick h2 { font-size: 17px; font-weight: 600; padding: 4px 6px 12px; }
+.quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 2px 4px; }
+.quick-grid button, .quick-row button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; color: var(--ink-strong); font-weight: 500; -webkit-user-select: none; user-select: none; }
+.quick-grid button { min-height: 64px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-mid); background: var(--surface-2); font-size: 15px; line-height: 1.25; transition: transform var(--t1) ease-out, border-color var(--t1) ease-out; animation: quick-pop 380ms var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
+.quick-grid button.wide { grid-column: 1 / -1; }      /* this screen's own "new" takes the first row whole, and the last one never sits alone in half a row (quickWide) */
+.quick-grid button:active, .quick-row button:active { transform: scale(.95); }
+.quick-grid button:focus-visible, .quick-row button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.quick-grid .fl-ico, .quick-row .fl-ico { width: 40px; height: 40px; border-color: var(--side-line); background: var(--side-tint); color: var(--brand); }
+.quick-grid .fl-ico svg, .quick-row .fl-ico svg { width: 19px; height: 19px; }
+@keyframes quick-pop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes fab-in { from { transform: translateY(-9px) scale(.6) rotate(-90deg); } to { transform: translateY(-9px) scale(1) rotate(0); } }
+@media (prefers-reduced-motion: reduce) { .quick-grid button { animation: none; } }
+
+@media (max-width: 920px) {
+  /* ---------- the page stays still; the app's column scrolls ----------
+     2026-10-07 (owner: "the bar still moves in the iOS web app, when I add it to my iPhone's home screen"). While the page itself scrolled, iOS moved
+     what was pinned to the screen (the bar at the foot, the panel) as its own bars and its top blur came and went, differently on a short screen
+     and a long one. Now nothing scrolls but the app's own column: the page is exactly as tall as the screen, so the pinned parts have nowhere to go.
+     Only inside the app: the pages before login scroll as before. */
+  html.in-app, html.in-app body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  html.in-app .app { position: fixed; inset: 0; display: block; min-height: 0; }
+  html.in-app .work { display: block; height: 100%; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+  /* ---------- the panel at the top ----------
+     2026-10-07 (owner: "add room at the top; make a top panel, green, with the person's name, their picture, the switch, the bell and the
+     three dots, and everything else below it"; and "the menu bar changes position depending on the tab": the old bar's parts were laid out
+     round the screen's title, so they sat differently on each screen). The panel is the same on every screen: a row that stays on screen
+     (who, the bell, More) and, under it, Household | Company. It wears the colour of the side in use: the brand's deep green at home, the
+     company's blue on its side. The screen's own "new" is in the round + at the foot. */
+  /* 2026-10-09 (owner: "take the green off the top menu, I don't like it any more; put a blurred background, almost invisible, from green to black").
+     The panel is glass now: a breath of the side's colour (--glow: green at home, the company's blue on its side) that fades into the page's
+     black, through the panel and the balance under it, with the page blurred behind the row that stays on screen. */
+  .navbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; min-height: 0; padding: calc(var(--safe-t) + 22px) 14px 10px 16px; background: linear-gradient(180deg, rgba(var(--glow), .26), rgba(var(--glow), .12)), rgba(0, 0, 0, .78); color: #FFFFFF; border-bottom: 0; -webkit-backdrop-filter: saturate(150%) blur(20px); backdrop-filter: saturate(150%) blur(20px); transition: box-shadow var(--t2) ease-out; }
+  .scrolled .navbar { box-shadow: 0 1px 0 rgba(255, 255, 255, .07); }
+  .navbar.solo { padding-bottom: 16px; }      /* no company, so no choice of side under it: the row is the whole panel */
+  .navbar .bar-title, .navbar .btn.primary { display: none; }
+  .navbar .bar-tools { grid-column: 2; gap: 10px; }
+  .bar-who { display: flex; align-items: center; gap: 11px; min-width: 0; min-height: 44px; color: inherit; text-decoration: none; border-radius: var(--pill); -webkit-tap-highlight-color: transparent; }
+  .bar-who .avatar { width: 42px; height: 42px; box-shadow: 0 0 0 2px rgba(255, 255, 255, .18); }
+  .bar-who:active .avatar { transform: scale(.94); }
+  .bar-who:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 3px; }
+  /* a screen's name in the panel, as tall as the photo it replaces, so the panel keeps its height from one screen to the next */
+  .bar-name { display: block; min-width: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 44px; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bw-t { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .bw-t small { font-size: 12.5px; line-height: 1.25; letter-spacing: .012em; color: rgba(255, 255, 255, .66); }
+  .bw-t b { font-size: 18px; font-weight: 600; line-height: 1.2; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .navbar .bell, .more-btn { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: #FFFFFF; position: relative; transition: transform var(--t1) ease-out, background var(--t1) ease-out; }
+  .navbar .bell::after, .more-btn::after { content: ""; position: absolute; inset: -4px; }
+  .navbar .bell svg, .more-btn svg { width: 18px; height: 18px; }
+  .navbar .bell:active, .more-btn:active { transform: scale(.92); }
+  @media (hover: hover) and (pointer: fine) { .navbar .bell:hover { background: rgba(255, 255, 255, .12); color: #FFFFFF; } }      /* a finger's tap leaves no hover behind (usability QC, 2026-10-08) */
+  .more-btn[aria-current="page"] { background: #FAFAFA; color: #0A0A0A; border-color: #FAFAFA; }
+  .navbar .bell:focus-visible, .more-btn:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+  .navbar .bell .count, .app-light .navbar .bell .count { background: var(--brand); color: #04140C; box-shadow: 0 0 0 2px #050505; }
+  .side-co .navbar .bell .count { background: var(--fab); color: var(--fab-ink); }
+  .navbar .save-badge { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+  .bar-side { display: block; background: none; padding: 4px 16px 16px; border-radius: 0 0 22px 22px; -webkit-user-select: none; user-select: none; }
+  .bar-side .side-seg { border: 0; padding: 3px; gap: 3px; background: rgba(0, 0, 0, .26); }
+  .bar-side .side-seg button { min-height: 40px; font-size: 14.5px; color: rgba(255, 255, 255, .88); position: relative; }
+  .bar-side .side-seg button::after { content: ""; position: absolute; inset: -3px 0; }
+  .bar-side .side-seg button svg { width: 17px; height: 17px; }
+  @media (hover: hover) and (pointer: fine) { .bar-side .side-seg button:hover { color: #FFFFFF; } }
+  .bar-side .side-seg button[aria-pressed="true"] { background: #FAFAFA; color: #0A0A0A; box-shadow: none; }
+  .bar-side .side-seg button:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+  /* under the panel: the month, on the screens that have one */
+  .pagehead { align-items: center; padding: 16px 16px 8px; margin-top: 14px; gap: 6px 12px; }
+  /* no screen repeats its name under the panel: the summary has none, the others have it in the panel, where the photo is on the summary (owner,
+     2026-10-10); the month at the end of its row; with no month, no row (owner, 2026-10-08) */
+  .pagehead h1 { position: absolute; width: 1px; height: 1px; min-height: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pagehead .month { margin-left: auto; }
+  .pagehead { margin-top: 4px; padding-top: 10px; }      /* the row holds only the month: less air above it */
+  .pagehead.bare { padding: 0; margin: 0; border: 0; min-height: 0; height: 16px; }      /* no month: only the air between the panel and the first card */
+  .h-short { display: inline; }
+  .h-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* the bar at the foot: two screens, the round +, two screens */
+  .tabbar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 64px minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }      /* equal columns whatever the words, so the + is in the exact middle */
+  /* 2026-10-08 (owner: "use the same greenish blur of the top menu for the bottom menu"): the same glass as the top panel, mirrored: the breath of the
+     side's colour (--glow) at the edge of the screen, here the bottom, fading upwards into black, the page blurred behind it */
+  /* 2026-10-09 (owner: "on the phone leave the bottom menu fixed at the bottom, not floating as now, the background black with a subtle line on top"):
+     the bar sits on the screen's edge, full width, black, a hairline above it; the iPhone's home bar keeps its own space under the buttons */
+  .tabbar { left: 0; right: 0; bottom: 0; border-radius: 0; border: 0; border-top: 1px solid rgba(255, 255, 255, .09); padding: 5px 8px calc(5px + var(--safe-b)); background: #000000; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  :root.app-light .tabbar { background: #FFFFFF; border-top-color: var(--line); }
+  /* The mark of the screen in use follows the bar's own edge (owner, 2026-10-07: "the active border is not consistent with the tab bar's border"):
+     the bar's corner is 26 px and its padding 5, so a mark that fills its cell with a 21 px corner sits at the same 5 px from the edge all the way
+     round. Before, the mark was shorter than the bar and, to hold a long word, reached 4 px sideways out of its cell, touching the bar's edge.
+     A tap leaves no grey flash (iOS draws one over a link unless told not to), and the mark changes at once, not while its colour fades. */
+  .tabbar a { white-space: nowrap; padding: 2px 0; border-radius: 21px; -webkit-tap-highlight-color: transparent; transition: color var(--t1) ease-out, transform var(--t1) ease-out; }
+  .tabbar .fab { align-self: center; -webkit-tap-highlight-color: transparent; }
+  .tabbar .fab { width: 56px; height: 56px; min-height: 0; margin: 0 auto; padding: 0; border-radius: 50%; background: var(--fab); color: var(--fab-ink); box-shadow: 0 0 0 4px var(--bg), 0 10px 24px -8px rgba(0, 0, 0, .8); transform: translateY(-9px); transition: transform var(--t2) var(--ease), background var(--t2) var(--ease); }
+  .tabbar .fab svg { width: 24px; height: 24px; color: inherit; }
+  .tabbar .fab:active { transform: translateY(-9px) scale(.9); }
+  .tabbar .fab:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  /* 2026-10-10 (owner: "in the phone's menu, take the grey hover off the active tab and put a green line on top, #006239; the same colour for the
+     background of the middle (+), the + white; the active tab's icon #00754A"): the screen in use is a line along the bar's top edge over its tab and
+     its icon in green, no grey mark behind it. The company's side keeps its blue (blue is the company's alone). */
+  .tabbar a[aria-current="page"] { position: relative; background: none; }
+  .tabbar a[aria-current="page"]::before { content: ""; position: absolute; top: -6px; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: #006239; }
+  .tabbar a[aria-current="page"] svg { color: #00754A; }
+  .tabbar .fab { background: #006239; color: #FFFFFF; }
+  .side-co .tabbar a[aria-current="page"]::before { background: var(--fab); }
+  .side-co .tabbar a[aria-current="page"] svg { color: var(--fab); }
+  .side-co .tabbar .fab { background: var(--fab); color: var(--fab-ink); }
+  /* the dashboard (js/features/phone/phone.home.js, phone.company.js) */
+  /* the quick things to do: round buttons in a row to swipe, the fifth always peeking in so the row is seen to go on */
+  .quick-row { display: flex; gap: 2px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 16px; margin: 0 -16px; padding: 4px 16px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .quick-row::-webkit-scrollbar { display: none; }
+  .quick-row button { flex: 0 0 calc((100% - 6px) / 4.4); flex-direction: column; justify-content: flex-start; gap: 8px; padding: 4px 3px; min-height: 92px; font-size: 10.5px; font-weight: 500; line-height: 1.25; text-align: center; color: var(--ink); scroll-snap-align: start; }      /* 10.5 px under the circles (owner, 2026-10-09), as the bar at the foot */
+  .quick-row .fl-ico { width: 54px; height: 54px; }
+  .quick-row .fl-ico svg { width: 22px; height: 22px; }
+  /* the day's facts: one quiet line each, in a row to swipe (owner, 2026-10-08: "make them simple, only the important content; they don't have to
+     draw attention; not as cards; don't name them, just the fact"; features/phone/phone.view.js: phoneInsight). No box: the fact in the page's quiet
+     grey, a small arrow, a thumb high; small dots under it for the others. Each line takes the row's width and a swipe stops on the next. */
+  .ins-row { display: flex; gap: 32px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  .ins-row::-webkit-scrollbar { display: none; }
+  .ins-c { all: unset; box-sizing: border-box; cursor: pointer; flex: 0 0 100%; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 44px; padding: 4px 0; color: var(--ink-2); -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; transition: opacity var(--t1) ease-out; }
+  .ins-c:active { opacity: .6; }
+  .ins-c:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+  .ins-say { flex: 0 1 auto; min-width: 0; font-size: 14px; font-weight: 400; line-height: 1.4; }
+  /* centred (owner, 2026-10-08), the amounts and the arrow in the side's bright colour: green at home (deep green on a light page), blue for the company */
+  .ins-m { font-weight: 500; color: var(--fab); }
+  .ins-ar { font-size: 18px; font-weight: 500; line-height: 0; color: var(--fab); }
+  .ins-pg { display: flex; justify-content: center; gap: 5px; margin-top: 2px; }
+  .ins-pg i { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); opacity: .35; transition: opacity var(--t1) ease-out; }
+  .ins-pg i.on { opacity: 1; }
+  .in-fold { min-width: 38px; padding: 0; } .in-fold svg { transform: rotate(-90deg); }
+  /* a curiosity as a signal: a small pill above the bar at the foot, which opens into the notice */
+  .curio.sig { align-items: center; gap: 2px; padding: 4px 6px 4px 6px; border-radius: var(--pill); }
+  .cu-open { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 6px 0 2px; -webkit-tap-highlight-color: transparent; }
+  .cu-open .fl-ico { width: 34px; height: 34px; }
+  .cu-open b { color: var(--spark); font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .cu-open:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--pill); }
+  .curio.sig .x { margin: 0; }
+  #runway-card .rw-n { font-size: 54px; }
+  .kpis:not(.eq) { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 16px; margin: 0 -16px; padding: 2px 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .kpis:not(.eq)::-webkit-scrollbar { display: none; }
+  .kpis:not(.eq) > .kpi, .kpis:not(.eq) > .kpi:nth-child(5) { flex: 0 0 min(62%, 250px); scroll-snap-align: start; grid-column: auto; }
+  .kpis:not(.eq) .kpi .value { font-size: 22px; }
+}
+@media (max-width: 920px) and (prefers-reduced-motion: no-preference) { #tabbar .fab { animation: fab-in 520ms var(--ease) both; } }
+/* opened from the home screen, iOS draws its clock over the panel and blurs the top edge: a little more room above the name and the buttons */
+@media (max-width: 920px) and (display-mode: standalone) { .navbar { padding-top: calc(var(--safe-t) + 30px); } }
+@media (max-width: 380px) { .tabbar a { font-size: 10px; letter-spacing: -.02em; } }
+/* From the design critique of 2026-10-07 (phone, usability): everything a thumb presses is at least 44 px high, and the smallest words (tags, the
+   day of a bill) are 12 px, not 10.5 to 11.5. */
+@media (max-width: 640px) {
+  .btn.sm { min-height: 44px; }
+  .month button { width: 38px; height: 44px; } .stepper button { width: 44px; height: 44px; }      /* the month's arrows grow in height only: wider, the month would no longer fit beside a long title */
+  .paylist .linkbtn, .tbl .linkbtn { padding-block: 12px; margin-block: -12px; }
+  .chip { font-size: 12px; }
+  .li.todo .when { font-size: 12px; }
+}
+
+/* ---------- Savings & goals on a phone (features/phone/phone.goals.js, owner 2026-10-08: simplicity) ---------- */
+@media (max-width: 920px) {
+  .g-total { padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 6px; }
+  .g-total .label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); }
+  .g-total .value { font-family: var(--fig); font-size: 38px; font-weight: 500; line-height: 1.1; color: var(--ink-strong); letter-spacing: -.01em; }
+  .kpis.g-mini > .kpi, .kpis.g-mini > .kpi:nth-child(5) { flex: 0 0 auto; min-width: 150px; padding: 12px 16px; }      /* each as wide as its words: the row slides sideways instead of breaking them (owner, 2026-10-08) */
+  .kpis.g-mini > .kpi { display: flex; flex-direction: column; gap: 6px; }
+  .kpis.g-mini .kpi .value { font-size: 17px; margin-top: auto; }      /* the three amounts on one line, whichever label takes two */
+  .kpis.g-mini .kpi .delta { display: none; }
+  .kpis.g-mini .kpi .label, .kpis.g-mini .kpi .label > span { white-space: nowrap; overflow: visible; text-overflow: clip; }      /* the whole label, on one line */
+  .g-acts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .g-acts .btn { min-height: 48px; justify-content: center; padding: 0 8px; }
+  .g-acts.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }      /* Plan's two: Mark as paid, Record payment */
+  .g-list { display: flex; flex-direction: column; gap: 10px; }
+  .g-item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 8px; padding: 14px 14px 16px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface); -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out, border-color var(--t1) ease-out; }
+  .g-item:active { transform: scale(.985); border-color: var(--line-strong); }
+  .g-item:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .g-item.off { opacity: .7; }
+  .g-top { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+  .g-top b { flex: 1; min-width: 0; font-weight: 500; font-size: 15px; line-height: 1.35; color: var(--ink-strong); overflow-wrap: anywhere; padding-top: 2px; }      /* the whole name, on two lines if it needs them */
+  .g-top .chip { flex: none; }
+  .g-top > svg { width: 18px; height: 18px; color: var(--ink-3); flex: none; }
+  .g-amt { font-size: 18px; font-weight: 500; color: var(--ink-strong); }
+  .g-amt .muted { font-size: 13px; }
+  .sheet.g-pick h2 { font-size: 17px; font-weight: 600; margin: 4px 4px 12px; }
+  .g-pick-list { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
+  .g-pick-list button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-mid); background: var(--surface-2); }
+  .g-pick-list button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .g-pick-list b { display: block; font-weight: 500; font-size: 15px; color: var(--ink-strong); }
+  .g-pick-list small { font-size: 13px; color: var(--ink-2); }
+  .g-pick-list svg { width: 18px; height: 18px; color: var(--ink-3); }
+}
+
+/* ---------- the month's payments on a phone (features/phone/phone.plan.js, owner 2026-10-08: no buttons on the rows, only the bulk ones) ---------- */
+@media (max-width: 920px) {
+  #paylist .pl-due { padding: 0 16px 12px; }
+  .pl-list { display: flex; flex-direction: column; margin-top: 24px; border-top: 1px solid var(--line); }      /* 24 px under the card's title (owner, 2026-10-08: the list sat on it) */
+  .pl-grp { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; padding: 4px 12px 4px 6px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+  /* a group's name opens and closes its rows (owner, 2026-10-08): the arrow points down while closed, up while open */
+  .pl-tog { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 auto; display: flex; align-items: center; gap: 7px; min-height: 52px; padding: 0 4px 0 8px; border-radius: var(--r-mid); -webkit-tap-highlight-color: transparent; }
+  .pl-tog:active { background: var(--select); }
+  .pl-tog:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .pl-tog > svg { flex: none; width: 18px; height: 18px; color: var(--ink-2); transition: transform var(--t2) var(--ease); }
+  .pl-grp.on .pl-tog > svg { transform: rotate(180deg); }
+  .pl-tog .cat b { white-space: nowrap; }      /* the name whole: where it and the bulk button do not fit on one line, the button goes under it */
+  .pl-tog .chip { flex: none; }
+  .pl-rows { display: flex; flex-direction: column; } .pl-rows[hidden] { display: none; }
+  .pl-list > .pl-grp:nth-last-child(2):not(.on) { border-bottom: 0; border-radius: 0 0 calc(var(--r-card) - 1px) calc(var(--r-card) - 1px); }      /* the last group closed: its band follows the card's corners */
+  @media (prefers-reduced-motion: reduce) { .pl-tog > svg { transition: none; } }
+  .pl-grp .grow { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .pl-grp .cat b { font-weight: 600; font-size: 15px; color: var(--ink-strong); }
+  .pl-grp .note { font-family: var(--mono); font-size: 12px; }
+  .pl-grp .btn { flex: none; margin: 4px 0 4px auto; }
+  .pl-row { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); -webkit-tap-highlight-color: transparent; transition: background var(--t1) ease-out; }
+  .pl-row:last-child { border-bottom: 0; } .pl-rows:not(:last-child) .pl-row:last-child { border-bottom: 1px solid var(--line); }
+  .pl-row:active { background: var(--select); }
+  .pl-row:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .pl-row .grow { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .pl-row b { font-weight: 500; font-size: 15px; color: var(--ink-strong); overflow-wrap: anywhere; }
+  .pl-row small { font-size: 13px; color: var(--ink-2); }
+  .pl-row.done b { font-weight: 400; color: var(--ink-2); }
+  .pl-row .chip { flex: none; white-space: nowrap; }      /* the status on one line; a long name wraps instead */
+  .pl-row > svg { width: 18px; height: 18px; color: var(--ink-3); flex: none; }
+  #income-list .pl-foot { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid var(--line); }
+  .pl-row .pl-amt { flex: none; font-size: 15px; font-weight: 500; color: var(--ink-strong); }
+}
+
+/* ---------- the top panel's second row and the button beside the bell (owner, 2026-10-08) ---------- */
+.side-flip, .bar-bal { display: none; }
+#rail-eye { display: flex; align-items: center; }      /* the computer's eye, at the end of the logo's row (in .rail-tools, base/shell.css) */
+#rail-eye .nums-btn { width: 28px; height: 28px; color: var(--ink-3); } #rail-eye .nums-btn[aria-pressed="true"] { color: var(--brand); }
+@media (max-width: 920px) {
+  .navbar .nums-btn { display: none !important; }      /* a phone has the eye in its balance */
+  .navbar { border-radius: 0; }
+  .navbar .side-flip { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: #FFFFFF; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out, background var(--t1) ease-out; }
+  .navbar .side-flip::after { content: ""; position: absolute; inset: -4px; }
+  .navbar .side-flip svg { width: 18px; height: 18px; }
+  .navbar .side-flip:active { transform: scale(.92); }
+  .navbar .side-flip:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+  .navbar .side-flip.pulse { animation: flip-pulse 1.4s ease-out 3; }
+  @keyframes flip-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, .55); } 100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); } }
+  /* 2026-10-09 (owner: "remove the white background of the household balance card; make the type bigger, white, centred above the date
+     selector"). No card: the side's net balance, large and white, in the middle of the screen, its name small above it and the eye beside it.
+     An empty column the eye's width on the other side keeps the amount in the exact middle. A long amount takes a smaller size (barBalanceIn). */
+  .bar-bal { display: grid; grid-template-columns: 44px minmax(0, auto) 44px; justify-content: center; align-items: end; column-gap: 2px; padding: 8px 12px 2px; background: linear-gradient(180deg, rgba(var(--glow), .12), rgba(var(--glow), 0)); }
+  .bar-bal .bb-link { grid-column: 2; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 6px; box-sizing: border-box; border-radius: 14px; color: #FFFFFF; text-align: center; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: opacity var(--t1) ease-out; }
+  .bar-bal .bb-link small { font-size: 13px; letter-spacing: .012em; color: rgba(255, 255, 255, .62); }
+  .bar-bal .bb-link b { max-width: 100%; font-family: var(--fig); font-size: clamp(28px, 9vw, 36px); font-weight: 600; line-height: 1.12; letter-spacing: -.02em; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-bal .bb-link b.long { font-size: clamp(22px, 7vw, 28px); }
+  .bar-bal .bb-link b.neg { color: var(--neg); }
+  .bar-bal .bb-link:active { opacity: .7; }
+  .bar-bal .bb-link:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+  .bar-bal .bb-eye { all: unset; box-sizing: border-box; cursor: pointer; grid-column: 3; position: relative; display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 0; border-radius: 50%; color: rgba(255, 255, 255, .7); -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out, color var(--t1) ease-out; }
+  .bar-bal .bb-eye svg { width: 22px; height: 22px; }
+  .bar-bal .bb-eye:active { transform: scale(.92); color: #FFFFFF; }
+  .bar-bal .bb-eye:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+  /* a light page: the same breath of colour fading into its own grey, and dark words */
+  :root.app-light .navbar { background: linear-gradient(180deg, rgba(var(--glow), .13), rgba(var(--glow), .06)), color-mix(in srgb, var(--bg) 72%, transparent); color: var(--ink-strong); }
+  :root.app-light .scrolled .navbar { box-shadow: 0 1px 0 var(--line); }
+  :root.app-light .bar-bal { background: linear-gradient(180deg, rgba(var(--glow), .06), rgba(var(--glow), 0)); }
+  :root.app-light .bw-t small, :root.app-light .bar-bal .bb-link small { color: var(--ink-2); }
+  :root.app-light .bar-name, :root.app-light .bw-t b, :root.app-light .bar-bal .bb-link, :root.app-light .bar-bal .bb-link b { color: var(--ink-strong); }
+  :root.app-light .bar-bal .bb-link b.neg { color: var(--neg); }
+  :root.app-light .bar-who .avatar { box-shadow: 0 0 0 2px rgba(0, 0, 0, .08); }
+  :root.app-light .navbar .bell, :root.app-light .more-btn, :root.app-light .navbar .side-flip { border-color: var(--line-strong); background: rgba(0, 0, 0, .03); color: var(--ink-strong); }
+  :root.app-light .more-btn[aria-current="page"] { background: var(--ink-strong); color: var(--bg); border-color: var(--ink-strong); }
+  :root.app-light .bar-bal .bb-eye { color: var(--ink-2); }
+  :root.app-light .navbar .bell .count { box-shadow: 0 0 0 2px var(--bg); }
+  :root.app-light .bar-who:focus-visible, :root.app-light .navbar .bell:focus-visible, :root.app-light .more-btn:focus-visible, :root.app-light .navbar .side-flip:focus-visible, :root.app-light .bar-bal .bb-link:focus-visible, :root.app-light .bar-bal .bb-eye:focus-visible { outline-color: var(--focus); }
+  .install-bar ~ .bar-bal { padding-top: 2px; }
+  /* the company's summary (owner, 2026-10-10): its net balance on the left, the eye beside it, the currency on the right */
+  .bar-bal.co { display: flex; align-items: center; justify-content: flex-start; gap: 2px; padding: 8px 16px 4px; }
+  .bar-bal.co .bb-link { flex: 0 1 auto; align-items: flex-start; text-align: left; padding: 4px 0; }
+  .bar-bal.co .bb-link b { font-size: clamp(24px, 7.6vw, 32px); text-overflow: clip; }      /* never cut: fitCoBal brings the size down instead */
+  .bar-bal.co .bb-link b.long { font-size: clamp(20px, 6.2vw, 26px); }
+  .bar-bal.co .bb-eye { flex: none; align-self: flex-end; }
+  .bar-bal.co .space { flex: none; margin: 0 0 0 auto; align-self: center; }
+  .bar-bal.co .space .hint { display: none; }
+  .bar-bal.co .space .seg button { min-height: 44px; padding: 0 13px; font-size: 13.5px; }
+}
+
+/* ---------- the summary: its accounts, and the order of its parts (owner, 2026-10-08) ---------- */
+@media (max-width: 920px) {
+  /* the accounts as a list, not as cards: the bank's mark, the name and its kind, what is in it */
+  .ac-list { list-style: none; margin: -6px 0; padding: 0; }
+  .ac-list li + li { border-top: 1px solid var(--line); }
+  .ac-row { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 62px; padding: 10px 0; -webkit-tap-highlight-color: transparent; }
+  .ac-row:active { opacity: .7; }
+  .ac-row:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r); }
+  .ac-row .grow { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .ac-row b { font-weight: 500; font-size: 15px; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ac-row small { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ac-row > .num { flex: none; font-family: var(--fig); font-size: 16px; font-weight: 600; letter-spacing: -.005em; color: var(--ink-strong); white-space: nowrap; }
+  .ac-row > .num.neg { color: var(--neg); }
+  .ac-list .inst svg { width: 18px; height: 18px; }
+  .ac-more { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; margin-top: 8px; border-top: 1px solid var(--line); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+  .ac-more svg { width: 16px; height: 16px; }
+  /* the way to change the order, at the foot of the summary: quiet, and big enough for a thumb */
+  .dash-order { display: flex; justify-content: center; padding: 4px 0 8px; }
+  .dash-order .btn { gap: 8px; color: var(--ink-2); }
+  .dash-order .btn svg { width: 18px; height: 18px; }
+  /* the list in its sheet: the place, the name, two arrows of 44 px */
+  .sheet.d-order h2 { font-size: 17px; font-weight: 600; margin: 4px 4px 4px; }
+  .d-order-note { margin: 0 4px 12px; }      /* the list itself: screens/dashboard.css, shared with the computer's side panel */
+  .ord-foot { position: sticky; bottom: calc(-18px - var(--safe-b)); display: flex; gap: 10px; margin: 12px -12px calc(-18px - var(--safe-b)); padding: 12px 12px calc(18px + var(--safe-b)); background: var(--lift); border-top: 1px solid var(--line); }
+  .ord-foot .btn { flex: 1; }
+}
+
+/* ---------- the summary, simpler (owner, 2026-10-08): the month's button, things to tap, and the days of freedom ---------- */
+@media (max-width: 920px) {
+  /* the month (owner, 2026-10-08): the whole row, black with a #1A1A1A edge, the month in the brand's green; between the arrows a strip of months
+     the finger scrolls (features/phone/phone.month.js). The light theme keeps a light grey, where a black block would hold dark text. */
+  .pagehead.has-month { border-bottom: 0; padding-bottom: 0; }      /* no line under the month (owner, same day) */
+  .pagehead .m-row { display: flex; align-items: center; flex: 1 1 100%; min-width: 0; }
+  .pagehead .month.m-ph { display: flex; flex: 1 1 auto; min-width: 0; margin: 0; padding: 0; background: #000000; border-color: #1A1A1A; }
+  .pagehead .m-ph button { flex: none; width: 46px; height: 44px; color: #D4D4D4; }
+  .pagehead .m-ph button:active:not(:disabled) { background: #1A1A1A; color: #FFFFFF; }
+  @media (hover: hover) and (pointer: fine) { .pagehead .m-ph button:hover:not(:disabled) { background: #1A1A1A; color: #FFFFFF; } }
+  /* each month is as wide as its name and 40 px either side, so at rest the next and the previous months just show at the edges, fading: the
+     strip says it can be swiped. The spaces at its two ends let the first and the last month reach the middle. One month per swipe (snap-stop). */
+  .m-strip { position: relative; flex: 1 1 auto; min-width: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; outline: 0;
+    font-family: var(--mono); font-size: 13.5px; font-weight: 500;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 min(44px, 16%), #000 calc(100% - min(44px, 16%)), transparent); mask-image: linear-gradient(90deg, transparent, #000 min(44px, 16%), #000 calc(100% - min(44px, 16%)), transparent); }
+  .m-strip::-webkit-scrollbar { display: none; }
+  .m-strip::before, .m-strip::after { content: ""; flex: 0 0 calc(50% - 4ch - 40px); }
+  .pagehead .m-ph .m-slide { flex: 0 0 auto; width: calc(8ch + 80px); min-width: 0; padding: 0; scroll-snap-align: center; scroll-snap-stop: always; text-align: center; font: inherit; line-height: 44px; color: #FFFFFF; white-space: nowrap; transition: color var(--t1) ease-out; }
+  .pagehead .m-ph .m-slide.mid { color: var(--brand); }      /* only the month in the middle is green, the others white; it follows the finger (owner, 2026-10-08) */
+  /* the way back to the present: its box grows from nothing to the button's width, so it pushes the month aside; the box reaches the screen's edge,
+     so the button comes in from there */
+  .m-back { flex: none; overflow: hidden; margin-right: -16px; padding-right: 16px; }
+  .m-back .btn { margin-left: 8px; height: 46px; min-height: 46px; padding: 0 16px; border-radius: var(--pill); white-space: nowrap; }
+  /* pushed aside, the month keeps its name whole: its arrows narrow (a finger still gets 48 px, thumb.css), and on the narrowest phones they step
+     out, the strip still swipes and the button is the way back */
+  .m-row.far .m-ph button { width: 40px; }
+  .m-row.far .m-strip { -webkit-mask-image: linear-gradient(90deg, transparent, #000 6px, #000 calc(100% - 6px), transparent); mask-image: linear-gradient(90deg, transparent, #000 6px, #000 calc(100% - 6px), transparent); }
+  @media (max-width: 359px) { .m-row.far .m-ph button { display: none; } }
+  :root.app-light .pagehead .month.m-ph { background: var(--surface-3); border-color: var(--line); }
+  :root.app-light .pagehead .m-ph button { color: var(--ink-2); }
+  :root.app-light .pagehead .m-ph button:active:not(:disabled) { background: var(--line-strong); color: var(--ink-strong); }
+  @media (hover: hover) and (pointer: fine) { :root.app-light .pagehead .m-ph button:hover:not(:disabled) { background: var(--line-strong); color: var(--ink-strong); } }
+  :root.app-light .pagehead .m-ph .m-slide { color: var(--ink-strong); } :root.app-light .pagehead .m-ph .m-slide.mid { color: var(--brand-deep); }
+  /* a goal of Savings & goals, and the line of the funds: the same line as before, now a button with a chevron */
+  button.budget { width: 100%; margin: 0; background: none; border-style: solid; border-color: var(--line); border-width: 0 0 1px; font: inherit; color: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  button.budget:last-child { border-bottom-width: 0; }
+  button.budget:active { opacity: .7; }
+  button.budget:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r); }
+  button.budget .num svg { width: 15px; height: 15px; margin-left: 4px; vertical-align: -3px; color: var(--ink-3); }
+  /* Fixed costs and Savings and goals in "Your month, as planned": a chevron in its own column */
+  .legend-row.go { width: calc(100% + 12px); grid-template-columns: auto minmax(0, 1fr) auto 44px 16px; min-height: 48px; font: inherit; color: inherit; text-align: left; background: none; cursor: pointer; }
+  .legend-row.go > svg { width: 15px; height: 15px; color: var(--ink-3); }
+  .legend-row.go-pad { grid-template-columns: auto minmax(0, 1fr) auto 44px 16px; min-height: 48px; }      /* "Not assigned yet": its figures in the same columns */
+  /* the lists in their sheet: the goal picker's lines, the amount at the right, a link to the page at the foot */
+  .sheet.s-list h2 { font-size: 17px; font-weight: 600; margin: 4px 4px 12px; }
+  .s-list .g-pick-list button > .grow { flex: 1 1 auto; min-width: 0; }
+  .s-list .g-pick-list b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .s-amt { flex: none; display: flex; flex-direction: column; align-items: flex-end; font-family: var(--fig); font-size: 15px; font-weight: 600; color: var(--ink-strong); white-space: nowrap; }
+  .s-amt small { font-size: 12.5px; font-weight: 400; color: var(--ink-2); }
+  .s-foot { display: flex; padding-top: 12px; } .s-foot .btn { flex: 1; }
+  /* the days of freedom: one thing to tap, its name, the figure with a small sign of how it moved, the track and the next mark */
+  .rw-ph { padding: 0; }
+  .rw-tap { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 16px 18px 18px; border-radius: inherit; -webkit-tap-highlight-color: transparent; }
+  .rw-tap:active { background: var(--surface-2); }
+  .rw-tap:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .rw-h { display: flex; align-items: center; gap: 8px; }
+  .rw-h b { flex: 1 1 auto; font-size: 15px; font-weight: 600; color: var(--ink-strong); }
+  .rw-h .rw-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+  .rw-h .rw-alias { display: block; margin-top: 1px; font-size: 12.5px; font-weight: 400; color: var(--ink-3); }      /* the people's words: "your emergency fund" */
+  .rw-see { display: inline-flex; align-items: center; gap: 2px; font-size: 13.5px; color: var(--ink-2); }
+  .rw-see svg { width: 15px; height: 15px; color: var(--ink-3); }
+  .rw-ph .rw-fig { align-items: center; gap: 8px 10px; }
+  .rw-ph .rw-n { font-size: 40px; }
+  .rw-ph .rw-u { flex: 0 1 auto; } .rw-ph .rw-fig .pill { margin-left: auto; }      /* the 🎉 right after the words, the month's change at the end of the line */
+  .rw-ph .rw-seg .lbl { display: none; }
+  .rw-ph .rw-next { font-size: 13.5px; }
+  /* its details, in the panel */
+  .rw-view .rw-in .card-b { padding: 0; }
+  /* the quick things to do: their circles in the same #282828 as the month's button, the icon keeps the side's colour (owner, 2026-10-08);
+     the light theme keeps a light grey, as the month's button does */
+  .quick-row .fl-ico { background: #0E0E0E; border-color: #0E0E0E; }      /* 2026-10-08 (owner): #0E0E0E, was #282828 */
+  :root.app-light .quick-row .fl-ico { background: var(--surface-3); border-color: var(--surface-3); }
+  /* quick access: bigger circles and white icons; the insight of the day's icon and words in white too (owner, 2026-10-08). The light theme keeps
+     dark ones, where white would vanish on the light grey */
+  .quick-row .fl-ico { width: 62px; height: 62px; color: #FFFFFF; }
+  .quick-row .fl-ico svg { width: 28px; height: 28px; }
+  :root.app-light .quick-row .fl-ico { color: var(--ink-strong); }
+}
+
+/* a phone's Reports: the three views under the month, the whole width, in the month's own black (owner, 2026-10-08) */
+@media (max-width: 920px) {
+  .seg.rep-view { display: flex; width: 100%; margin: 0; padding: 3px; background: #000000; border-color: #1A1A1A; }
+  .seg.rep-view button { flex: 1 1 0; text-align: center; min-height: 44px; display: grid; place-items: center; font-size: 14px; }
+  .seg.rep-view button[aria-pressed="true"] { background: #1A1A1A; color: var(--brand); }
+  :root.app-light .seg.rep-view { background: var(--surface-3); border-color: var(--line); }
+  :root.app-light .seg.rep-view button[aria-pressed="true"] { background: var(--surface); color: var(--brand-deep); }
+  .tiles.one { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- room between the parts of a screen (owner, 2026-10-09: "use the standard for mobile screens and add space between the sections, they
+   are all very close together") ----------
+   The 8-point grid phones use: 16 px at the sides, 24 px between one part and the next, 8 px more before a section's title. Parts that carried a
+   margin of their own (the add and delete buttons in Accounts, the report's two views) leave the room to the screen, so it is the same everywhere. */
+@media (max-width: 920px) {
+  .content { gap: 24px; }
+  .content > h2.sec { margin-top: 8px; }
+  .acc-acts { margin: 8px 0 0; }
+}
+
+/* a phone has no way back on top (owner, 2026-10-10): its own back (the gesture or Android's button) is the way back there (app/back.js) */
+@media (max-width: 920px) { .back-slot.pc { display: none; } }

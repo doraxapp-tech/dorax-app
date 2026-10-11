@@ -1,0 +1,214 @@
+/* ---------- looking ahead: days of freedom (dashboard card and the setup's reveal), the date a goal is reached, the 60-second setup ----------
+   2026-10-07. The headline figure is the days; everything else on the card is quieter. The track has four stretches (30 days, 3, 6, 12 months),
+   each filled as far as the days reach: the same picture on the dashboard and in the first-time setup, so the number is met twice the same way. */
+.rw { display: flex; flex-direction: column; gap: 14px; }
+.rw.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px 48px; align-items: center; }      /* wide: the figure on the left, its track on the right */
+.rw-a, .rw-b { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+@media (max-width: 920px) { .rw.two { grid-template-columns: minmax(0, 1fr); } }
+.rw-fig { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.rw-n { font-family: var(--fig); font-size: 44px; font-weight: 500; line-height: 1; letter-spacing: -.02em; color: var(--ink-strong); }
+.rw-u { font-size: 15px; color: var(--ink-2); }
+.rw-delta { font-size: 12px; color: var(--ink-3); flex-basis: 100%; }
+.rw-say { color: var(--ink-2); font-size: 14px; line-height: 1.5; max-width: 52ch; }
+.rw-next { font-size: 13px; color: var(--ink-2); }
+.rw-basis { font-size: 12.5px; }
+.rw-start { display: block; font-weight: 500; font-size: 15px; color: var(--ink-strong); }
+.rw-track { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.rw-seg .bar { display: block; height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.rw-seg .bar > i { display: block; height: 100%; border-radius: 99px; background: var(--brand); min-width: 3px; transform-origin: left center; }
+.rw-seg .lbl { display: block; margin-top: 6px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rw-seg.full .lbl { color: var(--ink-2); }
+#view.enter .rw-seg .bar > i { animation: grow-x 640ms var(--ease) both; animation-delay: calc(180ms + var(--i, 0) * 90ms); }
+@media (max-width: 640px) { .rw-n { font-size: 38px; } .rw-track { gap: 4px; } }
+
+/* the date a goal is reached, on its card: a flag, the month, and how it compares with the person's own date */
+
+/* the first minute: the dream buttons, the numbers, the reveal, the ways in */
+.ob-top { display: flex; align-items: center; justify-content: space-between; margin: -8px 0 -4px -10px; }
+.ob-top .auth-back { margin: 0; }
+.ob-top select.lang { width: auto; min-height: 32px; padding: 4px 28px 4px 10px; font-size: 12.5px; border-color: var(--line-strong); }
+/* where the person is in the setup: four dots at the foot of the card, the current one green (owner, 2026-10-07) */
+.ob-dots { display: flex; justify-content: center; gap: 8px; padding-top: 6px; }
+.ob-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--track); transition: background var(--t2) ease-out, transform var(--t2) var(--ease); }
+.ob-dots i.now { background: var(--brand); transform: scale(1.25); }
+.e { font-style: normal; }
+.onb h1 .e { margin-right: 4px; }
+.ob-dreams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ob-dream { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 13px 14px; min-height: 52px; border: 1px solid var(--line-strong); border-radius: var(--r-mid); background: var(--surface-2); color: var(--ink); cursor: pointer; font-size: 14px; font-weight: 500; transition: border-color var(--t1) ease-out, background var(--t2) var(--ease), transform var(--t2) var(--ease); }
+.ob-dream .fl-ico { transition: background var(--t2) var(--ease), border-color var(--t1) ease-out, color var(--t1) ease-out; }
+.ob-dream .fl-ico svg, .ob-fact .fl-ico svg { width: 18px; height: 18px; }
+.ob-dream[aria-pressed="true"] .fl-ico { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }      /* the chosen dream: its badge takes the main button's green */
+.ob-dream:hover { border-color: var(--hover-line); }
+.ob-dream:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ob-dream[aria-pressed="true"] { border-color: var(--brand); background: var(--good-bg); color: var(--ink-strong); }
+.ob-dream:active { transform: scale(.985); }
+/* owner, 2026-10-07: the dreams and the number fields are #171717 (--surface-2), the card's own grey, not black wells */
+/* a number with a slider: the label and the amount (which can be typed) on one line, the track under them. The filled part follows --p. */
+.ob-slide { gap: 10px; }
+.ob-slide-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ob-slide-h label { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+/* The amount beside a slider reads as a figure, not as a box to fill in (owner, 2026-10-07: "leave only the slider but still let the person type
+   the amount, so the screen looks cleaner without hurting the UX"). It is still the same field: touching the figure puts the cursor in it, the
+   keyboard opens, and a thin line under it says so. A dotted line under the figure is the only sign that it can be typed, until it is touched. */
+.ob-val { display: inline-flex; align-items: baseline; gap: 5px; padding: 0 0 2px; border: 0; border-bottom: 1px dashed var(--hover-line); border-radius: 0; background: none; color: var(--ink-2); font-family: var(--font); font-size: 14px; transition: border-color var(--t1) ease-out; cursor: text; }
+.ob-val:hover { border-bottom-color: var(--ink-2); }
+.ob-val:focus-within { border-bottom: 1px solid var(--focus); }
+.ob-val input[type=text] { width: 8ch; min-height: 34px; padding: 0; border: 0; background: none; text-align: right; font-family: var(--font); font-size: 20px; font-weight: 600; letter-spacing: 0; color: var(--ink-strong); border-radius: 0; }
+.ob-val input[type=text]:focus-visible { outline: none; }
+.ob-val input[type=text]:focus, .ob-slide input[type=range]:focus { box-shadow: none; }      /* the line under the amount, and the knob, show the focus: not a second frame */
+.ob-slide input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0; padding: 0; border: 0; background: none; cursor: pointer; touch-action: pan-y; }
+.ob-slide input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: linear-gradient(to right, var(--brand) var(--p, 0%), var(--track) var(--p, 0%)); }
+.ob-slide input[type=range]::-moz-range-track { height: 6px; border-radius: 99px; background: var(--track); }
+.ob-slide input[type=range]::-moz-range-progress { height: 6px; border-radius: 99px; background: var(--brand); }
+.ob-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%; background: var(--knob); border: 2px solid var(--brand); transition: transform var(--t1) ease-out; }
+.ob-slide input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--knob); border: 2px solid var(--brand); }
+.ob-slide input[type=range]:active::-webkit-slider-thumb { transform: scale(1.12); }
+.ob-slide input[type=range]:focus-visible { outline: none; }      /* the knob shows the focus, not a box round the whole track */
+.ob-slide input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--focus); outline-offset: 3px; }
+.ob-slide input[type=range]:focus-visible::-moz-range-thumb { outline: 2px solid var(--focus); outline-offset: 3px; }
+.ob-avg { display: flex; align-items: center; gap: 6px; }
+@media (max-width: 640px) { .ob-slide input[type=range] { height: 44px; } .ob-slide input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -11px; } .ob-slide input[type=range]::-moz-range-thumb { width: 24px; height: 24px; } }
+/* the first-time setup and the wait before it stand on the plain canvas (owner, 2026-10-07: "remove the pattern from the background") */
+/* confetti: pieces in the brand's colours, above everything, never in the way of a click */
+#confetti { position: fixed; inset: 0; z-index: 300; pointer-events: none; overflow: hidden; }
+#confetti i { position: absolute; top: 0; border-radius: 2px; will-change: transform, opacity; }
+#confetti i.dot { border-radius: 50%; }
+#confetti .c0 { background: var(--brand); } #confetti .c1 { background: var(--primary); } #confetti .c2 { background: var(--ink-strong); } #confetti .c3 { background: var(--graphite); } #confetti .c4 { background: var(--s1); }
+.ob-cheer { color: var(--brand); font-weight: 500; font-size: 14px; line-height: 1.4; animation: rise var(--t3) var(--ease) both; }
+.ob-foot .ob-cheer { flex: 1 1 0; min-width: 0; margin: 0; }      /* beside the Next button (owner, 2026-10-07); on a phone, over it */
+@media (max-width: 640px) { .ob-foot .ob-cheer { order: -2; flex: 1 1 100%; } }
+.ob-cheer:empty { display: none; }
+.ob-hero { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 16px; border-bottom: 1px solid var(--line); }      /* no box: the setup's card is the only one */
+.ob-hero > p { color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.ob-hero.zero > b { font-size: 17px; font-weight: 500; color: var(--ink-strong); }
+.ob-hero .rw-n { font-size: 52px; }
+.ob-facts { display: flex; flex-direction: column; }
+.ob-fact { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.ob-fact:last-child { border-bottom: 0; }
+.ob-fact .grow { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ob-fact b { font-weight: 500; font-size: 15px; color: var(--ink-strong); }
+.ob-fact small { font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+.ob-when { color: var(--brand); }
+.ob-ways { display: flex; flex-direction: column; gap: 10px; }
+.ob-way { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-mid); background: var(--bg); cursor: pointer; transition: border-color var(--t1) ease-out, transform var(--t2) var(--ease); }
+.ob-way:hover { border-color: var(--hover-line); }
+.ob-way:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ob-way:active { transform: scale(.99); }
+.ob-way .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ob-way b { font-weight: 500; font-size: 14px; color: var(--ink-strong); }
+.ob-way small { font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
+.ob-way > svg:last-child { width: 16px; height: 16px; color: var(--ink-3); flex: none; }
+#public.enter .ob-fact { animation: rise var(--t3) var(--ease) both; }
+#public.enter .ob-fact:nth-child(2) { animation-delay: 120ms; } #public.enter .ob-fact:nth-child(3) { animation-delay: 240ms; }
+#public.enter .ob-hero .rw-seg .bar > i { animation: grow-x 640ms var(--ease) both; animation-delay: calc(200ms + var(--i, 0) * 90ms); }
+/* phones: the four dreams stay two by two, each with its badge over its words, so the first screen fits without a long scroll */
+@media (max-width: 520px) { .ob-dreams { gap: 8px; } .ob-dream { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; min-height: 48px; font-size: 13.5px; line-height: 1.3; } .ob-hero .rw-n { font-size: 44px; } }
+
+/* the dashboard's question about a company: one line, the answer at its end; on a phone the two buttons go under it, each half the width */
+.co-ask .card-b { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.co-ask .grow { flex: 1 1 220px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.co-ask b { font-weight: 500; font-size: 14.5px; color: var(--ink-strong); }
+.co-ask small { font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
+.co-ask-btns { display: flex; gap: 8px; }
+@media (max-width: 640px) { .co-ask-btns { flex: 1 1 100%; } .co-ask-btns .btn { flex: 1; min-height: 44px; } }
+
+/* the insight of the day: one line, its icon, and one thing to do next. The same row as the company question, under a card title. */
+.insight .card-b { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.insight .grow { flex: 1 1 240px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.insight b { font-weight: 500; font-size: 15px; line-height: 1.35; color: var(--ink-strong); }
+.insight small { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+#view.enter .insight .card-b > * { animation: rise var(--t3) var(--ease) both; }
+@media (max-width: 640px) { .insight .card-b > .btn { flex: 1 1 100%; min-height: 44px; } }
+
+/* "What if…?": the sliders, then the answer in two blocks divided by a line (no boxes inside the panel) */
+.wi-out { display: flex; flex-direction: column; gap: 14px; }
+.wi-block { display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.wi-block h3 { font-size: 14px; font-weight: 500; color: var(--ink-strong); margin: 0; }
+/* today against the change, side by side (2026-10-10: a shorter What if) */
+.wi-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wi-row { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; font-size: 12px; color: var(--ink-3); }
+.wi-row b { font-weight: 500; font-size: 15px; color: var(--ink-2); }
+.wi-row.to b { color: var(--brand); }
+.wi-row .chip { margin-top: 3px; }
+.wi-block { gap: 8px; padding-top: 14px; }
+.drawer .body.wi { gap: 10px; }
+.wi .ob-slide { gap: 0; }
+#wi-foot:empty { display: none; }
+.wi-pick { justify-content: space-between; }
+.wi-pick label { margin: 0; }
+.wi-pick select { max-width: 60%; }
+
+/* ---------- insights and curiosities, in the brand's colour (owner, 2026-10-07: "use the brand's branding") ----------
+   What makes them stand out is how much of the accent they wear, not another hue: the card is tinted, its edge and title are the accent,
+   and its mark is filled with the side's deep colour. */
+.insight { border-color: var(--spark-line); background: linear-gradient(0deg, var(--spark-bg), var(--spark-bg)), var(--surface); }
+.insight .card-h h2 { color: var(--spark); }
+.insight .fl-ico, .curio .fl-ico { color: var(--side-ink); border-color: var(--side-line); background: var(--side); }
+.insight .card-b > .btn { border-color: var(--spark-line); }
+/* 2026-10-08 (owner): the insight of the day on #282828, the grey of the month's button and of the quick things to do; its title and mark keep the
+   brand's green. The light theme keeps a light grey, as those do. */
+.insight { background: #282828; border-color: #282828; }
+:root.app-light .insight { background: var(--surface-3); border-color: var(--surface-3); }
+/* a curiosity: a notice in a corner of the screen, like a notification. It covers nothing that is needed and can always be closed. */
+#curio-root { position: fixed; right: 22px; bottom: 22px; z-index: 80; width: min(380px, calc(100vw - 32px)); pointer-events: none; }
+.curio { pointer-events: auto; display: flex; align-items: flex-start; gap: 12px; padding: 16px 14px 16px 16px; border-radius: var(--r-card); border: 1px solid var(--spark-line); background: linear-gradient(0deg, var(--spark-bg), var(--spark-bg)), var(--lift); box-shadow: 0 18px 44px -18px rgba(0, 0, 0, .7), 0 0 0 4px var(--spark-bg); animation: curio-in 420ms var(--ease) both; }
+.curio .grow { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.curio b { color: var(--spark); font-weight: 600; font-size: 13.5px; letter-spacing: .01em; }
+.curio p { color: var(--ink-strong); font-size: 14.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.curio small { color: var(--ink-3); font-size: 12.5px; }
+.curio .row { margin-top: 6px; gap: 6px; }
+.curio .x { flex: none; margin: -6px -4px 0 0; padding: 6px; min-height: 30px; }
+.curio .x svg { width: 15px; height: 15px; }
+/* 2026-10-10 (owner): no green on a notice any more: the iPhone's dark notification, a medium-light black (--nt-bg, base/tokens.css), a fine light
+   edge, 22 px corners, the page blurred behind; its mark a grey rounded square like an app's icon, its title white, its source quieter. The
+   buttons inside keep their own look (the main one still the brand's green: it is an action, not the notice). */
+.curio { border-radius: 22px; border: 1px solid var(--nt-line); background: var(--nt-bg); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); box-shadow: 0 18px 44px -16px rgba(0, 0, 0, .6); color: var(--nt-ink); }
+.curio .fl-ico, .insight .curio .fl-ico { background: var(--nt-ico); border-color: transparent; color: #FFFFFF; border-radius: 9px; }
+.curio b, .curio .cu-open b { color: var(--nt-ink); }
+.curio p { color: var(--nt-ink); }
+.curio small, .curio .in-see { color: var(--nt-ink-2); }
+.curio .btn:not(.primary) { background: rgba(255, 255, 255, .1); border-color: transparent; color: var(--nt-ink); }
+.curio .btn.ghost { background: transparent; color: var(--nt-ink-2); }
+.curio .x { color: var(--nt-ink-2); }
+@keyframes curio-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+/* on a phone it sits just above the bar at the foot, where a thumb reaches it and the panel at the top stays clear (css/screens/phone.css draws its small form) */
+@media (max-width: 920px) { #curio-root { right: 10px; left: 10px; width: auto; top: auto; bottom: calc(88px + var(--tab-b)); display: flex; justify-content: center; } .curio { padding: 14px 12px 14px 14px; } .curio p { font-size: 14px; } .curio .btn { min-height: 40px; } .curio .x { min-height: 40px; min-width: 40px; } }
+@media (prefers-reduced-motion: reduce) { .curio { animation: none; } }
+
+/* 2026-10-08: the goals of the days of freedom are celebrated (owner: "add a celebration emoji in our style"): a 🎉 beside the figure from the first
+   goal on, popping in once when the page opens; the goal passed leads the sentence */
+.rw-e { font-size: 24px; line-height: 1; align-self: center; display: inline-block; transform-origin: 30% 80%; }
+.rw-ph .rw-e { font-size: 22px; }
+#view.enter .rw-e { animation: rw-pop 760ms var(--ease) 420ms both; }
+@keyframes rw-pop { 0% { transform: scale(0) rotate(-35deg); opacity: 0; } 55% { transform: scale(1.3) rotate(12deg); opacity: 1; } 78% { transform: scale(.92) rotate(-4deg); } 100% { transform: none; } }
+.rw-cheer { font-weight: 600; color: var(--ink-strong); }
+@media (prefers-reduced-motion: reduce) { #view.enter .rw-e { animation: none; } }
+/* the computer's card, lighter (owner, 2026-10-08: "too much information"): one column, the month's change a small sign at the end of the figure's line */
+.rw.one { gap: 12px; }
+.rw.one .rw-fig { align-items: center; gap: 8px 10px; flex-wrap: nowrap; }
+.rw.one .rw-fig .pill { margin-left: auto; cursor: default; white-space: nowrap; }
+.rw.one .rw-say { font-size: 14px; }
+.rw.one .rw-track { margin-top: 4px; }
+
+/* the insight of the day on a computer (owner, 2026-10-08: "improve its UI"): the fact is the headline, what to do with it at the foot, the fact's icon
+   large and faint in the corner; "Another" with its arrows, the dots saying which of the day's facts this is */
+.ins-pc { position: relative; overflow: hidden; display: flex; flex-direction: column; background: #131313; border-color: transparent; }      /* no border, #131313 (owner, 2026-10-08) */
+:root.app-light .ins-pc { background: var(--surface-3); border-color: transparent; }
+.ins-pc > :not(.ins-mark) { position: relative; z-index: 1; }
+.ins-pc .card-h { gap: 10px; }
+.ins-pc .card-h .fl-ico { width: 32px; height: 32px; flex: none; }
+.ins-pc .card-h .fl-ico svg { width: 16px; height: 16px; }
+.ins-pc .card-h h2 { font-size: 15px; font-weight: 600; }
+.ins-pc #insight-next { gap: 6px; } .ins-pc #insight-next svg { width: 14px; height: 14px; }
+.ins-pc .card-b, .grid > .ins-pc .card-b { flex: 1 1 auto; display: flex; flex-direction: column; align-items: stretch; align-content: normal; gap: 0; flex-wrap: nowrap; }
+.ins-pc .grow { flex: none; display: flex; flex-direction: column; gap: 8px; max-width: 48ch; }
+.ins-pc .grow b { font-size: 21px; font-weight: 600; line-height: 1.3; letter-spacing: -.01em; color: var(--ink-strong); text-wrap: balance; }
+.ins-pc .grow small { font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.ins-foot { margin-top: auto; padding-top: 18px; display: flex; align-items: center; gap: 12px; }
+.ins-dots { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+.ins-dots i { display: block; width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); transition: width var(--t1) ease-out, background var(--t1) ease-out; }
+.ins-dots i.on { width: 16px; background: var(--spark); transform-origin: left center; }
+.ins-pos { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+.ins-mark { position: absolute; z-index: 0; right: -26px; top: 44px; width: 150px; height: 150px; color: var(--spark); opacity: .07; pointer-events: none; }      /* beside the fact, clear of the foot */
+.ins-mark svg { width: 100%; height: 100%; stroke-width: 1.2; }
+:root.app-light .ins-mark { opacity: .1; }

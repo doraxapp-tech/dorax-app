@@ -34,7 +34,9 @@ const refPlanned = (l, m) => ((l.plan[m.slice(0, 4)] || [])[+m.slice(5) - 1]) ||
 function refProgress(S, m, cur, today) {
   const c = refCats(S, m, cur);
   return S.plan.lines.map(l => {
-    const planned = refPlanned(l, m), spent = l.subcategoryId ? (c.bySub[l.subcategoryId] || 0) : (c.byCat[l.categoryId] || 0), bill = l.pay !== 'budget';
+    // a whole category's line takes what its subcategories with running lines of their own did not (2026-10-10: a limit on "everything else in Home")
+    const own = l.subcategoryId ? 0 : [...new Set(S.plan.lines.filter(k => k !== l && !(k.end && k.end < m) && k.categoryId === l.categoryId && k.subcategoryId).map(k => k.subcategoryId))].reduce((s, id) => s + (c.bySub[id] || 0), 0);
+    const planned = refPlanned(l, m), spent = l.subcategoryId ? (c.bySub[l.subcategoryId] || 0) : (c.byCat[l.categoryId] || 0) - own, bill = l.pay !== 'budget';
     const due = l.due ? m + '-' + String(Math.min(l.due, dim(m))).padStart(2, '0') : null;
     let status;
     if (spent === 0) { if (!planned) status = 'none'; else { const late = bill && today && (m < ym(today) || (m === ym(today) && due && due < today)); status = late ? 'late' : 'unpaid'; } }

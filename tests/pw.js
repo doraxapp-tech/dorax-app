@@ -19,8 +19,12 @@ async function open(opts = {}) {
   const errors = [];
   page.on('console', m => { if (m.type() === 'error' && !/fonts\.googleapis|ERR_FAILED|net::/.test(m.text())) errors.push(m.text()); });
   page.on('pageerror', e => errors.push('PAGEERROR ' + e.message));
-  await page.addInitScript(o => { window.DORAX_LANG = o.lang || 'en'; if (o.plan) window.DORAX_EXAMPLE_PLAN = true; window.DORAX_TODAY = o.today; window.DORAX_PREVIEW_OPTIONS = o.server; },
-    { lang: opts.lang, plan: opts.plan, today: opts.today || TODAY, server: { confirmEmail: true, oauthReload: true, ...(opts.server || {}) } });
+  await page.addInitScript(o => { window.DORAX_LANG = o.lang || 'en'; if (o.plan) window.DORAX_EXAMPLE_PLAN = true; window.DORAX_TODAY = o.today; window.DORAX_PREVIEW_OPTIONS = o.server; window.DORAX_QUIET = !o.curio; window.DORAX_LOCK_ASK = !!o.lockAsk; window.DORAX_BETA = !!o.beta; window.DORAX_TOURS = !!o.tours; },      // a new person's first visit to each screen: only for the suite about it (opts.tours)      // so do the two notices about the app lock (opts.lockAsk): the other suites are not about them
+         // curiosities pop up by themselves a moment after a screen opens: a test that is about them asks for them (opts.curio)
+    { lang: opts.lang, plan: opts.plan, curio: !!opts.curio, lockAsk: !!opts.lockAsk, beta: !!opts.beta, tours: !!opts.tours, today: opts.today || TODAY, server: { confirmEmail: true, oauthReload: true, ...(opts.server || {}) } });
+  // On a phone the page itself does not scroll: the app's own column does (css/screens/phone.css), and it clips what is wider than it. The suites ask
+  // "is anything wider than the screen?" of the page's root (documentElement.scrollWidth), so here the root answers for that column too.
+  await page.addInitScript(() => { const d = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollWidth'); Object.defineProperty(Element.prototype, 'scrollWidth', { configurable: true, get() { const own = d.get.call(this); if (this !== document.documentElement) return own; const w = document.querySelector('.work'); return w && getComputedStyle(w).overflowX !== 'visible' ? Math.max(own, Math.ceil(w.getBoundingClientRect().left) + d.get.call(w)) : own; } }); });
   if (TARGET === 'app' && !opts.noServer) await page.addInitScript({ path: BACKEND });       // the one-file preview carries its own copy
   await page.goto(opts.url || FILE);
   if (opts.account === 'example') await seed(page, opts.lang || 'en');

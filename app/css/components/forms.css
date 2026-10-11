@@ -14,6 +14,12 @@ textarea { resize: vertical; min-height: 64px; }
 .toolbar select { width: auto; flex: 0 1 auto; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .form-grid .full { grid-column: 1 / -1; }
+/* a form's notes and its "More options" fold always take the whole row, whatever the fields before them (2026-10-09: on a computer the account form's
+   fold fell into the right column once a card's credit fields were added above it) */
+.form-grid > .note, .form-grid > .form-more, .form-grid > .tx-more-box, .form-grid > .form-all { grid-column: 1 / -1; }
+/* a computer: a form's less used fields in sight, under a faint line (owner, 2026-10-09: "there is room to show everything") */
+.form-all { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+@media (min-width: 921px) { #tx-more-box { border-top: 1px solid var(--line); padding-top: 14px; } }
 .form-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
 .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -30,3 +36,10 @@ textarea { resize: vertical; min-height: 64px; }
 .setting:first-child { padding-top: 0; }
 .setting p { color: var(--ink-3); font-size: 12.5px; max-width: 60ch; margin-top: 2px; }
 
+/* what the app needs (owner, 2026-10-09): a red * beside the label; the field a form could not save without is outlined until it is fixed */
+.field label .req, .tx-amount label .req { color: var(--neg); margin-left: 3px; font-weight: 600; }
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--neg); box-shadow: 0 0 0 1px var(--neg); }
+.tx-amount:has(input[aria-invalid="true"]) { border-bottom-color: var(--neg); }
+/* the reason a form was refused, under the field it is about (app/overlay.js fail): across the whole row of a two-column form */
+.banner.at-field { margin-top: -4px; }
+.form-grid > .banner.at-field { grid-column: 1 / -1; }

@@ -1,0 +1,79 @@
+/* ---------- the transaction panel ----------
+   The sentence, then the form it fills: the kind as three buttons, the amount as the largest thing in the panel, the groups used most at a
+   touch, and the rest under "More options". Tokens only; one look on a computer and on a phone, where the targets are a thumb high. */
+.tx-body { gap: 14px; }
+.tx-say { display: flex; flex-direction: column; gap: 6px; }
+.tx-say label { font-size: 12px; color: var(--ink-2); font-weight: 500; }
+.tx-say input[type=text] { min-height: 46px; padding: 10px 13px; font-size: 16px; border-color: var(--line-strong); border-radius: var(--r-mid); background: var(--well); }
+.tx-say .note { margin: 0; min-height: 2.9em; line-height: 1.45; }
+.tx-say .note b { font-weight: 600; color: var(--ink-strong); }
+.tx-miss { color: var(--warn); }
+.tx-or { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--ink-3); }
+.tx-or::before, .tx-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.tx-form { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.drawer .seg.tx-kind { display: flex; align-self: stretch; }
+.tx-kind button { flex: 1; text-align: center; padding: 8px 10px; font-size: 13.5px; }
+.tx-amount { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; column-gap: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line-strong); transition: border-color var(--t1) ease-out; }
+.tx-amount:focus-within { border-bottom-color: var(--focus); }
+.tx-amount label { grid-column: 1 / -1; font-size: 12px; color: var(--ink-2); font-weight: 500; }
+.tx-sym { font-size: 18px; color: var(--ink-2); }
+.tx-amount input[type=text] { min-height: 52px; padding: 0; border: 0; border-radius: 0; background: none; font-family: var(--font); font-size: 36px; font-weight: 600; letter-spacing: 0; color: var(--ink-strong); }
+.tx-amount input[type=text]:focus { box-shadow: none; }      /* the line under the amount shows the focus */
+.tx-picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.tx-pick { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 13px; border: 1px solid var(--line-strong); border-radius: var(--pill); font-size: 13.5px; color: var(--ink); transition: border-color var(--t1) ease-out, background var(--t1) ease-out; }
+.tx-pick:hover { border-color: var(--hover-line); }
+.tx-pick[aria-pressed="true"] { border-color: var(--brand); background: var(--select); color: var(--ink-strong); }
+.tx-pick:focus-visible, .tx-more:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.tx-pick .dot { border-radius: 50%; }
+.tx-pick.more { color: var(--ink-2); border-style: dashed; } .tx-pick.more svg { width: 14px; height: 14px; }
+.tx-more { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; border-top: 1px solid var(--line); font-size: 13.5px; font-weight: 500; color: var(--ink-2); }
+.tx-more:hover { color: var(--ink-strong); }
+.tx-more .note { font-weight: 400; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tx-more svg { margin-left: auto; width: 16px; height: 16px; flex: none; transition: transform var(--t2) var(--ease); }
+.tx-more[aria-expanded="true"] svg { transform: rotate(180deg); }
+.tx-more-box { display: flex; flex-direction: column; gap: 16px; } .tx-more-box[hidden] { display: none; }
+@media (max-width: 920px) {
+  .tx-kind button { min-height: 44px; padding: 0 8px; font-size: 14px; }
+  .tx-pick { min-height: 44px; font-size: 14.5px; padding: 0 15px; }
+  .tx-say input[type=text] { min-height: 50px; }
+}
+@media (prefers-reduced-motion: reduce) { .tx-more svg, .tx-pick, .tx-amount { transition: none; } }
+
+/* the month's limit for the expense's group (owner, 2026-10-08): what is left of it with this expense, or the way to give it one */
+.tx-limit:empty { display: none; }
+.tx-lim { display: flex; flex-direction: column; gap: 6px; margin-top: -4px; }
+.tx-lim p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+.tx-lim p b { color: var(--ink-strong); font-weight: 600; }
+.tx-lim.warn p b { color: var(--warn); }
+.tx-lim.crit p, .tx-lim.crit p b { color: var(--neg); }
+.tx-lim-add { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; color: var(--link); }
+.tx-lim-add svg { width: 15px; height: 15px; }
+.tx-lim-form label { display: block; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+.tx-lim-form .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tx-lim-form input { flex: 1 1 120px; min-width: 0; }
+.tx-lim-form .btn { min-height: 44px; }
+.tx-lim-form .err { color: var(--neg); margin: 6px 0 0; }
+/* "More options" stays one line beside what it holds; the account form uses the same fold (usability QC, 2026-10-08) */
+.tx-more > span:first-child { flex: none; white-space: nowrap; }
+/* an expense on a card: Credit or Debit, the whole width (owner, 2026-10-08) */
+.tx-pay .seg { display: flex; width: 100%; margin-top: 6px; }
+.tx-pay .seg button { flex: 1 1 0; text-align: center; min-height: 44px; display: grid; place-items: center; font-size: 14px; }
+.tx-pay .note { margin: 6px 0 0; }
+/* 2026-10-09 (owner: "the Add transaction form is super long"; "put 'leaves from' and 'goes into' side by side, and the date under them"):
+   the account and the day share a row, on a phone too; a transfer's two accounts share one with an arrow between them; the notes are one line
+   with an (i), not a box; the sentence's help is behind its own (i) and its line appears only once something is typed */
+.tx-say-h { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }      /* the (i)’s touch area stays off the field under it */
+.tx-say .note:empty { display: none; }
+.form-grid.tx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tx-route { display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); align-items: start; column-gap: 8px; }
+.tx-route .field { min-width: 0; }
+.tx-arrow { display: grid; place-items: center; height: 40px; margin-top: 23px; color: var(--ink-3); }      /* beside the two selects, under their labels */
+.tx-arrow svg { width: 16px; height: 16px; }
+.tx-note { display: flex; align-items: flex-start; gap: 8px; margin: 0; }
+.tx-note svg { flex: none; width: 15px; height: 15px; margin-top: 2px; color: var(--ink-3); }
+.tx-more { margin-top: -4px; }
+@media (max-width: 920px) { .tx-arrow { height: 46px; } }
+/* which of a card's money a transfer leaves from: debit, credit, or a savings card's saved money and its balance to spend (owner, 2026-10-09) */
+.drawer .seg.tx-pocket { display: flex; width: 100%; margin-top: 6px; }
+.tx-pocket button { flex: 1 1 0; min-width: 0; min-height: 34px; padding: 0 6px; font-size: 12.5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 920px) { .tx-pocket button { min-height: 44px; font-size: 13.5px; } }

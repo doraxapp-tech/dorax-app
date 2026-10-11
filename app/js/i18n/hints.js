@@ -12,14 +12,13 @@ const HINTS = {
   planPayments: () => t('This month’s fixed costs, one line each. Record a payment when you pay a bill; a bill paid by an imported transaction is ticked by itself. A budget, such as groceries, is spent little by little and shows how much of it is used.'),
   planYear: () => t('Every fixed cost, month by month, for the whole year. Plan is what you expect to pay, Actual is what was paid, Difference compares the two. Type in a cell to change one month; open a line by its name to change it from a month onwards or to end it.'),
   // savings and goals
-  goalSaved: () => t('Everything you have put aside in your goals and funds: contributions minus withdrawals.'),
+  goalSaved: () => t('What you have set aside for your goals and funds: contributions minus withdrawals. The money itself is in your savings accounts, in Accounts & savings.'),
   goalPlan: () => t('What the monthly plan sets aside for goals and funds this month.'),
   goalDone: () => t('Contributions minus withdrawals recorded this month. A starting balance is not counted.'),
   goalRest: () => t('The income for savings of this month that the plan gives to no goal or fund. Red means the plan hands out more than comes in.'),
   goalDist: () => t('When the money for savings arrives, hand it out here. Each line shows what the plan gives that goal this month; record the amounts and they are added to each goal.'),
   goalCards: () => t('A goal has a target and a date. A fund is money kept for a purpose, with no end. Open one to see its movements, add or withdraw money, or change it.'),
   goalGrid: () => t('How much of each month’s savings goes to each goal or fund, for the whole year. Type in a cell to change one month.'),
-  goalWhere: () => t('Which account holds the money of each goal or fund, so you know where to find it.'),
   // investments
   fiiInvested: () => t('What you paid for the quotas you hold now, at your average price.'),
   fiiValue: () => t('The same quotas at the prices you typed. Dorax does not fetch market prices.'),
@@ -39,10 +38,8 @@ const HINTS = {
   repObs: () => t('What changed this month compared with the one before, worked out from your transactions. These are facts, not advice.'),
   repCompare: () => t('Each category in this month next to the month before, with the difference.'),
   // accounts
-  accNet: () => t('The balances of your household accounts added together. What a credit card owes is subtracted.'),
-  accCompany: () => t('The balances of the company accounts in this currency. They never enter the household figures.'),
-  accCount: () => t('How many accounts are kept here.'),
   accHouse: () => t('Your own accounts and cards. A balance is the opening balance plus every transaction recorded since.'),
+  accSavings: () => t('What your savings accounts hold today: real money. Under each one, how much of it is in your goals, and what is left free.'),
   accBiz: () => t('The accounts of your company. They are kept apart: their movements count in no household figure.'),
   // imports
   impSheet: () => t('Bring the spreadsheet where you keep your budget. Dorax reads its tabs and proposes fixed costs, income, goals and investment records; nothing enters your data until you approve it.'),
@@ -70,14 +67,16 @@ const HINTS = {
   catCo: () => t('The company’s categories group its fixed costs on Plan, and a company movement can be filed under one on Transactions. They are the same for every currency the company plans in. Add, rename or delete them as you like. The number is how many transactions use each one.'),
   catRules: () => t('A rule files transactions for you. When the bank’s text of a transaction contains the keyword, the transaction gets the merchant name and the category of the rule. Rules are applied when a statement is imported; if two rules match, the one with the higher priority wins.'),
   catAdd: () => t('Example: keyword UBER, merchant Uber, category Transport. From then on, every imported line whose text contains UBER is named Uber and filed under Transport by itself.'),
-  firstSteps: () => t('The four things that make the app useful, in order. Each is ticked when it is done.'),
+  firstSteps: () => t('The things that make the app useful, in order. Each is ticked when it is done.'),
   // settings
   setLang: () => t('The language of the app, light or dark, and how numbers and dates are written.'),
   setProfiles: () => t('What an OFX file says about each account. You only need this if your accounting platform refuses a file.'),
-  setImport: () => t('Choices used when statements are imported or converted.'),
+  setImport: () => t('Choices used when statements are imported.'),
+  setConv: () => t('The platform or accountant the company’s statements go to, the day they are due, and the OFX profile a new account starts from.'),
   setData: () => t('Where your data is kept, how to take a copy of it and how to erase it.'),
   // profile
   proYou: () => t('Your name, as the app greets you.'),
+  proGuard: () => t('Two protections kept on this device only: a PIN that closes the screen when you leave, and a number of days without use after which you log in again. Each device has its own.'),
   proLogin: () => t('The email you log in with, and how you log in: a password, Google, or both. Changing the email sends a link to the new address.'),
   proRemind: () => t('Which reminders you get, and how many days before a due day they start.'),
   proDelete: () => t('Erases this account and everything in it. It cannot be undone.'),

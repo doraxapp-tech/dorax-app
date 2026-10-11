@@ -2,10 +2,15 @@
 const fs = require('fs'), path = require('path'), vm = require('vm');
 const src = path.join(__dirname, '..', 'app', 'js');
 const ctx = {}; vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(path.join(src, 'i18n', 'translations.js'), 'utf8') + '\nthis.TR = TR;', ctx);
+// the table and its rows (i18n/text/*.js, one file per part of the app since 2026-10-10), in the order index.html loads them
+const parts = [...fs.readFileSync(path.join(src, '..', 'index.html'), 'utf8').matchAll(/<script src="js\/(i18n\/(?:translations|text\/[\w-]+)\.js)"><\/script>/g)].map(m => m[1]);
+vm.runInContext(parts.map(f => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') + '\nthis.TR = TR;', ctx);
 const TR = ctx.TR, keys = new Map(TR.map(r => [r[0], r]));
 const walk = d => fs.readdirSync(path.join(src, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
-const files = walk('').filter(f => f.endsWith('.js') && !f.endsWith('translations.js'));
+const files = walk('').filter(f => f.endsWith('.js') && !f.endsWith('translations.js') && !f.startsWith(path.join('i18n', 'text')));
+// every file of texts is loaded by the page: one left out of index.html would be texts the app never has
+const onDisk = fs.readdirSync(path.join(src, 'i18n', 'text')).filter(f => f.endsWith('.js')).map(f => 'i18n/text/' + f), missingParts = onDisk.filter(f => !parts.includes(f));
+if (missingParts.length) { console.log('NOT LOADED by index.html', missingParts.join(', ')); process.exitCode = 1; }
 const used = new Map();
 const strRe = /\b(t|tn)\(\s*((?:[^()'"`]|\([^()]*\))*?)?('((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")/g;
 for (const f of files) {

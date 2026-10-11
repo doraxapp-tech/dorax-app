@@ -1,0 +1,18 @@
+/* Dorax Finance — a purchase on the card in installments (features/installments/installments.view.js). */
+.inst-tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--line-strong); font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .02em; color: var(--ink-2); vertical-align: 1px; white-space: nowrap; }
+.tx-inst-say { grid-column: 1 / -1; margin: -4px 0 0; }
+.tx-inst-say:empty { display: none; }
+.tx-inst-say b { color: var(--ink-strong); font-weight: 600; }
+.tx-note svg { flex: none; width: 16px; height: 16px; }
+/* the card's details: what is still to come */
+.inst-ahead { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 2px; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface); }
+.inst-ahead-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.inst-ahead-h h3 { margin: 0; font-size: 15px; font-weight: 500; color: var(--ink-strong); }
+.inst-ahead-h b { font-family: var(--fig); font-size: 18px; font-weight: 600; color: var(--ink-strong); }
+.inst-ahead > .note { margin: 0; }
+.inst-months { list-style: none; margin: 2px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
+.inst-months li { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: var(--r-mid); background: var(--surface-2); }
+.inst-months li span { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.inst-months li span small { font-size: 12px; text-transform: none; }
+.inst-months li b { font-size: 14px; font-weight: 500; color: var(--ink-strong); }
+.inst-months li.more b { color: var(--ink-3); font-weight: 400; }

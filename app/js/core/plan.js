@@ -55,27 +55,38 @@ function planTotals(state, ym) {
   for (const l of state.plan.lines) expenses += planValue(state, l, ym);
   return { income: payTotal(state, ym, 'fixed'), expenses };
 }
+/** The lines still running in a month (no end, or an end in that month or later). */
+const linesLive = (state, ym) => state.plan.lines.filter(l => !(l.end && ym && l.end < ym));
+/** The subcategories of a whole category's line that have a running line of their own: what that line leaves to them (2026-10-10, owner: "why can't
+    Home take a limit?"). A limit on a whole category is a limit on the rest of it: Home's rent and internet are bills of their own, so a limit on
+    Home counts what was spent in Home outside them, and the plan never counts the same money twice. */
+function ownSubs(lines, line) { return new Set(lines.filter(l => l !== line && l.categoryId === line.categoryId && l.subcategoryId).map(l => l.subcategoryId)); }
 /** Household transactions (or the part of a split) that belong to a line, newest first. ym is optional. */
 function linePayments(state, line, ym, currency) {
-  const out = [];
+  const out = [], own = line.subcategoryId ? null : ownSubs(linesLive(state, ym || (state.today && ymOf(state.today))), line);
   for (const t of state.transactions) {
     if (t.type !== 'expense' || !inScope(state, t, ym, currency)) continue;
     let amount = 0;
-    for (const a of allocations(t)) if (line.subcategoryId ? a.subcategoryId === line.subcategoryId : (a.categoryId || 'other') === line.categoryId) amount -= a.amount;
+    for (const a of allocations(t)) if (line.subcategoryId ? a.subcategoryId === line.subcategoryId : (a.categoryId || 'other') === line.categoryId && !(a.subcategoryId && own.has(a.subcategoryId))) amount -= a.amount;
     if (amount) out.push({ t, amount });
   }
   return out.sort((a, b) => a.t.date < b.t.date ? 1 : a.t.date > b.t.date ? -1 : 0);
 }
-function lineActual(line, totals) {
-  return line.subcategoryId ? (totals.bySub[line.subcategoryId] || 0) : (totals.byCat[line.categoryId] || 0);
+/** What a line took in a month. lines: the month's running lines; with them, a whole category's line takes only what its subcategories with lines of
+    their own did not (ownSubs). */
+function lineActual(line, totals, lines) {
+  if (line.subcategoryId) return totals.bySub[line.subcategoryId] || 0;
+  const all = totals.byCat[line.categoryId] || 0; if (!lines) return all;
+  let own = 0; for (const s of ownSubs(lines, line)) own += totals.bySub[s] || 0;
+  return all - own;
 }
 /** Planned vs actual for every line in a month.
     status: none | unpaid | late | paid | under | onplan | over. A bill (fixed or variable) is "paid" once it has a payment; a budget fills up.
     late = a bill without a payment whose due day has passed, or whose month has ended. Pass `today` to get it. */
 function planProgress(state, ym, currency, today) {
-  const totals = categoryTotals(state, ym, currency), nowYm = today ? ymOf(today) : null;
+  const totals = categoryTotals(state, ym, currency), nowYm = today ? ymOf(today) : null, live = linesLive(state, ym);
   return state.plan.lines.map(l => {
-    const planned = planValue(state, l, ym), spent = lineActual(l, totals), bill = l.pay !== 'budget';
+    const planned = planValue(state, l, ym), spent = lineActual(l, totals, live), bill = l.pay !== 'budget';
     const pct = planned > 0 ? Math.round(spent * 1000 / planned) / 10 : 0, dueDate = l.due ? isoDate(ym, l.due) : null;
     const late = bill && planned > 0 && spent === 0 && !!today && (ym < nowYm || (ym === nowYm && !!dueDate && dueDate < today));
     const status = spent === 0 ? (planned ? (late ? 'late' : 'unpaid') : 'none') : spent > planned ? 'over' : bill ? 'paid' : spent === planned ? 'onplan' : 'under';
