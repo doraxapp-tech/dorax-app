@@ -163,7 +163,7 @@
    edge, 22 px corners, the page blurred behind; its mark a grey rounded square like an app's icon, its title white, its source quieter. The
    buttons inside keep their own look (the main one still the brand's green: it is an action, not the notice). */
 .curio { border-radius: 22px; border: 1px solid var(--nt-line); background: var(--nt-bg); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); box-shadow: 0 18px 44px -16px rgba(0, 0, 0, .6); color: var(--nt-ink); }
-.curio .fl-ico, .insight .curio .fl-ico { background: var(--nt-ico); border-color: transparent; color: #FFFFFF; border-radius: 9px; }
+.curio .fl-ico, .insight .curio .fl-ico { background: var(--nt-ico); border-color: transparent; color: var(--on-dark); border-radius: 9px; }
 .curio b, .curio .cu-open b { color: var(--nt-ink); }
 .curio p { color: var(--nt-ink); }
 .curio small, .curio .in-see { color: var(--nt-ink-2); }

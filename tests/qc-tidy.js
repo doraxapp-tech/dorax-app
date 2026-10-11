@@ -76,7 +76,7 @@ const fs = require('fs'), path = require('path');
   // ---------- 3. the main button ----------
   await page.evaluate(() => { S.month = '2026-10'; navigate('plan'); });
   eq(await page.evaluate(() => { const c = s => { const e = document.querySelector(s); return e ? getComputedStyle(e).backgroundColor : null; }, soon = [...document.querySelectorAll('#paylist .btn.primary.now')], later = [...document.querySelectorAll('#paylist .btn.later')];
-    return [c('.topbar .btn.primary'), getComputedStyle(document.querySelector('.topbar .btn.primary')).color, soon.length, soon.every(b => getComputedStyle(b).backgroundColor === 'rgb(93, 187, 139)'), later.length > 0, document.querySelectorAll('#paylist .btn.primary:not(.now)').length]; }), [DEEP, 'rgb(250, 250, 250)', 1, true, true, 0],
+    return [c('.topbar .btn.primary'), getComputedStyle(document.querySelector('.topbar .btn.primary')).color, soon.length, soon.every(b => getComputedStyle(b).backgroundColor === 'rgb(93, 187, 139)'), later.length > 0, document.querySelectorAll('#paylist .btn.primary:not(.now)').length]; }), [DEEP, 'rgb(212, 212, 212)', 1, true, true, 0],
     'the Plan: the screen’s main button is the deep green with light words; the one bill due within a week is the bright green, and no other row is filled');
   await page.evaluate(() => A['new-tx']());
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.drawer footer .btn.primary')).backgroundColor, document.querySelectorAll('.drawer .btn.primary.now').length]), [DEEP, 0], 'a panel’s Save is the deep green');
@@ -93,7 +93,7 @@ const fs = require('fs'), path = require('path');
   // ---------- 4. More on a phone, and the buttons there ----------
   for (const [lang, w] of [['es', 390], ['pt', 320]]) {
     ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: w === 320 ? 568 : 844 }, touch: true, mobile: true }));
-    eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#tabbar .fab')).backgroundColor, getComputedStyle(document.querySelector('#tabbar .fab')).color]), ['rgb(0, 98, 57)', 'rgb(255, 255, 255)'], `${lang}, ${w}px: the round + is the phone’s main action, #006239 with a white + (owner, 2026-10-10)`);
+    eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#tabbar .fab')).backgroundColor, getComputedStyle(document.querySelector('#tabbar .fab')).color]), ['rgb(0, 98, 57)', 'rgb(212, 212, 212)'], `${lang}, ${w}px: the round + is the phone’s main action, #006239 with a white + (owner, 2026-10-10)`);
     await page.evaluate(() => A.sheet());
     eq(await page.evaluate(() => { const gs = [...document.querySelectorAll('.sheet .mr-nav .nav-group')].map(g => [...g.querySelectorAll('a')].map(a => a.getAttribute('href').slice(1))), second = document.querySelectorAll('.sheet .mr-nav .nav-group')[1], off = document.querySelector('#sheet-co-off');
       return [gs, getComputedStyle(second).borderTopWidth, parseFloat(getComputedStyle(second).paddingTop) >= 6, document.querySelectorAll('.sheet [data-a="co-close"]').length, document.querySelector('.sheet').scrollWidth <= document.querySelector('.sheet').clientWidth]; }),

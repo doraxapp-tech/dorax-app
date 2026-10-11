@@ -82,7 +82,7 @@ const CSV = ['Data,Valor,Identificador,Descrição', '06/10/2026,620.00,a1,Resga
   ok(await p.evaluate(() => document.querySelector('.rv-why').innerText.startsWith('2 ready')), 'the ready rows are counted');
   // the bar (owner, 2026-10-09: "many options in sight; the All / To look at toggle can hardly be seen, make the active one white")
   eq(await p.evaluate(() => { const on = document.querySelector('.rv-only [aria-pressed="true"]'), cs = getComputedStyle(on); return [on.dataset.v, cs.backgroundColor, document.querySelectorAll('.rv-bar > .btn, .rv-bar > select').length, !document.querySelector('.rv-selbar'), !document.querySelector('#rv-more')]; }),
-    ['todo', 'rgb(250, 250, 250)', 0, true, true], 'the bar: the toggle’s active side is white; no row actions in sight while nothing is chosen; the rest closed under “More”');
+    ['todo', 'rgb(212, 212, 212)', 0, true, true], 'the bar: the toggle’s active side is white; no row actions in sight while nothing is chosen; the rest closed under “More”');
   await p.click('#rv-more-btn'); await p.waitForTimeout(100);
   eq(await p.evaluate(() => [...document.querySelectorAll('#rv-more button')].map(b => b.dataset.a)), ['rv-recat'], '“More” holds re-running the categorization (and accepting the verified, when some wait)');
   await p.mouse.click(5, 5); await p.waitForTimeout(100);

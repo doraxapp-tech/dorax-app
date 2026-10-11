@@ -23,7 +23,7 @@ const pushRefresh_wait = page => page.evaluate(() => pushRefresh());      // thi
   // ---------- 1. the button ----------
   eq(await page.evaluate(() => { const b = document.querySelector('.pagehead .jr-btn'), m = document.querySelector('.pagehead .month'), r = b.getBoundingClientRect(), q = m.getBoundingClientRect(), cs = getComputedStyle(b);
       return [b.dataset.a, b.innerText.trim(), r.left >= q.right && r.left - q.right <= 16, Math.abs((r.top + r.bottom) / 2 - (q.top + q.bottom) / 2) <= 2, cs.backgroundColor, cs.color, cs.borderTopWidth, !!b.querySelector('svg'), b.getAttribute('aria-haspopup')]; }),
-    ['journey-open', 'Journey', true, true, 'rgb(0, 0, 0)', 'rgb(255, 255, 255)', '1px', true, 'dialog'], 'the summary: “Journey” right after the month, on its row; black, a subtle border, white words, an icon; it opens a panel');
+    ['journey-open', 'Journey', true, true, 'rgb(0, 0, 0)', 'rgb(212, 212, 212)', '1px', true, 'dialog'], 'the summary: “Journey” right after the month, on its row; black, a subtle border, white words, an icon; it opens a panel');
   ok(await page.evaluate(() => ['plan', 'goals', 'reports'].every(r => { navigate(r); return !document.querySelector('.jr-btn'); })), 'only on the summary');
   await page.evaluate(() => navigate('dashboard'));
   // ---------- 2. the streak and the week ----------

@@ -16,6 +16,7 @@
   --bg: #000000; --surface: #070707; --surface-2: #171717; --surface-3: #242424; --well: #1C1C1C; --lift: #171717; --badge: #242424; --pit: #0D0D0D;
   --line: #1A1A1A; --line-strong: #393939; --graphite: #4D4D4D; --field: #666666;
   --ink: #EDEDED; --ink-strong: #FAFAFA; --ink-2: #B4B4B4; --ink-3: #909090;
+  --on-dark: #FFFFFF;      /* words on a dark or deep green surface of their own (the phone's bar, the + button, a notice's mark) */
   /* roles */
   --primary: #006239; --primary-hover: #00754A; --primary-ink: #FAFAFA; --primary-line: rgba(93, 187, 139, .45);
   /* the main action of a screen, a panel or a row wears the brand's bright green with dark words (owner, 2026-10-07: "primary actions deserve a
@@ -65,6 +66,10 @@
   /* motion */
   --ease: cubic-bezier(.16, 1, .3, 1); --ease-in: cubic-bezier(.4, 0, 1, 1); --ease-ios: cubic-bezier(.32, .72, 0, 1); --t1: 150ms; --t2: 220ms; --t3: 380ms;
 }
+
+/* the app's white words, a little less bright (owner, 2026-10-11: "change the white text of the app to #d4d4d4 so it is not so bright"): inside the
+   app, dark theme; the pages before login keep theirs. The knob of a switch and the card's picture stay white: they are not text. */
+:root.in-app:not(.app-light) { --ink: #D4D4D4; --ink-strong: #D4D4D4; --primary-ink: #D4D4D4; --select-ink: #D4D4D4; --nt-ink: #D4D4D4; --on-dark: #D4D4D4; }
 
 *, *::before, *::after { box-sizing: border-box; }
 /* inside the app the room for the page's scroll bar is kept even on a page too short to scroll, so going from a long page to a short one (the household's

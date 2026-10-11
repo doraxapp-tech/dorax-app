@@ -56,7 +56,7 @@ input.day { -moz-appearance: textfield; appearance: textfield; width: 68px; min-
 .bell-tabs .seg button { flex: 1 1 0; justify-content: center; }
 .nt-row { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .nt-row:last-child { border-bottom: 0; }
-.nt-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--nt-ico); color: #FFFFFF; }
+.nt-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--nt-ico); color: var(--on-dark); }
 .nt-ico svg { width: 17px; height: 17px; }
 .nt-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .nt-h b { font-weight: 600; font-size: 14.5px; }

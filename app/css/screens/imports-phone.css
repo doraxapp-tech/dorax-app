@@ -51,7 +51,7 @@
 .ip-nocat { margin: 0; color: var(--ink-3); font-size: 13px; }
 .ip-dec { display: grid; grid-template-columns: 1fr 1fr; }
 .ip-dec button { min-height: 44px; justify-content: center; font-size: 15px; }
-.ip-dec button[aria-pressed="true"][data-op="accept"] { background: #006239; color: #FFFFFF; }
+.ip-dec button[aria-pressed="true"][data-op="accept"] { background: #006239; color: var(--on-dark); }
 .ip-dec button svg { width: 15px; height: 15px; }
 .ip-ok { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ink-2); }
 .ip-ok svg { width: 18px; height: 18px; color: var(--brand); }

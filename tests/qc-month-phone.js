@@ -48,7 +48,7 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
   // ---------- 2. a finger ----------
   await page.evaluate(() => { window.__cls = []; new MutationObserver(() => { const c = document.querySelector('#view').className; if (/from-/.test(c)) __cls.push(c.match(/from-\w+/)[0]); }).observe(document.querySelector('#view'), { attributes: true, attributeFilter: ['class'] }); });
   // only the month in the middle is green, the others white; it follows the finger before the strip comes to rest (owner, 2026-10-08)
-  eq(await page.evaluate(() => { const sl = [...document.querySelectorAll('.pagehead .m-slide')]; return [sl.filter(e => e.classList.contains('mid')).map(e => e.dataset.ym), getComputedStyle(sl.find(e => e.classList.contains('mid'))).color, sl.filter(e => !e.classList.contains('mid')).every(e => getComputedStyle(e).color === 'rgb(255, 255, 255)')]; }),
+  eq(await page.evaluate(() => { const sl = [...document.querySelectorAll('.pagehead .m-slide')]; return [sl.filter(e => e.classList.contains('mid')).map(e => e.dataset.ym), getComputedStyle(sl.find(e => e.classList.contains('mid'))).color, sl.filter(e => !e.classList.contains('mid')).every(e => getComputedStyle(e).color === 'rgb(212, 212, 212)')]; }),
     [[now], 'rgb(93, 187, 139)', true], 'only the month on screen is green, the others white');
   {
     const cdp = await page.context().newCDPSession(page), [x, y] = await page.evaluate(() => { const r = document.querySelector('.pagehead .m-strip').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });

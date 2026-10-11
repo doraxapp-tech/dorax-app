@@ -1,0 +1,9 @@
+/* Dorax Finance — every figure tile of the app in the summary's dashed style (owner, 2026-10-11: "use the dashed style on all the KPIs of the web
+   app, and the background black #000000"; the style is the one of "Also for the summary", css/screens/dash-glance.css: .dash-more).
+   The summary's five figures (.kpi), the tiles of the Plan, Goals, Investments, Reports and the other pages (.card.tile), a phone's large total in Plan and Goals (.g-total), and the company's sum
+   (.kpis.eq, one dashed frame around its figures): a fine dashed edge in the strong line grey, on black. Their words keep their colours (the net
+   balance in green, a debt in red). The light theme keeps its own surface under the dashed edge. */
+.kpi, .card.tile, .card.g-total, .kpis.eq { border: 1px dashed var(--line-strong); }
+:root:not(.app-light) .kpi, :root:not(.app-light) .card.tile, :root:not(.app-light) .card.g-total, :root:not(.app-light) .kpis.eq { background: #000000; }
+.kpis.eq .kpi { border: 0; background: none; }      /* inside the company's sum: one frame for all of it */
+@media (hover: hover) and (pointer: fine) { .kpi.tap:hover { border-color: var(--brand); } }      /* a tile that opens something: its edge turns green, like the summary's line */

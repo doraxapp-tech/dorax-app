@@ -40,7 +40,7 @@
   /* 2026-10-09 (owner: "take the green off the top menu, I don't like it any more; put a blurred background, almost invisible, from green to black").
      The panel is glass now: a breath of the side's colour (--glow: green at home, the company's blue on its side) that fades into the page's
      black, through the panel and the balance under it, with the page blurred behind the row that stays on screen. */
-  .navbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; min-height: 0; padding: calc(var(--safe-t) + 22px) 14px 10px 16px; background: linear-gradient(180deg, rgba(var(--glow), .26), rgba(var(--glow), .12)), rgba(0, 0, 0, .78); color: #FFFFFF; border-bottom: 0; -webkit-backdrop-filter: saturate(150%) blur(20px); backdrop-filter: saturate(150%) blur(20px); transition: box-shadow var(--t2) ease-out; }
+  .navbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; min-height: 0; padding: calc(var(--safe-t) + 22px) 14px 10px 16px; background: linear-gradient(180deg, rgba(var(--glow), .26), rgba(var(--glow), .12)), rgba(0, 0, 0, .78); color: var(--on-dark); border-bottom: 0; -webkit-backdrop-filter: saturate(150%) blur(20px); backdrop-filter: saturate(150%) blur(20px); transition: box-shadow var(--t2) ease-out; }
   .scrolled .navbar { box-shadow: 0 1px 0 rgba(255, 255, 255, .07); }
   .navbar.solo { padding-bottom: 16px; }      /* no company, so no choice of side under it: the row is the whole panel */
   .navbar .bar-title, .navbar .btn.primary { display: none; }
@@ -50,15 +50,15 @@
   .bar-who:active .avatar { transform: scale(.94); }
   .bar-who:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 3px; }
   /* a screen's name in the panel, as tall as the photo it replaces, so the panel keeps its height from one screen to the next */
-  .bar-name { display: block; min-width: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 44px; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-name { display: block; min-width: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 44px; color: var(--on-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bw-t { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .bw-t small { font-size: 12.5px; line-height: 1.25; letter-spacing: .012em; color: rgba(255, 255, 255, .66); }
-  .bw-t b { font-size: 18px; font-weight: 600; line-height: 1.2; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .navbar .bell, .more-btn { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: #FFFFFF; position: relative; transition: transform var(--t1) ease-out, background var(--t1) ease-out; }
+  .bw-t b { font-size: 18px; font-weight: 600; line-height: 1.2; color: var(--on-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .navbar .bell, .more-btn { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: var(--on-dark); position: relative; transition: transform var(--t1) ease-out, background var(--t1) ease-out; }
   .navbar .bell::after, .more-btn::after { content: ""; position: absolute; inset: -4px; }
   .navbar .bell svg, .more-btn svg { width: 18px; height: 18px; }
   .navbar .bell:active, .more-btn:active { transform: scale(.92); }
-  @media (hover: hover) and (pointer: fine) { .navbar .bell:hover { background: rgba(255, 255, 255, .12); color: #FFFFFF; } }      /* a finger's tap leaves no hover behind (usability QC, 2026-10-08) */
+  @media (hover: hover) and (pointer: fine) { .navbar .bell:hover { background: rgba(255, 255, 255, .12); color: var(--on-dark); } }      /* a finger's tap leaves no hover behind (usability QC, 2026-10-08) */
   .more-btn[aria-current="page"] { background: #FAFAFA; color: #0A0A0A; border-color: #FAFAFA; }
   .navbar .bell:focus-visible, .more-btn:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
   .navbar .bell .count, .app-light .navbar .bell .count { background: var(--brand); color: #04140C; box-shadow: 0 0 0 2px #050505; }
@@ -69,7 +69,7 @@
   .bar-side .side-seg button { min-height: 40px; font-size: 14.5px; color: rgba(255, 255, 255, .88); position: relative; }
   .bar-side .side-seg button::after { content: ""; position: absolute; inset: -3px 0; }
   .bar-side .side-seg button svg { width: 17px; height: 17px; }
-  @media (hover: hover) and (pointer: fine) { .bar-side .side-seg button:hover { color: #FFFFFF; } }
+  @media (hover: hover) and (pointer: fine) { .bar-side .side-seg button:hover { color: var(--on-dark); } }
   .bar-side .side-seg button[aria-pressed="true"] { background: #FAFAFA; color: #0A0A0A; box-shadow: none; }
   .bar-side .side-seg button:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
   /* under the panel: the month, on the screens that have one */
@@ -106,7 +106,7 @@
   .tabbar a[aria-current="page"] { position: relative; background: none; }
   .tabbar a[aria-current="page"]::before { content: ""; position: absolute; top: -6px; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: #006239; }
   .tabbar a[aria-current="page"] svg { color: #00754A; }
-  .tabbar .fab { background: #006239; color: #FFFFFF; }
+  .tabbar .fab { background: #006239; color: var(--on-dark); }
   .side-co .tabbar a[aria-current="page"]::before { background: var(--fab); }
   .side-co .tabbar a[aria-current="page"] svg { color: var(--fab); }
   .side-co .tabbar .fab { background: var(--fab); color: var(--fab-ink); }
@@ -234,7 +234,7 @@
 @media (max-width: 920px) {
   .navbar .nums-btn { display: none !important; }      /* a phone has the eye in its balance */
   .navbar { border-radius: 0; }
-  .navbar .side-flip { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: #FFFFFF; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out, background var(--t1) ease-out; }
+  .navbar .side-flip { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: var(--on-dark); -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out, background var(--t1) ease-out; }
   .navbar .side-flip::after { content: ""; position: absolute; inset: -4px; }
   .navbar .side-flip svg { width: 18px; height: 18px; }
   .navbar .side-flip:active { transform: scale(.92); }
@@ -245,16 +245,16 @@
      selector"). No card: the side's net balance, large and white, in the middle of the screen, its name small above it and the eye beside it.
      An empty column the eye's width on the other side keeps the amount in the exact middle. A long amount takes a smaller size (barBalanceIn). */
   .bar-bal { display: grid; grid-template-columns: 44px minmax(0, auto) 44px; justify-content: center; align-items: end; column-gap: 2px; padding: 8px 12px 2px; background: linear-gradient(180deg, rgba(var(--glow), .12), rgba(var(--glow), 0)); }
-  .bar-bal .bb-link { grid-column: 2; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 6px; box-sizing: border-box; border-radius: 14px; color: #FFFFFF; text-align: center; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: opacity var(--t1) ease-out; }
+  .bar-bal .bb-link { grid-column: 2; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 6px; box-sizing: border-box; border-radius: 14px; color: var(--on-dark); text-align: center; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: opacity var(--t1) ease-out; }
   .bar-bal .bb-link small { font-size: 13px; letter-spacing: .012em; color: rgba(255, 255, 255, .62); }
-  .bar-bal .bb-link b { max-width: 100%; font-family: var(--fig); font-size: clamp(28px, 9vw, 36px); font-weight: 600; line-height: 1.12; letter-spacing: -.02em; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-bal .bb-link b { max-width: 100%; font-family: var(--fig); font-size: clamp(28px, 9vw, 36px); font-weight: 600; line-height: 1.12; letter-spacing: -.02em; color: var(--on-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar-bal .bb-link b.long { font-size: clamp(22px, 7vw, 28px); }
   .bar-bal .bb-link b.neg { color: var(--neg); }
   .bar-bal .bb-link:active { opacity: .7; }
   .bar-bal .bb-link:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
   .bar-bal .bb-eye { all: unset; box-sizing: border-box; cursor: pointer; grid-column: 3; position: relative; display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 0; border-radius: 50%; color: rgba(255, 255, 255, .7); -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out, color var(--t1) ease-out; }
   .bar-bal .bb-eye svg { width: 22px; height: 22px; }
-  .bar-bal .bb-eye:active { transform: scale(.92); color: #FFFFFF; }
+  .bar-bal .bb-eye:active { transform: scale(.92); color: var(--on-dark); }
   .bar-bal .bb-eye:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
   /* a light page: the same breath of colour fading into its own grey, and dark words */
   :root.app-light .navbar { background: linear-gradient(180deg, rgba(var(--glow), .13), rgba(var(--glow), .06)), color-mix(in srgb, var(--bg) 72%, transparent); color: var(--ink-strong); }
@@ -316,8 +316,8 @@
   .pagehead .m-row { display: flex; align-items: center; flex: 1 1 100%; min-width: 0; }
   .pagehead .month.m-ph { display: flex; flex: 1 1 auto; min-width: 0; margin: 0; padding: 0; background: #000000; border-color: #1A1A1A; }
   .pagehead .m-ph button { flex: none; width: 46px; height: 44px; color: #D4D4D4; }
-  .pagehead .m-ph button:active:not(:disabled) { background: #1A1A1A; color: #FFFFFF; }
-  @media (hover: hover) and (pointer: fine) { .pagehead .m-ph button:hover:not(:disabled) { background: #1A1A1A; color: #FFFFFF; } }
+  .pagehead .m-ph button:active:not(:disabled) { background: #1A1A1A; color: var(--on-dark); }
+  @media (hover: hover) and (pointer: fine) { .pagehead .m-ph button:hover:not(:disabled) { background: #1A1A1A; color: var(--on-dark); } }
   /* each month is as wide as its name and 40 px either side, so at rest the next and the previous months just show at the edges, fading: the
      strip says it can be swiped. The spaces at its two ends let the first and the last month reach the middle. One month per swipe (snap-stop). */
   .m-strip { position: relative; flex: 1 1 auto; min-width: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; outline: 0;
@@ -325,7 +325,7 @@
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 min(44px, 16%), #000 calc(100% - min(44px, 16%)), transparent); mask-image: linear-gradient(90deg, transparent, #000 min(44px, 16%), #000 calc(100% - min(44px, 16%)), transparent); }
   .m-strip::-webkit-scrollbar { display: none; }
   .m-strip::before, .m-strip::after { content: ""; flex: 0 0 calc(50% - 4ch - 40px); }
-  .pagehead .m-ph .m-slide { flex: 0 0 auto; width: calc(8ch + 80px); min-width: 0; padding: 0; scroll-snap-align: center; scroll-snap-stop: always; text-align: center; font: inherit; line-height: 44px; color: #FFFFFF; white-space: nowrap; transition: color var(--t1) ease-out; }
+  .pagehead .m-ph .m-slide { flex: 0 0 auto; width: calc(8ch + 80px); min-width: 0; padding: 0; scroll-snap-align: center; scroll-snap-stop: always; text-align: center; font: inherit; line-height: 44px; color: var(--on-dark); white-space: nowrap; transition: color var(--t1) ease-out; }
   .pagehead .m-ph .m-slide.mid { color: var(--brand); }      /* only the month in the middle is green, the others white; it follows the finger (owner, 2026-10-08) */
   /* the way back to the present: its box grows from nothing to the button's width, so it pushes the month aside; the box reaches the screen's edge,
      so the button comes in from there */
@@ -382,7 +382,7 @@
   :root.app-light .quick-row .fl-ico { background: var(--surface-3); border-color: var(--surface-3); }
   /* quick access: bigger circles and white icons; the insight of the day's icon and words in white too (owner, 2026-10-08). The light theme keeps
      dark ones, where white would vanish on the light grey */
-  .quick-row .fl-ico { width: 62px; height: 62px; color: #FFFFFF; }
+  .quick-row .fl-ico { width: 62px; height: 62px; color: var(--on-dark); }
   .quick-row .fl-ico svg { width: 28px; height: 28px; }
   :root.app-light .quick-row .fl-ico { color: var(--ink-strong); }
 }

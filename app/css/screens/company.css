@@ -90,7 +90,7 @@
    loader under it, 'loading company account, one moment', and let it load about two seconds more; create drama; the loader is an animation of
    the logo itself"). The page behind is blurred and darkened; the wordmark stands in the middle with its quarter in the colour of the side being
    entered; under it the loader is the logo's own ring with that quarter going round it. app/motion.js times it. */
-#side-shift { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgba(0, 0, 0, .78); -webkit-backdrop-filter: blur(26px) saturate(120%); backdrop-filter: blur(26px) saturate(120%); color: #FFFFFF; }
+#side-shift { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgba(0, 0, 0, .78); -webkit-backdrop-filter: blur(26px) saturate(120%); backdrop-filter: blur(26px) saturate(120%); color: var(--on-dark); }
 #side-shift.co { --shift-ac: #5B9DFF; } #side-shift.home { --shift-ac: #3ECF8E; }
 #side-shift .shift-in { display: flex; flex-direction: column; align-items: center; gap: 30px; padding: 24px; text-align: center; }
 #side-shift .shift-loader { width: 44px; height: 44px; overflow: visible; }

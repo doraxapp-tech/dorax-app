@@ -23,12 +23,12 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 2. the balance ----------
   const bal = await page.evaluate(() => { const b = document.querySelector('.bar-bal'), l = b.querySelector('.bb-link'), v = l.querySelector('b'), want = personal().filter(a => a.currency === 'BRL').reduce((s, a) => s + accountBalance(S, a.id, S.today), 0);
     return [l.querySelector('small').innerText.trim(), v.innerText.trim() === fmt.money(want, 'BRL'), getComputedStyle(l).backgroundColor, getComputedStyle(v).color, l.getAttribute('href'), b.getBoundingClientRect().top < document.querySelector('.pagehead h1').getBoundingClientRect().top, l.getBoundingClientRect().height >= 56, parseFloat(getComputedStyle(v).fontSize) >= 28, Math.abs((v.getBoundingClientRect().left + v.getBoundingClientRect().right) / 2 - innerWidth / 2) <= 2]; });
-  eq(bal, ['Household net balance', true, 'rgba(0, 0, 0, 0)', 'rgb(255, 255, 255)', '#accounts', true, true, true, true], 'where the switch was: the household’s net balance, the sum of its accounts, with no card behind it, large, white and in the middle of the screen (owner, 2026-10-09), a thumb high, above the screen’s title');
+  eq(bal, ['Household net balance', true, 'rgba(0, 0, 0, 0)', 'rgb(212, 212, 212)', '#accounts', true, true, true, true], 'where the switch was: the household’s net balance, the sum of its accounts, with no card behind it, large, white and in the middle of the screen (owner, 2026-10-09), a thumb high, above the screen’s title');
   await page.click('.bar-bal .bb-link'); await page.waitForFunction(() => UI.route === 'accounts');
   ok(true, 'a tap on the balance opens Accounts');
   await page.evaluate(() => { navigate('dashboard'); A.space({ v: 'business' }); });
   eq(await page.evaluate(() => { const l = document.querySelector('.bar-bal .bb-link'), want = inBook(pageBookKey(), () => bookAccounts().reduce((s, a) => s + accountBalance(S, a.id, S.today), 0)); return [l.querySelector('small').innerText.trim(), l.querySelector('b').innerText.trim() === inBook(pageBookKey(), () => fmt.money(want, BCUR())), getComputedStyle(l.querySelector('b')).color]; }),
-    ['Company net balance', true, 'rgb(255, 255, 255)'], 'on the company’s side it is the company’s balance, in its currency, white too');
+    ['Company net balance', true, 'rgb(212, 212, 212)'], 'on the company’s side it is the company’s balance, in its currency, white too');
   await page.evaluate(() => A.space({ v: 'personal' }));
   // ---------- 3. the eye ----------
   const shown = await page.evaluate(() => document.querySelector('#view').innerText.match(/R\$ [\d.]+,\d\d/g).length);
@@ -83,7 +83,7 @@ const { open, ok, eq, done } = require('./pw.js');
   }
   eq(await page.evaluate(() => { navigate('dashboard'); const a = document.querySelector('.navbar .bar-who').getBoundingClientRect().height; navigate('plan'); const b = document.querySelector('.navbar .bar-name').getBoundingClientRect().height; return Math.abs(a - b) <= 2; }), true, 'the name is as tall as the photo it replaces: the panel’s row does not jump from Resumen to another screen');
   await page.evaluate(() => { A.space({ v: 'business' }); navigate('plan'); });
-  eq(await page.evaluate(() => [document.querySelector('.navbar .bar-name').textContent, getComputedStyle(document.querySelector('.navbar .bar-name')).color]), ['Plan', 'rgb(255, 255, 255)'], 'the company’s side: its name too, in white on its blue');
+  eq(await page.evaluate(() => [document.querySelector('.navbar .bar-name').textContent, getComputedStyle(document.querySelector('.navbar .bar-name')).color]), ['Plan', 'rgb(212, 212, 212)'], 'the company’s side: its name too, in white on its blue');
   await page.evaluate(() => { A.space({ v: 'personal' }); });
   ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'nothing wider than the screen');
   eq(errors, [], 'titles: no error in the console'); await browser.close();
