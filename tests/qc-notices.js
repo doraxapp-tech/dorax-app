@@ -33,7 +33,7 @@ const T = '2026-10-02', MIN = 60000;
 (async () => {
   const text = async (p, sel) => (await p.locator(sel).innerText()).replace(/\s+/g, ' ');
   const signup = async (p, name) => { await p.evaluate(() => A['pub-go']({ v: 'signup' })); await p.fill('#au-name', name); await p.fill('#au-email', name.toLowerCase() + '@example.org'); await p.fill('#au-pass', 'UmaSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name'); await p.click('[data-a="onboard-save"]'); await p.click('[data-a="ob-finish"]'); await p.waitForFunction(() => !!UI.session); };
-  const GREEN = 'rgb(62, 207, 142)', DEEP = 'rgb(0, 98, 57)';      // the brand's accent and its deep green (owner, 2026-10-07: "pink? use the brand's branding")
+  const GREEN = 'rgb(93, 187, 139)', DEEP = 'rgb(0, 98, 57)';      // the brand's accent and its deep green (owner, 2026-10-07: "pink? use the brand's branding")
 
   // ---------- 2. a curiosity on screen ----------
   let { browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, curio: true, server: { confirmEmail: false } });

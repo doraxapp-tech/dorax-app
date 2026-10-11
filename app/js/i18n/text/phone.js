@@ -46,7 +46,7 @@ addTexts([
   ["Record a payment for which one?","¿De cuál registras un pago?","De qual você registra um pagamento?"],
   ["Pay bills","Pagar cuentas","Pagar contas"],
   ["Which bill are you paying?","¿Qué cuenta pagas?","Qual conta você está pagando?"],
-  ["Two parts share a row; the accounts and the latest transactions take the whole width.","Dos partes comparten fila; las cuentas y las últimas transacciones ocupan todo el ancho.","Duas partes dividem a linha; as contas e as últimas transações ocupam toda a largura."],
+  ["Three parts share a row; the accounts and the latest transactions take the whole width. The eye hides a part or brings it back.","Tres partes comparten fila; las cuentas y las últimas transacciones ocupan todo el ancho. El ojo oculta una parte o la vuelve a mostrar.","Três partes dividem a linha; as contas e as últimas transações ocupam toda a largura. O olho esconde uma parte ou a mostra de novo."],
   ["{n} part hidden","{n} parte oculta","{n} parte oculta"],
   ["{n} parts hidden","{n} partes ocultas","{n} partes ocultas"],
   ["Show {name} on the summary","Mostrar {name} en el resumen","Mostrar {name} no resumo"],

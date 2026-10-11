@@ -1,6 +1,6 @@
 /* Dorax Finance — what is wrong, in the bell (features/reminders/issues.view.js): its rows, the panel a row opens, and the bell ringing. */
 .rem.iss { flex-direction: row; align-items: center; gap: 12px; width: 100%; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
-.rem.iss:hover { border-color: var(--line-strong); }
+.rem.iss:hover { background: var(--btn-hover); }
 .rem.iss:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .rem.iss .grow { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1 1 auto; }
 .rem.iss b { font-weight: 500; overflow-wrap: anywhere; }

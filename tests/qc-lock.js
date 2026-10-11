@@ -235,7 +235,7 @@ const { open, ok, eq, done } = require('./pw.js');
     'the right PIN: the lock is open at once, and its opening is played over the app: a layer the colour of the closed screen, with that screen’s logo, a padlock and a hello by name; nothing in it can be pressed or read aloud');
   ok(await page.evaluate(() => UNLOCK_MS >= 900 && UNLOCK_MS <= 1600), 'it lasts about a second: it is seen every time the app is opened');
   await page.waitForTimeout(650);
-  eq(await page.evaluate(() => { const fx = document.getElementById('unlock-fx'); if (!fx) return null; const sh = getComputedStyle(fx.querySelector('.un-shackle')), body = getComputedStyle(fx.querySelector('.un-body')).fill, pad = fx.querySelector('.un-was .lock-pad'); return [sh.transform !== 'none', body, +getComputedStyle(pad).opacity]; }), [true, 'rgb(62, 207, 142)', 0],
+  eq(await page.evaluate(() => { const fx = document.getElementById('unlock-fx'); if (!fx) return null; const sh = getComputedStyle(fx.querySelector('.un-shackle')), body = getComputedStyle(fx.querySelector('.un-body')).fill, pad = fx.querySelector('.un-was .lock-pad'); return [sh.transform !== 'none', body, +getComputedStyle(pad).opacity]; }), [true, 'rgb(93, 187, 139)', 0],
     'halfway: the pad is gone, the shackle has sprung open and the padlock is the brand’s green');
   await page.waitForFunction(() => !document.getElementById('unlock-fx'), null, { timeout: 2500 });
   eq(await page.evaluate(() => [!!UI.session, UI.route, document.querySelectorAll('#unlock-fx').length, document.elementFromPoint(195, 400).closest('#view, #topbar') !== null]), [true, 'dashboard', 0, true], 'and it is gone by itself: the account is there, under the thumb');

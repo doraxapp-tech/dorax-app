@@ -11,6 +11,7 @@
 .banner.crit { border-color: color-mix(in srgb, var(--crit) 50%, var(--line)); }
 .banner.good { border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
 .banner .grow { flex: 1 1 240px; min-width: 0; }
+.drawer .banner, .card .banner { border: 0; border-radius: 0; padding: 4px 0; }      /* inside a panel or a card: no box of its own (owner, 2026-10-11) */
 .banner svg { width: 16px; height: 16px; margin-top: 2px; flex: none; color: var(--info); }
 .banner.warn svg { color: var(--warn); } .banner.crit svg { color: var(--crit); } .banner.good svg { color: var(--good); }
 .obs { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }

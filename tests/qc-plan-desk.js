@@ -2,7 +2,8 @@
 // scroll and I lose sight of the rest; show the most important things; what is not important day to day, put it one click away: the salary is not
 // touched much, it can be a pop-up".
 //   1. a computer: the figures, then the payments beside the month as planned and the limits, in about one screen and a half (it was four);
-//   2. the income one click away ("Change", beside what comes in): a panel; what is changed there shows in the month at once;
+//   2. the income one click away ("Change income", a real button at the top of the month, dark with a fine edge: owner, 2026-10-11, "I didn't see it"):
+//      a panel; what is changed there shows in the month at once;
 //   3. the year month by month one click away: a wide panel, its cells typed in, Plan | Actual | Difference;
 //   4. the payments' buttons always in sight; under 1600 px without the "Paid" column; a narrower window stacks the two columns;
 //   5. a phone keeps its own page; Spanish; no error in the console.
@@ -15,8 +16,9 @@ const { open, ok, eq, done } = require('./pw.js');
     return [document.querySelectorAll('#view section.tiles .tile').length, Math.abs(p.top - m.top) < 2, p.right < m.left, m.bottom <= l.top, !document.querySelector('#view #plan-year'), !document.querySelector('#view .payrows'), !document.querySelector('#limits-card .lim-month'), document.documentElement.scrollHeight < 1700]; }),
     [4, true, true, true, true, true, true, true], 'the four figures; the payments beside the month and its limits; no year grid, no income form, the month not twice; about a screen and a half');
   // ---------- 2. the income ----------
-  eq(await page.evaluate(() => [document.querySelector('#plan-month .lim-mh .lim-edit').innerText, document.querySelector('#plan-month .lim-mh b').innerText]), ['Change', await page.evaluate(() => fmt.money(monthPlan(B(), B().month).income, CUR, { trim: true }))], '“Change” beside what comes in');
-  await page.click('#plan-month .lim-edit');
+  eq(await page.evaluate(() => { const b = document.querySelector('#plan-month .card-h .pm-income'), s = getComputedStyle(b); return [b.innerText.trim(), b.classList.contains('btn') && !b.classList.contains('primary'), s.borderTopStyle, s.backgroundColor === 'rgba(0, 0, 0, 0)' || /^rgb\((\d), (\d), (\d)\)$/.test(s.backgroundColor), b.getBoundingClientRect().height >= 30, document.querySelector('#plan-month .lim-mh b').innerText]; }),
+    ['Change income', true, 'solid', true, true, await page.evaluate(() => fmt.money(monthPlan(B(), B().month).income, CUR, { trim: true }))], '“Change income”: a real button at the top of the month, dark with a fine edge');
+  await page.click('#plan-month .pm-income');
   const inc = await page.evaluate(() => payRows(B(), 2026).find(r => r.to === 'fixed').id);
   eq(await page.evaluate(() => [UI.drawer.kind, document.querySelector('#overlay .drawer').classList.contains('pop'), document.querySelectorAll('#overlay .payrow').length, document.activeElement.closest('.payrow') !== null]), ['plan-income', true, await page.evaluate(() => payRows(B(), 2026).length), true], 'a panel in the middle with each payment, the focus on the first');
   await page.fill(`#pv-${inc}`, '6000'); await page.press(`#pv-${inc}`, 'Tab');
@@ -46,7 +48,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => { S.user.greeted = true; navigate('plan'); });
-  eq(await page.evaluate(() => [document.querySelector('[data-a="plan-year-open"]').innerText.trim(), document.querySelector('#plan-month .lim-edit').innerText, document.querySelector('#plan-month h2').innerText]), ['El año, mes a mes', 'Cambiar', 'Oct, según el plan'], 'es: “El año, mes a mes”, “Cambiar”');
+  eq(await page.evaluate(() => [document.querySelector('[data-a="plan-year-open"]').innerText.trim(), document.querySelector('#plan-month .pm-income').innerText.trim(), document.querySelector('#plan-month h2').innerText]), ['El año, mes a mes', 'Cambiar ingresos', 'Oct, según el plan'], 'es: “El año, mes a mes”, “Cambiar ingresos”');
   eq(errors, [], 'es: no error in the console'); await browser.close();
   done('qc-plan-desk');
 })().catch(e => { console.error('qc-plan-desk: Error', e); process.exit(1); });

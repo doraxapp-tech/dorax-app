@@ -11,8 +11,8 @@
 function planMonthCard(ym) {
   const mp = monthPlan(B(), ym);
   return `<section class="card" id="plan-month"><div class="card-h"><h2>${t('{month}, as planned', { month: fmt.month(ym, 'bare') })}</h2>
-      ${mp.income ? '' : `<span class="right"><button class="btn sm" data-a="plan-income">${icon('plus')}${t('Add income')}</button></span>`}</div>
-    <div class="card-b">${limMonth(mp, false, true)}</div></section>`;      // the income's "Change" sits beside it (limMonth)
+      <span class="right">${mp.income ? `<button class="btn sm pm-income" data-a="plan-income">${t('Change income')}</button>` : `<button class="btn sm" data-a="plan-income">${icon('plus')}${t('Add income')}</button>`}</span></div>
+    <div class="card-b">${limMonth(mp)}</div></section>`;      // a real button, dark with a fine edge (owner, 2026-10-11: "the 'change' button to see the salary is very hidden, I didn't see it")
 }
 /** The page under the tiles. */
 function planDesk(ym) {

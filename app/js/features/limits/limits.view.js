@@ -40,10 +40,10 @@ function catLimitRow(info) {
 
 /** The month as planned, Mobills' "what has no job yet" worked out from the Plan: what comes in, and how it splits into fixed bills, what is set
     aside, limits, and what is left without a job. In the colours of the summary's "Your month, as planned" (features/dashboard/dashboard.view.js). */
-function limMonth(mp, quiet, edit) {      // quiet: without the line that says it is over (the bell's panel says it already); edit: "Change" beside the income (a computer's Plan)
+function limMonth(mp, quiet) {      // quiet: without the line that says it is over (the bell's panel says it already)
   if (!mp.income) return `<div class="lim-month none"><p class="note">${t('Put in what comes in each month and Dorax shows how much of it has no job yet.')}</p></div>`;
   const parts = [[t('Fixed bills'), mp.bills, 'var(--s3)'], [mp.pct && mp.target >= mp.goals ? t('Savings ({pct}%)', { pct: mp.pct }) : t('Savings and goals'), mp.saving, 'var(--s1)'], [t('Limits'), mp.limits, 'var(--s5)'], [t('Not assigned yet'), Math.max(0, mp.free), 'var(--col-muted)']].filter(x => x[1] > 0);
-  return `<div class="lim-month"><div class="lim-mh"><span class="note">${t('Comes in this month')}${edit ? ` <button type="button" class="linkbtn lim-edit" data-a="plan-income">${t('Change@verb')}</button>` : ''}</span><b class="num">${limMoney(mp.income)}</b></div>
+  return `<div class="lim-month"><div class="lim-mh"><span class="note">${t('Comes in this month')}</span><b class="num">${limMoney(mp.income)}</b></div>
       <div class="stackbar" role="img" aria-label="${esc(parts.map(x => `${x[0]} ${limMoney(x[1])}`).join(', '))}">${parts.map(x => `<span style="flex:${x[1]};background:${x[2]}"></span>`).join('')}</div>
       <div class="legend lim-legend">${parts.map(x => `<div class="legend-row still"><span class="dot" style="background:${x[2]}"></span><span>${x[0]}</span><span class="num">${limMoney(x[1])}</span><span class="pct num">${fmt.pct(Math.round(x[1] * 100 / mp.income))}</span></div>`).join('')}</div>
       ${mp.free < 0 && !quiet ? `<p class="note neg lim-over">${t('The plan uses {amount} more than the planned income.', { amount: limMoney(-mp.free) })}</p>` : ''}</div>`;

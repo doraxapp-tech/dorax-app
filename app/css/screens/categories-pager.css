@@ -1,8 +1,14 @@
 /* ---------- v36: categories as a grid of short blocks; the rule form; hints inside tiles and section headings ---------- */
 .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; align-items: start; }
-.cat-card { border: 1px solid var(--line); border-radius: var(--r-mid); padding: 10px 12px 8px; min-width: 0; }
-.cat-card.open { border-color: var(--line-strong); }
-.cat-card .cat-h { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 500; color: var(--ink-strong); }
+.cat-card { border: 1px dashed var(--line-strong); border-radius: var(--r-card); padding: 10px 12px 8px; min-width: 0; color: var(--ink-2); transition: border-color var(--t1) ease-out; }      /* the summary's dashed line (dash-glance.css: .dash-more), its grey words too (owner, 2026-10-11: "I like the dashed style you used on the summary, the text colour, all of it; apply it to the category cards") */
+.cat-card:hover { border-color: var(--brand); }
+.cat-card.open { border-color: var(--brand); }
+/* the categories' container has no edge and no fill of its own: the blocks sit on the page (owner, 2026-10-11: "the categories looked fine as they
+   were, but take out the borders of the global container and the background") */
+#cat-cats.card { background: transparent; border: 0; border-radius: 0; }
+#cat-cats > .card-h { padding-left: 0; padding-right: 0; padding-top: 0; } #cat-cats > .card-b { padding-left: 0; padding-right: 0; }
+.cat-card .cat-h { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 500; color: var(--ink-2); transition: color var(--t1) ease-out; }
+.cat-card:hover .cat-h, .cat-card.open .cat-h { color: var(--ink-strong); }
 .cat-card .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cat-card .n { margin-left: auto; color: var(--ink-3); font-family: var(--fig); font-size: 11.5px; flex: none; }
 .cat-card input[type=text] { min-height: 30px; padding: 4px 8px; flex: 1 1 90px; min-width: 0; }
@@ -15,7 +21,7 @@
 .cat-card .subs { display: flex; flex-direction: column; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--line); }
 .cat-card .sub { display: flex; align-items: center; gap: 6px; min-height: 30px; padding-left: 16px; color: var(--ink-2); min-width: 0; }
 .cat-card .sub.add { padding-top: 4px; }
-.rule-new { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-mid); display: flex; flex-direction: column; gap: 10px; }
+.rule-new { margin-top: 16px; padding: 16px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
 .rule-form { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 .tile .label { display: flex; align-items: center; gap: 6px; min-width: 0; } .tile .label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 h2.sec { display: flex; align-items: center; gap: 6px; }

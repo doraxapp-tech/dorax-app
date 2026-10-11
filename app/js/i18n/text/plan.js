@@ -96,5 +96,4 @@ addTexts([
   ["Enter the amount as a number greater than zero, for example 1500 or 9,90.","Escribe el importe como un número mayor que cero, por ejemplo 1500 o 9,90.","Digite o valor como um número maior que zero, por exemplo 1500 ou 9,90."],
   ["Enter the day it is due: without it the app cannot remind you or tell you when it is late.","Escribe el día en que vence: sin él la app no puede avisarte ni decirte cuándo está atrasado.","Digite o dia em que vence: sem ele o app não pode te avisar nem dizer quando está atrasado."],
   ["{month}, as planned", "{month}, según el plan", "{month}, segundo o plano"],
-  ["Change@verb", "Cambiar", "Alterar"],
 ]);

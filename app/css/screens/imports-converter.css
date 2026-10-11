@@ -49,7 +49,7 @@
 .payrow .iconbtn { margin-bottom: 8px; }
 .flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .flow.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.flow > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-mid); font-family: var(--mono); font-size: 12.5px; }
+.flow > div { padding: 2px 0 2px 14px; border-left: 2px solid var(--line-strong); font-family: var(--mono); font-size: 12.5px; }
 .flow > div .note { font-family: var(--font); }
 .flow b { font-weight: 500; }
 

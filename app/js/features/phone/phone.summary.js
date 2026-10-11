@@ -94,7 +94,7 @@ function dashOrderSheet() {
 }
 /** The same list in a side panel on a computer; the page beside it changes at each click. */
 function dashOrderDrawer() {
-  return `<div class="body d-order"><p class="d-order-note">${t('Move each part up or down. The dashboard changes as you go.')} ${t('Two parts share a row; the accounts and the latest transactions take the whole width.')}</p>${dashOrderList()}</div><footer class="d-order-foot">${dashOrderFoot()}</footer>`;
+  return `<div class="body d-order"><p class="d-order-note">${t('Move each part up or down. The dashboard changes as you go.')} ${t('Three parts share a row; the accounts and the latest transactions take the whole width. The eye hides a part or brings it back.')}</p>${dashOrderList()}</div><footer class="d-order-foot">${dashOrderFoot()}</footer>`;
 }
 const PHONE_ORDER_ACTIONS = {
   'dash-order'() {

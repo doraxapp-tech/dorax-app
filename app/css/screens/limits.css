@@ -58,7 +58,7 @@ button.lim-c:hover b { color: var(--ink-strong); }
 .lim-th { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; }
 .lim-th b { font-weight: 500; color: var(--ink); }
 .lim-th .num { font-size: 12.5px; color: var(--ink-2); }
-.lim-invite { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px; border-radius: var(--r-mid); background: var(--spark-bg); border: 1px solid var(--spark-line); }
+.lim-invite { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; padding: 0 0 16px; border-bottom: 1px solid var(--line); }      /* no box inside the card (owner, 2026-10-11) */
 .lim-invite .grow { flex: 1 1 220px; min-width: 0; }
 .lim-invite b { font-weight: 500; color: var(--ink-strong); }
 .lim-invite p { margin: 2px 0 0; color: var(--ink-2); font-size: 13px; }

@@ -19,4 +19,3 @@
 .py-panel .card-h { padding: 4px 18px 0; }
 .pyr .plan thead th:first-child, .pyr .plan th[scope="row"] { background: var(--lift); }
 @media (max-width: 1600px) { .plan-desk #paylist th, .plan-desk #paylist td { padding-left: 10px; padding-right: 10px; } .plan-desk #paylist th:first-child, .plan-desk #paylist td:first-child { padding-left: 22px; } }
-.lim-edit { margin-left: 6px; font-size: 13px; }

@@ -42,14 +42,14 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
       return [Math.round(mr.left) === Math.round(pr.left + 16) && Math.round(jb.right) === Math.round(pr.right - 16) && mr.right <= jb.left - 6, cs.backgroundColor, cs.borderTopColor, getComputedStyle(on).color, getComputedStyle(ph).borderBottomWidth,
         on.dataset.ym === S.month, sl[0].dataset.ym === minMonth() && sl[sl.length - 1].dataset.ym === ymOf(S.today), prev.right > sr.left + 4 && prev.left < sr.left,
         s.getAttribute('aria-hidden'), s.tabIndex, m.querySelector('.sr').textContent === fmt.month(S.month, true), [...m.querySelectorAll('button')].map(b => b.getAttribute('aria-label')), !!row.querySelector('.m-back')]; }),
-    [true, 'rgb(0, 0, 0)', 'rgb(26, 26, 26)', 'rgb(62, 207, 142)', '0px', true, true, true, 'true', -1, true, ['Mes anterior', 'Mes siguiente'], false],
+    [true, 'rgb(0, 0, 0)', 'rgb(26, 26, 26)', 'rgb(93, 187, 139)', '0px', true, true, true, 'true', -1, true, ['Mes anterior', 'Mes siguiente'], false],
     'the month takes the row up to the Journey button (v130), black with a #1A1A1A edge, in green, no line under it; the strip holds every month from the first to the present and rests on this one, the month before just showing at its edge; a screen reader hears the month once and the two arrows; no button at the present');
   ok((await state(page)).centred, 'the month on screen sits in the middle of the strip');
   // ---------- 2. a finger ----------
   await page.evaluate(() => { window.__cls = []; new MutationObserver(() => { const c = document.querySelector('#view').className; if (/from-/.test(c)) __cls.push(c.match(/from-\w+/)[0]); }).observe(document.querySelector('#view'), { attributes: true, attributeFilter: ['class'] }); });
   // only the month in the middle is green, the others white; it follows the finger before the strip comes to rest (owner, 2026-10-08)
   eq(await page.evaluate(() => { const sl = [...document.querySelectorAll('.pagehead .m-slide')]; return [sl.filter(e => e.classList.contains('mid')).map(e => e.dataset.ym), getComputedStyle(sl.find(e => e.classList.contains('mid'))).color, sl.filter(e => !e.classList.contains('mid')).every(e => getComputedStyle(e).color === 'rgb(255, 255, 255)')]; }),
-    [[now], 'rgb(62, 207, 142)', true], 'only the month on screen is green, the others white');
+    [[now], 'rgb(93, 187, 139)', true], 'only the month on screen is green, the others white');
   {
     const cdp = await page.context().newCDPSession(page), [x, y] = await page.evaluate(() => { const r = document.querySelector('.pagehead .m-strip').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 40, y }] });

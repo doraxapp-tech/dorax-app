@@ -68,7 +68,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(id => { S.transactions.unshift({ id: 'qa-today', accountId: id, date: S.today, merchant: 'Reembolso', description: '', amount: 4250, currency: 'BRL', type: 'income', categoryId: null, subcategoryId: null, status: 'confirmed' }); A.close(); }, first);
   await page.evaluate(id => A['card-view']({ id }), first); await page.waitForSelector('#overlay .cv-ops');
   eq(await page.evaluate(() => { const r = document.querySelector('#overlay .op-row[data-id="qa-today"]'), amt = r.querySelector('.op-amt'); return [document.querySelector('#overlay .op-day').innerText.trim().toLowerCase(), r.querySelector('.op-t b').innerText.trim(), amt.innerText.trim().startsWith('+ R$'), getComputedStyle(amt).color, !!r.querySelector('.op-ico.in svg')]; }),
-    ['hoy', 'Reembolso', true, 'rgb(62, 207, 142)', true], 'by day (Today first); money in, green with a +');
+    ['hoy', 'Reembolso', true, 'rgb(93, 187, 139)', true], 'by day (Today first); money in, green with a +');
   const all = await page.evaluate(() => document.querySelector('#overlay .op-head .linkbtn').innerText.trim());
   ok(/^Ver (todas|las \d+)$/.test(all), 'its title has the way to all of them: ' + all);
   await page.tap('#overlay .op-row[data-id="qa-today"]'); await page.waitForTimeout(300);
