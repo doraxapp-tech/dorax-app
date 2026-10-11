@@ -3,7 +3,7 @@
 .ip-start { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 8px 0 4px; text-align: center; }
 .ip-hero { align-self: center; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--surface-3); color: var(--ink-strong); }
 .ip-hero svg { width: 28px; height: 28px; }
-.ip-hero.ok { background: rgba(62, 207, 142, .14); color: var(--brand); }
+.ip-hero.ok { background: rgba(159, 209, 130, .14); color: var(--brand); }
 .ip-start h2, .ip-step h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--ink-strong); }
 .ip-lead { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
 .ip-note { margin: 0; color: var(--ink-3); font-size: 13px; line-height: 1.45; }
@@ -40,7 +40,7 @@
 .ip-look .ip-note { margin: 4px 0 10px; }
 .ip-list { display: flex; flex-direction: column; gap: 10px; }
 .ip-row { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-mid); transition: opacity var(--t1) ease-out, border-color var(--t1) ease-out; }
-.ip-row.on { border-color: rgba(62, 207, 142, .45); }
+.ip-row.on { border-color: rgba(159, 209, 130, .45); }
 .ip-row.off { opacity: .55; }
 .ip-top { display: flex; align-items: baseline; gap: 10px; }
 .ip-top b { flex: 1; min-width: 0; font-weight: 500; color: var(--ink-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -51,7 +51,7 @@
 .ip-nocat { margin: 0; color: var(--ink-3); font-size: 13px; }
 .ip-dec { display: grid; grid-template-columns: 1fr 1fr; }
 .ip-dec button { min-height: 44px; justify-content: center; font-size: 15px; }
-.ip-dec button[aria-pressed="true"][data-op="accept"] { background: #006239; color: var(--on-dark); }
+.ip-dec button[aria-pressed="true"][data-op="accept"] { background: var(--cta); color: var(--cta-ink); }
 .ip-dec button svg { width: 15px; height: 15px; }
 .ip-ok { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ink-2); }
 .ip-ok svg { width: 18px; height: 18px; color: var(--brand); }

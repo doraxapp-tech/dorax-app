@@ -5,27 +5,30 @@
    the chosen chart column #004D2E so it stands apart from the grey ones by lightness and not by hue alone.
    Category colours: the same seven hues; amber and green stepped to reach 3:1 on white (validated: lightness band, chroma, colour-blind separation, contrast). */
 :root.app-light {
+  /* Wise's light colourway (owner, 2026-10-11, option "B"): a white page, Wise's near black #0E0F0C for the words and its greys for the quiet ones;
+     forest #163300 for links, the active tab, meters and the chosen chart column (lime is too faint on white to carry meaning: 1.4:1); the main
+     buttons lime #9FD182 with forest words, as Wise does; light mint #E2F6D5 for the chosen item and soft green surfaces. #163300 on #FFF is 13.6:1. */
   color-scheme: light;
-  --bg: #F6F6F6; --surface: #FFFFFF; --surface-2: #FAFAFA; --surface-3: #EFEFEF; --well: #F2F2F2; --lift: #FFFFFF; --badge: #EFEFEF; --pit: #F3F3F3;
-  --line: #E4E4E4; --line-strong: #D2D2D2; --graphite: #B4B4B4; --field: #8C8C8C;
-  --ink: #262626; --ink-strong: #121212; --ink-2: #525252; --ink-3: #666666;
-  --primary: #006239; --primary-hover: #00754A; --primary-ink: #FAFAFA; --primary-line: rgba(0, 98, 57, .5);
-  --cta: #006239; --cta-hover: #00754A; --cta-ink: #FAFAFA;      /* on white the bright green is too faint to be a button (1.9:1): the deep green is the main action here */
-  --btn: transparent; --btn-hover: rgba(0, 0, 0, .04); --btn-line: #D2D2D2; --soft-hover: #E0E0E0;
-  --select: #EAEAEA; --select-ink: #121212;
-  --brand: #0F8F62; --link: #00754A; --focus: #00754A; --ring: #00754A; --on-brand: #FFFFFF;
-  --brand-deep: #006239; --brand-edge: #B5E3CF;
+  --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F4F6F2; --surface-3: #E8EBE6; --well: #F1F3EF; --lift: #FFFFFF; --badge: #E8EBE6; --pit: #F4F6F2;
+  --line: #E3E6E0; --line-strong: #C9CDC5; --graphite: #B3B6B0; --field: #868685;
+  --ink: #0E0F0C; --ink-strong: #0E0F0C; --ink-2: #454745; --ink-3: #6A6C6A;
+  --primary: #9FD182; --primary-hover: #B9E2A2; --primary-ink: #163300; --primary-line: transparent;
+  --cta: #9FD182; --cta-hover: #B9E2A2; --cta-ink: #163300;
+  --btn: transparent; --btn-hover: rgba(22, 51, 0, .05); --btn-line: #C9CDC5; --soft-hover: #E2F6D5;
+  --select: #E2F6D5; --select-ink: #163300;
+  --brand: #163300; --link: #163300; --focus: #163300; --ring: #163300; --on-brand: #9FD182;
+  --brand-deep: #163300; --brand-edge: #CDEFB6;
   --edge-strong: 0 0 0 1px var(--line);
-  --glass: rgba(255, 255, 255, .88); --glass-line: #E4E4E4;
-  --pos: #00754A; --neg: #C4302B;
-  --good: #0F8F62; --warn: #B87A00; --warn-ink: #8A5A00; --crit: #D92D20; --info: #6B6B6B;
-  --good-bg: rgba(15, 143, 98, .10); --warn-bg: rgba(184, 122, 0, .12); --crit-bg: rgba(217, 45, 32, .09); --info-bg: rgba(0, 0, 0, .05);
-  --track: #E2E2E2; --hover-line: #8C8C8C; --knob: #FFFFFF; --switch-off: #C4C4C4; --switch-on: #0F8F62;
+  --glass: rgba(255, 255, 255, .88); --glass-line: #E3E6E0;
+  --pos: #2F5711; --neg: #C4302B;
+  --good: #2F5711; --warn: #B87A00; --warn-ink: #8A5A00; --crit: #D03238; --info: #6A6C6A;
+  --good-bg: #E2F6D5; --warn-bg: rgba(184, 122, 0, .12); --crit-bg: rgba(208, 50, 56, .09); --info-bg: rgba(14, 15, 12, .05);
+  --track: #E8EBE6; --hover-line: #868685; --knob: #FFFFFF; --switch-off: #C9CDC5; --switch-on: #163300;
   --s1: #1FA390; --s2: #B87A00; --s3: #4A8FE8; --s4: #D95926; --s5: #9085E9; --s6: #D55181; --s7: #5F9A31;
-  --col: #004D2E; --col-muted: #949494; --grid: #EDEDED;
-  --spark: var(--link); --spark-bg: color-mix(in srgb, var(--link) 7%, transparent); --spark-line: color-mix(in srgb, var(--link) 40%, transparent); --spark-ink: #FFFFFF;
-  --cur: rgba(15, 143, 98, .13); --cur-sum: rgba(15, 143, 98, .2);
-  --scrim: rgba(0, 0, 0, .38);
+  --col: #163300; --col-muted: #C3C7BF; --grid: #EEF0EC;
+  --spark: var(--link); --spark-bg: #F0FAE9; --spark-line: rgba(22, 51, 0, .25); --spark-ink: #9FD182;
+  --cur: rgba(159, 209, 130, .30); --cur-sum: rgba(159, 209, 130, .42);
+  --scrim: rgba(14, 15, 12, .38); --on-dark: #FFFFFF;
 }
 /* amber as a small label needs a darker step than amber as a dot; the reminder count sits on the deep green so its number reads */
 .app-light .nav .count, .app-light .btn .count { color: var(--warn-ink); }

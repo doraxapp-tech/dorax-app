@@ -83,7 +83,7 @@ function applyTheme(pub) {
   root.classList.toggle('in-app', !pub);      // the app itself is on screen: the room for the page's scroll bar is kept (css/base/tokens.css)
   // on a phone the browser's own bar takes the colour of the panel at the top of the page, so the two read as one piece
   const phone = !pub && window.matchMedia && matchMedia('(max-width: 920px)').matches;
-  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#D6E3DD' : '#00190F')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the
     bar cluttered); where the data lives is said in Settings, under Your data. It never claims a save that did not happen. */

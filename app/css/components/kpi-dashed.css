@@ -4,6 +4,6 @@
    (.kpis.eq, one dashed frame around its figures): a fine dashed edge in the strong line grey, on black. Their words keep their colours (the net
    balance in green, a debt in red). The light theme keeps its own surface under the dashed edge. */
 .kpi, .card.tile, .card.g-total, .kpis.eq { border: 1px dashed var(--line-strong); }
-:root:not(.app-light) .kpi, :root:not(.app-light) .card.tile, :root:not(.app-light) .card.g-total, :root:not(.app-light) .kpis.eq { background: #000000; }
+:root:not(.app-light) .kpi, :root:not(.app-light) .card.tile, :root:not(.app-light) .card.g-total, :root:not(.app-light) .kpis.eq { background: var(--bg); }      /* the page's own black (Wise's #0E0F0C inside the app, 2026-10-11) */
 .kpis.eq .kpi { border: 0; background: none; }      /* inside the company's sum: one frame for all of it */
 @media (hover: hover) and (pointer: fine) { .kpi.tap:hover { border-color: var(--brand); } }      /* a tile that opens something: its edge turns green, like the summary's line */

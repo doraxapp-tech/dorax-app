@@ -19,7 +19,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.fill('#d-amount', '150');
   eq(await page.evaluate(() => { const e = document.querySelector('#tx-limit .tx-lim'); return [e.className, e.innerText.trim(), !!e.querySelector('.meter')]; }), ['tx-lim go', `Con este gasto te quedan ${await fmtM(l0 - 15000)} de ${await fmtM(120000)} en Supermercado este mes.`, true], 'with the amount typed: what would be left, and a bar');
   await page.fill('#d-amount', '5000');
-  eq(await page.evaluate(() => { const e = document.querySelector('#tx-limit .tx-lim'); return [e.className, /te pasas/.test(e.innerText), getComputedStyle(e.querySelector('p')).color]; }), ['tx-lim crit', true, 'rgb(255, 149, 146)'], 'over it: said in red, with how much');
+  eq(await page.evaluate(() => { const e = document.querySelector('#tx-limit .tx-lim'); return [e.className, /te pasas/.test(e.innerText), getComputedStyle(e.querySelector('p')).color]; }), ['tx-lim crit', true, 'rgb(255, 143, 135)'], 'over it: said in red, with how much');
   // ---------- 2. nothing where it does not belong ----------
   await page.tap('.tx-pick[data-k="casa|alquiler"]'); await page.waitForTimeout(150);
   eq(await page.evaluate(() => document.querySelector('#tx-limit').innerText.trim()), '', 'a group with a fixed bill: nothing');

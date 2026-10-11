@@ -4,7 +4,7 @@
 /* ---------- the first-time setup, the same kind of page (features/onboarding; owner, 2026-10-10: "make the web app's onboarding like that") ---------- */
 html.ob-open, html.ob-open body { overflow: hidden; }
 .ob-wrap { padding: 0 !important; min-height: 100vh; }
-.ob-page { --ink: #FFFFFF; --ink-2: rgba(255, 255, 255, .72); --ink-strong: #FFFFFF; --line: rgba(255, 255, 255, .14); --track: rgba(255, 255, 255, .2); --brand: #3ECF8E; --focus: #FFFFFF; }
+.ob-page { --ink: #FFFFFF; --ink-2: rgba(255, 255, 255, .72); --ink-strong: #FFFFFF; --line: rgba(255, 255, 255, .14); --track: rgba(255, 255, 255, .2); --brand: #9FD182; --focus: #FFFFFF; }
 .ob-page .ob-bar { position: absolute; z-index: 2; top: calc(12px + var(--safe-t, 0px)); left: 16px; right: 16px; display: flex; align-items: center; gap: 10px; }
 .ob-page .ob-brand { display: inline-flex; transform: scale(.62); transform-origin: left center; }      /* the logo, small: the words are the page's */
 .ob-page .ob-bar select.lang { width: auto; min-height: 40px; padding: 4px 28px 4px 12px; font-size: 13px; color: var(--on-dark); background-color: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .18); border-radius: 999px; }
@@ -16,30 +16,30 @@ html.ob-open, html.ob-open body { overflow: hidden; }
 .ob-page .field label, .ob-page .ob-slide-h label { color: rgba(255, 255, 255, .72); font-size: 13.5px; font-weight: 500; }
 .ob-page .field input[type=text] { min-height: 52px; font-size: 17px; color: var(--on-dark); background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .18); border-radius: 16px; padding: 0 16px; }
 .ob-page .field input[type=text]::placeholder { color: rgba(255, 255, 255, .4); }
-.ob-page .field input[type=text]:focus { border-color: #3ECF8E; box-shadow: 0 0 0 3px rgba(62, 207, 142, .25); outline: 0; }
+.ob-page .field input[type=text]:focus { border-color: #9FD182; box-shadow: 0 0 0 3px rgba(159, 209, 130, .25); outline: 0; }
 .ob-page .ob-dream { color: var(--on-dark); background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .16); border-radius: 18px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.ob-page .ob-dream .fl-ico { background: rgba(62, 207, 142, .16); border-color: transparent; color: #3ECF8E; }
-.ob-page .ob-dream[aria-pressed="true"] { background: rgba(62, 207, 142, .18); border-color: #3ECF8E; color: var(--on-dark); transform: translateY(-1px); }
-.ob-page .ob-dream[aria-pressed="true"] .fl-ico { background: #3ECF8E; color: #04140C; }
+.ob-page .ob-dream .fl-ico { background: rgba(159, 209, 130, .16); border-color: transparent; color: #9FD182; }
+.ob-page .ob-dream[aria-pressed="true"] { background: rgba(159, 209, 130, .18); border-color: #9FD182; color: var(--on-dark); transform: translateY(-1px); }
+.ob-page .ob-dream[aria-pressed="true"] .fl-ico { background: #9FD182; color: #163300; }
 .ob-page .ob-val { color: var(--on-dark); border-bottom-color: rgba(255, 255, 255, .35); }
 .ob-page .ob-val input[type=text] { color: var(--on-dark); font-size: 22px; font-weight: 700; }
-.ob-page .ob-slide input[type=range]::-webkit-slider-thumb { background: #FFFFFF; border-color: #3ECF8E; box-shadow: 0 0 0 6px rgba(62, 207, 142, .22); }
+.ob-page .ob-slide input[type=range]::-webkit-slider-thumb { background: #FFFFFF; border-color: #9FD182; box-shadow: 0 0 0 6px rgba(159, 209, 130, .22); }
 .ob-page .ob-hero { border-bottom-color: rgba(255, 255, 255, .14); }
-.ob-page .ob-hero .rw-n { font-size: clamp(64px, 18vw, 92px); color: #3ECF8E; letter-spacing: -.03em; }
+.ob-page .ob-hero .rw-n { font-size: clamp(64px, 18vw, 92px); color: #9FD182; letter-spacing: -.03em; }
 .ob-page .ob-hero .rw-u, .ob-page .ob-hero > p { color: rgba(255, 255, 255, .82); }
 .ob-page .ob-fact { border-bottom-color: rgba(255, 255, 255, .12); }
 .ob-page .ob-fact b { color: var(--on-dark); } .ob-page .ob-fact small { color: rgba(255, 255, 255, .62); }
-.ob-page .fl-ico { background: rgba(62, 207, 142, .16); border-color: transparent; color: #3ECF8E; }
-.ob-page .ob-when { color: #3ECF8E; }
+.ob-page .fl-ico { background: rgba(159, 209, 130, .16); border-color: transparent; color: #9FD182; }
+.ob-page .ob-when { color: #9FD182; }
 .ob-page .ob-way { color: var(--on-dark); background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .16); border-radius: 20px; }
 .ob-page .ob-way small { color: rgba(255, 255, 255, .62); }
 .ob-page .note, .ob-page .js-soft { color: rgba(255, 255, 255, .6); }
 .ob-page .ob-foot { border-top: 0; margin-top: 0; flex-wrap: nowrap; align-items: stretch; }
-.ob-page .ob-foot .ob-cheer { order: 0; flex: none; margin: 0; color: #3ECF8E; font-size: 15px; font-weight: 600; }
+.ob-page .ob-foot .ob-cheer { order: 0; flex: none; margin: 0; color: #9FD182; font-size: 15px; font-weight: 600; }
 .ob-page .ob-dots { justify-content: stretch; padding: 0; gap: 6px; }
 .ob-page .ob-dots i { flex: 1 1 0; width: auto; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, .18); transform: none; }
-.ob-page .ob-dots i.done { background: rgba(62, 207, 142, .6); } .ob-page .ob-dots i.now { background: #3ECF8E; transform: none; }
-.ob-page .ob-foot .btn.primary.js-go { order: 0; flex: 1 1 auto; height: 56px; border-radius: 999px; font-size: 17px; background: #006239; border-color: #006239; color: var(--on-dark); }
+.ob-page .ob-dots i.done { background: rgba(159, 209, 130, .6); } .ob-page .ob-dots i.now { background: #9FD182; transform: none; }
+.ob-page .ob-foot .btn.primary.js-go { order: 0; flex: 1 1 auto; height: 56px; border-radius: 999px; font-size: 17px; background: #9FD182; border-color: #9FD182; color: #163300; }
 .ob-page .ob-foot .btn.js-back { flex: none; width: 56px; height: 56px; padding: 0; justify-content: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .22); color: var(--on-dark); }
 .ob-page .ob-later { margin: 0; } .ob-page .ob-later .linkbtn { color: rgba(255, 255, 255, .62); }
 .js-body.in .ob-dream, .js-body.in .ob-way, .js-body.in .ob-fact { animation: js-rise .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.3s + var(--i, 0) * .07s); }
@@ -49,13 +49,13 @@ html.ob-open, html.ob-open body { overflow: hidden; }
 /* its own look: black, and a soft green light drifting slowly behind (no path, no hills: those are the Journey's) */
 .ob-glow { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .ob-glow i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; filter: blur(60px); opacity: .22; }      /* barely there (owner, 2026-10-10: "less green") */
-.ob-glow i:first-child { left: -25vmax; bottom: -35vmax; background: radial-gradient(circle, rgba(0, 98, 57, .9), rgba(0, 98, 57, 0) 65%); animation: ob-drift 22s ease-in-out infinite alternate; }
-.ob-glow i:last-child { right: -30vmax; top: -38vmax; background: radial-gradient(circle, rgba(62, 207, 142, .18), rgba(62, 207, 142, 0) 60%); animation: ob-drift 28s ease-in-out infinite alternate-reverse; }
+.ob-glow i:first-child { left: -25vmax; bottom: -35vmax; background: radial-gradient(circle, rgba(22, 51, 0, .9), rgba(22, 51, 0, 0) 65%); animation: ob-drift 22s ease-in-out infinite alternate; }
+.ob-glow i:last-child { right: -30vmax; top: -38vmax; background: radial-gradient(circle, rgba(159, 209, 130, .18), rgba(159, 209, 130, 0) 60%); animation: ob-drift 28s ease-in-out infinite alternate-reverse; }
 @keyframes ob-drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(8vmax, -6vmax) scale(1.12); } }
 /* the dream chosen lights up */
 .ob-page .ob-dream[aria-pressed="true"] { animation: ob-lit .7s cubic-bezier(.2, .8, .2, 1) both; }
-.ob-page .ob-dream[aria-pressed="true"] .fl-ico { box-shadow: 0 0 0 6px rgba(62, 207, 142, .18), 0 0 22px rgba(62, 207, 142, .55); }
-@keyframes ob-lit { 0% { transform: scale(.97); box-shadow: 0 0 0 0 rgba(62, 207, 142, .6); } 60% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(62, 207, 142, 0); } 100% { transform: translateY(-1px); } }
+.ob-page .ob-dream[aria-pressed="true"] .fl-ico { box-shadow: 0 0 0 6px rgba(159, 209, 130, .18), 0 0 22px rgba(159, 209, 130, .55); }
+@keyframes ob-lit { 0% { transform: scale(.97); box-shadow: 0 0 0 0 rgba(159, 209, 130, .6); } 60% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(159, 209, 130, 0); } 100% { transform: translateY(-1px); } }
 /* a computer: the page's words in the middle (there is no picture beside them) */
 @media (min-width: 921px) { .js-page.ob-page { align-items: center; padding-left: 0; } .ob-page .js-body, .ob-page .js-foot { width: min(560px, 92vw); margin: 0 auto; } }
 @media (prefers-reduced-motion: reduce) { .ob-glow i, .ob-page .ob-dream[aria-pressed="true"] { animation: none; } }
@@ -70,7 +70,7 @@ html.ob-open, html.ob-open body { overflow: hidden; }
 .ob-page .fl-ico, .ob-page .ob-dream .fl-ico { background: rgba(255, 255, 255, .08); color: var(--on-dark); }
 .ob-page .ob-dream, .ob-page .ob-way { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; border-color: rgba(255, 255, 255, .14); }
 .ob-page .ob-dream[aria-pressed="true"] { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .6); animation: none; }
-.ob-page .ob-dream[aria-pressed="true"] .fl-ico { background: #3ECF8E; color: #04140C; box-shadow: none; }
+.ob-page .ob-dream[aria-pressed="true"] .fl-ico { background: #9FD182; color: #163300; box-shadow: none; }
 .ob-page .field input[type=text] { background: transparent; }
 .ob-page .ob-foot .btn.primary.js-go { box-shadow: none; }
 

@@ -8,7 +8,7 @@ const { open, ok, eq, done } = require('./pw.js');
 const fs = require('fs'), path = require('path');
 
 (async () => {
-  const DEEP = 'rgb(0, 98, 57)', BRIGHT = 'rgb(93, 187, 139)';
+  const DEEP = 'rgb(159, 209, 130)', BRIGHT = 'rgb(159, 209, 130)';      // since 2026-10-11 the main buttons and what is due now are both Wise's lime, with forest words
   const toast = p => p.evaluate(() => document.querySelector('#toast').innerText.trim());
 
   // ---------- 1. the company's side, put away ----------
@@ -23,7 +23,7 @@ const fs = require('fs'), path = require('path');
     'someone with a company finds “I no longer have a company” in Settings, under “Your data”; it is not one more row of the menu everybody opens every day');
   await page.click('#set-co-off'); await page.waitForSelector('.modal');
   eq(await page.evaluate(() => { const m = document.querySelector('.modal'); return [m.querySelector('h2').innerText.trim(), /Nothing is deleted/.test(m.innerText), /brings it all back/.test(m.innerText), [...m.querySelectorAll('button')].map(b => b.innerText.trim()).includes('Put it away'), !!m.querySelector('input'), S.user.company, getComputedStyle(document.querySelector('#modal-ok')).backgroundColor]; }),
-    ['Put the company’s side away?', true, true, true, false, undefined, 'rgb(0, 98, 57)'], 'it asks first, says nothing is deleted and how to bring it back, and needs no word typed: nothing is lost by it');
+    ['Put the company’s side away?', true, true, true, false, undefined, 'rgb(159, 209, 130)'], 'it asks first, says nothing is deleted and how to bring it back, and needs no word typed: nothing is lost by it');
   await page.evaluate(() => A['modal-cancel']()); eq(await page.evaluate(() => [S.user.company, hasCompany()]), [undefined, true], 'Cancel changes nothing');
   await page.evaluate(() => { A.space({ v: 'business' }); navigate('plan'); A['co-close'](); }); await page.click('[data-a="modal-confirm"]');
   const after = await page.evaluate(() => { const rs = allReminders().filter(r => !snoozedNow(r)); return { flag: S.user.company, has: hasCompany(), space: UI.space, route: UI.route, scope: UI.space, blue: document.documentElement.classList.contains('side-co'), sw: document.querySelectorAll('#rail-side button, .side-seg button').length, tag: document.querySelectorAll('.side-tag:not([hidden])').length,
@@ -76,14 +76,14 @@ const fs = require('fs'), path = require('path');
   // ---------- 3. the main button ----------
   await page.evaluate(() => { S.month = '2026-10'; navigate('plan'); });
   eq(await page.evaluate(() => { const c = s => { const e = document.querySelector(s); return e ? getComputedStyle(e).backgroundColor : null; }, soon = [...document.querySelectorAll('#paylist .btn.primary.now')], later = [...document.querySelectorAll('#paylist .btn.later')];
-    return [c('.topbar .btn.primary'), getComputedStyle(document.querySelector('.topbar .btn.primary')).color, soon.length, soon.every(b => getComputedStyle(b).backgroundColor === 'rgb(93, 187, 139)'), later.length > 0, document.querySelectorAll('#paylist .btn.primary:not(.now)').length]; }), [DEEP, 'rgb(212, 212, 212)', 1, true, true, 0],
+    return [c('.topbar .btn.primary'), getComputedStyle(document.querySelector('.topbar .btn.primary')).color, soon.length, soon.every(b => getComputedStyle(b).backgroundColor === 'rgb(159, 209, 130)'), later.length > 0, document.querySelectorAll('#paylist .btn.primary:not(.now)').length]; }), [DEEP, 'rgb(22, 51, 0)', 1, true, true, 0],
     'the Plan: the screen’s main button is the deep green with light words; the one bill due within a week is the bright green, and no other row is filled');
   await page.evaluate(() => A['new-tx']());
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.drawer footer .btn.primary')).backgroundColor, document.querySelectorAll('.drawer .btn.primary.now').length]), [DEEP, 0], 'a panel’s Save is the deep green');
   await page.evaluate(() => { A.close(); navigate('dashboard'); });
-  eq(await page.evaluate(() => { const now = [...document.querySelectorAll('#todo .btn.primary.now')], all = [...document.querySelectorAll('#view .btn.primary')]; return [now.length > 0, now.every(b => getComputedStyle(b).backgroundColor === 'rgb(93, 187, 139)'), all.filter(b => !b.classList.contains('now')).every(b => getComputedStyle(b).backgroundColor === 'rgb(0, 98, 57)')]; }), [true, true, true], 'the dashboard: what is due now in the to-do list is bright; any other filled button is deep green');
+  eq(await page.evaluate(() => { const now = [...document.querySelectorAll('#todo .btn.primary.now')], all = [...document.querySelectorAll('#view .btn.primary')]; return [now.length > 0, now.every(b => getComputedStyle(b).backgroundColor === 'rgb(159, 209, 130)'), all.filter(b => !b.classList.contains('now')).every(b => getComputedStyle(b).backgroundColor === 'rgb(159, 209, 130)')]; }), [true, true, true], 'the dashboard: what is due now in the to-do list is bright; any other filled button is deep green');
   await page.evaluate(() => A.reminders()); await page.waitForSelector('.drawer .rem');
-  eq(await page.evaluate(() => { const pay = [...document.querySelectorAll('.drawer .rem [data-a="line-pay-now"]')], rest = [...document.querySelectorAll('.drawer .btn.primary:not(.now)')]; return [pay.length > 0, pay.every(x => x.classList.contains('now') && getComputedStyle(x).backgroundColor === 'rgb(93, 187, 139)'), rest.every(x => getComputedStyle(x).backgroundColor === 'rgb(0, 98, 57)')]; }), [true, true, true], 'the bell: a bill to mark as paid is bright, because the bell only holds what is due; any other filled button there is deep green');
+  eq(await page.evaluate(() => { const pay = [...document.querySelectorAll('.drawer .rem [data-a="line-pay-now"]')], rest = [...document.querySelectorAll('.drawer .btn.primary:not(.now)')]; return [pay.length > 0, pay.every(x => x.classList.contains('now') && getComputedStyle(x).backgroundColor === 'rgb(159, 209, 130)'), rest.every(x => getComputedStyle(x).backgroundColor === 'rgb(159, 209, 130)')]; }), [true, true, true], 'the bell: a bill to mark as paid is bright, because the bell only holds what is due; any other filled button there is deep green');
   await page.evaluate(() => { A.close(); A.space({ v: 'business' }); navigate('plan'); });
   eq(await page.evaluate(() => getComputedStyle(document.querySelector('.topbar .btn.primary')).backgroundColor), DEEP, 'on the company’s side the main button stays the brand’s deep green');
   await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'light'; render(); navigate('plan'); });
@@ -93,7 +93,7 @@ const fs = require('fs'), path = require('path');
   // ---------- 4. More on a phone, and the buttons there ----------
   for (const [lang, w] of [['es', 390], ['pt', 320]]) {
     ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: w === 320 ? 568 : 844 }, touch: true, mobile: true }));
-    eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#tabbar .fab')).backgroundColor, getComputedStyle(document.querySelector('#tabbar .fab')).color]), ['rgb(0, 98, 57)', 'rgb(212, 212, 212)'], `${lang}, ${w}px: the round + is the phone’s main action, #006239 with a white + (owner, 2026-10-10)`);
+    eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#tabbar .fab')).backgroundColor, getComputedStyle(document.querySelector('#tabbar .fab')).color]), ['rgb(159, 209, 130)', 'rgb(22, 51, 0)'], `${lang}, ${w}px: the round + is the phone’s main action, #006239 with a white + (owner, 2026-10-10)`);
     await page.evaluate(() => A.sheet());
     eq(await page.evaluate(() => { const gs = [...document.querySelectorAll('.sheet .mr-nav .nav-group')].map(g => [...g.querySelectorAll('a')].map(a => a.getAttribute('href').slice(1))), second = document.querySelectorAll('.sheet .mr-nav .nav-group')[1], off = document.querySelector('#sheet-co-off');
       return [gs, getComputedStyle(second).borderTopWidth, parseFloat(getComputedStyle(second).paddingTop) >= 6, document.querySelectorAll('.sheet [data-a="co-close"]').length, document.querySelector('.sheet').scrollWidth <= document.querySelector('.sheet').clientWidth]; }),

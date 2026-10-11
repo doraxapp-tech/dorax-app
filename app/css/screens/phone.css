@@ -40,7 +40,7 @@
   /* 2026-10-09 (owner: "take the green off the top menu, I don't like it any more; put a blurred background, almost invisible, from green to black").
      The panel is glass now: a breath of the side's colour (--glow: green at home, the company's blue on its side) that fades into the page's
      black, through the panel and the balance under it, with the page blurred behind the row that stays on screen. */
-  .navbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; min-height: 0; padding: calc(var(--safe-t) + 22px) 14px 10px 16px; background: linear-gradient(180deg, rgba(var(--glow), .26), rgba(var(--glow), .12)), rgba(0, 0, 0, .78); color: var(--on-dark); border-bottom: 0; -webkit-backdrop-filter: saturate(150%) blur(20px); backdrop-filter: saturate(150%) blur(20px); transition: box-shadow var(--t2) ease-out; }
+  .navbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; min-height: 0; padding: calc(var(--safe-t) + 22px) 14px 10px 16px; background: linear-gradient(180deg, rgba(var(--glow), .26), rgba(var(--glow), .12)), color-mix(in srgb, var(--bg) 78%, transparent); color: var(--on-dark); border-bottom: 0; -webkit-backdrop-filter: saturate(150%) blur(20px); backdrop-filter: saturate(150%) blur(20px); transition: box-shadow var(--t2) ease-out; }
   .scrolled .navbar { box-shadow: 0 1px 0 rgba(255, 255, 255, .07); }
   .navbar.solo { padding-bottom: 16px; }      /* no company, so no choice of side under it: the row is the whole panel */
   .navbar .bar-title, .navbar .btn.primary { display: none; }
@@ -61,7 +61,7 @@
   @media (hover: hover) and (pointer: fine) { .navbar .bell:hover { background: rgba(255, 255, 255, .12); color: var(--on-dark); } }      /* a finger's tap leaves no hover behind (usability QC, 2026-10-08) */
   .more-btn[aria-current="page"] { background: #FAFAFA; color: #0A0A0A; border-color: #FAFAFA; }
   .navbar .bell:focus-visible, .more-btn:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
-  .navbar .bell .count, .app-light .navbar .bell .count { background: var(--brand); color: #04140C; box-shadow: 0 0 0 2px #050505; }
+  .navbar .bell .count, .app-light .navbar .bell .count { background: var(--brand); color: var(--on-brand); box-shadow: 0 0 0 2px #050505; }
   .side-co .navbar .bell .count { background: var(--fab); color: var(--fab-ink); }
   .navbar .save-badge { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
   .bar-side { display: block; background: none; padding: 4px 16px 16px; border-radius: 0 0 22px 22px; -webkit-user-select: none; user-select: none; }
@@ -104,9 +104,9 @@
      background of the middle (+), the + white; the active tab's icon #00754A"): the screen in use is a line along the bar's top edge over its tab and
      its icon in green, no grey mark behind it. The company's side keeps its blue (blue is the company's alone). */
   .tabbar a[aria-current="page"] { position: relative; background: none; }
-  .tabbar a[aria-current="page"]::before { content: ""; position: absolute; top: -6px; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: #006239; }
-  .tabbar a[aria-current="page"] svg { color: #00754A; }
-  .tabbar .fab { background: #006239; color: var(--on-dark); }
+  .tabbar a[aria-current="page"]::before { content: ""; position: absolute; top: -6px; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: var(--brand); }
+  .tabbar a[aria-current="page"] svg { color: var(--brand); }
+  .tabbar .fab { background: var(--cta); color: var(--cta-ink); }      /* Wise's lime with forest words (2026-10-11; it was #006239 with white) */
   .side-co .tabbar a[aria-current="page"]::before { background: var(--fab); }
   .side-co .tabbar a[aria-current="page"] svg { color: var(--fab); }
   .side-co .tabbar .fab { background: var(--fab); color: var(--fab-ink); }
@@ -129,6 +129,7 @@
   /* centred (owner, 2026-10-08), the amounts and the arrow in the side's bright colour: green at home (deep green on a light page), blue for the company */
   .ins-m { font-weight: 500; color: var(--fab); }
   .ins-ar { font-size: 18px; font-weight: 500; line-height: 0; color: var(--fab); }
+  :root.app-light:not(.side-co) .ins-m, :root.app-light:not(.side-co) .ins-ar { color: var(--brand); }      /* on white, Wise's lime is too faint for words: its forest (2026-10-11) */
   .ins-pg { display: flex; justify-content: center; gap: 5px; margin-top: 2px; }
   .ins-pg i { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); opacity: .35; transition: opacity var(--t1) ease-out; }
   .ins-pg i.on { opacity: 1; }

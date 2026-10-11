@@ -145,7 +145,7 @@ function jstartScene() {
   return `<svg class="js-svg" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="js-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#020604"/><stop offset=".55" stop-color="#03130C"/><stop offset="1" stop-color="#062A1A"/></linearGradient>
-      <radialGradient id="js-dawn" cx="290" cy="150" r="260" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3ECF8E" stop-opacity=".9"/><stop offset=".35" stop-color="#006239" stop-opacity=".55"/><stop offset="1" stop-color="#006239" stop-opacity="0"/></radialGradient>
+      <radialGradient id="js-dawn" cx="290" cy="150" r="260" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9FD182" stop-opacity=".9"/><stop offset=".35" stop-color="#163300" stop-opacity=".55"/><stop offset="1" stop-color="#163300" stop-opacity="0"/></radialGradient>
       <filter id="js-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
     </defs>
     <rect width="400" height="640" fill="url(#js-sky)"/>

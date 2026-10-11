@@ -9,7 +9,7 @@
 .nav-rule { height: 1px; margin: 10px 12px; background: var(--line); }
 .nav a { display: flex; align-items: center; gap: 11px; padding: 8px 12px; border-radius: var(--r); color: var(--ink-2); text-decoration: none; font-weight: 400; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
 .nav a:hover { background: var(--surface-3); color: var(--ink-strong); }
-.nav a[aria-current="page"] { background: var(--select); color: var(--select-ink); font-weight: 500; }
+.nav a[aria-current="page"] { background: var(--select); color: var(--brand); font-weight: 500; }      /* the tab on screen: its words green, like its icon (owner, 2026-10-11) */
 .nav a[aria-current="page"] svg { color: var(--brand); }
 .nav svg, .tabbar svg { width: 17px; height: 17px; flex: none; transition: color var(--t1) ease-out; }
 /* Each icon of the menu moves once when its row is pointed at or reached with the keyboard (owner, 2026-10-05: "add animation to the sidebar icons

@@ -17,7 +17,7 @@
   --cur: rgba(29, 95, 209, .12); --cur-sum: rgba(29, 95, 209, .19);
   --side-line: rgba(29, 95, 209, .5); --side-tint: rgba(29, 95, 209, .06);
 }
-:root { --glow: 0, 98, 57; } :root.side-co { --glow: 31, 78, 158; }      /* the phone's top panel: a breath of the side's colour (screens/phone.css) */
+:root { --glow: 22, 51, 0; } :root.app-light:not(.side-co) { --glow: 159, 209, 130; } :root.side-co { --glow: 31, 78, 158; }      /* Wise's forest in dark, its lime in light (2026-10-11) */      /* the phone's top panel: a breath of the side's colour (screens/phone.css) */
 :root { --side: var(--primary); --side-ink: var(--primary-ink); --side-line: var(--primary-line); --side-tint: var(--good-bg); }
 /* the phone's round +, the main action there, wears the side's bright colour with dark words (the household's is the main button's green) */
 :root { --fab: var(--cta); --fab-ink: var(--cta-ink); }
@@ -91,7 +91,7 @@
    the logo itself"). The page behind is blurred and darkened; the wordmark stands in the middle with its quarter in the colour of the side being
    entered; under it the loader is the logo's own ring with that quarter going round it. app/motion.js times it. */
 #side-shift { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgba(0, 0, 0, .78); -webkit-backdrop-filter: blur(26px) saturate(120%); backdrop-filter: blur(26px) saturate(120%); color: var(--on-dark); }
-#side-shift.co { --shift-ac: #5B9DFF; } #side-shift.home { --shift-ac: #3ECF8E; }
+#side-shift.co { --shift-ac: #5B9DFF; } #side-shift.home { --shift-ac: #9FD182; }
 #side-shift .shift-in { display: flex; flex-direction: column; align-items: center; gap: 30px; padding: 24px; text-align: center; }
 #side-shift .shift-loader { width: 44px; height: 44px; overflow: visible; }
 #side-shift .shift-loader circle { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: 9; }

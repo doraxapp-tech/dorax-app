@@ -24,7 +24,7 @@ const { open, ok, eq, done } = require('./pw.js');
     const o = getComputedStyle(ks[1]);
     return [ks.map(x => x.querySelector('.label span').innerText.trim()), n.querySelector('.value').innerText.trim() === fmt.money(net, CUR), st.backgroundColor === o.backgroundColor && st.borderTopColor === o.borderTopColor, getComputedStyle(n.querySelector('.value')).color, lab.scrollWidth <= lab.clientWidth + 1, n.querySelector('.delta').innerText.trim(), !!n.querySelector('.hint')]; });
   const savedLine = await page.evaluate(() => 'Of which ' + fmt.money(personal().filter(a => a.currency === CUR && a.type === 'savings').reduce((s, a) => s + accountBalance(S, a.id, S.today), 0), CUR, { trim: true }) + ' in savings');
-  eq(k, [['Household net balance', 'Income', 'Spending', 'Left over', 'Still to pay'], true, true, 'rgb(93, 187, 139)', true, savedLine, true],
+  eq(k, [['Household net balance', 'Income', 'Spending', 'Left over', 'Still to pay'], true, true, 'rgb(159, 209, 130)', true, savedLine, true],
     'the net balance first: a tile like the others with its amount in green (owner: “no white background, only the green letters”), the household’s accounts in reais today, its name whole, with its (i); no “Put into goals”');
   ok(savedLine === 'Of which R$ 16.800 in savings', 'its second line: how much of it the savings accounts hold (Mercado Pago R$ 5.400 and Santander R$ 11.400)');
   await page.evaluate(() => { if (!numsHidden()) A['nums-toggle'](); });
@@ -95,7 +95,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { A.close(); A.space({ v: 'personal' }); });
   // ---------- the light theme ----------
   await page.evaluate(() => { S.settings.theme = 'light'; document.documentElement.classList.add('app-light'); render(); }); await page.waitForTimeout(200);
-  eq(await page.evaluate(() => { const ks = document.querySelectorAll('.kpis .kpi'); return [getComputedStyle(ks[0]).backgroundColor === getComputedStyle(ks[1]).backgroundColor, getComputedStyle(ks[0].querySelector('.value')).color]; }), [true, 'rgb(0, 98, 57)'], 'light theme: the same tile, its amount in the deep green');
+  eq(await page.evaluate(() => { const ks = document.querySelectorAll('.kpis .kpi'); return [getComputedStyle(ks[0]).backgroundColor === getComputedStyle(ks[1]).backgroundColor, getComputedStyle(ks[0].querySelector('.value')).color]; }), [true, 'rgb(22, 51, 0)'], 'light theme: the same tile, its amount in the deep green');
   eq(errors, [], 'no error in the console'); await browser.close();
 
   // ---------- 5. Spanish and Portuguese ----------

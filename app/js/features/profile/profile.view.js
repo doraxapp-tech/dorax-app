@@ -3,7 +3,7 @@
 
 /** The picture every person starts with (owner, 2026-10-06: "a pro image inspire in the app logo and colors"): a figure drawn the way the logo
     is drawn, in thick even strokes, on the logo's deep green; the head is the ring of the logo's "d", with its light green quarter. */
-const avatarDrawn = cls => `<span class="avatar ${cls || ''}" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="20" fill="#006239"/><g fill="none" stroke="#F4F7F5" stroke-width="3.2"><circle cx="20" cy="15.2" r="5.6"/><path d="M8.4 34a11.6 11.6 0 0 1 23.2 0"/><path stroke="#3ECF8E" d="M14.4 15.2a5.6 5.6 0 0 1 5.6-5.6"/></g></svg></span>`;
+const avatarDrawn = cls => `<span class="avatar ${cls || ''}" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="20" fill="#163300"/><g fill="none" stroke="#F4F7F5" stroke-width="3.2"><circle cx="20" cy="15.2" r="5.6"/><path d="M8.4 34a11.6 11.6 0 0 1 23.2 0"/><path stroke="#9FD182" d="M14.4 15.2a5.6 5.6 0 0 1 5.6-5.6"/></g></svg></span>`;
 /** The person's own photo when there is one (features/profile/photo.js), the drawn figure until then. */
 const avatar = cls => photoHas() ? `<span class="avatar photo ${cls || ''}" aria-hidden="true"><img src="${S.user.photo}" alt="" decoding="async"></span>` : avatarDrawn(cls);
 function userCard() {
