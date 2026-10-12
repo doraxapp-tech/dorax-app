@@ -926,7 +926,7 @@ function buildNewState(email, lang, today) {
       { id: 'income', name: 'Income', color: null, income: true, subs: [{ id: 'salary', name: 'Salary' }] }],
     plan: { lines: [] }, pay: { [year]: [] }, goals: [], goalMoves: [], remainderLabel: 'Left over', fii: { assets: {}, moves: [], sim: {} },
     user: { name: '', email, tone: 'friend', notify: { bills: true, close: false, summary: false, goals: true }, channels: { email: true }, remind: { lead: 3, snoozed: {} }, since: today, pendingEmail: null },
-    settings: { lang: NAME_LANGS.includes(lang) ? lang : 'en', locale: 'pt-BR', autoAcceptVerified: true, defaultProfile: null, closeDay: 15, platform: '', theme: 'light' }      /* light by default since 2026-10-11 (owner chose it with the second look); an account keeps the theme it chose */,
+    settings: { lang: NAME_LANGS.includes(lang) ? lang : 'en', locale: 'pt-BR', autoAcceptVerified: true, defaultProfile: null, closeDay: 15, platform: '', theme: 'system' }      /* as the device since v196 (owner, 2026-10-12: "muestra el lado oscuro o claro desde el primer inicio basado en la configuración de su dispositivo"; light from 2026-10-11); an account keeps the theme it chose */,
     clean: true, isNew: true,
   };
   tagNames(s); relabel(s, s.settings.lang);

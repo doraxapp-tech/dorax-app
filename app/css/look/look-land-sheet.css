@@ -3,7 +3,7 @@
    its name and the round close button light on it, its words white (#B5C2BE when quieter), its switches lime when chosen, its main button lime and
    the others light on the forest; the sheet is the summary's grey with a handle, rounded at the top, its lists in white cards; the buttons at the
    foot on the same grey. The notifications, More, "You can spend", the days of freedom and a fixed cost's details. */
-@media (max-width: 920px) {
+/* (v199: on a phone and on a computer; look-land-desk.css fits them to a computer) */
   /* ---------- the forest part ---------- */
   :root.land #overlay .drawer:has(.bq-sheet), :root.land #overlay .sheet:has(.bq-sheet) {
     --ink: #F1F4EE; --ink-strong: #FFFFFF; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
@@ -84,4 +84,4 @@
   :root.land #overlay .bq-sheet .gv-facts { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   :root.land #overlay .bq-sheet .gv-moves { padding: 4px 14px 8px; border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   :root.land #overlay .bq-sheet .gv-moves-h { display: block; margin: 12px 0 2px; color: var(--bq-ink); font-size: 17px; font-weight: 600; }
-}
+

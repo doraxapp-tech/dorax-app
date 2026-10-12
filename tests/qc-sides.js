@@ -6,6 +6,7 @@
 //   3. the company's setup in three screens, and what its answers become; leaving it for later;
 //   4. the household's summary: five figures first, To do only when a date is near, the goal's date on two lines, buttons that can be found;
 //   5. a phone, in three languages.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const { load } = require('./load.js');
 const T = '2026-10-02';
@@ -29,7 +30,7 @@ const T = '2026-10-02';
   const look = p => p.evaluate(() => { const cs = getComputedStyle(document.documentElement); return [document.documentElement.classList.contains('side-co'), cs.getPropertyValue('--brand').trim(), cs.getPropertyValue('--primary').trim(), cs.getPropertyValue('--cur').trim()]; });
 
   // ---------- 2. the side is chosen in the menu ----------
-  let { browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } });
   await signup(page, 'Ana');
   eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['system', true], 'a new account follows its device (v196, owner: "muestra el lado oscuro o claro desde el primer inicio basado en la configuración de su dispositivo"): this one is light');
   await page.emulateMedia({ colorScheme: 'dark' }); await page.waitForTimeout(150);
@@ -106,7 +107,7 @@ const T = '2026-10-02';
   await browser.close();
 
   // leaving the setup for later
-  ({ browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
   await signup(page, 'Bo');
   await page.evaluate(() => { S.settings.theme = 'dark'; render(); });      // the colours checked below are the dark theme's (a new account starts light)
   await page.click('#co-ask [data-a="co-answer"][data-v="yes"]'); await page.waitForSelector('#co-setup');

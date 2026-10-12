@@ -96,7 +96,8 @@ function applyTheme(pub) {
   const phone = !pub && window.matchMedia && matchMedia('(max-width: 920px)').matches;
   // a phone's summary, light, on the household's side: the summary "Bosque", its forest block at the top (owner, 2026-10-11: "lleva esa a cabo en
   // resumen, exactamente lo que me muestras"; features/phone/bosque.js, css/look/look-land.css), and the browser's bar the same forest
-  const land = !pub && phone && UI.space !== 'business' && !lookOld(); root.classList.toggle('land', land); root.classList.toggle('land-dark', land && !light);      // both themes since v194 ("el modo oscuro me lleva al diseño viejo"): the dark one is the look's dark version
+  // a computer too since v199 (owner, 2026-10-12: "push updates a la versión de ordenador"; css/look/look-land-desk.css)
+  const land = !pub && UI.space !== 'business' && !lookOld(); root.classList.toggle('land', land); root.classList.toggle('land-dark', land && !light);      // both themes since v194 ("el modo oscuro me lleva al diseño viejo"): the dark one is the look's dark version
   root.classList.toggle('land-page', land && UI.route !== 'dashboard' && UI.route !== 'transactions');      // every screen since v193 ("sigue con el resto de la webapp", features/phone/bosque-frame.js); the summary and Transactions have their own top
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#112622' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }
@@ -143,7 +144,7 @@ function renderShell() {
   // had one, owner 2026-10-08). The title stays for screen readers; a screen with no month keeps no empty row. The profile is in More.
   const named = UI.route !== 'dashboard';
   // a phone in the summary's look: the switch, the bell and More are the summary's; the other screens keep their own tools (features/phone/bosque-frame.js)
-  const bqFrame = named && typeof landOn === 'function' && landOn();
+  const bqFrame = named && typeof landOn === 'function' && landOn() && isPhone();      // a computer keeps its row: the title, the month, the bell, the screen's main button (v199)
   // the month's row: the summary's, and every screen's on a computer or outside this look; in this look the other screens say their month where it
   // counts (owner, 2026-10-12: "no me gusta la fecha en todas las pantallas, es repetitivo": Reports has it in its top, Plan and Goals a way back
   // when another month is in view; features/phone/bosque-frame.js)

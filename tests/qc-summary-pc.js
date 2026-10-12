@@ -13,10 +13,11 @@
 //      the order is the computer's own (the phone's is left alone) and it is kept; "Original order" undoes it; Escape closes and the focus goes back;
 //   4. the company's side: its own order, its button in its band, its runway beside the insight;
 //   5. Spanish and Portuguese.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
   await page.evaluate(() => navigate('dashboard'));
   // ---------- 1. the figures ----------
   const k = await page.evaluate(() => { const ks = [...document.querySelectorAll('#view .kpis .kpi')], n = ks[0], st = getComputedStyle(n), lab = n.querySelector('.label span');
@@ -100,7 +101,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 5. Spanish and Portuguese ----------
   for (const [lang, want] of [['es', ['Saldo neto del hogar', 'Ordenar el resumen', 'Dato del día']], ['pt', ['Saldo líquido da casa', 'Ordenar o resumo', 'Destaque do dia']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } }));
     await page.evaluate(() => navigate('dashboard'));
     eq(await page.evaluate(() => [document.querySelector('.kpi.net .label span').innerText.trim(), document.querySelector('#dash-order-btn').innerText.trim(), document.querySelector('#insight-card h2').innerText.trim()]), want, `${lang}: in the language`);
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${lang}: nothing wider than the page`);

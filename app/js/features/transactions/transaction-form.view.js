@@ -193,7 +193,7 @@ function txFormBody(d) {
 }
 function txDrawer(d) {
   const x = d.draft;
-  d.pad = !!d.isNew && typeof landOn === 'function' && landOn();      // a new one from the summary "Bosque" or its Transactions: its own keypad (features/phone/bosque-tx.js)
+  d.pad = !!d.isNew && typeof landOn === 'function' && landOn() && isPhone();      // a computer has its keyboard      // a new one from the summary "Bosque" or its Transactions: its own keypad (features/phone/bosque-tx.js)
   if (d.pad && d.padOff && d.invalid === 'd-amount') { d.padOff = false; d.padAt = performance.now(); }      // saved with no amount: its keys come back up (v197)
   return `<div class="body tx-body${d.pad ? ' bq-tx' : ''}">
     ${d.error ? errBanner(d.error) : ''}

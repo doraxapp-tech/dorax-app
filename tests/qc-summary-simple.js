@@ -102,8 +102,8 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(await page.evaluate(() => !document.querySelector('.pagehead .month')), 'v194: the other pages have no month row in the new look (owner: "no me gusta la fecha en todas las pantallas, es repetitivo")');
   eq(errors, [], 'no error in the console'); await browser.close();
 
-  // ---------- a computer: as it was ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
+  // ---------- a computer in the previous look (v199: the household's has the summary's look, tests/qc-desk-land.js; the company's side keeps this one) ----------
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   eq(await page.evaluate(() => [!!document.querySelector('#view .kpis'), getComputedStyle(document.querySelector('.topbar .month')).backgroundColor !== 'rgb(40, 40, 40)', !!document.querySelector('#runway-card .card-h [data-a="whatif"]'), !!document.querySelector('#runway-open'), document.querySelectorAll('#goals-card button.budget').length, document.querySelectorAll('#goals-card div.budget').length > 0]),
     [true, true, true, false, 0, true], 'a computer keeps its figures, its month’s button, its days-of-freedom card with its buttons, and the goals as lines');
   eq(errors, [], 'computer: no error in the console'); await browser.close();

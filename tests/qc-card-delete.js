@@ -1,11 +1,12 @@
 // QC of deleting an account whose card has two functions (owner, 2026-10-09: "accounts with debit and credit have a bug when deleting: when I create
 // it, it sits in one list, and when I delete it, it moves to the other list and is not deleted"). The account and its card are one: deleting the account
 // deletes its credit ledger and its debit balance with it, from the edit form (on a phone, reached from the account's panel); nothing is left behind in another list.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 let x;
 
 (async () => {
-  let { browser, page: p, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page: p, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
   await p.evaluate(() => navigate('accounts')); await p.waitForTimeout(300);
   const groups = () => p.evaluate(() => [...document.querySelectorAll('.cc-grid')].map(g => [g.dataset.kind, [...g.querySelectorAll('.cc-item')].map(i => acct(i.dataset.id).name)]));
   const left = re => p.evaluate(src => S.accounts.filter(a => new RegExp(src).test(a.name)).map(a => a.name), re);
@@ -40,7 +41,7 @@ let x;
   // ---------- 4. the lists of accounts (owner, 2026-10-09: "in transactions, choosing the account, I get PJ accounts and accounts I already deleted; make
   // sure no dropdown where an account is chosen keeps deleted accounts") ----------
   await browser.close();
-  ({ browser, page: p } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page: p } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } }));
   const opts = sel => p.evaluate(s => [...document.querySelectorAll(s + ' option')].map(o => o.textContent), sel);
   await p.evaluate(() => { A['new-tx'](); }); await p.waitForSelector('#d-account');
   eq(await opts('#d-account'), ['Nubank account (main)', 'Banco do Brasil', 'Mercado Pago', 'Santander'], 'a household transaction offers the household’s cards, once each: no company account, no card’s credit apart');

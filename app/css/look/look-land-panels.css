@@ -6,7 +6,7 @@
    #E9EDEC for the sheet, white for its fields and boxes, #DDE3E1 for their hairlines), and its shapes: a round close button, headings as the
    summary's, fields and buttons as white pills, a switch's choice deep green with lime words. The account's panel has its own extras
    (look-land-account.css). The other pages keep their panels as they were. */
-@media (max-width: 920px) {
+/* (v199: on a phone and on a computer; look-land-desk.css fits them to a computer) */
   :root.land #overlay {
     --lift: var(--bq-page); --surface: var(--bq-card); --surface-2: var(--bq-card-2); --surface-3: var(--bq-card-3); --well: var(--bq-card); --pit: var(--bq-card-2); --badge: var(--bq-card-3);
     --line: var(--bq-line); --line-strong: var(--bq-line-2); --field: var(--bq-line-2); --glass-line: var(--bq-line); --hover-line: #8FA19C;
@@ -89,7 +89,7 @@
      and a long press selects no digit (their "all: unset" had taken it away) */
   /* a short phone: the keys a little lower, so the form keeps room */
   @media (max-height: 740px) { :root.land #overlay .bq-key { min-height: 44px; font-size: 21px; } :root.land #overlay .bq-save { min-height: 56px; } :root.land #overlay .bq-save-ico { width: 44px; height: 44px; } }
-}
+
 /* the keypad folding away and coming back (features/phone/bosque-tx.js: bqPadSet, v197) */
 @keyframes bq-pad-out { from { grid-template-rows: 1fr; opacity: 1; visibility: visible; } to { grid-template-rows: 0fr; opacity: 0; visibility: hidden; } }
 @keyframes bq-pad-in { from { grid-template-rows: 0fr; opacity: 0; visibility: hidden; } to { grid-template-rows: 1fr; opacity: 1; visibility: visible; } }

@@ -8,6 +8,7 @@
 //   5. a company with nothing says so, with the two ways to start; a month that has passed is read the same way;
 //   6. the chosen month's column of a chart is drawn (it was not: a layout variable had taken the colour's name);
 //   7. it reads in three languages and fits a phone.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done, TARGET } = require('./pw.js');
 
 (async () => {
@@ -19,7 +20,7 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     const add = f => xs.filter(f).reduce((n, x) => n + x.amount, 0), income = add(x => x.type === 'income'), costs = -add(x => x.type === 'expense'), out = -add(x => x.type === 'transfer' && x.amount < 0 && !ids.has(x.transferAccountId)), came = add(x => x.type === 'transfer' && x.amount > 0 && !ids.has(x.transferAccountId));
     return { income, costs, out, came, n: xs.length, text: [fmt.money(income, cur), fmt.money(costs, cur), income || costs ? fmt.money(income - costs, cur) : '—', fmt.money(out, cur)] }; }, [cur, ym]);
   {
-    const o = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }), p = o.page;
+    const o = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }), p = o.page;
     await p.evaluate(() => { navigate('dashboard'); S.month = '2026-09'; render(); });
     // ---------------------------------------------------------------- 1. the switch, and the household's side
     eq(await p.evaluate(() => [[...document.querySelectorAll('#rail-side [data-a="space"]')].map(b => b.dataset.v + ':' + b.getAttribute('aria-label')), document.querySelectorAll('.pagehead [data-a="space"], .pagehead [data-a="space-cur"]').length, !!document.querySelector('.pagehead .month'), pageBookKey()]),

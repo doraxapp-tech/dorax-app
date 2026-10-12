@@ -1,7 +1,7 @@
 /* Dorax Finance — a contribution slid into its goal, and its success screen (features/goals/goal-win.js, v198; owner, 2026-10-12: "que el usuario
    sienta que está haciendo algo con su dinero"). The summary's colours only: deep green #112622, lime #B6DD62 (#C4E57A lighter), the logo's light green
    #9FD182, white, #B5C2BE for quieter words on the forest. */
-@media (max-width: 920px) {
+/* (v199: on a phone and on a computer; look-land-desk.css fits them to a computer) */
   /* ---------- the slide: a deep green track, the lime coin at its left, the goal's flag at its right end ---------- */
   :root.land #overlay footer.gw-foot { display: block; padding: 10px 16px calc(14px + var(--safe-b)); }
   :root.land #overlay .gw-slide { position: relative; height: 64px; border-radius: 999px; background: #112622; overflow: hidden; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
@@ -50,7 +50,7 @@
   /* its confetti in the summary's colours (app/motion.js: confetti) */
   #confetti.gw .c0 { background: #B6DD62; } #confetti.gw .c1 { background: #FFFFFF; } #confetti.gw .c2 { background: #9FD182; } #confetti.gw .c3 { background: #C4E57A; } #confetti.gw .c4 { background: #DDE3E1; }
   @media (prefers-reduced-motion: reduce) { :root.land #overlay .gw-say { animation: none; } :root.land #overlay .gw-slide.in .gw-goal, :root.land #overlay .gw-slide.in .gw-knob { animation: none; } }
-}
+
 @keyframes gw-shine { from { background-position: 100% 0; } to { background-position: -120% 0; } }      /* the words on the track: a light passing along them, toward the goal */
 @keyframes gw-gulp { 0% { transform: scale(1.06); } 45% { transform: scale(1.16); background-color: rgba(182, 221, 98, .4); } 100% { transform: scale(1); background-color: rgba(182, 221, 98, .18); } }
 @keyframes gw-drop { to { scale: .5; opacity: 0; } }

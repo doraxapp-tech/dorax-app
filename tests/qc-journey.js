@@ -11,10 +11,11 @@
 //   6. reminders: yesterday to mark while a sprint runs, a debt's payment coming due, a sprint ending; in the bell, in the push and the email words,
 //      and a switch in the profile; the server's copy of the rules follows;
 //   7. each side keeps its own journey.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const pushRefresh_wait = page => page.evaluate(() => pushRefresh());      // this device's notifications, read before the first panel opens
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
   // this device's notifications on (window.DORAX_PUSH stands in for the browser, as in qc-install.js): a sprint needs them (v132); the first time is
   // the onboarding (tests/qc-journey-start.js), so this account has had a sprint before
   await page.addInitScript(() => { const sub = { endpoint: 'https://push.example/this-device', keys: { p256dh: 'BPk', auth: 'YXV0aA' } }; window.DORAX_PUSH = { supported: () => true, needsInstall: () => false, permission: () => 'granted', ask: async () => 'granted', current: async () => sub, subscribe: async () => sub, unsubscribe: async () => {} }; });

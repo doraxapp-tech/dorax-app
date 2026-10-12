@@ -7,9 +7,10 @@
 //   3. the year month by month one click away: a wide panel, its cells typed in, Plan | Actual | Difference;
 //   4. the payments' buttons always in sight; under 1600 px without the "Paid" column; a narrower window stacks the two columns;
 //   5. a phone keeps its own page; Spanish; no error in the console.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; navigate('plan'); scrollTo(0, 0); });
   // ---------- 1. the page ----------
   eq(await page.evaluate(() => { const p = document.querySelector('#paylist').getBoundingClientRect(), m = document.querySelector('#plan-month').getBoundingClientRect(), l = document.querySelector('#limits-card').getBoundingClientRect();
@@ -46,7 +47,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { S.user.greeted = true; navigate('plan'); });
   eq(await page.evaluate(() => [!!document.querySelector('#paylist'), !!document.querySelector('#limits-card .lim-month'), !document.querySelector('#plan-month'), !document.querySelector('[data-a="plan-year-open"]'), !!document.querySelector('#desk-plan-year')]), [true, true, true, true, true], 'a phone keeps its own page: the limits with the month, the note about the year');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => { S.user.greeted = true; navigate('plan'); });
   eq(await page.evaluate(() => [document.querySelector('[data-a="plan-year-open"]').innerText.trim(), document.querySelector('#plan-month .pm-income').innerText.trim(), document.querySelector('#plan-month h2').innerText]), ['El año, mes a mes', 'Cambiar ingresos', 'Oct, según el plan'], 'es: “El año, mes a mes”, “Cambiar ingresos”');
   eq(errors, [], 'es: no error in the console'); await browser.close();

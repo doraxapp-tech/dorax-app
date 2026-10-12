@@ -6,6 +6,7 @@
 //   3. milestones: a mark of days of freedom passed, a goal reached, each cheered once;
 //   4. the company's insight, "What if…?", reports and accounts;
 //   5. changing sides with motion; the letters.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const { load } = require('./load.js');
 const T = '2026-10-02', MIN = 60000;
@@ -36,7 +37,7 @@ const T = '2026-10-02', MIN = 60000;
   const GREEN = 'rgb(159, 209, 130)', DEEP = 'rgb(159, 209, 130)';      // since 2026-10-11 Wise's lime is both the accent and the filled mark      // the brand's accent and its deep green (owner, 2026-10-07: "pink? use the brand's branding")
 
   // ---------- 2. a curiosity on screen ----------
-  let { browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, curio: true, server: { confirmEmail: false } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, curio: true, server: { confirmEmail: false } });
   await signup(page, 'Ana');
   // first steps: first on the dashboard while one is missing, and a moment of their own when the last is done (owner, 2026-10-07: "the first thing on
   // the dashboard of someone who has not finished all the steps must be that; and create an animation when they finish")
@@ -114,7 +115,7 @@ const T = '2026-10-02', MIN = 60000;
   await browser.close();
 
   // ---------- 5. changing sides with motion; the letters ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', viewport: { width: 1280, height: 900 }, motion: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', viewport: { width: 1280, height: 900 }, motion: true }));
   await page.waitForTimeout(600);
   await page.click('#rail-side [data-a="space"][data-v="business"]');
   // owner, 2026-10-07: "back to basics: a black screen with background blur, the Dorax logo and a loader under it, 'loading company account, one
@@ -130,7 +131,7 @@ const T = '2026-10-02', MIN = 60000;
   await page.waitForTimeout(420);
   await page.evaluate(() => A.space({ v: 'personal' })); await page.waitForTimeout(100); eq(await page.evaluate(() => UI.space), 'personal', 'choosing the side already in use changes nothing');
   eq(errors, [], 'motion: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', viewport: { width: 1280, height: 900 } }));
   await page.click('#rail-side [data-a="space"][data-v="business"]'); eq(await page.locator('#side-shift').count(), 0, 'no layer for someone who asked for less motion: the side just changes');
   await page.click('#rail-side [data-a="space"][data-v="personal"]');
   eq(await page.evaluate(() => { const px = (sel, prop) => parseFloat(getComputedStyle(document.querySelector(sel))[prop]) || 0; return [/^(normal|0px)$/.test(getComputedStyle(document.body).letterSpacing), px('.kpi .delta', 'letterSpacing') > 0, px('.kpi .delta', 'fontSize') >= 12.5, px('.kpi .label', 'letterSpacing') > 0, px('#runway-card .rw-next', 'fontSize') >= 13, px('#runway-card .rw-next', 'letterSpacing') > 0, px('.card-h h2', 'letterSpacing') > -0.2]; }), [true, true, true, true, true, true, true],

@@ -18,6 +18,10 @@
   @media (hover: hover) and (pointer: fine) { :root.land .navbar .bq-tool:hover { background: rgba(255, 255, 255, .14); } :root.land .navbar .bq-tool[aria-expanded="true"]:hover { background: #C4E57A; } }
   :root.land .navbar .bq-tool .count { position: absolute; top: -3px; right: -3px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #B6DD62; color: #112622; box-shadow: 0 0 0 2px #112622; font-size: 11px; font-weight: 700; line-height: 1; }
   :root.land .navbar .bq-tt { display: contents; }
+  :root.land .bq-chart { margin: 14px -16px 0; }      /* the chart: the block's whole width */
+  @media (max-width: 374px) { :root.land .bq-mon span { min-width: 52px; } }      /* a narrow phone: the month's name a little narrower; its arrows stay 44 px */
+}
+/* ---------- Transactions' block and list, and the summary's spending card: on a phone and (v199) on a computer (look-land-desk.css) ---------- */
 
   /* ---------- the block: search, the switch, the figure, the chart ---------- */
   :root.land .bq-txtop { display: flex; flex-direction: column; gap: 16px; padding: 10px 16px 50px; background: #112622; color: #FFFFFF; }
@@ -57,7 +61,7 @@
   :root.land .bq-mon span { min-width: 62px; color: #FFFFFF; font-size: 13px; font-weight: 600; text-align: center; white-space: nowrap; }
 
   /* the month added up day by day: the block's whole width; a finger moves the mark sideways, the page still scrolls up and down */
-  :root.land .bq-chart { margin: 14px -16px 0; }
+  :root.land .bq-chart { margin-top: 14px; }
   :root.land .bq-chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; outline: none; cursor: crosshair; font-family: inherit; font-variant-numeric: tabular-nums; }
   :root.land .bq-chart svg:focus-visible { outline: 2px solid #B6DD62; outline-offset: -2px; border-radius: 12px; }
   :root.land .bq-chart .g { stroke: rgba(255, 255, 255, .08); stroke-width: 1; }
@@ -127,10 +131,6 @@
   :root.land .bq-txnone .btn.sm { margin-top: 4px; border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); color: var(--bq-accent); font-weight: 600; }
 
   @media (prefers-reduced-motion: reduce) { :root.land .bq-op.flash { animation: none; } :root.land .bq-kind button, :root.land .navbar .bq-tool, :root.land .bq-add { transition: none; } }
-  /* a narrow phone: the month's name a little narrower, the figure and the month still side by side */
-  @media (max-width: 374px) {
-    :root.land .bq-mon span { min-width: 52px; }      /* its arrows stay 44 px to tap, as the round buttons of the bar */
-  }
 
   /* ---------- on the summary: the month's spending and the latest transactions, in one white card (v195) ---------- */
   :root.land .bq-mv { display: flex; flex-direction: column; padding: 16px 14px 6px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
@@ -160,4 +160,3 @@
   :root.land .bq-mv-h { margin: 14px 0 0; color: var(--bq-ink); font-size: 15px; font-weight: 600; }
   :root.land .bq-mv-h + .bq-day { border-top: 0; }
   :root.land .bq-mv-none { margin: 14px 0 10px; color: var(--bq-ink-2); font-size: 14px; }
-}

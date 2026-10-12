@@ -4,12 +4,13 @@
 //   2. the separate balance with no account yet: a savings account is made for it, with what is in it today when the person says so;
 //   3. imported: each comes with its other side (the card's invoice goes down, the separate balance moves), no income and no spending is counted;
 //   4. importing the same file again, nothing is doubled; and the import goes to the main account by default.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const CSV = ['Data,Valor,Identificador,Descrição', '06/10/2026,620.00,a1,Resgate RDB', '06/10/2026,-421.87,a2,Transferência enviada pelo Pix - Roberto - ITAÚ', '06/10/2026,-107.90,a3,Transferência enviada pelo Pix - CLARO',
   '07/10/2026,-13.00,a4,Transferência enviada pelo Pix - Yura', '07/10/2026,-77.79,a5,Pagamento de fatura', '07/10/2026,-50.00,a6,Aplicação RDB'].join('\n');
 
 (async () => {
-  let { browser, page: p, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page: p, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
   await p.evaluate(() => { setMain(acct('nu-conta'), true); S.transactions = S.transactions.filter(x => x.date < '2026-10-01'); navigate('imports'); });
   const sendCsv = async () => { await p.setInputFiles('#imp-file-csv', { name: 'NU_123_01OUT2026_07OUT2026.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV, 'utf8') }); await p.waitForFunction(() => UI.imp && UI.imp.step === 'map'); };
   await sendCsv();

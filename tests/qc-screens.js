@@ -3,7 +3,9 @@
 const { open, ok, eq, done } = require('./pw.js');
 const fs = require('fs'), path = require('path');
 (async () => {
-  const { browser, page, errors } = await open({ lang: 'en', plan: true, account: 'example' });
+  // v199: the household on a computer has the summary's look (tests/qc-desk-land.js); the figures are read here from the previous look's screens, the same
+  // calculations (tests/pw.js: oldLook)
+  const { browser, page, errors } = await open({ oldLook: true, lang: 'en', plan: true, account: 'example' });
   await page.addScriptTag({ content: fs.readFileSync(path.join(__dirname, 'qc-ref.js'), 'utf8') });
   let n = 0;
   const check = async (label, months) => {

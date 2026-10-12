@@ -103,9 +103,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
   eq(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, 'no sideways scroll');
   eq(errors, [], 'no error in the console'); await browser.close();
 
-  // ---------- a computer: no accounts list and no order ----------
+  // ---------- a computer (v199: the summary's look there too, tests/qc-desk-land.js): the accounts as logos, no order, as the phone ----------
   ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
-  eq(await page.evaluate(() => [!!document.querySelector('#ac-card'), !!document.querySelector('.dash-order #dash-order-btn'), !!document.querySelector('.hello #dash-order-btn'), parseFloat(getComputedStyle(document.querySelector('.topbar h1')).fontSize)]), [false, false, true, 20], 'a computer: no accounts list, its own “Reorder the dashboard” on the greeting’s line (tests/qc-summary-pc.js), and its title as it was');
+  eq(await page.evaluate(() => [!!document.querySelector('#ac-card'), !!document.querySelector('.dash-order #dash-order-btn'), !!document.querySelector('.hello #dash-order-btn'), parseFloat(getComputedStyle(document.querySelector('.topbar h1')).fontSize)]), [true, false, false, 20], 'v199: a computer has the summary’s look: its accounts as logos, no “Reorder the dashboard” (as the phone), its title on the forest, and its title as it was');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
 
   // ---------- 4. Spanish and Portuguese on the narrowest phone ----------
@@ -314,7 +314,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
   }
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
-  eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'a computer keeps its summary');
+  eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [true, true], 'v199: a computer has the summary’s look too (tests/qc-desk-land.js)');
   eq(errors, [], 'computer, Bosque: no error in the console'); await browser.close();
   done('qc-summary-phone');
 })();

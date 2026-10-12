@@ -4,9 +4,10 @@
 //   2. the card shows the tile's figure and the sum that makes it, worked out from the same data (the parts add up to the figure);
 //   3. the way further: Reports (in the view that holds the figure), the Plan for the bills, Accounts & savings for the balance; back returns to it;
 //   4. the company's four tiles open theirs.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; S.settings.locale = 'en-US'; navigate('dashboard'); }); await page.waitForSelector('.kpi-open');
   eq(await page.evaluate(() => [...document.querySelectorAll('.kpis .kpi-open')].map(b => b.dataset.k)), ['net', 'income', 'spending', 'left', 'unpaid'], 'the five tiles can be pressed');
   // ---------- 1. the (i) and the link keep their press ----------

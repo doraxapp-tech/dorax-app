@@ -9,6 +9,7 @@
 //      the categories keep their blocks: their container has no edge and no fill (owner, 2026-10-11);
 //   4. the colourway is Wise's: lime #9FD182 inside the app (it was #5DBB8B, and #3ECF8E before); the app's white words #D4D4D4 (owner, 2026-10-11: "so it is not so
 //      bright"); every figure tile dashed, on black (owner, same night); no error in the console.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const FIND = () => {
   const vis = e => { const r = e.getBoundingClientRect(), s = getComputedStyle(e); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0; };
@@ -49,7 +50,7 @@ const FIND = () => {
       eq(errors, [], `${label}: no error in the console`); await browser.close();
     }
   }
-  const { browser, page } = await open({ lang: 'es', account: 'example', plan: true });
+  const { browser, page } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true });
   eq(await page.evaluate(() => { const s = getComputedStyle(document.documentElement); return ['--brand', '--link', '--cta', '--pos'].map(k => s.getPropertyValue(k).trim().toUpperCase()); }), ['#9FD182', '#9FD182', '#9FD182', '#9FD182'], 'Wise’s lime, a little softer (2026-10-11)');
   eq(await page.evaluate(() => { navigate('dashboard'); return [document.body, document.querySelector('#view h2'), document.querySelector('#view .kpis .kpi:nth-child(2) .value')].map(e => getComputedStyle(e).color); }), ['rgb(212, 212, 212)', 'rgb(212, 212, 212)', 'rgb(212, 212, 212)'], 'the app’s white words are #D4D4D4');
   eq(await page.evaluate(() => { const look = e => { const c = getComputedStyle(e); return [c.borderTopStyle, c.borderTopColor, c.backgroundColor].join(' '); }; navigate('dashboard'); const k = look(document.querySelector('#view .kpis .kpi')); navigate('plan'); const t = look(document.querySelector('#view .card.tile')); navigate('goals'); return [k, t, look(document.querySelector('#view .card.tile, #view .kpi'))]; }),

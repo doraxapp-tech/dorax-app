@@ -1,5 +1,6 @@
 // QC of "looking ahead" (2026-10-07): the calculations of core/runway.js, the 60-second setup, the days-of-freedom card of the dashboard
 // and its panel, and the date a goal is reached. The first part needs no browser; the rest runs on the stand-in server (see pw.js).
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const { load } = require('./load.js');
 
@@ -53,7 +54,7 @@ const { load } = require('./load.js');
 
 (async () => {
   // ---------- 2. the setup, screen by screen ----------
-  let { browser, page, errors } = await open({ lang: 'en', server: { confirmEmail: false } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', server: { confirmEmail: false } });
   const signup = async (p, name, mail) => { await p.evaluate(() => A['pub-go']({ v: 'signup' })); await p.fill('#au-name', name); await p.fill('#au-email', mail); await p.fill('#au-pass', 'UmaSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name'); };
   const text = async (p, sel) => (await p.locator(sel).innerText()).replace(/\s+/g, ' ');
   await signup(page, 'Ana Lima Souza', 'ana@example.org');
@@ -179,7 +180,7 @@ const { load } = require('./load.js');
   await browser.close();
 
   // ---------- 3. other ways through the setup ----------
-  ({ browser, page, errors } = await open({ lang: 'en', server: { confirmEmail: false } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', server: { confirmEmail: false } }));
   await signup(page, 'Bo', 'bo@example.org');
   await page.click('[data-a="onboard-save"]'); await page.click('[data-a="ob-finish"]'); await page.waitForFunction(() => !!UI.session);
   eq(await page.evaluate(() => [S.user.name, S.goals.length, S.pay[2026].length, S.user.spend === undefined, S.user.company === undefined, S.isNew, document.querySelectorAll('#co-ask').length]), ['Bo', 0, 0, true, true, true, 1], 'a setup left at once creates nothing: the account is blank, with its first steps and the question about a company');
@@ -241,7 +242,7 @@ const { load } = require('./load.js');
   }
 
   // ---------- 4b. with motion: confetti when the reveal holds good news, and only then ----------
-  ({ browser, page, errors } = await open({ lang: 'en', motion: true, server: { confirmEmail: false } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', motion: true, server: { confirmEmail: false } }));
   await signup(page, 'Lia', 'lia@example.org'); await page.click('[data-a="ob-dream"][data-v="trip"]'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0');
   await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts');
   eq(await page.evaluate(() => { const c = document.getElementById('confetti'), cs = c && getComputedStyle(c); return c ? [c.children.length >= 70, c.getAttribute('aria-hidden'), cs.pointerEvents, cs.position] : null; }), [true, 'true', 'none', 'fixed'], 'reveal, with the averages left as they are (500 left over, 30 days): confetti, hidden from screen readers and never in the way of a click');
@@ -256,7 +257,7 @@ const { load } = require('./load.js');
   await browser.close();
 
   // ---------- 5. an account with history: the example account ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example' }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example' }));
   const r = await page.evaluate(() => { const x = runway(S, S.today, CUR); return [x.days, x.burn.basis, x.cushion.basis, x.days === runwayDays(x.cushion.amount, x.burn.amount)]; });
   ok(r[0] > 0 && r[1] === 'actual' && r[3], 'example account: days of freedom from real months of spending', r);
   const shown = await page.evaluate(() => { const x = runway(S, S.today, CUR), f = rwFigure(x.days, false); return [document.querySelector('#runway-card .rw-n').textContent, fmt.num(f.n), document.querySelector('#runway-card .rw-n').dataset.count, String(f.n)]; });

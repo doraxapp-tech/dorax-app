@@ -7,10 +7,11 @@
 //   5. "already saved" is asked when editing too, and it moves no money;
 //   6. editing a goal shows its monthly amount, with no switch to press (owner, 2026-10-10: "editing a goal does not let me edit the contribution I want
 //      to make each month"): a new amount changes the plan from the month chosen; the same amount leaves the plan, and its months edited one by one, alone.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page: p, errors } = await open({ lang: 'en', account: 'example', plan: true });
+  let { browser, page: p, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true });
   const bal = id => p.evaluate(i => accountBalance(S, i), id);
   await p.evaluate(() => navigate('goals'));
   // ---------- 1. kept in: savings only ----------

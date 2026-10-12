@@ -95,8 +95,13 @@
   @media (hover: hover) and (pointer: fine) { :root.land .jr-btn:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .3); color: #FFFFFF; } }
   :root.land .topbar .m-back .btn.primary { background: #B6DD62; border-color: #B6DD62; color: #112622; }
 
+  :root.land #view .bq-free { margin-left: -16px; margin-right: -16px; }      /* "You can spend": the block's whole width */
+  :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
+  :root.land .bq-row { margin: 0 -16px; padding: 2px 16px 4px; }      /* a row to swipe, from edge to edge of the screen */
+}
+/* ---------- the summary's parts, on a phone and (v199) on a computer (its layout: look-land-desk.css) ---------- */
   /* ---------- "You can spend": the card half on the block ---------- */
-  :root.land #view .bq-free { position: relative; z-index: 2; display: flex; flex-direction: column; margin-left: -16px; margin-right: -16px; color: #FFFFFF; }      /* the block's whole width */
+  :root.land #view .bq-free { position: relative; z-index: 2; display: flex; flex-direction: column; color: #FFFFFF; }
   :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px 18px; background: #112622; }
   :root.land .bq-chip { display: inline-flex; align-items: center; gap: 7px; color: #B5C2BE; font-size: 13px; font-weight: 500; line-height: 1.2; }      /* no pill: the words and the green dot, as the net balance's label (owner, 2026-10-12: "no lo hagas un pill, quítale los bordes, deja solo la letra con el punto verde") */
   :root.land .bq-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #B6DD62; }
@@ -116,7 +121,6 @@
   :root.land .bq-acts button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: var(--bq-ink); font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-acts button:active { transform: scale(.94); }
   :root.land .bq-acts button:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
-  :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
   :root.land .bq-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-accent); }
   :root.land .bq-ico svg { width: 21px; height: 21px; }
   :root.land .bq-ico.on { background: #B6DD62; color: #112622; }      /* deep green on lime in both themes (v195: in the dark one its icon was lime on lime) */
@@ -132,7 +136,7 @@
   :root.land .bq-empty span { color: var(--bq-ink-2); font-size: 14px; }
   :root.land .bq-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 16px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   /* a row to swipe sideways, from edge to edge of the screen */
-  :root.land .bq-row { list-style: none; display: flex; margin: 0 -16px; padding: 2px 16px 4px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  :root.land .bq-row { list-style: none; display: flex; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   :root.land .bq-row::-webkit-scrollbar { display: none; }
   :root.land .bq-row > li { flex: none; scroll-snap-align: start; }
 
@@ -207,6 +211,8 @@
   :root.land #view .card.part-out > .part-h .btn.sm.go { min-height: 44px; padding: 0 2px 0 8px; border: 0; border-radius: 999px; background: none; box-shadow: none; color: var(--bq-accent); font-size: 14px; font-weight: 600; }
   :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: var(--bq-accent); }
   :root.land #view .mc-ask { border-radius: 24px; }
+
+@media (max-width: 920px) {
 
   /* ---------- the bar at the foot: frosted glass, floating, as Wise's (owner, 2026-10-12, with a screenshot of Wise's home: "I want my menu to look
      like this in that glass effect, size and everything"; v183–v186 it was a deep green pill as wide as its screens). The screen's width less 16 px

@@ -13,10 +13,10 @@
    Styles: css/look/look-land-moves.css. The dark theme, the company's side and a computer keep the table. */
 
 /** This look on Transactions: a phone, the light theme, the household's side (the summary's test, bosque.js, on this page). */
-const bqTxOn = () => !!UI.session && UI.space !== 'business' && UI.route === 'transactions' && isPhone() && !lookOld();
+const bqTxOn = () => !!UI.session && UI.space !== 'business' && UI.route === 'transactions' && !lookOld();      // a computer too since v199
 /** Any screen of the household in this look (a phone, the light theme; since v193 every screen, features/phone/bosque-frame.js): its panels wear
     it, and a new transaction has its keypad (features/transactions/transaction-form.view.js). */
-const landOn = () => !!UI.session && UI.space !== 'business' && isPhone() && !lookOld();      // either theme since v194
+const landOn = () => !!UI.session && UI.space !== 'business' && !lookOld();      // either theme since v194; a phone or a computer since v199 (css/look/look-land-desk.css)
 const BQ_TX_STEP = 40;      // rows drawn at a time; "Show more" adds as many
 const BQ_LOCALE = { en: 'en-US', es: 'es-ES', pt: 'pt-BR' };
 
@@ -48,10 +48,11 @@ function bqFilterBtn() {
 function bqTxView() {
   const f = UI.tx;
   if (!f.bqSeen) { f.bqSeen = true; if (!f.type) f.type = 'expense'; }      // expenses first, the first time in a visit (as designed)
-  const kind = bqTxKind(), seg = [['expense', t('Expenses')], ['income', t('Income')], ['', t('All')]];
-  const find = f.bqFind || f.q ? `<div class="bq-find"><span class="bq-find-ico" aria-hidden="true">${icon('search')}</span><label class="sr" for="tx-q">${t('Search transactions')}</label>
+  const kind = bqTxKind(), seg = [['expense', t('Expenses')], ['income', t('Income')], ['', t('All')]], desk = !isPhone();
+  // a computer (v199): the search always open in the block, and the filters beside it (a phone has both as round buttons in its top bar)
+  const find = desk || f.bqFind || f.q ? `<div class="bq-find"><span class="bq-find-ico" aria-hidden="true">${icon('search')}</span><label class="sr" for="tx-q">${t('Search transactions')}</label>
       <input type="search" id="tx-q" placeholder="${t('Search merchant, description, note or amount')}" value="${esc(f.q)}" data-c="tx-filter" data-k="q" data-live="1" enterkeyhint="search" autocomplete="off">
-      <button class="bq-find-x" data-a="bq-tx-find" aria-label="${t('Close search')}">${icon('x')}</button></div>` : '';
+      ${desk && !f.q ? '' : `<button class="bq-find-x" data-a="bq-tx-find" aria-label="${desk ? t('Clear search') : t('Close search')}">${icon('x')}</button>`}</div>${desk ? `<span class="tx-tools bq-tt" id="tx-tools">${bqFilterBtn()}</span>` : ''}` : '';
   return `<div class="bq-tx"><section class="bq-txtop" aria-label="${esc(t('Summary of what is listed'))}">${find}
     <div class="bq-kind" role="group" aria-label="${t('What to show')}">${seg.map(([v, l]) => `<button data-a="bq-tx-kind" data-v="${v}" aria-pressed="${(v || 'all') === kind}">${l}</button>`).join('')}</div>
     <div id="bq-txsum">${bqTxSum()}</div></section>
@@ -189,7 +190,7 @@ const bqOpDays = (rows, m) => [...new Set(rows.map(x => x.date))].map(d => `<h3 
 const BQ_HOME_OPS = 5;
 function bqHomeMoves() {
   const m = S.month, f = { q: '', month: m, account: '', category: '', type: 'expense', status: '' };
-  const W = Math.max(260, Math.round(((document.querySelector('.work') || {}).clientWidth || innerWidth) - 32));
+  const work = (document.querySelector('.work') || {}).clientWidth || innerWidth, W = isPhone() ? Math.max(260, Math.round(work - 32)) : bqDeskMainW(work);      // a computer: its left column (features/phone/bosque-desk.js)
   const p = bqSumParts(f, m, 'expense', CUR, { card: true, W });
   const latest = S.transactions.filter(x => !isBiz(x.accountId) && acct(x.accountId) && x.date <= S.today && x.status !== 'ignored').sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).slice(0, BQ_HOME_OPS);
   const head = bqHead(t('Transactions'), `<a class="bq-more" href="#transactions" data-a="bq-home-all">${t('View all')}${icon('right')}</a>`);

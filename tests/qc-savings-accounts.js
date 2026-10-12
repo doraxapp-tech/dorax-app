@@ -11,9 +11,10 @@
 //   5. a phone (since 2026-10-11, features/accounts/accounts.phone.js): the accounts as rows, the savings under “Your savings” with their total;
 //   6. Goals no longer shows where the money is: it says the money is in the savings accounts and leads there; its figures are "set aside", and the
 //      dashboard's card is "Goals".
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; S.settings.locale = 'en-US'; render(); });
   // ---------- 1. the names ----------
   eq(await page.evaluate(() => [routeLabel('goals'), routeLabel('accounts'), [...document.querySelectorAll('#nav a')].map(a => a.textContent.trim()).filter(x => /Goals|Accounts/.test(x))]), ['Goals', 'Accounts & savings', ['Goals', 'Accounts & savings']], 'the menu: Goals, and Accounts & savings');

@@ -24,11 +24,16 @@
   :root.land-page .work:has(#view > .bq-hero) .topbar > .pagehead { padding-bottom: 6px; }
   :root.land-page .work:has(#view > .bq-hero) .topbar > .pagehead.bare { padding: 0; height: 6px; }
   :root.land-page .work:has(#view > .bq-hero) .topbar > .pagehead::after { display: none; }
+  :root.land-page #view > .bq-hero { margin: -4px -16px 0; padding: 6px 16px 50px; }
+  @media (max-width: 374px) { :root.land-page #view > .bq-hero .bq-rep-top { flex-wrap: wrap; } :root.land-page #view > .bq-hero .bq-rep-top .seg { flex-basis: 100%; } :root.land-page #view > .bq-hero .bq-rep-top .bq-mon { margin-left: auto; } }      /* a narrow phone: the switch whole, the month under it */
+}
+/* ---------- the forest top of Plan, Goals and Reports and the summary's language in the sheet: on a phone and (v199) on a computer (its frame:
+   look-land-desk.css) ---------- */
   :root.land-page #view > .bq-hero {
     --ink: #F1F4EE; --ink-strong: #FFFFFF; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
     --surface: rgba(255, 255, 255, .06); --surface-2: rgba(255, 255, 255, .08); --surface-3: rgba(255, 255, 255, .12); --badge: rgba(255, 255, 255, .1); --track: rgba(255, 255, 255, .14);
     --pos: #B6DD62; --good: #B6DD62; --neg: #FF8A80; --crit: #FF8A80; --brand: #B6DD62; --focus: #B6DD62; --link: #B6DD62;
-    position: relative; display: flex; flex-direction: column; gap: 14px; margin: -4px -16px 0; padding: 6px 16px 50px; background: #112622; color: #FFFFFF;
+    position: relative; display: flex; flex-direction: column; gap: 14px; background: #112622; color: #FFFFFF;
   }
   :root.land-page #view > .bq-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
   /* on the forest: the large figure bare, its tiles translucent with their dashed edge, the buttons lime and light, the switch lime */
@@ -51,7 +56,6 @@
   /* Reports: its switch and its month side by side (v194: no month row on these screens) */
   :root.land-page #view > .bq-hero .bq-rep-top { display: flex; align-items: center; gap: 10px; }
   :root.land-page #view > .bq-hero .bq-rep-top .seg { flex: 1 1 auto; min-width: 0; }
-  @media (max-width: 374px) { :root.land-page #view > .bq-hero .bq-rep-top { flex-wrap: wrap; } :root.land-page #view > .bq-hero .bq-rep-top .seg { flex-basis: 100%; } :root.land-page #view > .bq-hero .bq-rep-top .bq-mon { margin-left: auto; } }      /* a narrow phone: the switch whole, the month under it */
   /* Plan and Goals with another month in view: which, and the way back to this one */
   :root.land-page #view > .bq-hero .bq-past { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 4px 4px 4px 14px; border-radius: 999px; background: rgba(182, 221, 98, .14); color: #B6DD62; font-size: 13px; font-weight: 600; }
   :root.land-page #view > .bq-hero .bq-past-go { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: #B6DD62; color: #112622; font-size: 13px; font-weight: 600; touch-action: manipulation; }
@@ -83,4 +87,3 @@
   :root.land-page #view .meter.go > i { background: var(--bq-accent); }
   /* Accounts & savings: its "Add account" is the lime + in the top bar */
   :root.land-page .acc-ph-acts { display: none; }
-}

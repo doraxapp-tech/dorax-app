@@ -118,5 +118,5 @@ function viewDashboard() {
   const co = inCompany(), phone = isPhone();
   if (co && UI.coSetup) return viewCompanySetup();
   const d = dashParts();
-  return co ? (phone ? phoneCompanyDashboard(d) : companyDashboard(d)) : (phone ? phoneHomeDashboard(d) : homeDashboard(d));
+  return co ? (phone ? phoneCompanyDashboard(d) : companyDashboard(d)) : (phone ? phoneHomeDashboard(d) : bosqueOn() ? bqHomeDesk(d) : homeDashboard(d));      // a computer in the summary's look (v199, features/phone/bosque-desk.js)
 }

@@ -5,9 +5,10 @@
 //   3. the guide's "Change income" opens the panel, and its Done goes back to the guide;
 //   4. the first steps' "Add income" opens the panel with a new payment, its name ready to type;
 //   5. no error in the console.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; S.user.closeSeen = { '2026-09': true }; navigate('dashboard'); });
   // ---------- 1. the summary's button ----------
   ok(await page.locator('#free-card [data-a="plan-income"]').count() === 1 && await page.locator('#free-card a[href="#plan"]').count() === 0, 'the summary: “Set your pay day” is a button, not a way to the Plan');

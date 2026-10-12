@@ -340,7 +340,10 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
   for (const w of [2750, 2000, 1440]) {
     const { browser, page } = await open({ lang: 'pt', plan: true, account: 'example', viewport: { width: w, height: 900 } });
     for (const r of ['dashboard', 'plan', 'transactions']) { await page.evaluate(r => navigate(r), r); await page.waitForTimeout(300);
-      const m = await page.evaluate(() => { const b = e => e.getBoundingClientRect(), wk = b(document.querySelector('.work')), c = document.querySelector('.content'), cs = getComputedStyle(c), l = b(c).left + parseFloat(cs.paddingLeft), rt = b(c).right - parseFloat(cs.paddingRight);
+      // v199: in the summary's look the page's column is its parts' (each with the bar's margins), the forest tops running the full width with their content on it
+      const m = await page.evaluate(() => { const b = e => e.getBoundingClientRect(), wk = b(document.querySelector('.work')), c = document.querySelector('.content'), cs = getComputedStyle(c), land = document.documentElement.classList.contains('land');
+        const top = document.querySelector('#view > .bq-dhero, #view > .bq-hero, #view > .bq-tx > .bq-txtop'), ts = top && getComputedStyle(top), first = [...c.children].find(e => !e.matches('.bq-dhero, .bq-hero, .bq-tx'));
+        const [l, rt] = land ? (top ? [b(top).left + parseFloat(ts.paddingLeft), b(top).right - parseFloat(ts.paddingRight)] : [b(first).left, b(first).right]) : [b(c).left + parseFloat(cs.paddingLeft), b(c).right - parseFloat(cs.paddingRight)];
         return { left: Math.round(l - wk.left), right: Math.round(wk.right - rt), wide: Math.round(rt - l), h1: Math.round(b(document.querySelector('.topbar h1')).left - l), btn: Math.round(rt - b(document.querySelector('.topbar .btn.primary')).right), bar: Math.round(b(document.querySelector('.topbar')).width - wk.width), over: Math.max(0, document.documentElement.scrollWidth - innerWidth) }; });      // nothing wider than the window (the page itself stops short of the room kept for its scroll bar)
       if (r === 'dashboard') eq(await page.evaluate(() => getComputedStyle(document.querySelector('.topbar h1')).fontSize), '20px', `${w}px: the page title in the bar is 20px (owner, 2026-10-05)`);
       eq([Math.abs(m.left - m.right) <= 1, m.wide <= 1336, m.left >= 32, m.h1, m.btn, m.bar, m.over], [true, true, true, 0, 0, 0, 0], `${w}px ${r}: the page is centred beside the menu, 1336px wide at most; the bar's title and main button stand over its edges; the bar itself runs the full width`, m); }
@@ -348,9 +351,10 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
   }
   // the menu (owner, 2026-10-05): no names over its two groups, one faint line between them; each icon moves once when its row is pointed at
   { const { browser, page } = await open({ lang: 'pt', plan: true, account: 'example', viewport: { width: 1440, height: 900 }, motion: 'no-preference' });
-    eq(await page.evaluate(() => { const n = document.querySelector('#nav'), kids = [...n.children], r = n.querySelector('.nav-rule'), cs = getComputedStyle(r);
-      return [document.querySelectorAll('.nav-group').length, kids.map(e => e.tagName[0]).join(''), r.getAttribute('role'), cs.height, cs.backgroundColor, n.innerText.includes('CASA') || n.innerText.includes('DADOS')]; }),
-      [0, 'AAAAAAADAAAAA', 'separator', '1px', 'rgb(34, 38, 31)', false], 'menu: seven links, one hairline in the border colour, five links (Open Finance among them; the converter is the company’s); no group names');
+    eq(await page.evaluate(() => { const n = document.querySelector('#nav'), kids = [...n.children], r = n.querySelector('.nav-rule'), cs = getComputedStyle(r), probe = document.createElement('i');
+      probe.style.cssText = 'position:absolute;background:var(--line)'; document.querySelector('.rail').appendChild(probe); const line = getComputedStyle(probe).backgroundColor; probe.remove();      // the side bar's border colour (v199: on the forest)
+      return [document.querySelectorAll('.nav-group').length, kids.map(e => e.tagName[0]).join(''), r.getAttribute('role'), cs.height, cs.backgroundColor === line, n.innerText.includes('CASA') || n.innerText.includes('DADOS')]; }),
+      [0, 'AAAAAAADAAAAA', 'separator', '1px', true, false], 'menu: seven links, one hairline in the border colour, five links (Open Finance among them; the converter is the company’s); no group names');
     const moves = {};
     for (const id of ['dashboard', 'transactions', 'plan', 'goals', 'investments', 'reports', 'accounts', 'imports', 'recurring', 'categories', 'settings']) {
       const sel = `.rail .nav a[href="#${id}"]`, read = () => page.evaluate(sel => { const cs = getComputedStyle(document.querySelector(sel + ' svg')); return [cs.animationName, cs.animationIterationCount, cs.transform]; }, sel);

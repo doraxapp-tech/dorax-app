@@ -8,12 +8,13 @@
 //      on a computer and the phone's top panel; a picture that cannot be read is said so and changes nothing; removing it brings the drawn figure back;
 //      anything in the field that this app did not make is never drawn;
 //   4. Spanish and Portuguese.
+// v199: the household on a computer has the summary's look too (tests/qc-desk-land.js tests it); the computer's parts here are the previous look's, which the company's side still has (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 const makePng = (page, w, h) => page.evaluate(([w, h]) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.fillStyle = '#1F4E9E'; x.fillRect(0, 0, w, h); x.fillStyle = '#F4D7B5'; x.fillRect(w / 2 - 20, h / 2 - 20, 40, 40); return c.toDataURL('image/png').split(',')[1]; }, [w, h]);
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   // ---------- 1. the rule ----------
   eq(await page.evaluate(() => [['Tarjeta Nubank', 'Nubank'], ['Mercado Pago - Dylan', 'Mercado Pago'], ['Santander', 'Santander'], ['Conta Itau', 'Itaú'], ['Internacional', 'Inter'], ['Conta principal', 'Itaú'], ['Nubank PJ', 'Nubank']].map(([n, i]) => acctRest(n, i))),
     ['Tarjeta', 'Dylan', '', 'Conta', 'Internacional', 'Conta principal', 'PJ'], 'the bank’s name is taken out of the account’s, with what joined them; accents do not matter; only as a word of its own');
