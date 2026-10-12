@@ -127,18 +127,18 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
     const look = () => page.evaluate(() => { const root = document.documentElement, cs = el => el ? getComputedStyle(el) : {}, r = el => el.getBoundingClientRect();
       const f = document.querySelector('#view > .bq-free'), head = document.querySelector('.topbar > .pagehead'), foot = f && f.querySelector('.bq-free-foot'), bal = document.querySelector('.bar-bal .bb-link b');
       const acts = [...document.querySelectorAll('#quick-acts button')], tab = document.querySelector('.tabbar');
-      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, behind: [cs(root).backgroundColor, cs(document.body).backgroundColor], block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
+      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, behind: [cs(root).backgroundColor, cs(root).backgroundImage, cs(root).backgroundSize, cs(document.body).backgroundColor], block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
         card: f ? [f === document.querySelector('#view').firstElementChild, cs(f.querySelector('.bq-free-top')).backgroundColor, Math.abs(r(f).top - r(head).bottom) <= 1 && Math.abs(r(foot).top - r(f.querySelector('.bq-free-top')).bottom) <= 1, cs(foot).backgroundColor, foot.dataset.a, Math.round(r(foot).height) >= 44, parseFloat(cs(f.querySelector('.fu-n')).fontSize) < parseFloat(cs(bal).fontSize), parseFloat(cs(head).borderBottomLeftRadius)] : null,
         acts: acts.map(b => b.dataset.v || b.dataset.a).join(), actsTall: acts.every(b => r(b).height >= 44),
         accounts: document.querySelectorAll('#ac-card .bq-acc').length === cardsOf(personal()).length && cardsOf(personal()).length < personal().length, logos: !!document.querySelector('#ac-card .bq-acc .inst img'),
         bills: document.querySelectorAll('#todo .bq-bill').length > 0, firstDue: (document.querySelector('#todo .bq-bill.first .bq-due') || {}).textContent,
         pair: [...document.querySelectorAll('#view > .bq-pair > [id]')].map(x => x.id).join(),
-        bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
+        bar: [cs(tab).backgroundColor, cs(tab).backdropFilter, Math.round(r(tab).left), Math.round(innerWidth - r(tab).right), Math.round(r(tab).height), [...tab.querySelectorAll('a')].every(a => a.scrollWidth <= a.clientWidth + 1 && r(a).height >= 44)],
         whole: bal.scrollWidth <= bal.clientWidth + 1, wide: document.documentElement.scrollWidth - innerWidth };
     });
-    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(17, 38, 34)', true, 'rgb(182, 221, 98)', 'free-view', true, true, 0],
+    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(233, 237, 236)', 'linear-gradient(rgb(17, 38, 34), rgb(17, 38, 34))', '100% 50%', 'rgba(0, 0, 0, 0)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(17, 38, 34)', true, 'rgb(182, 221, 98)', 'free-view', true, true, 0],
       acts: 'expense,income,transfer,quick-more', actsTall: true, accounts: true, logos: true, bills: true, firstDue: 'en 3 días', pair: 'runway-card,goals-card',
-      bar: ['rgb(17, 38, 34)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed (v180: the day's figure on the block's own green, flush with it, the lime strip right under it, smaller than the net balance; the block square at its foot)`);
+      bar: ['rgba(255, 255, 255, 0.72)', 'saturate(1.8) blur(20px)', w < 375 ? 12 : 16, w < 375 ? 12 : 16, 58, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed (v180: the day's figure on the block's own green, flush with it, the lime strip right under it, smaller than the net balance; the block square at its foot; v189: the bar at the foot frosted glass as Wise’s, 16 px from the sides, 58 px tall, every name whole; the forest only at the top behind the app)`);
     if (w === 390) {
       // More: the other things to do, in a list; a bill opens its details; "You can spend" opens how it was worked out
       await page.click('#quick-acts [data-a="quick-more"]');

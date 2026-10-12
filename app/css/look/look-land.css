@@ -13,7 +13,11 @@
   /* the page itself (behind the app's column, which paints its own grey) is the block's green: Safari on an iPhone paints the strip behind the clock
      and the battery with the page's own colour, not with the theme-color of app/shell.js, so with the grey there it was a grey band over the green
      block (owner, 2026-10-12, with a screenshot: "¿por qué se ve así el borde superior?") */
-  html.app-light.in-app.land, html.app-light.in-app.land body { background: #112622; }
+  /* and only at the top: under the app, at the foot, the page's own grey (owner, 2026-10-12, with a screenshot: "there is a weird space in the
+     bottom": the installed app on an iPhone can be left shorter than the screen after the keyboard has been up, app/viewport-heal.js, and the
+     forest showed there as a band) */
+  html.app-light.in-app.land { background: #E9EDEC linear-gradient(#112622, #112622) top / 100% 50% no-repeat; }
+  html.app-light.in-app.land body { background: transparent; }
   :root.land .work { --bg: #E9EDEC; --glass: rgba(233, 237, 236, .92); background: #E9EDEC; }
 
   /* ---------- the forest block at the top: the panel, the balance and the month's row (on a phone the top bar lays its rows out on the page,
@@ -178,41 +182,37 @@
   :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: #112622; }
   :root.land #view .mc-ask { border-radius: 24px; }
 
-  /* ---------- the bar at the foot floats: deep green, the screen in use a lime pill. No round + in it here (owner, 2026-10-12: "quita el botón (+)
-     del medio": the summary has its own four buttons); four screens, the same width each. Scrolling down it gets smaller, the icons alone (their
-     names stay for a screen reader); scrolling up, or near the top, it is whole again (features/phone/bosque.js puts .bar-small on the page's root).
-     Under a pointer each screen lights a soft pill behind its icon; a press sinks a little. ---------- */
-  :root.land .content { padding-bottom: calc(112px + var(--safe-b)); }
-  :root.land .tabbar { left: 0; right: 0; width: max-content; max-width: calc(100% - 24px); margin-inline: auto; bottom: calc(14px + var(--safe-b)); display: flex; justify-content: center; gap: 2px; align-items: center; height: 72px; padding: 0 8px; border: 0; border-radius: 999px; background: #112622; box-shadow: 0 14px 30px -14px rgba(17, 38, 34, .55);
-    transition: height 280ms var(--ease), bottom 280ms var(--ease), padding 280ms var(--ease); }
+  /* ---------- the bar at the foot: frosted glass, floating, as Wise's (owner, 2026-10-12, with a screenshot of Wise's home: "I want my menu to look
+     like this in that glass effect, size and everything"; v183–v186 it was a deep green pill as wide as its screens). The screen's width less 16 px
+     each side, 58 px tall, 20 px over the screen's foot on an iPhone (inside the home bar's room, as the system's own bars sit); white at 72 % over a
+     blur of what scrolls under it, a hairline and a soft shadow; four screens sharing the width, their icons and names in the deep ink; the screen in
+     use on a soft grey-green pill as tall as the bar's inside. No round + here (v183: "quita el botón (+) del medio"). Scrolling down it gets
+     shorter, the icons alone, their names kept for a screen reader (v183); up, or near the top, whole again (features/phone/bosque.js). ---------- */
+  :root.land .content { padding-bottom: calc(96px + var(--safe-b)); }
+  :root.land .tabbar { left: 16px; right: 16px; bottom: max(12px, calc(var(--safe-b) - 14px)); display: flex; gap: 0; align-items: stretch; height: 58px; padding: 4px; border: 1px solid rgba(17, 38, 34, .08); border-radius: 999px;
+    background: rgba(255, 255, 255, .72); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 12px 32px -14px rgba(14, 15, 12, .28), inset 0 1px 0 rgba(255, 255, 255, .7);
+    transition: height 280ms var(--ease), bottom 280ms var(--ease); }
   :root.land .tabbar .fab { display: none; }
-  :root.land .tabbar a { position: relative; box-sizing: border-box; min-width: 56px; min-height: 60px; padding: 2px 8px; color: #B5C2BE; transition: color 160ms ease-out, transform 160ms ease-out, font-size 200ms var(--ease), gap 200ms var(--ease), min-width 200ms var(--ease); }      /* as wide as its name, close together (owner, 2026-10-12: "reduce el espacio horizontal entre los elementos del menú") */
-  :root.land .tabbar a svg { position: relative; z-index: 1; color: inherit; transition: color 160ms ease-out; }
-  :root.land .tabbar a::before { content: ""; position: absolute; top: 50%; left: 50%; width: 46px; height: 30px; border-radius: 999px; background: transparent; transform: translate(-50%, calc(-50% - 8px)) scale(.6); opacity: 0; transition: transform 220ms var(--ease), opacity 160ms ease-out, background 160ms ease-out; }
-  :root.land .tabbar a[aria-current="page"] { color: #FFFFFF; font-weight: 600; }
-  :root.land .tabbar a[aria-current="page"]::before { right: auto; background: #B6DD62; opacity: 1; transform: translate(-50%, calc(-50% - 8px)); }
+  :root.land .tabbar a { position: relative; box-sizing: border-box; flex: 1 1 0; min-width: min-content; min-height: 0; gap: 2px; padding: 0 8px; border-radius: 999px; background: transparent; color: #0E0F0C; font-size: 12px; font-weight: 500; letter-spacing: 0;
+    -webkit-tap-highlight-color: transparent; transition: background 160ms ease-out, transform 160ms ease-out, font-size 200ms var(--ease), gap 200ms var(--ease); }      /* the same share each, more only for a name that needs it ("Transacciones") */
+  :root.land .tabbar a::before { display: none; }
+  :root.land .tabbar a svg { width: 22px; height: 22px; color: #112622; }
+  :root.land .tabbar a[aria-current="page"] { background: rgba(17, 38, 34, .08); color: #0E0F0C; font-weight: 600; }
   :root.land .tabbar a[aria-current="page"] svg { color: #112622; }
-  @media (hover: hover) and (pointer: fine) {
-    :root.land .tabbar a:not([aria-current]):hover { color: #FFFFFF; }
-    :root.land .tabbar a:not([aria-current]):hover::before { background: rgba(255, 255, 255, .1); opacity: 1; transform: translate(-50%, calc(-50% - 8px)); }
-  }
-  :root.land .tabbar a:not([aria-current]):active::before { background: rgba(255, 255, 255, .14); opacity: 1; transform: translate(-50%, calc(-50% - 8px)) scale(.94); }
-  :root.land .tabbar a:active { transform: scale(.94); }
-  :root.land .tabbar :focus-visible { outline: 2px solid #B6DD62; outline-offset: -2px; }
-  /* smaller while the page goes down */
-  :root.land.bar-small .tabbar { bottom: calc(10px + var(--safe-b)); height: 54px; padding: 0 6px; }
-  :root.land.bar-small .tabbar a { min-width: 50px; min-height: 46px; gap: 0; font-size: 0; }
-  :root.land.bar-small .tabbar a::before, :root.land.bar-small .tabbar a[aria-current="page"]::before { transform: translate(-50%, -50%); }
-  :root.land.bar-small .tabbar a:not([aria-current]):active::before { transform: translate(-50%, -50%) scale(.94); }
-  @media (hover: hover) and (pointer: fine) { :root.land.bar-small .tabbar a:not([aria-current]):hover::before { transform: translate(-50%, -50%); } }
-  @media (prefers-reduced-motion: reduce) { :root.land .tabbar, :root.land .tabbar a, :root.land .tabbar a::before { transition: none; } }
+  @media (hover: hover) and (pointer: fine) { :root.land .tabbar a:not([aria-current]):hover { background: rgba(17, 38, 34, .05); } }
+  :root.land .tabbar a:active { transform: scale(.95); background: rgba(17, 38, 34, .1); }
+  :root.land .tabbar :focus-visible { outline: 2px solid #112622; outline-offset: -2px; }
+  /* shorter while the page goes down */
+  :root.land.bar-small .tabbar { height: 54px; }      /* its screens still 44 px to tap */
+  :root.land.bar-small .tabbar a { gap: 0; font-size: 0; }
+  @media (prefers-reduced-motion: reduce) { :root.land .tabbar, :root.land .tabbar a { transition: none; } }
 
-  /* ---------- narrow phones: the round buttons at the top a little smaller, so the greeting keeps one line; the bar at the foot wider, so
-     "Transacciones" fits its column as on the bar that sits on the edge (screens/phone.css) ---------- */
+  /* ---------- narrow phones: the round buttons at the top a little smaller, so the greeting keeps one line; the bar at the foot a little wider, so
+     "Transacciones" keeps its name whole ---------- */
   @media (max-width: 374px) {
     :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { width: 40px; height: 40px; }
     :root.land .bar-who .avatar { width: 40px; height: 40px; }
-    :root.land .tabbar { max-width: calc(100% - 12px); padding: 0 4px; gap: 0; }
+    :root.land .tabbar { left: 12px; right: 12px; }
     :root.land .tabbar a { padding-inline: 6px; }
   }
 }
