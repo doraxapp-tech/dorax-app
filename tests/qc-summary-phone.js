@@ -160,7 +160,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => A.close());
       // always the design's order, whatever order or eyes were saved for the summary before; the notices after it; no "Reorder the dashboard"
       const order = () => page.evaluate(() => [...document.querySelectorAll('#view > *')].map(x => x.id || x.className));
-      const want = ['free-card', 'quick-acts', 'ac-card', 'todo', 'bq-pair', 'insight-card', 'mc-ask'];
+      const want = ['free-card', 'quick-acts', 'ac-card', 'todo', 'bq-pair', 'bq-moves-card', 'insight-card', 'mc-ask'];      // v195: the month's spending and the latest transactions after the pair
       eq(await order(), want, 'the design’s order, the notice after it');
       await page.evaluate(() => { S.user.dashOrder = { home: ['recent', 'goals', 'insight', 'runway', 'accounts', 'todo', 'quick', 'free'] }; S.user.dashHidden = { home: ['accounts', 'todo', 'quick'] }; render(); });
       eq([await order(), await page.evaluate(() => !!document.querySelector('#dash-order-btn'))], [want, false], 'an order and hidden parts saved before do not move it');
@@ -169,6 +169,14 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { window.__fu = freeUntil; window.freeUntil = (...a) => { const r = window.__fu(...a); return r && Object.assign({}, r, { free: -487536, perDay: 0 }); }; render(); });
       eq(await page.evaluate(() => { const f = document.querySelector('#view > .bq-free'); return f && [f.classList.contains('short'), f.querySelector('.fu-n').textContent.trim(), /4\.875/.test(f.querySelector('.bq-say').textContent), f.querySelector('.bq-chip').textContent.trim()]; }), [true, 'R$ 0', true, 'Puedes gastar'], 'short of money: the card stays, R$ 0 a day and how much is missing');
       await page.evaluate(() => { window.freeUntil = window.__fu; render(); });
+      // v195 ("agrega el gráfico de transacciones con las más recientes debajo en Resumen"): the month's spending as on Transactions, its chart in a white
+      // card, and the five latest transactions under it; "View all" opens Transactions on the expenses
+      eq(await page.evaluate(() => { const c = document.querySelector('#bq-moves-card'), cs = el => getComputedStyle(el), rows = [...c.querySelectorAll('.bq-op')], latest = S.transactions.filter(x => !isBiz(x.accountId) && x.date <= S.today && x.status !== 'ignored').map(x => x.date).sort().reverse().slice(0, 5);
+        return [cs(c.querySelector('.bq-mv')).backgroundColor, !!c.querySelector('.bq-chart.on-card svg .now'), cs(c.querySelector('.bq-chart.on-card .now')).stroke, rows.length, rows.map(r => S.transactions.find(x => x.id === r.dataset.id).date).join() === latest.join(), rows.every(r => r.getBoundingClientRect().height >= 44), /Gastaste en octubre/.test(c.querySelector('.bq-sum-k').textContent)]; }),
+        ['rgb(255, 255, 255)', true, 'rgb(17, 38, 34)', 5, true, true, true], 'the month’s spending with its chart in a white card (the line deep green on white), and the five latest transactions under it, newest first');
+      await page.click('#bq-moves-card .bq-more'); await page.waitForTimeout(200);
+      eq(await page.evaluate(() => [UI.route, UI.tx.type, UI.tx.month]), ['transactions', 'expense', 'current'], '“View all” opens Transactions on this month’s expenses');
+      await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(200);
       // the bar at the foot: no round + here, four screens; smaller while the page goes down, whole again going up (v183)
       eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.tabbar .fab')).display, document.querySelectorAll('.tabbar a').length]), ['none', 4], 'no round + in the bar on the summary');
       for (const y of [120, 320, 520]) { await page.evaluate(y => { document.querySelector('.work').scrollTop = y; }, y); await page.waitForTimeout(60); }
@@ -269,6 +277,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });
       eq(await page.evaluate(() => { const cs = el => getComputedStyle(el); return [document.documentElement.classList.contains('land-dark'), !!document.querySelector('.bq-acts'), cs(document.querySelector('.work')).backgroundColor, cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(document.querySelector('.bq-acts')).backgroundColor, cs(document.querySelector('.tabbar')).backgroundColor, cs(document.querySelector('.bq-acc-n')).color]; }),
         [true, true, 'rgb(11, 20, 18)', 'rgb(17, 38, 34)', 'rgb(21, 34, 31)', 'rgba(21, 34, 31, 0.72)', 'rgb(238, 242, 239)'], 'v194 ("el modo oscuro me lleva al diseño viejo"): the dark theme has the new summary in its dark version: the same forest block, the page a green that reads as black, the cards a step lighter, light words, the glass bar dark');
+      eq(await page.evaluate(() => { const i = document.querySelector('#quick-acts .bq-ico.on'); return [getComputedStyle(i).backgroundColor, getComputedStyle(i).color, getComputedStyle(document.querySelector('#bq-moves-card .now')).stroke]; }), ['rgb(182, 221, 98)', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)'], 'v195: in the dark theme the expense’s icon is deep green on its lime (it was lime on lime), and the chart’s line lime on the dark card');
+      eq(await page.evaluate(() => { const g = document.querySelector('#goals-card .bq-tile'), d = document.querySelector('#todo .bq-bill.first .bq-due'); return [getComputedStyle(g).color, getComputedStyle(g.querySelector('.bq-tile-h')).color, getComputedStyle(g.querySelector('.bq-bar')).backgroundColor, getComputedStyle(d).backgroundColor, getComputedStyle(d).color]; }),
+        ['rgb(182, 221, 98)', 'rgb(182, 221, 98)', 'rgba(182, 221, 98, 0.18)', 'rgb(182, 221, 98)', 'rgb(17, 38, 34)'], 'v195: in the dark theme the goals’ words are lime on their dark mint, their bars’ track visible; the nearest bill’s day deep green on its lime');
       for (const r of ['plan', 'goals', 'settings']) { await page.evaluate(r => navigate(r), r); eq(await page.evaluate(() => [document.documentElement.classList.contains('land-page'), getComputedStyle(document.querySelector('.work')).backgroundColor, document.documentElement.scrollWidth - innerWidth]), [true, 'rgb(11, 20, 18)', 0], `v194: ${r} in the dark version too`); }
       await page.evaluate(() => navigate('dashboard'));
     }

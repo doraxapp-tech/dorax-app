@@ -20,7 +20,7 @@
   --bq-accent: #112622; --bq-pick-bg: #112622; --bq-pick-ink: #B6DD62; --bq-pick-ink-2: #FFFFFF;
   --bq-in: #2F6B1C; --bq-crit: #D03238; --bq-warn: #B87A00; --bq-late: #B42318; --bq-late-bg: #FDE7E4;
   --bq-glass: rgba(255, 255, 255, .72); --bq-glass-line: rgba(17, 38, 34, .08); --bq-glass-hi: rgba(255, 255, 255, .7); --bq-glass-ink: #0E0F0C; --bq-glass-icon: #112622;
-  --bq-glass-pick: rgba(17, 38, 34, .08); --bq-glass-hover: rgba(17, 38, 34, .05); --bq-glass-press: rgba(17, 38, 34, .1);
+  --bq-glass-pick: rgba(17, 38, 34, .08); --bq-glass-hover: rgba(17, 38, 34, .05); --bq-glass-press: rgba(17, 38, 34, .1); --bq-area: rgba(17, 38, 34, .06); --bq-bar-track: rgba(17, 38, 34, .12);
 }
 :root.land.land-dark {
   --bq-page: #0B1412; --bq-page-glass: rgba(11, 20, 18, .92); --bq-card: #15221F; --bq-card-2: #1A2925; --bq-card-3: #22332E;
@@ -29,7 +29,7 @@
   --bq-accent: #B6DD62; --bq-pick-bg: #B6DD62; --bq-pick-ink: #112622; --bq-pick-ink-2: #112622;
   --bq-in: #B6DD62; --bq-crit: #FF8A80; --bq-warn: #F5C04A; --bq-late: #FF8A80; --bq-late-bg: rgba(255, 138, 128, .14);
   --bq-glass: rgba(21, 34, 31, .72); --bq-glass-line: rgba(255, 255, 255, .1); --bq-glass-hi: rgba(255, 255, 255, .06); --bq-glass-ink: #EEF2EF; --bq-glass-icon: #EEF2EF;
-  --bq-glass-pick: rgba(255, 255, 255, .12); --bq-glass-hover: rgba(255, 255, 255, .07); --bq-glass-press: rgba(255, 255, 255, .16);
+  --bq-glass-pick: rgba(255, 255, 255, .12); --bq-glass-hover: rgba(255, 255, 255, .07); --bq-glass-press: rgba(255, 255, 255, .16); --bq-area: rgba(182, 221, 98, .08); --bq-bar-track: rgba(182, 221, 98, .18);
   color-scheme: dark;
 }
 @media (max-width: 920px) {
@@ -119,7 +119,7 @@
   :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
   :root.land .bq-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-accent); }
   :root.land .bq-ico svg { width: 21px; height: 21px; }
-  :root.land .bq-ico.on { background: #B6DD62; }
+  :root.land .bq-ico.on { background: #B6DD62; color: #112622; }      /* deep green on lime in both themes (v195: in the dark one its icon was lime on lime) */
 
   /* ---------- a section's heading: the name, and the way to its page ---------- */
   :root.land .bq-sec { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -159,7 +159,7 @@
   :root.land .bq-bill .bq-ico .inst img { width: 40px; height: 40px; border-radius: 50%; }
   :root.land .bq-bill.first .bq-ico { background: #112622; color: #B6DD62; }
   :root.land .bq-due { flex: 0 1 auto; min-width: 0; overflow: hidden; padding: 4px 9px; border-radius: 999px; background: var(--bq-circle); color: var(--bq-accent); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .bq-bill.first .bq-due { background: #B6DD62; font-weight: 700; }
+  :root.land .bq-bill.first .bq-due { background: #B6DD62; color: #112622; font-weight: 700; }
   :root.land .bq-due.late, :root.land .bq-bill.first .bq-due.late { background: var(--bq-late-bg); color: var(--bq-late); }
   :root.land .bq-bill-n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; font-weight: 600; line-height: 1.25; }
   :root.land .bq-bill-v { color: var(--bq-ink-2); font-size: 13px; line-height: 1.3; }
@@ -180,7 +180,7 @@
   :root.land .bq-ring-n b { font-size: 28px; font-weight: 600; letter-spacing: -.03em; }
   :root.land .bq-ring-n small { margin-top: 3px; color: var(--bq-ink-2); font-size: 12px; }
   :root.land .bq-tile-s { color: var(--bq-ink-2); font-size: 12px; line-height: 1.4; }
-  :root.land .bq-goals .bq-tile { gap: 12px; background: var(--bq-mint); color: #112622; }
+  :root.land .bq-goals .bq-tile { gap: 12px; background: var(--bq-mint); color: var(--bq-accent); }      /* deep green on mint, lime on the dark mint (v195: it was deep green on both) */
   :root.land .bq-goals-v { display: flex; flex-direction: column; gap: 2px; }
   :root.land .bq-goals-v b { color: var(--bq-ink); font-size: 26px; font-weight: 600; letter-spacing: -.04em; line-height: 1.05; }
   :root.land .bq-goals-v b .cents { font-size: .55em; }
@@ -190,7 +190,7 @@
   :root.land .bq-g { display: flex; flex-direction: column; gap: 6px; }
   :root.land .bq-g-t { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 600; }
   :root.land .bq-g-t span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .bq-bar { display: block; height: 8px; overflow: hidden; border-radius: 999px; background: rgba(17, 38, 34, .12); }
+  :root.land .bq-bar { display: block; height: 8px; overflow: hidden; border-radius: 999px; background: var(--bq-bar-track); }
   :root.land .bq-bar i { display: block; height: 100%; border-radius: 999px; background: var(--bq-accent); }
   /* alone (the other is hidden or not this month), each takes the whole row */
   :root.land #view > .bq-run .bq-tile, :root.land #view > .bq-goals .bq-tile { align-items: stretch; }

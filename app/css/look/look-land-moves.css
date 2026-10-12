@@ -131,4 +131,33 @@
   @media (max-width: 374px) {
     :root.land .bq-mon span { min-width: 52px; }      /* its arrows stay 44 px to tap, as the round buttons of the bar */
   }
+
+  /* ---------- on the summary: the month's spending and the latest transactions, in one white card (v195) ---------- */
+  :root.land .bq-mv { display: flex; flex-direction: column; padding: 16px 14px 6px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land .bq-mv-sum { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  :root.land .bq-mv .bq-sum-k { color: var(--bq-ink-2); font-size: 14px; font-weight: 500; }
+  :root.land .bq-mv .bq-sum-v { color: var(--bq-ink); font-size: 30px; font-weight: 600; letter-spacing: -.04em; line-height: 1; white-space: nowrap; }
+  :root.land .bq-mv .bq-sum-v .cents { color: var(--bq-ink-3); font-size: .5em; letter-spacing: 0; }
+  :root.land .bq-mv .bq-cmp { background: var(--bq-mint); color: var(--bq-accent); }
+  /* the chart in the card: the card's width, its colours the page's (deep green on the light card, lime on the dark one) */
+  :root.land .bq-chart.on-card { margin: 12px -14px 0; }
+  :root.land .bq-chart.on-card .g { stroke: var(--bq-line); }
+  :root.land .bq-chart.on-card .g0 { stroke: var(--bq-line-2); }
+  :root.land .bq-chart.on-card .ax { fill: var(--bq-ink-3); }
+  :root.land .bq-chart.on-card .area { fill: var(--bq-area); }
+  :root.land .bq-chart.on-card .before { stroke: var(--bq-ink-3); opacity: .7; }
+  :root.land .bq-chart.on-card .now { stroke: var(--bq-accent); }
+  :root.land .bq-chart.on-card .bq-mk path { stroke: var(--bq-line-2); }
+  :root.land .bq-chart.on-card .bq-mk circle { fill: var(--bq-card); stroke: var(--bq-accent); }
+  :root.land .bq-chart.on-card .bq-mk rect { fill: var(--bq-pick-bg); }
+  :root.land .bq-chart.on-card .bq-mk text { fill: var(--bq-pick-ink); }
+  :root.land .bq-chart.on-card svg:focus-visible { outline-color: var(--bq-accent); }
+  :root.land .bq-chart.on-card figcaption { margin: 6px 14px 0; color: var(--bq-ink-2); }
+  :root.land .bq-chart.on-card .lg.now::before { background: var(--bq-accent); }
+  :root.land .bq-chart.on-card .lg.before::before { border-top-color: var(--bq-ink-3); }
+  /* the latest transactions under it, past a hairline */
+  :root.land .bq-mv-ops { margin-top: 14px; border-top: 1px solid var(--bq-line); }
+  :root.land .bq-mv-h { margin: 14px 0 0; color: var(--bq-ink); font-size: 15px; font-weight: 600; }
+  :root.land .bq-mv-h + .bq-day { border-top: 0; }
+  :root.land .bq-mv-none { margin: 14px 0 10px; color: var(--bq-ink-2); font-size: 14px; }
 }

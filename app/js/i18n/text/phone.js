@@ -79,4 +79,6 @@ addTexts([
   ["{name} invoice", "Factura {name}", "Fatura {name}"],
   ["Decimal mark", "Coma decimal", "Vírgula decimal"],
   ["Viewing {month}", "Viendo {month}", "Vendo {month}"],
+  ["Latest", "Recientes", "Recentes"],
+  ["No transactions yet.", "Todavía no hay transacciones.", "Ainda não há transações."],
 ]);

@@ -61,15 +61,17 @@ function bqTxView() {
 // ---------- the figure, the comparison and the chart ----------
 let bqChartNow = null;      // what the chart drew, for the finger or the keys that move its mark
 /** The figure of what is listed, how it compares with the month before, the month's picker, and the chart. */
-function bqTxSum() {
-  const f = UI.tx, m = bqTxMonth(), kind = bqTxKind(), cur = txCurOf(f);
+/** What a month adds up to, for one kind (expenses, income, all, transfers) under the filters f, in currency cur: the words over the figure, the
+    figure with its cents small, how it compares with the month before (up to the same day while this one is under way), and the chart. Shared by
+    Transactions and the summary's part (opt.card: the chart drawn in a card, opt.W its width). */
+function bqSumParts(f, m, kind, cur, opt) {
+  opt = opt || {};
   const rowsOf = month => filteredTx({ ...f, month }).filter(x => x.currency === cur && x.status !== 'ignored');
   const rows = rowsOf(m), total = sum(rows.map(x => bqTxVal(x, kind)));
   const word = m ? mcMonth(m) : t('all months');
   const label = { expense: t('You spent in {month}', { month: word }), income: t('You received in {month}', { month: word }), transfer: t('You moved between your accounts in {month}', { month: word }), all: t('Balance of {month}', { month: word }) }[kind];
   const s = fmt.money(total, cur, kind === 'all' ? { sign: true } : {}), cut = /^(.*\d)([.,]\d{2})$/.exec(s);
   const big = cut ? `${esc(cut[1])}<small class="cents">${cut[2]}</small>` : esc(s);
-  // the month before: up to the same day while this one is under way
   const now = ymOf(S.today), pm = m ? addMonths(m, -1) : '', hasPrev = !!m && pm >= minMonth(), going = m === now, today = +S.today.slice(8);
   const cumOf = (list, ym, upto) => { const n = daysInMonth(ym), per = Array(n + 2).fill(0); list.forEach(x => { per[Math.min(n, +x.date.slice(8))] += bqTxVal(x, kind); }); const out = []; let a = 0; for (let d = 1; d <= upto; d++) { a += per[d]; out.push(a); } return out; };
   let chip = '', chart = '';
@@ -79,20 +81,25 @@ function bqTxSum() {
     const when = going ? t('by this day of {month}', { month: mcMonth(pm) }) : t('in {month}', { month: mcMonth(pm) });
     chip = `<span class="bq-cmp num">${diff === 0 ? t('The same as {when}', { when }) : t(diff > 0 ? '{amount} more than {when}' : '{amount} less than {when}', { amount: fmt.money(Math.abs(diff), cur), when })}</span>`;
   }
-  const pager = m ? `<div class="bq-mon" role="group" aria-label="${t('Month')}"><button data-a="bq-tx-month" data-d="-1" aria-label="${t('Previous month')}" ${m <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(m, true)}</span><button data-a="bq-tx-month" data-d="1" aria-label="${t('Next month')}" ${m >= now ? 'disabled' : ''}>${icon('right')}</button></div>` : '';
   if (m && (rows.length || prevRows.length)) {
     const n = daysInMonth(m), last = going ? Math.max(today, ...rows.map(x => +x.date.slice(8))) : n;
-    chart = bqTxChart({ ym: m, pm, kind, money: cur, cur: cumOf(rows, m, Math.min(n, last)), prev: hasPrev && prevRows.length ? prev : null });
+    chart = bqTxChart({ ym: m, pm, kind, money: cur, cur: cumOf(rows, m, Math.min(n, last)), prev: hasPrev && prevRows.length ? prev : null, card: !!opt.card }, opt.W);
   } else bqChartNow = null;
-  return `<div class="bq-sum"><div class="bq-sum-l"><span class="bq-sum-k">${esc(label)}</span><b class="bq-sum-v num${kind === 'all' && total < 0 ? ' neg' : ''}">${big}</b>${chip}</div>${pager}</div>${chart}`;
+  return { label, big, chip, chart, neg: kind === 'all' && total < 0 };
+}
+/** The figure of what is listed, how it compares with the month before, the month's picker, and the chart. */
+function bqTxSum() {
+  const f = UI.tx, m = bqTxMonth(), kind = bqTxKind(), cur = txCurOf(f), p = bqSumParts(f, m, kind, cur);
+  const pager = m ? `<div class="bq-mon" role="group" aria-label="${t('Month')}"><button data-a="bq-tx-month" data-d="-1" aria-label="${t('Previous month')}" ${m <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(m, true)}</span><button data-a="bq-tx-month" data-d="1" aria-label="${t('Next month')}" ${m >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : '';
+  return `<div class="bq-sum"><div class="bq-sum-l"><span class="bq-sum-k">${esc(p.label)}</span><b class="bq-sum-v num${p.neg ? ' neg' : ''}">${p.big}</b>${p.chip}</div>${pager}</div>${p.chart}`;
 }
 
 /** A tidy step for the chart's lines: 1, 2, 2.5 or 5 times a power of ten (in cents). */
 function bqStep(x) { if (!(x > 0)) return 10000; const p = Math.pow(10, Math.floor(Math.log10(x))), k = x / p; return (k <= 1 ? 1 : k <= 2 ? 2 : k <= 2.5 ? 2.5 : k <= 5 ? 5 : 10) * p; }
 /** The month added up day by day (lime, filled) against the month before (dashed), one scale, the lines the chart reaches; a mark on a day with its
     figure in a lime pill at the top, the latest day at first. The list under it is its table. */
-function bqTxChart(c) {
-  const W = Math.max(280, Math.round((document.querySelector('.work') || {}).clientWidth || innerWidth)), H = 204, L = 16, R = 16, T = 48, B = 176, n = daysInMonth(c.ym);
+function bqTxChart(c, Wopt) {
+  const W = Wopt || Math.max(280, Math.round((document.querySelector('.work') || {}).clientWidth || innerWidth)), H = 204, L = 16, R = 16, T = 48, B = 176, n = daysInMonth(c.ym);
   const prev = c.prev ? Array.from({ length: n }, (_, i) => c.prev[Math.min(i, c.prev.length - 1)]) : null;      // by day of the month; a shorter month before stays level to the end
   if (c.prev && c.prev.length > n) prev[n - 1] = c.prev[c.prev.length - 1];      // a longer one ends on its own total
   const all = [...c.cur, ...(prev || [])];
@@ -107,7 +114,7 @@ function bqTxChart(c) {
   bqChartNow = { ...c, W, H, L, R, T, B, n, x, y };
   const mk = bqMarkParts(k, null), name = mcMonthCap(c.ym), before = c.prev ? mcMonthCap(c.pm) : '';
   const say = c.prev ? t('{month} added up day by day, against {before}. Use the arrows to move along the days.', { month: name, before }) : t('{month} added up day by day. Use the arrows to move along the days.', { month: name });
-  return `<figure class="bq-chart"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" tabindex="0" role="img" aria-label="${esc(say)}" aria-describedby="bq-mk-say">${grid}
+  return `<figure class="bq-chart${c.card ? ' on-card' : ''}"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" tabindex="0" role="img" aria-label="${esc(say)}" aria-describedby="bq-mk-say">${grid}
       ${k ? `<path d="${area}" class="area"/>` : ''}${prev ? `<path d="${line(prev)}" class="before"/>` : ''}${k ? `<path d="${line(c.cur)}" class="now"/>` : ''}${ticks}
       ${k ? `<g class="bq-mk"><path d="M${mk.px} 28 V${B}"/><circle cx="${mk.px}" cy="${mk.py}" r="6.5"/><rect x="${mk.rx}" y="0" width="${mk.w}" height="28" rx="14"/><text x="${mk.rx + mk.w / 2}" y="18.5" text-anchor="middle">${esc(mk.txt)}</text></g>` : ''}</svg>
     <figcaption><span class="lg now">${name}</span>${c.prev ? `<span class="lg before">${before}</span>` : ''}<span class="lg-r">${t('Added up by day')}</span></figcaption><span class="sr" id="bq-mk-say" aria-live="polite">${k ? esc(mk.txt) : ''}</span></figure>`;
@@ -151,24 +158,49 @@ function bqTxList() {
   const head = `<div class="bq-txh"><span class="bq-t"><h2 id="bq-tx-h">${esc(title)}</h2><span class="bq-sub">${count}</span></span><button class="bq-add" data-a="quick-go" data-v="${kind === 'income' ? 'income' : kind === 'transfer' ? 'transfer' : 'expense'}">${icon('plus')}<span>${t('Add')}</span></button></div>`;
   const filtered = applied.length > 0 || !!f.q.trim();
   if (!rows.length) return `${head}${chips}<div class="bq-txcard bq-txnone"><b>${filtered ? t('No transactions match these filters') : t('No transactions in {month}', { month: m ? fmt.month(m) : t('All months') })}</b><span>${filtered ? t('Try a different month or clear the filters.') : t('Nothing is recorded for this month in your household accounts.')}</span>${filtered ? `<button class="btn sm" data-a="clear-filters">${t('Clear filters')}</button>` : m ? `<button class="btn sm" data-a="tx-all-months">${t('Show all months')}</button>` : ''}</div>`;
-  const size = Math.max(BQ_TX_STEP, f.bqN || 0), shown = rows.slice(0, size), days = [...new Set(shown.map(x => x.date))];
-  const yday = addDays(S.today, -1), wd = d => { try { return new Date(d + 'T12:00:00Z').toLocaleDateString(BQ_LOCALE[S.settings.lang] || 'en-US', { weekday: 'long', timeZone: 'UTC' }); } catch (e) { return ''; } };
-  const dayName = d => d === S.today ? t('Today') : d === yday ? t('Yesterday') : [wd(d), +d.slice(8), !m || d.slice(0, 7) !== m ? mon(+d.slice(5, 7) - 1) : '', d.slice(0, 4) !== yr ? d.slice(0, 4) : ''].filter(Boolean).join(' ');
-  const mark = x => { const c = catOf(x.categoryId);
-    if (x.type === 'transfer') return icon('swap');
-    if (c && c.cat) return catIconSvg(catIconKey(c.cat, (catOf(x.subcategoryId) || {}).sub));
-    if (x.amount > 0) return icon('coins');
-    return `<span class="bq-op-l">${esc((x.merchant || '?').trim().charAt(0).toLocaleUpperCase() || '?')}</span>`; };
-  const sub = x => { const a = acct(x.accountId); return [x.type === 'transfer' ? t('Transfer') : catName(x.subcategoryId || x.categoryId), a ? a.name : '', x.status === 'pending' ? t('Pending') : x.status === 'ignored' ? t('Ignored') : ''].filter(Boolean).join(' · '); };
-  const amt = x => fmt.money(x.amount, x.currency, { sign: true });
-  const row = x => { const a = acct(x.accountId), bank = a && BANK_MARKS[a.institution] ? `<span class="bq-op-bank">${bankMark(a.institution, true)}</span>` : '';
-    return `<li><button class="bq-op${x.status === 'ignored' ? ' ignored' : ''}${flashed(x.id)}" data-a="open-tx" data-id="${x.id}" aria-label="${esc(`${x.merchant}, ${sub(x)}, ${amt(x)}, ${dayName(x.date)}`)}"><span class="bq-op-ico" aria-hidden="true">${mark(x)}${bank}</span><span class="bq-op-t" aria-hidden="true"><b>${esc(x.merchant)}</b><small>${esc(sub(x))}</small></span><b class="num bq-op-amt${x.type === 'income' ? ' in' : x.type === 'transfer' ? ' tr' : ''}" aria-hidden="true">${amt(x)}</b></button></li>`; };
+  const size = Math.max(BQ_TX_STEP, f.bqN || 0), shown = rows.slice(0, size);
   const more = rows.length - shown.length;
-  return `${head}${chips}<div class="bq-txcard">${days.map(d => `<h3 class="bq-day">${esc(dayName(d))}</h3><ul class="bq-ops">${shown.filter(x => x.date === d).map(row).join('')}</ul>`).join('')}</div>
+  return `${head}${chips}<div class="bq-txcard">${bqOpDays(shown, m)}</div>
     ${more > 0 ? `<button class="btn bq-txmore" data-a="bq-tx-more">${t('Show {n} more', { n: Math.min(BQ_TX_STEP, more) })}</button>` : ''}`;
 }
 
+// ---------- a transaction as a row, by day (Transactions and the summary's latest) ----------
+/** A day's name over its rows: Today, Yesterday, or the weekday and the day ("viernes 25"), with the month when it is not the one listed (m) and
+    the year when it is not this one. */
+function bqDayName(d, m) {
+  const yday = addDays(S.today, -1), yr = S.today.slice(0, 4), wd = () => { try { return new Date(d + 'T12:00:00Z').toLocaleDateString(BQ_LOCALE[S.settings.lang] || 'en-US', { weekday: 'long', timeZone: 'UTC' }); } catch (e) { return ''; } };
+  return d === S.today ? t('Today') : d === yday ? t('Yesterday') : [wd(), +d.slice(8), !m || d.slice(0, 7) !== m ? mon(+d.slice(5, 7) - 1) : '', d.slice(0, 4) !== yr ? d.slice(0, 4) : ''].filter(Boolean).join(' ');
+}
+/** A transaction: the category's icon with the bank's logo on it, what it was, its category and account, the amount (money in green); a tap opens it. */
+function bqOpRow(x, m) {
+  const c = catOf(x.categoryId), a = acct(x.accountId);
+  const mark = x.type === 'transfer' ? icon('swap') : c && c.cat ? catIconSvg(catIconKey(c.cat, (catOf(x.subcategoryId) || {}).sub)) : x.amount > 0 ? icon('coins') : `<span class="bq-op-l">${esc((x.merchant || '?').trim().charAt(0).toLocaleUpperCase() || '?')}</span>`;
+  const sub = [x.type === 'transfer' ? t('Transfer') : catName(x.subcategoryId || x.categoryId), a ? a.name : '', x.status === 'pending' ? t('Pending') : x.status === 'ignored' ? t('Ignored') : ''].filter(Boolean).join(' · ');
+  const amt = fmt.money(x.amount, x.currency, { sign: true }), bank = a && BANK_MARKS[a.institution] ? `<span class="bq-op-bank">${bankMark(a.institution, true)}</span>` : '';
+  return `<li><button class="bq-op${x.status === 'ignored' ? ' ignored' : ''}${flashed(x.id)}" data-a="open-tx" data-id="${x.id}" aria-label="${esc(`${x.merchant}, ${sub}, ${amt}, ${bqDayName(x.date, m)}`)}"><span class="bq-op-ico" aria-hidden="true">${mark}${bank}</span><span class="bq-op-t" aria-hidden="true"><b>${esc(x.merchant)}</b><small>${esc(sub)}</small></span><b class="num bq-op-amt${x.type === 'income' ? ' in' : x.type === 'transfer' ? ' tr' : ''}" aria-hidden="true">${amt}</b></button></li>`;
+}
+/** Rows by day, each day under its name, in one list. */
+const bqOpDays = (rows, m) => [...new Set(rows.map(x => x.date))].map(d => `<h3 class="bq-day">${esc(bqDayName(d, m))}</h3><ul class="bq-ops">${rows.filter(x => x.date === d).map(x => bqOpRow(x, m)).join('')}</ul>`).join('');
+
+// ---------- on the summary: the month's spending as on Transactions, and the latest transactions under it ----------
+// (owner, 2026-10-12: "agrega el gráfico de transacciones con las más recientes debajo en Resumen"): what was spent in the month in view, how it
+// compares with the month before, the month added up day by day against the month before (as Transactions draws it, in a white card), and the five
+// latest transactions of the household by day; "View all" opens Transactions on the expenses.
+const BQ_HOME_OPS = 5;
+function bqHomeMoves() {
+  const m = S.month, f = { q: '', month: m, account: '', category: '', type: 'expense', status: '' };
+  const W = Math.max(260, Math.round(((document.querySelector('.work') || {}).clientWidth || innerWidth) - 32));
+  const p = bqSumParts(f, m, 'expense', CUR, { card: true, W });
+  const latest = S.transactions.filter(x => !isBiz(x.accountId) && acct(x.accountId) && x.date <= S.today && x.status !== 'ignored').sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).slice(0, BQ_HOME_OPS);
+  const head = bqHead(t('Transactions'), `<a class="bq-more" href="#transactions" data-a="bq-home-all">${t('View all')}${icon('right')}</a>`);
+  return `<section class="bq-sec" id="bq-moves-card">${head}<div class="bq-mv">
+    <div class="bq-mv-sum"><span class="bq-sum-k">${esc(p.label)}</span><b class="bq-sum-v num">${p.big}</b>${p.chip}</div>${p.chart}
+    ${latest.length ? `<div class="bq-mv-ops"><h3 class="bq-mv-h">${t('Latest')}</h3>${bqOpDays(latest, m)}</div>` : `<p class="bq-mv-none">${t('No transactions yet.')}</p>`}</div></section>`;
+}
+
 const BOSQUE_MOVES_ACTIONS = {
+  /** The summary's "View all": Transactions on this month's expenses, as the part showed them. */
+  'bq-home-all'() { Object.assign(UI.tx, TX_DEFAULT, { type: 'expense', page: 1, bqN: 0, bqSeen: true }); navigate('transactions'); },
   /** Expenses, Income or All: the list, the figure and the chart follow; the finger stays on the switch. */
   'bq-tx-kind'(ds) { Object.assign(UI.tx, { type: ds.v || '', page: 1, bqN: 0 }); render(); const el = document.querySelector(`.bq-kind [data-v="${ds.v || ''}"]`); if (el) el.focus({ preventScroll: true }); },
   /** The month before or after the one listed (the app's month, as on the summary); the focus stays on the arrow, or the other one at an end. */
