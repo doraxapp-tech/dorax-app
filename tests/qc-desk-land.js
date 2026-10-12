@@ -5,7 +5,8 @@
 //   2. the summary (v201, the same day: "claramente se ve que es una versión agrandada de celular, no una versión web"): a dashboard's header on the
 //      forest (greeting, net balance, "You can spend" at its right, the month's four figures side by side, a row of buttons), the computer's parts three
 //      to a row under it, no hole at the end; on a narrower window the figures go under the balance, two by two;
-//   3. its buttons work: a new expense has no keypad on a computer (its keyboard), the sentence to write it in one go is there;
+//   3. its buttons work: a new expense has no keypad on a computer (its keyboard), the sentence to write it in one go is there; More is a menu
+//      under its button, inside the window;
 //   4. Transactions: a forest header (the switch, the figure, the month, the chart wide at their right) and the computer's table under it, whose
 //      search the header follows as it is typed;
 //   5. the panels wear the phone's colours (an account's panel on the forest); a contribution is slid into its goal and answered by its screen;
@@ -73,6 +74,17 @@ const CONTRAST = () => {
   eq(await page.evaluate(() => [UI.drawer.kind, UI.drawer.pad, !!document.querySelector('#overlay .bq-pad'), document.getElementById('d-amount').getAttribute('inputmode'), !!document.getElementById('d-say'), getComputedStyle(document.querySelector('#overlay .drawer')).backgroundColor]),
     ['tx', false, false, 'decimal', true, 'rgb(233, 237, 236)'], 'a new expense on a computer: no keypad (its keyboard types the amount), the sentence to write it in one go, the panel in the page’s grey');
   await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+  await page.click('.bq-dacts [data-a="quick-more"]'); await page.waitForSelector('#overlay .bq-more-sheet');
+  eq(await page.evaluate(() => { const m = document.querySelector('#overlay .bq-more-sheet'), b = document.querySelector('.bq-dacts [data-a="quick-more"]').getBoundingClientRect(), r = m.getBoundingClientRect(), sc = getComputedStyle(document.querySelector('#overlay .scrim'));
+    return [Math.abs(r.left - b.left) <= 1, r.top >= b.bottom && r.top - b.bottom <= 12, Math.round(r.width), r.bottom <= innerHeight, sc.backgroundColor, m.querySelectorAll('.g-pick-list button').length > 3, [...m.querySelectorAll('.g-pick-list button')].every(x => Math.round(x.getBoundingClientRect().height) === 52), document.activeElement.closest('.bq-more-sheet') !== null]; }),
+    [true, true, 340, true, 'rgba(0, 0, 0, 0)', true, true, true], 'More on a computer: a menu under its button (not the phone’s sheet at the foot of the screen), the page not dimmed, its rows even, the focus in it');
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  eq(await page.evaluate(() => [UI.sheet, document.activeElement.dataset.a]), [false, 'quick-more'], 'Escape closes it, the focus back on More');
+  await page.setViewportSize({ width: 1024, height: 640 }); await page.waitForTimeout(300);
+  await page.click('.bq-dacts [data-a="quick-more"]'); await page.waitForSelector('#overlay .bq-more-sheet');
+  eq(await page.evaluate(() => { const r = document.querySelector('#overlay .bq-more-sheet').getBoundingClientRect(); return [r.top >= 0, r.bottom <= innerHeight]; }), [true, true], 'a short window: the menu opens over its button, inside the window');
+  await page.keyboard.press('Escape'); await page.waitForTimeout(250);
+  await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(250);
 
   // ---------- 4. Transactions: a forest header, the computer's table ----------
   await page.evaluate(() => navigate('transactions')); await page.waitForTimeout(200);

@@ -44,9 +44,19 @@ function bqActions() {
   return `<nav class="bq-acts" id="quick-acts" aria-label="${t('Add')}">${one('expense', BQ_OUT, true, quickShort('expense'))}${one('income', BQ_IN, false, t('Inflow'))}${one('transfer', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', false, t('Move money'))}<button data-a="quick-more" aria-haspopup="dialog"><span class="bq-ico">${icon('more')}</span><span>${t('More')}</span></button></nav>`;
 }
 /** More: every other thing the summary's row of circles offered, in a short list. */
+/** On a computer, More is a menu under its button (v201: a web page's menu, not the phone's sheet at the foot of the screen): where it opens, under
+    the button and from its left edge; over it when there is no room under it; inside the window. */
+function bqMoreAt(el) {
+  const b = el && el.getBoundingClientRect && el.getBoundingClientRect(); if (!b) return null;
+  const n = quickList().filter(x => x[0] !== 'main' && !QUICK_BASE.includes(x[0])).length, w = 340, h = 62 + n * 52;      // its width and height (css/look/look-land-desk.css)
+  const x = Math.round(Math.max(16, Math.min(b.left, innerWidth - w - 16))), below = b.bottom + 8 + h <= innerHeight - 16;
+  const y = Math.round(below ? b.bottom + 8 : Math.max(16, b.top - 8 - h));
+  return { x, y, o: below ? 'top left' : 'bottom left' };
+}
 function bqMoreSheet() {
   const rest = quickList().filter(x => x[0] !== 'main' && !QUICK_BASE.includes(x[0]));
-  return `<div class="scrim" data-a="close"></div><div class="sheet g-pick bq-more-sheet" role="dialog" aria-label="${t('What do you want to do?')}"><div class="grab" aria-hidden="true"></div><h2>${t('What do you want to do?')}</h2>
+  const at = UI.qmAt && !isPhone() ? ` style="--qm-x:${UI.qmAt.x}px;--qm-y:${UI.qmAt.y}px;--qm-o:${UI.qmAt.o}"` : '';
+  return `<div class="scrim" data-a="close"></div><div class="sheet g-pick bq-more-sheet${at ? ' at' : ''}" role="dialog" aria-label="${t('What do you want to do?')}"${at}><div class="grab" aria-hidden="true"></div><h2>${t('What do you want to do?')}</h2>
     <div class="g-pick-list">${rest.map(([v, ic, l]) => `<button data-a="quick-go" data-v="${v}"><span class="fl-ico">${icon(ic)}</span><span class="grow"><b>${esc(l)}</b></span>${icon('right')}</button>`).join('')}</div></div>`;
 }
 
@@ -149,5 +159,5 @@ document.addEventListener('scroll', e => {
 }, { capture: true, passive: true });
 
 const BOSQUE_ACTIONS = {
-  'quick-more'() { UI.sheet = 'quick-more'; renderOverlay(); const el = document.querySelector('.bq-more-sheet .g-pick-list button'); if (el) el.focus({ preventScroll: true }); },
+  'quick-more'(ds, from) { UI.qmAt = isPhone() ? null : bqMoreAt(from); UI.sheet = 'quick-more'; renderOverlay(); const el = document.querySelector('.bq-more-sheet .g-pick-list button'); if (el) el.focus({ preventScroll: true }); },
 };
