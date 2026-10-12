@@ -157,6 +157,10 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { S.user.dashOrder = { home: ['recent', 'goals', 'insight', 'runway', 'accounts', 'todo', 'quick', 'free'] }; S.user.dashHidden = { home: ['accounts', 'todo', 'quick'] }; render(); });
       eq([await order(), await page.evaluate(() => !!document.querySelector('#dash-order-btn'))], [want, false], 'an order and hidden parts saved before do not move it');
       await page.evaluate(() => { delete S.user.dashOrder; delete S.user.dashHidden; render(); });
+      // short of money the card stays (owner, 2026-10-12: "quiero que pongas que puedes gastar hoy como en el screenshot"): R$ 0 a day, the strip says how much is missing
+      await page.evaluate(() => { window.__fu = freeUntil; window.freeUntil = (...a) => { const r = window.__fu(...a); return r && Object.assign({}, r, { free: -487536, perDay: 0 }); }; render(); });
+      eq(await page.evaluate(() => { const f = document.querySelector('#view > .bq-free'); return f && [f.classList.contains('short'), f.querySelector('.fu-n').textContent.trim(), /4\.875/.test(f.querySelector('.bq-say').textContent), f.querySelector('.bq-chip').textContent.trim()]; }), [true, 'R$ 0', true, 'Puedes gastar hoy'], 'short of money: the card stays, R$ 0 a day and how much is missing');
+      await page.evaluate(() => { window.freeUntil = window.__fu; render(); });
       // a month already over: no card on the block, which ends under the month
       await page.evaluate(() => A.month({ d: '-1' }));
       eq(await page.evaluate(() => [!!document.querySelector('.bq-free'), Math.round(parseFloat(getComputedStyle(document.querySelector('.topbar > .pagehead')).paddingBottom))]), [false, 24], 'a month already over: no card, the block ends under the month');

@@ -31,4 +31,5 @@ addTexts([
   ["{amount} missing to pay everything {when}.", "Te faltan {amount} para pagar todo {when}.", "Faltam {amount} para pagar tudo {when}."],
   ["What you have today is not enough to pay everything {when}: {amount} missing.", "Lo que tienes hoy no alcanza para pagar todo {when}: faltan {amount}.", "O que você tem hoje não dá para pagar tudo {when}: faltam {amount}."],
   ["Add a checking account to see how much you can spend.", "Agrega una cuenta corriente para ver cuánto puedes gastar.", "Adicione uma conta corrente para ver quanto você pode gastar."],
+  ["{amount} short to pay everything {when}.", "Te faltan {amount} para pagar todo {when}.", "Faltam {amount} para pagar tudo {when}."],
 ]);

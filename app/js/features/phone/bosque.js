@@ -26,10 +26,15 @@ const BQ_OUT = '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>', BQ_IN = '<path d="M
 const bqAvatar = () => photoHas() ? avatar() : `<span class="avatar bq-init" aria-hidden="true">${esc(String(firstName(S.user.name) || S.user.email || '?').trim().charAt(0).toUpperCase())}</span>`;
 
 // ---------- "You can spend": the card half on the block ----------
+// Always there, as designed (owner, 2026-10-12: "quiero que pongas que puedes gastar hoy como en el screenshot, revisa en mi perfil por qué no sale":
+// it was left out while what is due before pay day, or the month's end, is more than the day-to-day accounts hold, his case). Then the day's share is
+// R$ 0 and the lime strip says how much is missing; a tap opens the same steps as always. Only without a day-to-day account is there no card.
 function bqFree() {
-  const r = freeUntil(S, S.today, CUR); if (!r || !fuOk(r)) return '';      // short of money it says so in the bell, as before (free-until.view.js)
-  return `<section class="bq-free" id="free-card" aria-label="${esc(t('You can spend today'))}"><div class="bq-free-top"><span class="bq-chip">${t('You can spend today')}</span>${fuBig(r)}</div>
-    <button class="bq-free-foot" id="free-open" data-a="free-view" aria-haspopup="dialog"><span class="bq-say">${fuSay(r).replace('. ', '.<br>')}</span><span class="bq-go" aria-hidden="true">${bqSvg(BQ_OUT)}</span></button></section>`;
+  const r = freeUntil(S, S.today, CUR); if (!r) return '';
+  const ok = fuOk(r), big = ok ? fuBig(r) : `<span class="fu-big">${t('{amount} a day', { amount: `<span class="fu-n num">${fuMoney(0)}</span>` })}</span>`;
+  const say = ok ? fuSay(r).replace('. ', '.<br>') : t('{amount} short to pay everything {when}.', { amount: `<b>${fuMoney(-r.free)}</b>`, when: fuWhen(r) });
+  return `<section class="bq-free${ok ? '' : ' short'}" id="free-card" aria-label="${esc(t('You can spend today'))}"><div class="bq-free-top"><span class="bq-chip">${t('You can spend today')}</span>${big}</div>
+    <button class="bq-free-foot" id="free-open" data-a="free-view" aria-haspopup="dialog"><span class="bq-say">${say}</span><span class="bq-go" aria-hidden="true">${bqSvg(BQ_OUT)}</span></button></section>`;
 }
 
 // ---------- four round buttons ----------
