@@ -48,7 +48,7 @@
   :root.land .bq-sum-v.neg { color: #FF8A80; }
   :root.land .bq-cmp { display: inline-flex; align-items: center; max-width: 100%; min-height: 28px; margin-top: 4px; padding: 4px 11px; box-sizing: border-box; border-radius: 14px; background: rgba(182, 221, 98, .14); color: #B6DD62; font-size: 13px; font-weight: 600; line-height: 1.3; }
   :root.land .bq-mon { flex: none; display: flex; align-items: center; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); }
-  :root.land .bq-mon button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: grid; place-items: center; width: 40px; height: 44px; border-radius: 999px; color: #B5C2BE; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-mon button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: #B5C2BE; -webkit-tap-highlight-color: transparent; }
   :root.land .bq-mon button svg { width: 17px; height: 17px; }
   :root.land .bq-mon button:disabled { cursor: default; color: rgba(255, 255, 255, .25); }
   :root.land .bq-mon button:active:not(:disabled) { background: rgba(255, 255, 255, .14); color: #FFFFFF; }
@@ -78,59 +78,57 @@
   :root.land .bq-chart .lg-r { margin-left: auto; }
 
   /* ---------- the list: a grey sheet with a handle that rises over the block ---------- */
-  :root.land .bq-txsheet { position: relative; display: flex; flex-direction: column; gap: 12px; margin-top: -30px; padding: 10px 16px 0; border-radius: 30px 30px 0 0; background: #E9EDEC; color: #0E0F0C; }
-  :root.land .bq-grab { align-self: center; width: 40px; height: 5px; border-radius: 999px; background: #C3C9BD; }
-  :root.land .bq-txsheet > .banner { margin: 0; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land .bq-txsheet .banner .btn.sm { border-color: #DDE3E1; border-radius: 999px; background: #FFFFFF; color: #112622; font-weight: 600; }
+  :root.land .bq-txsheet { position: relative; display: flex; flex-direction: column; gap: 12px; margin-top: -30px; padding: 10px 16px 0; border-radius: 30px 30px 0 0; background: var(--bq-page); color: var(--bq-ink); }
+  :root.land .bq-grab { align-self: center; width: 40px; height: 5px; border-radius: 999px; background: var(--bq-grab); }
+  :root.land .bq-txsheet > .banner { margin: 0; border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land .bq-txsheet .banner .btn.sm { border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); color: var(--bq-accent); font-weight: 600; }
   :root.land #tx-list { display: flex; flex-direction: column; gap: 12px; }
   :root.land .bq-txh { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
-  :root.land .bq-txh h2 { margin: 0; color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  :root.land .bq-txh h2 { margin: 0; color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
   :root.land .bq-txh .bq-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  :root.land .bq-txh .bq-sub { color: #454745; font-size: 13px; }
+  :root.land .bq-txh .bq-sub { color: var(--bq-ink-2); font-size: 13px; }
   :root.land .bq-add { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px 0 12px; border-radius: 999px; background: #B6DD62; color: #112622; font-size: 14px; font-weight: 600; -webkit-tap-highlight-color: transparent; transition: transform 120ms ease-out, background 160ms ease-out; }
   :root.land .bq-add svg { width: 18px; height: 18px; stroke-width: 2.4; }
   :root.land .bq-add:active { transform: scale(.96); background: #A6CE52; }
-  :root.land .bq-add:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
+  :root.land .bq-add:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
   @media (hover: hover) and (pointer: fine) { :root.land .bq-add:hover { background: #C4E57A; } }
   /* the filters applied, as white pills */
   :root.land #tx-list .fchips { padding: 0; border: 0; }
-  :root.land #tx-list .fchip { min-height: 36px; padding: 4px 10px 4px 14px; border: 0; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; font-size: 13px; font-weight: 500; }
-  :root.land #tx-list .fchip svg { color: #454745; }
+  :root.land #tx-list .fchip { min-height: 44px; padding: 4px 10px 4px 14px; border: 0; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); font-size: 13px; font-weight: 500; }
+  :root.land #tx-list .fchip svg { color: var(--bq-ink-2); }
 
   /* every day in one white card */
-  :root.land .bq-txcard { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land .bq-day { margin: 0; padding: 12px 0 4px; border-top: 1px solid #DDE3E1; color: #5F625D; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
+  :root.land .bq-txcard { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land .bq-day { margin: 0; padding: 12px 0 4px; border-top: 1px solid var(--bq-line); color: var(--bq-ink-3); font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
   :root.land .bq-day:first-child { border-top: 0; }
   :root.land .bq-ops { list-style: none; margin: 0; padding: 0; }
-  :root.land .bq-op { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 6px 0; color: #0E0F0C; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-op { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 6px 0; color: var(--bq-ink); -webkit-tap-highlight-color: transparent; }
   :root.land .bq-op:active .bq-op-ico { transform: scale(.94); }
-  :root.land .bq-op:focus-visible { outline: 2px solid #112622; outline-offset: 2px; border-radius: 14px; }
+  :root.land .bq-op:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; border-radius: 14px; }
   :root.land .bq-op.ignored { opacity: .55; }
   :root.land .bq-op.flash { animation: bq-wash 1.6s ease-out; border-radius: 14px; }
-  @keyframes bq-wash { from { background: #E8F3D2; } to { background: transparent; } }
-  :root.land .bq-op-ico { position: relative; flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #EDF1F0; color: #112622; transition: transform 120ms ease-out; }
+  @keyframes bq-wash { from { background: var(--bq-mint); } to { background: transparent; } }
+  :root.land .bq-op-ico { position: relative; flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-accent); transition: transform 120ms ease-out; }
   :root.land .bq-op-ico > svg { width: 20px; height: 20px; }
   :root.land .bq-op-l { font-size: 16px; font-weight: 700; }
-  :root.land .bq-op-bank { position: absolute; right: -3px; bottom: -3px; display: grid; border-radius: 50%; box-shadow: 0 0 0 2px #FFFFFF; }
+  :root.land .bq-op-bank { position: absolute; right: -3px; bottom: -3px; display: grid; border-radius: 50%; box-shadow: 0 0 0 2px var(--bq-card); }
   :root.land .bq-op-bank .inst { width: 20px; height: 20px; min-width: 20px; border-radius: 50%; font-size: 8px; }
   :root.land .bq-op-bank .inst img { width: 20px; height: 20px; border-radius: 50%; }
   :root.land .bq-op-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   :root.land .bq-op-t b { overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .bq-op-t small { overflow: hidden; color: #5F625D; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .bq-op-amt { flex: none; color: #0E0F0C; font-size: 15px; font-weight: 600; white-space: nowrap; }
-  :root.land .bq-op-amt.in { color: #2F6B1C; }      /* money in, green as everywhere */
-  :root.land .bq-op-amt.tr { color: #5F625D; }
-  :root.land .bq-txmore { align-self: center; min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #112622; font-weight: 600; }
+  :root.land .bq-op-t small { overflow: hidden; color: var(--bq-ink-3); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .bq-op-amt { flex: none; color: var(--bq-ink); font-size: 15px; font-weight: 600; white-space: nowrap; }
+  :root.land .bq-op-amt.in { color: var(--bq-in); }      /* money in, green as everywhere */
+  :root.land .bq-op-amt.tr { color: var(--bq-ink-3); }
+  :root.land .bq-txmore { align-self: center; min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-accent); font-weight: 600; }
   :root.land .bq-txnone { align-items: flex-start; gap: 8px; padding: 18px; }
   :root.land .bq-txnone b { font-size: 15px; }
-  :root.land .bq-txnone span { color: #454745; font-size: 14px; line-height: 1.4; }
-  :root.land .bq-txnone .btn.sm { margin-top: 4px; border-color: #DDE3E1; border-radius: 999px; background: #FFFFFF; color: #112622; font-weight: 600; }
+  :root.land .bq-txnone span { color: var(--bq-ink-2); font-size: 14px; line-height: 1.4; }
+  :root.land .bq-txnone .btn.sm { margin-top: 4px; border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); color: var(--bq-accent); font-weight: 600; }
 
   @media (prefers-reduced-motion: reduce) { :root.land .bq-op.flash { animation: none; } :root.land .bq-kind button, :root.land .navbar .bq-tool, :root.land .bq-add { transition: none; } }
-  /* a narrow phone: the round buttons a little smaller, the figure and the month still side by side */
+  /* a narrow phone: the month's name a little narrower, the figure and the month still side by side */
   @media (max-width: 374px) {
-    :root.land .navbar .bq-tool { width: 40px; height: 40px; }
-    :root.land .bq-mon button { width: 36px; }
-    :root.land .bq-mon span { min-width: 56px; }
+    :root.land .bq-mon span { min-width: 52px; }      /* its arrows stay 44 px to tap, as the round buttons of the bar */
   }
 }

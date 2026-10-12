@@ -4,10 +4,12 @@
 //      appearance), Help, then the account's buttons (open a company account, log out) and the terms;
 //   2. every row that goes somewhere ends in a chevron; the language and the appearance show their value and are the system's own picker;
 //   3. each thing still works: the profile, the language, the appearance, Help, the terms, log out's place; a thumb fits every row; 320 px fits.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   for (const [lang, w, h] of [['es', 390, 844], ['pt', 320, 568]]) {
-    const { browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: h }, touch: true, mobile: true }), where = `${lang} ${w}: `;
+    const { browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: h }, touch: true, mobile: true }), where = `${lang} ${w}: `;
     const T = k => page.evaluate(k => t(k), k);
     await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); }); await page.click('.more-btn'); await page.waitForSelector('.sheet.more');
     const order = await page.evaluate(() => [...document.querySelectorAll('.sheet.more > *')].map(e => e.className.split(' ')[0]).filter(c => c !== 'grab'));

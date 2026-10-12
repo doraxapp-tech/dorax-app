@@ -7,11 +7,13 @@
 //      what is sure is counted; one button imports; the end says what went in, opens the transactions or brings another;
 //   4. a CSV that cannot be guessed asks the three columns, one under the other; an OFX goes straight in and leaves out what the account has;
 //   5. an import can be undone from the list; a thumb fits everything and nothing is wider than 320 px; the computer keeps its screen.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const CSV = ['Data,Valor,Identificador,Descrição', '06/10/2026,620.00,a1,Resgate RDB', '06/10/2026,-421.87,a2,Transferência enviada pelo Pix - Roberto - ITAÚ', '07/10/2026,-13.00,a4,Transferência enviada pelo Pix - Yura',
   '07/10/2026,-77.79,a5,Pagamento de fatura', '08/10/2026,-32.50,a7,Compra no débito - Padaria Sol', '08/10/2026,-89.90,a8,Compra no débito - Netflix'].join('\n');
 const ODD = ['quando;quanto;oque', '06/10/2026;-45,00;Feira do bairro', '07/10/2026;-12,30;Banca de jornal'].join('\n');
-const phone = (w = 390, h = 844, more = {}) => ({ lang: 'en', account: 'example', plan: true, tours: true, viewport: { width: w, height: h }, touch: true, mobile: true, ...more });
+const phone = (w = 390, h = 844, more = {}) => ({ oldLook: true, lang: 'en', account: 'example', plan: true, tours: true, viewport: { width: w, height: h }, touch: true, mobile: true, ...more });
 (async () => {
   // ---------- 1. the first time ----------
   let { browser, page, errors } = await open(phone());
@@ -79,7 +81,7 @@ const phone = (w = 390, h = 844, more = {}) => ({ lang: 'en', account: 'example'
   eq(await page.evaluate(() => [UI.imp.source, UI.imp.accountId, UI.imp.rows.filter(r => r.dup).length, /already in this account/.test(document.querySelector('#view').innerText)]), ['ofx', 'nu-card', 2, true], 'an OFX is told apart by what it holds, goes straight to the review, and what the card has is left out');
   eq(errors, [], 'OFX: no error in the console'); await browser.close();
   // ---------- the computer ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(() => navigate('imports'));
   eq(await page.evaluate(() => [!!document.querySelector('#imp-file-csv'), !!document.querySelector('#imp-file-ofx'), !document.querySelector('#imp-start')]), [true, true, true], 'the computer keeps its own screen');
   eq(errors, [], 'computer: no error in the console'); await browser.close();

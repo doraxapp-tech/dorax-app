@@ -78,4 +78,5 @@ addTexts([
   ["Inflow", "Ingreso", "Entrada"],
   ["{name} invoice", "Factura {name}", "Fatura {name}"],
   ["Decimal mark", "Coma decimal", "Vírgula decimal"],
+  ["Viewing {month}", "Viendo {month}", "Vendo {month}"],
 ]);

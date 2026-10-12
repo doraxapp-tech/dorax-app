@@ -6,6 +6,8 @@
 //      is a company account in the page's currency. The round + offers only an expense, an income and a transfer (owner, 2026-10-11), and with no
 //      account its expense asks for one, with the button;
 //   4. Spanish and Portuguese on the narrowest phone, a thumb-sized button in the message.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
@@ -15,7 +17,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const noAccounts = () => { S.accounts = []; S.transactions = []; S.plan.lines.forEach(l => { l.accountId = null; }); UI.toast = null; render(); };
 
   // ---------- 1. the messages ----------
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   await page.evaluate(noAccounts);
   await page.evaluate(() => A['new-tx']());
   eq(await toast(page), ['Add an account first.', 'account-add', 'Add account'], 'a new transaction with no account: the message says so and carries the button');
@@ -53,7 +55,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'household: no error in the console'); await browser.close();
 
   // ---------- 3. the quick things to do, on a phone ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   const row = () => page.evaluate(() => [...document.querySelectorAll('.quick-row button')].map(b => b.dataset.v));
   // v167 (owner, 2026-10-11: "leave only three: expense, income, transfer"): the round +'s list is those three, on every screen
   const sheet = async () => { await page.click('#tabbar .fab'); const r = await page.evaluate(() => [...document.querySelectorAll('.sheet.quick button[data-v]')].map(b => b.dataset.v)); await page.evaluate(() => A.close()); return r; };
@@ -72,7 +74,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await sheet(), ['expense', 'income', 'transfer'], 'on Accounts the + offers the same three (adding an account: the dashboard’s row)');
   eq(errors, [], 'phone, household: no error in the console'); await browser.close();
   // the company's side: a company account, in the page's currency
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => { navigate('dashboard'); A.space({ v: 'business' }); }); await page.waitForTimeout(150);
   eq((await row()).slice(-1), ['account'], 'company side with its accounts: “Add company account” at the end');
   await page.evaluate(() => { S.accounts = S.accounts.filter(a => a.scope !== 'business'); render(); });
@@ -84,7 +86,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 4. Spanish and Portuguese, 320 px ----------
   for (const [lang, want] of [['es', [null, 'Agregar cuenta']], ['pt', [null, 'Adicionar conta']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
     await page.evaluate(noAccounts); await page.click('.quick-row [data-v="expense"]');
     const t = await toast(page);
     eq([t && t[0], t && t[2], await page.evaluate(() => document.querySelector('#toast').firstChild.textContent.trim())], ['Add an account first.', want[1], await page.evaluate(() => t('Add an account first.'))], `${lang}: the message and its button in the language`);

@@ -5,9 +5,11 @@
 //      goes back to it; a subcategory's too;
 //   3. the icons where categories show: the transactions, the expense form's quick choices, the limits, the Plan's payments, a phone's movements;
 //   4. thumbs' sizes on a phone, Portuguese, no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; navigate('categories'); });
   // ---------- 1. what names point to ----------
   eq(await page.evaluate(() => S.categories.map(c => c.id + ':' + catIconKey(c))), ['casa:home', 'suscripciones:repeat', 'salidas:ticket', 'other:more', 'income:coins'], 'the example’s categories: a house, a loop, a ticket, “other”, coins');
@@ -43,7 +45,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => { const i = [...document.querySelectorAll('#overlay .op-ico.cat')]; return [i.length > 0, i.every(x => !!x.querySelector('svg') && !!x.style.getPropertyValue('--c'))]; }), [true, true], 'a phone’s movements of an account: the category’s icon in its colour, in place of the first letter');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- 4. a computer; Portuguese ----------
-  ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'pt', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => { S.user.greeted = true; navigate('categories'); }); await page.click('#cat-ic-casa');
   eq(await page.evaluate(() => [document.querySelector('#overlay h2').innerText.startsWith('Ícone de'), document.querySelector('.cgi-b[data-v="cart"]').getAttribute('aria-label'), document.querySelector('#overlay .drawer').classList.contains('pop')]), [true, 'Supermercado', true], 'pt: “Ícone de …”, each drawing named; a card in the middle of a computer');
   await page.keyboard.press('Escape'); eq(await page.evaluate(() => !UI.drawer), true, 'Escape closes it');

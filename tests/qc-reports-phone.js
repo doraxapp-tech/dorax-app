@@ -7,10 +7,12 @@
 //      Reports is its one page, with no switch;
 //   3. To do: a late one keeps its date in the column (in the warning colour) and says "Late" at the start of its line; nothing runs over its name;
 //   4. Portuguese, and the company's side.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, today: '2026-10-08', viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, beta: true, today: '2026-10-08', viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   // ---------- 1. the bar ----------
   eq(await page.evaluate(() => [...document.querySelectorAll('#tabbar a')].map(a => [a.getAttribute('href'), a.innerText.trim()])), [['#dashboard', 'Resumen'], ['#reports', 'Informes'], ['#plan', 'Plan'], ['#goals', 'Metas']], 'the bar: Resumen, Informes, Plan, Metas');
   await page.tap('.more-btn'); await page.waitForSelector('.sheet .nav');
@@ -39,7 +41,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(late, [true, true, true, true, true], 'a late one: its date in the column, “Atrasado” at the start of its line, nothing over its name');
   eq(errors, [], 'no error in the console'); await browser.close();
   // ---------- 4. Portuguese; the company; a computer ----------
-  ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, beta: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'pt', account: 'example', plan: true, beta: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
   await page.evaluate(() => navigate('reports'));
   eq(await page.evaluate(() => [...document.querySelectorAll('.rep-view button')].map(b => b.innerText.trim())), ['Receita', 'Despesas'], 'pt: Receita, Despesas');
   await page.evaluate(() => A.space({ v: 'business' })); await page.waitForTimeout(3800);
@@ -49,7 +51,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(await page.evaluate(() => !!document.querySelector('#rep-year') || !S.transactions.some(x => isBiz(x.accountId))), 'the company’s year, month by month, is with what it received');
   ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), '320 px: nothing runs off the side');
   eq(errors, [], 'pt: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
   await page.evaluate(() => navigate('reports'));
   eq(await page.evaluate(() => [!document.querySelector('.rep-view'), !!document.querySelector('#rep-compare'), /Mayores líneas de gasto/.test(document.querySelector('#view').innerText)]), [true, true, true], 'a computer: its one page, no switch');
   eq(errors, [], 'computer: no error in the console'); await browser.close();

@@ -9,10 +9,12 @@
 //   5. a computer keeps its menu's choice, and gets the eye beside the bell; Spanish and Portuguese on the narrowest phone;
 //   6. the summary has the photo and the greeting at the left of the panel; every other screen has its name there instead, and no large title under
 //      the panel (owner, 2026-10-10); a screen reader still hears each title; a computer keeps all.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   // ---------- 1. the button ----------
   eq(await page.evaluate(() => { const f = document.querySelector('.navbar .side-flip'), bell = document.querySelector('.navbar .bell'), r = f.getBoundingClientRect(), b = bell.getBoundingClientRect();
       return [document.querySelectorAll('.bar-side, .navbar .side-seg').length, f.dataset.a, f.dataset.v, f.getAttribute('aria-label'), !!f.querySelector('svg'), r.right <= b.left + 1 && Math.abs(r.top - b.top) <= 4, r.width >= 40 && r.height >= 40]; }),
@@ -44,7 +46,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 
   // ---------- 4. the notice, the first time ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, curio: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, curio: true }));
   await page.evaluate(() => { delete S.user.sideTip; sideTipShow(); });
   eq(await page.evaluate(() => { const c = document.querySelector('#curio'); return c && [c.querySelector('b').innerText.trim(), /two arrows, next to the bell/.test(c.innerText), document.querySelector('.navbar .side-flip').classList.contains('pulse'), S.user.sideTip]; }),
     ['Household and Company, one tap apart', true, true, true], 'the notice says the switch is the button with two arrows next to the bell, and the button pulses');
@@ -54,23 +56,23 @@ const { open, ok, eq, done } = require('./pw.js');
   await browser.close();
 
   // ---------- 5. without a company; a computer; languages ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => { S.user.company = false; render(); });
   eq(await page.evaluate(() => [document.querySelectorAll('.navbar .side-flip').length, !!document.querySelector('.bar-bal .bb-link')]), [0, true], 'with no company there is no button to change side, and the balance stays');
   await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   eq(await page.evaluate(() => [document.querySelectorAll('#rail-side [data-a="space"]').length, getComputedStyle(document.querySelector('.bar-bal')).display, getComputedStyle(document.querySelector('.navbar .side-flip') || document.body).display !== 'none' && !!document.querySelector('.navbar .side-flip') && getComputedStyle(document.querySelector('.navbar .side-flip')).display !== 'none', !!document.querySelector('.nums-btn') && getComputedStyle(document.querySelector('.nums-btn')).display !== 'none']), [1, 'none', false, true], 'a computer has the way to the other side in its menu (the two arrows beside the eye), has no balance strip, and has the eye at the end of the logo’s row');
   await page.click('.nums-btn'); eq(await page.evaluate(() => [numsHidden(), /R\$ [\d.]+,\d\d/.test(document.querySelector('#view').innerText)]), [true, false], 'the eye works there too');
   await page.click('.nums-btn'); eq(errors, [], 'computer: no error in the console'); await browser.close();
   for (const [lang, w, want] of [['es', 390, ['Saldo neto del hogar', 'Cambiar a Empresa']], ['pt', 320, ['Saldo líquido da casa', 'Mudar para Empresa']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     eq(await page.evaluate(() => { const l = document.querySelector('.bar-bal .bb-link'), e = document.querySelector('.bar-bal .bb-eye').getBoundingClientRect(); return [l.querySelector('small').innerText.trim(), document.querySelector('.navbar .side-flip').getAttribute('aria-label'), l.querySelector('b').scrollWidth <= l.querySelector('b').clientWidth + 1, e.right <= innerWidth && e.width >= 44, [...document.querySelectorAll('.navbar .bar-tools > *')].every(b => b.getBoundingClientRect().right <= innerWidth), document.documentElement.scrollWidth <= innerWidth]; }),
       [want[0], want[1], true, true, true, true], `${lang}, ${w}px: in the language; the amount whole; the eye a thumb wide; the four round buttons inside the screen`);
     eq(errors, [], `${lang}: no error in the console`); await browser.close();
   }
   // ---------- 6. the screens' names (owner, 2026-10-10: "on the phone, in the top menu, on every tab except Resumen, remove the profile photo and the
   // greeting and put the tab's name in their place") ----------
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   const head = r => page.evaluate(r => { navigate(r); window.scrollTo(0, 0); const h = document.querySelector('.pagehead h1'), ph = document.querySelector('.pagehead'), m = document.querySelector('.pagehead .month'), n = document.querySelector('.navbar .bar-name'), nb = document.querySelector('.navbar');
     return { who: !!document.querySelector('.navbar .bar-who'), name: n ? n.textContent : null, fits: !n || n.scrollWidth <= n.clientWidth, heard: h.textContent.trim().length > 0, big: h.getBoundingClientRect().width > 20, row: Math.round(ph.getBoundingClientRect().height), month: !!m && Math.round(m.getBoundingClientRect().left) === 16 && m.getBoundingClientRect().width <= 175 && (!document.querySelector('.pagehead .jr-btn') || document.querySelector('.pagehead .jr-btn').getBoundingClientRect().left - m.getBoundingClientRect().right <= 12), bar: Math.round(nb.getBoundingClientRect().height) }; }, r);
   eq(await page.evaluate(() => tabsNow()), ['dashboard', 'reports', 'plan', 'goals'], '(the bar at the foot: Summary, Reports, Plan, Goals; owner, 2026-10-08: "change Accounts for Reports")');
@@ -87,7 +89,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { A.space({ v: 'personal' }); });
   ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'nothing wider than the screen');
   eq(errors, [], 'titles: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
   ok(await page.evaluate(() => ['dashboard', 'accounts', 'plan', 'goals'].every(r => { navigate(r); return document.querySelector('.topbar h1').getBoundingClientRect().width > 20; })), 'a computer keeps every title');
   await browser.close();
   done('qc-topbar-phone');

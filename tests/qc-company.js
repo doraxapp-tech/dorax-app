@@ -6,6 +6,8 @@
 //   3. everything Plan and Savings & goals do works on the company's side: costs, due days, payments, income, goals, contributions, deletes;
 //   4. the bell, the calendar file and the server's reminder job know about the company's bills;
 //   5. it reads right on a phone and in the three languages.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done, TARGET } = require('./pw.js');
 const path = require('path');
 
@@ -23,7 +25,7 @@ const path = require('path');
 
   // ---------------------------------------------------------------- 1. where the switch is, and where it is not
   {
-    const o = await open({ lang: 'en', account: 'example', plan: true, viewport: wide }), p = o.page;
+    const o = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: wide }), p = o.page;
     eq(await p.evaluate(() => { const r = ROUTES.map(r => { UI.route = r[0]; renderShell(); return [document.querySelectorAll('#rail-side [data-a="space"]').length, document.querySelectorAll('.pagehead [data-a="space"], .pagehead .space').length]; }); return [r.every(x => x[0] === 1), r.every(x => x[1] === 0)]; }), [true, true], tag + 'Household | Company is changed from the menu (the two arrows beside the eye), on every screen, and no screen has a switch of its own in the top bar (owner, 2026-10-07)');
     await p.evaluate(() => navigate('plan'));
     eq(await p.evaluate(() => [[...document.querySelectorAll('#rail-side [data-a="space"]')].map(b => [b.getAttribute('aria-label'), b.dataset.v]), document.querySelectorAll('[data-a="space-cur"]').length, S.company === undefined]),
@@ -184,7 +186,7 @@ const path = require('path');
 
   // ---------------------------------------------------------------- 8. phone, three languages; leaving the company's side
   for (const lang of ['en', 'es', 'pt']) {
-    const o = await open({ lang, account: 'example', plan: true, viewport: phone, mobile: true, touch: true }), p = o.page, where = `${tag}${lang} 390: `;
+    const o = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: phone, mobile: true, touch: true }), p = o.page, where = `${tag}${lang} 390: `;
     await p.evaluate(() => navigate('plan')); await p.click('.navbar .side-flip');      // a phone has no side menu: the side is changed with the button beside the bell
     await p.evaluate(() => { const mk = (name, cat, amount, due) => { A['line-new'](); Object.assign(UI.drawer.draft, { name, catId: cat, amountText: String(amount), due: String(due) }); A['line-save'](); A.close(); }; mk('Accounting fee', 'co-services', 189, 10); mk('Monthly tax for the company', 'co-tax', 1250, 20); render(); }); await quiet(p);
     for (const route of ['plan', 'goals']) {

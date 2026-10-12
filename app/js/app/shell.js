@@ -76,6 +76,9 @@ function navLinks(list) {
 /** Light or dark, for the app only (owner, v35). The public pages (home, login, first-time setup, legal) are always dark: the choice is applied as a class on the
     page's root only while the app itself is on screen, and taken off the moment a public page is. Dark is the default; the choice is kept with the account.
     A class of the app's own is used, not a data-theme attribute, so that a host page which stamps its own theme on the root cannot turn the public pages light. */
+/** The phone's look before the summary "Bosque" (v175–v194), for the suites that test the parts it still shares with the company's side and a
+    computer (tests/pw.js: oldLook). The household on a phone always has the new one. */
+const lookOld = () => window.DORAX_OLD_LOOK === true;
 function applyTheme(pub) {
   const light = !pub && S.settings.theme === 'light', root = document.documentElement;
   root.classList.toggle('app-light', light);
@@ -85,7 +88,8 @@ function applyTheme(pub) {
   const phone = !pub && window.matchMedia && matchMedia('(max-width: 920px)').matches;
   // a phone's summary, light, on the household's side: the summary "Bosque", its forest block at the top (owner, 2026-10-11: "lleva esa a cabo en
   // resumen, exactamente lo que me muestras"; features/phone/bosque.js, css/look/look-land.css), and the browser's bar the same forest
-  const land = light && phone && UI.space !== 'business'; root.classList.toggle('land', land); root.classList.toggle('land-page', land && UI.route !== 'dashboard' && UI.route !== 'transactions');      // every screen since v193 ("sigue con el resto de la webapp", features/phone/bosque-frame.js); the summary and Transactions have their own top      // and Transactions, "Movimientos · Bosque" (owner, 2026-10-12; features/phone/bosque-moves.js)
+  const land = !pub && phone && UI.space !== 'business' && !lookOld(); root.classList.toggle('land', land); root.classList.toggle('land-dark', land && !light);      // both themes since v194 ("el modo oscuro me lleva al diseño viejo"): the dark one is the look's dark version
+  root.classList.toggle('land-page', land && UI.route !== 'dashboard' && UI.route !== 'transactions');      // every screen since v193 ("sigue con el resto de la webapp", features/phone/bosque-frame.js); the summary and Transactions have their own top
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#112622' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the
@@ -132,6 +136,10 @@ function renderShell() {
   const named = UI.route !== 'dashboard';
   // a phone in the summary's look: the switch, the bell and More are the summary's; the other screens keep their own tools (features/phone/bosque-frame.js)
   const bqFrame = named && typeof landOn === 'function' && landOn();
+  // the month's row: the summary's, and every screen's on a computer or outside this look; in this look the other screens say their month where it
+  // counts (owner, 2026-10-12: "no me gusta la fecha en todas las pantallas, es repetitivo": Reports has it in its top, Plan and Goals a way back
+  // when another month is in view; features/phone/bosque-frame.js)
+  const monthHere = MONTH_ROUTES.includes(UI.route) && !bqFrame;
   // the side's net balance, with its eye, belongs to the summary (owner, 2026-10-09: "the household's net balance shows on every screen on the phone;
   // it belongs to Resumen"): the other screens start right under the top row
   $('topbar').innerHTML = `${installBanner()}<div class="navbar">
@@ -140,8 +148,8 @@ function renderShell() {
       <div class="bar-tools">${bqFrame ? bqPageTools() : `${sideFlip()}${bellButton()}<button class="more-btn" data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog" aria-label="${t('More')}">${icon('more')}</button>`}
         ${main ? `<button class="btn primary" data-a="${main[0]}" ${main[1]}>${icon('plus')}<span class="lbl">${main[2]}</span></button>` : ''}</div></div>
     ${UI.route === 'dashboard' ? `<div class="bar-bal${UI.space === 'business' ? ' co' : ''}">${barBalance()}</div>` : ''}
-    <div class="pagehead${MONTH_ROUTES.includes(UI.route) ? ' has-month' : ''}${!MONTH_ROUTES.includes(UI.route) && !spaceSwitch() ? ' bare' : ''}"><span class="back-slot pc" id="back-pc">${backButton()}</span><h1>${short === full ? full : `<span class="h-full">${full}</span><span class="h-short" aria-hidden="true">${short}</span>`}</h1>
-      ${MONTH_ROUTES.includes(UI.route) && isPhone() ? monthPhone(ym) : MONTH_ROUTES.includes(UI.route) ? `${monthFar(ym) ? `<button class="btn m-now" data-a="month-now">${t('Back to present')}</button>` : ''}<div class="month" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${ym <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(ym, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${ym >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : ''}${UI.route === 'dashboard' ? journeyButton(arrived) : ''}${coBalRow() ? '' : spaceSwitch()}</div>`;      // the Journey out of debt, at the right of the month (owner, 2026-10-10)
+    <div class="pagehead${monthHere ? ' has-month' : ''}${!monthHere && !spaceSwitch() ? ' bare' : ''}"><span class="back-slot pc" id="back-pc">${backButton()}</span><h1>${short === full ? full : `<span class="h-full">${full}</span><span class="h-short" aria-hidden="true">${short}</span>`}</h1>
+      ${monthHere && isPhone() ? monthPhone(ym) : monthHere ? `${monthFar(ym) ? `<button class="btn m-now" data-a="month-now">${t('Back to present')}</button>` : ''}<div class="month" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${ym <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(ym, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${ym >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : ''}${UI.route === 'dashboard' ? journeyButton(arrived) : ''}${coBalRow() ? '' : spaceSwitch()}</div>`;      // the Journey out of debt, at the right of the month (owner, 2026-10-10)
   fitCoBal();      // a phone, the company's summary: its balance whole beside the currency (features/phone/phone.view.js)
   monthPlace();      // the month: on a phone the strip on its month; on both, the way back to the present (features/phone/phone.month.js)
 }

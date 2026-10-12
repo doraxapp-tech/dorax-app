@@ -6,6 +6,8 @@
 //   5. an existing transaction opens in the same form, without the sentence;
 //   6. phones at 390 and 320 px, in Spanish and Portuguese.
 // The suites' day is 2026-10-02, a Friday.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
@@ -14,7 +16,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const draft = p => p.evaluate(() => { const x = UI.drawer.draft; return [x.type, x.dir, x.amountText, x.merchant, x.catKey, x.date, x.accountId, x.transferAccountId || null]; });
 
   // ---------- 1. the reader ----------
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   const cases = [
     // sentence, [amount, kind, day, account, other account, group|part, name]
     ['taxi 15', [1500, null, null, null, null, 'casa|transporte', 'Taxi'], 'the shortest sentence: what it was and how much'],
@@ -111,7 +113,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 6. phones ----------
   for (const [lang, w, want] of [['es', 390, ['taxi 15 ayer', 'Escríbelo en una frase', 'Gasto · R$ 15,00 · Taxi · Transporte · ayer', 'Qué fue', 'Más opciones']], ['pt', 320, ['táxi 15 ontem', 'Escreva em uma frase', 'Despesa · R$ 15,00 · Taxi · Transporte · ontem', 'O que foi', 'Mais opções']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: w === 320 ? 568 : 844 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: w === 320 ? 568 : 844 }, touch: true, mobile: true }));
     await page.click('#tabbar .fab'); await page.click('.sheet.quick [data-v="expense"]'); await page.waitForSelector('#d-say');
     await page.fill('#d-say', lang === 'es' ? 'taxi 15 ayer' : 'taxi 15 ontem');
     const got = await page.evaluate(() => { const box = e => e.getBoundingClientRect(), body = document.querySelector('.drawer .body'), h = s => Math.round(box(document.querySelector(s)).height);

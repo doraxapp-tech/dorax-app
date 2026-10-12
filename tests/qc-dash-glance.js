@@ -7,9 +7,11 @@
 //   3. the month by month chart, the funds and the latest transactions wait one click away: a line names them and opens the list, where each has
 //      its eye; shown again, it comes back;
 //   4. a narrower window: two to a row; a phone keeps its own summary; Spanish; no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; S.user.closeSeen = { '2026-09': true }; navigate('dashboard'); scrollTo(0, 0); });
   // ---------- 1. the page ----------
   eq(await page.evaluate(() => { const g = [...document.querySelectorAll('#view .dash-grid')]; return [document.querySelectorAll('#view .kpis .kpi').length, g.map(x => [...x.children].map(c => c.id)), getComputedStyle(g[0]).gridTemplateColumns.split(' ').length]; }),
@@ -38,11 +40,11 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.setViewportSize({ width: 1200, height: 900 }); await page.evaluate(() => render());
   eq(await page.evaluate(() => getComputedStyle(document.querySelector('#view .dash-grid')).gridTemplateColumns.split(' ').length), 2, '1200 px: two to a row');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   eq(await page.evaluate(() => [!document.querySelector('#view .dash-grid'), !!document.querySelector('#free-card .rw-tap'), !document.querySelector('.dash-more')]), [true, true, true], 'a phone keeps its own summary');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   eq(await page.evaluate(() => [document.querySelector('.dash-more').innerText.trim(), document.querySelector('#free-card .fu-how').innerText.trim()]), ['También para el resumen: Gasto mensual, Inversiones (FIIs), Transacciones recientes', 'Cómo lo calculamos'], 'es: in plain words');
   eq(errors, [], 'es: no error in the console'); await browser.close();

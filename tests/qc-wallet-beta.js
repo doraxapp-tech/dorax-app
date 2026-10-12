@@ -15,10 +15,12 @@
 //       a tap on a card opens that account's transactions; no figures on top on a phone (a computer keeps them); no word of a test anywhere;
 //   4. the previous design comes back with one switch in Settings ("Accounts as cards"), and the suites keep testing it;
 //   5. Spanish and Portuguese.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   // ---------- 1. the bar ----------
   eq(await page.evaluate(() => [...document.querySelectorAll('#tabbar a')].map(a => a.getAttribute('href'))), ['#dashboard', '#reports', '#plan', '#goals'], 'the bar: Dashboard, Reports, (+), Plan, Goals');
   await page.click('.navbar [data-a="sheet"]'); await page.waitForSelector('.sheet .nav');
@@ -110,7 +112,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 
   // ---------- the computer ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(() => navigate('accounts'));
   eq(await page.evaluate(() => { const items = [...document.querySelectorAll('.cc-grid .cc-item')], gs = [...document.querySelectorAll('#view .cc-grid')], order = ['checking', 'savings', 'cash', 'credit'];
       const kinds = gs.map(g => g.dataset.kind), divs = [...document.querySelectorAll('#view .cc-div')], d = divs[0], bg = d && getComputedStyle(d).backgroundImage;
@@ -150,7 +152,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 5. Spanish and Portuguese ----------
   for (const [lang, w, want] of [['es', 390, ['Cuentas', 'Débito · Crédito', 'Factura', 'Débito']], ['pt', 320, ['Contas', 'Débito · Crédito', 'Fatura', 'Débito']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, beta: true, viewport: { width: w, height: 760 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, beta: true, viewport: { width: w, height: 760 }, touch: true, mobile: true }));
     eq(await page.evaluate(() => { const k = [...document.querySelectorAll('#ac-card .cc-kind')].map(x => x.textContent.trim()); return [document.querySelector('#ac-card #w-h').innerText.trim(), k[0], document.querySelector('#ac-card .ccard.duo .cc-inv').textContent.trim().split(' ')[0], k[1]]; }),
       want, `${lang}: in the language`);
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.querySelector('#ac-card .ccard').getBoundingClientRect().right <= innerWidth && getComputedStyle(document.querySelector('#wallet-row')).overflowX === 'auto'), `${lang} at ${w} px: the first card fits, the others wait in the row to the right, and the page never scrolls sideways`);

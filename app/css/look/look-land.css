@@ -8,6 +8,30 @@
    #112622 for the block and the day's figure in it, its lime #B6DD62, a pale lime #E8F3D2 for the goals, its cool grey page #E9EDEC with white
    cards and #DDE3E1 hairlines; on the deep green the words are white, #B5C2BE when quieter. (Before, the brand's forest #163300 and lime #9FD182.)
    Only this page wears them for now. */
+/* The look's colours, as words (v194, owner, 2026-10-12: "el modo oscuro me lleva al diseño viejo": the look has a dark version too). The forest
+   (#112622) and the lime (#B6DD62) are the same in both; what the page is made of changes: its grey, its cards, its words and hairlines, the light
+   circles, the colour of what is chosen. In the dark theme (.land-dark, app/shell.js) the page is a green so deep it reads as black, the cards a
+   step lighter, the words light; what was deep green on the light page (a link, an icon, a bar) is lime, and a choice is lime with deep green words,
+   as on the forest. */
+:root.land {
+  --bq-page: #E9EDEC; --bq-page-glass: rgba(233, 237, 236, .92); --bq-card: #FFFFFF; --bq-card-2: #F3F6F5; --bq-card-3: #E3E9E7;
+  --bq-ink: #0E0F0C; --bq-ink-2: #454745; --bq-ink-3: #5F625D; --bq-line: #DDE3E1; --bq-line-2: #C9D2CF; --bq-grab: #C3C9BD; --bq-track: #E3E8DD;
+  --bq-circle: #EDF1F0; --bq-circle-2: #DFE6E4; --bq-mint: #E8F3D2; --bq-mint-ink-2: #3B5534;
+  --bq-accent: #112622; --bq-pick-bg: #112622; --bq-pick-ink: #B6DD62; --bq-pick-ink-2: #FFFFFF;
+  --bq-in: #2F6B1C; --bq-crit: #D03238; --bq-warn: #B87A00; --bq-late: #B42318; --bq-late-bg: #FDE7E4;
+  --bq-glass: rgba(255, 255, 255, .72); --bq-glass-line: rgba(17, 38, 34, .08); --bq-glass-hi: rgba(255, 255, 255, .7); --bq-glass-ink: #0E0F0C; --bq-glass-icon: #112622;
+  --bq-glass-pick: rgba(17, 38, 34, .08); --bq-glass-hover: rgba(17, 38, 34, .05); --bq-glass-press: rgba(17, 38, 34, .1);
+}
+:root.land.land-dark {
+  --bq-page: #0B1412; --bq-page-glass: rgba(11, 20, 18, .92); --bq-card: #15221F; --bq-card-2: #1A2925; --bq-card-3: #22332E;
+  --bq-ink: #EEF2EF; --bq-ink-2: #B5C2BE; --bq-ink-3: #8FA19C; --bq-line: rgba(255, 255, 255, .08); --bq-line-2: rgba(255, 255, 255, .16); --bq-grab: rgba(255, 255, 255, .22); --bq-track: rgba(255, 255, 255, .12);
+  --bq-circle: #1F302B; --bq-circle-2: #2A3D37; --bq-mint: #1B2E16; --bq-mint-ink-2: #C9DDA6;
+  --bq-accent: #B6DD62; --bq-pick-bg: #B6DD62; --bq-pick-ink: #112622; --bq-pick-ink-2: #112622;
+  --bq-in: #B6DD62; --bq-crit: #FF8A80; --bq-warn: #F5C04A; --bq-late: #FF8A80; --bq-late-bg: rgba(255, 138, 128, .14);
+  --bq-glass: rgba(21, 34, 31, .72); --bq-glass-line: rgba(255, 255, 255, .1); --bq-glass-hi: rgba(255, 255, 255, .06); --bq-glass-ink: #EEF2EF; --bq-glass-icon: #EEF2EF;
+  --bq-glass-pick: rgba(255, 255, 255, .12); --bq-glass-hover: rgba(255, 255, 255, .07); --bq-glass-press: rgba(255, 255, 255, .16);
+  color-scheme: dark;
+}
 @media (max-width: 920px) {
   /* ---------- the page: sage, as the home page ---------- */
   /* the page itself (behind the app's column, which paints its own grey) is the block's green: Safari on an iPhone paints the strip behind the clock
@@ -16,9 +40,9 @@
   /* and only at the top: under the app, at the foot, the page's own grey (owner, 2026-10-12, with a screenshot: "there is a weird space in the
      bottom": the installed app on an iPhone can be left shorter than the screen after the keyboard has been up, app/viewport-heal.js, and the
      forest showed there as a band) */
-  html.app-light.in-app.land { background: #E9EDEC linear-gradient(#112622, #112622) top / 100% 50% no-repeat; }
-  html.app-light.in-app.land body { background: transparent; }
-  :root.land .work { --bg: #E9EDEC; --glass: rgba(233, 237, 236, .92); background: #E9EDEC; }
+  html.in-app.land { background: var(--bq-page) linear-gradient(#112622, #112622) top / 100% 50% no-repeat; }
+  html.in-app.land body { background: transparent; }
+  :root.land .work { --bg: var(--bq-page); --glass: var(--bq-page-glass); background: var(--bq-page); }
 
   /* ---------- the forest block at the top: the panel, the balance and the month's row (on a phone the top bar lays its rows out on the page,
      base/responsive.css: display: contents, so each row paints the block). Inside it the theme's words and lines are light on dark. ---------- */
@@ -88,12 +112,12 @@
   :root.land .bq-go svg { width: 18px; height: 18px; stroke-width: 2.4; }
 
   /* ---------- four round buttons in one white bar ---------- */
-  :root.land .bq-acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 14px 8px 12px; border-radius: 28px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land .bq-acts button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 14px 8px 12px; border-radius: 28px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land .bq-acts button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: var(--bq-ink); font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-acts button:active { transform: scale(.94); }
-  :root.land .bq-acts button:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
+  :root.land .bq-acts button:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
   :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
-  :root.land .bq-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #EDF1F0; color: #112622; }
+  :root.land .bq-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-accent); }
   :root.land .bq-ico svg { width: 21px; height: 21px; }
   :root.land .bq-ico.on { background: #B6DD62; }
 
@@ -101,12 +125,12 @@
   :root.land .bq-sec { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   :root.land .bq-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; }      /* with the page's 24 px, 26 px above a heading, as designed */
   :root.land .bq-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  :root.land .bq-h h2 { margin: 0; color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
-  :root.land .bq-sub { color: #454745; font-size: 13px; }
-  :root.land .bq-more { display: inline-flex; align-items: center; gap: 2px; flex: none; min-height: 44px; color: #112622; font-size: 14px; font-weight: 600; text-decoration: none; }
+  :root.land .bq-h h2 { margin: 0; color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  :root.land .bq-sub { color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .bq-more { display: inline-flex; align-items: center; gap: 2px; flex: none; min-height: 44px; color: var(--bq-accent); font-size: 14px; font-weight: 600; text-decoration: none; }
   :root.land .bq-more svg { width: 16px; height: 16px; stroke-width: 2.2; }
-  :root.land .bq-empty span { color: #454745; font-size: 14px; }
-  :root.land .bq-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 16px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land .bq-empty span { color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .bq-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 16px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   /* a row to swipe sideways, from edge to edge of the screen */
   :root.land .bq-row { list-style: none; display: flex; margin: 0 -16px; padding: 2px 16px 4px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   :root.land .bq-row::-webkit-scrollbar { display: none; }
@@ -115,71 +139,73 @@
   /* ---------- the accounts: round logos ---------- */
   :root.land .bq-accs { gap: 8px; }
   :root.land .bq-acc { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 2px; text-align: center; -webkit-tap-highlight-color: transparent; }
-  :root.land .bq-acc:focus-visible { outline: 2px solid #112622; outline-offset: 2px; border-radius: 14px; }
+  :root.land .bq-acc:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; border-radius: 14px; }
   :root.land .bq-acc:active .bq-mark { transform: scale(.94); }
-  :root.land .bq-mark { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; transition: transform var(--t1) ease-out; }
+  :root.land .bq-mark { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); transition: transform var(--t1) ease-out; }
   :root.land .bq-mark .inst { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; font-size: 13px; }
   :root.land .bq-mark .inst img { width: 40px; height: 40px; border-radius: 50%; }
   :root.land .bq-mark .inst svg { width: 20px; height: 20px; }
-  :root.land .bq-acc-n { max-width: 100%; overflow: hidden; color: #0E0F0C; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .bq-acc-n { max-width: 100%; overflow: hidden; color: var(--bq-ink); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ---------- what there is to pay: small cards ---------- */
   :root.land .bq-bills { gap: 10px; margin-top: 4px; align-items: flex-start; }      /* each card as tall as what it says */
-  :root.land .bq-bill { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; width: 156px; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-bill { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; width: 156px; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-bill:active { transform: scale(.97); }
-  :root.land .bq-bill:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
+  :root.land .bq-bill:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
   :root.land .bq-bill-t { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
   :root.land .bq-bill .bq-ico { width: 40px; height: 40px; }
   :root.land .bq-bill .bq-ico svg { width: 19px; height: 19px; }
   :root.land .bq-bill .bq-ico .inst { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; font-size: 13px; }
   :root.land .bq-bill .bq-ico .inst img { width: 40px; height: 40px; border-radius: 50%; }
   :root.land .bq-bill.first .bq-ico { background: #112622; color: #B6DD62; }
-  :root.land .bq-due { flex: 0 1 auto; min-width: 0; overflow: hidden; padding: 4px 9px; border-radius: 999px; background: #EDF1F0; color: #112622; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .bq-due { flex: 0 1 auto; min-width: 0; overflow: hidden; padding: 4px 9px; border-radius: 999px; background: var(--bq-circle); color: var(--bq-accent); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
   :root.land .bq-bill.first .bq-due { background: #B6DD62; font-weight: 700; }
-  :root.land .bq-due.late, :root.land .bq-bill.first .bq-due.late { background: #FDE7E4; color: #B42318; }
+  :root.land .bq-due.late, :root.land .bq-bill.first .bq-due.late { background: var(--bq-late-bg); color: var(--bq-late); }
   :root.land .bq-bill-n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; font-weight: 600; line-height: 1.25; }
-  :root.land .bq-bill-v { color: #454745; font-size: 13px; line-height: 1.3; }
+  :root.land .bq-bill-v { color: var(--bq-ink-2); font-size: 13px; line-height: 1.3; }
 
   /* ---------- the days of freedom as a ring, the goals on mint, side by side ---------- */
   :root.land .bq-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 2px; }
   :root.land .bq-run, :root.land .bq-goals { min-width: 0; }
   :root.land .bq-tile { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; padding: 16px; border-radius: 26px; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-tile:active { transform: scale(.98); }
-  :root.land .bq-tile:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
+  :root.land .bq-tile:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
   :root.land .bq-tile-h { font-size: 14px; font-weight: 600; }
-  :root.land .bq-run .bq-tile { background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; }
+  :root.land .bq-run .bq-tile { background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); }
   :root.land .bq-ring { position: relative; align-self: center; display: grid; place-items: center; width: 104px; height: 104px; }
   :root.land .bq-ring svg { position: absolute; inset: 0; width: 104px; height: 104px; }
+  :root.land .bq-ring circle:first-child { stroke: var(--bq-circle-2); }
+  :root.land .bq-ring circle + circle { stroke: var(--bq-accent); }
   :root.land .bq-ring-n { position: relative; display: flex; flex-direction: column; align-items: center; line-height: 1; }
   :root.land .bq-ring-n b { font-size: 28px; font-weight: 600; letter-spacing: -.03em; }
-  :root.land .bq-ring-n small { margin-top: 3px; color: #454745; font-size: 12px; }
-  :root.land .bq-tile-s { color: #454745; font-size: 12px; line-height: 1.4; }
-  :root.land .bq-goals .bq-tile { gap: 12px; background: #E8F3D2; color: #112622; }
+  :root.land .bq-ring-n small { margin-top: 3px; color: var(--bq-ink-2); font-size: 12px; }
+  :root.land .bq-tile-s { color: var(--bq-ink-2); font-size: 12px; line-height: 1.4; }
+  :root.land .bq-goals .bq-tile { gap: 12px; background: var(--bq-mint); color: #112622; }
   :root.land .bq-goals-v { display: flex; flex-direction: column; gap: 2px; }
-  :root.land .bq-goals-v b { color: #0E0F0C; font-size: 26px; font-weight: 600; letter-spacing: -.04em; line-height: 1.05; }
+  :root.land .bq-goals-v b { color: var(--bq-ink); font-size: 26px; font-weight: 600; letter-spacing: -.04em; line-height: 1.05; }
   :root.land .bq-goals-v b .cents { font-size: .55em; }
-  :root.land .bq-goals-none { color: #0E0F0C; font-size: 15px; font-weight: 600; line-height: 1.3; }
+  :root.land .bq-goals-none { color: var(--bq-ink); font-size: 15px; font-weight: 600; line-height: 1.3; }
   :root.land .bq-goals .bq-more { margin-top: auto; min-height: 0; }
-  :root.land .bq-goals-v small { color: #3B5534; font-size: 12px; text-transform: lowercase; }
+  :root.land .bq-goals-v small { color: var(--bq-mint-ink-2); font-size: 12px; text-transform: lowercase; }
   :root.land .bq-g { display: flex; flex-direction: column; gap: 6px; }
   :root.land .bq-g-t { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 600; }
   :root.land .bq-g-t span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   :root.land .bq-bar { display: block; height: 8px; overflow: hidden; border-radius: 999px; background: rgba(17, 38, 34, .12); }
-  :root.land .bq-bar i { display: block; height: 100%; border-radius: 999px; background: #112622; }
+  :root.land .bq-bar i { display: block; height: 100%; border-radius: 999px; background: var(--bq-accent); }
   /* alone (the other is hidden or not this month), each takes the whole row */
   :root.land #view > .bq-run .bq-tile, :root.land #view > .bq-goals .bq-tile { align-items: stretch; }
 
   /* ---------- the day's fact: one quiet line with the lime dot ---------- */
-  :root.land .ins-strip .ins-say { color: #454745; }
+  :root.land .ins-strip .ins-say { color: var(--bq-ink-2); }
   :root.land .ins-strip .ins-say::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: #B6DD62; box-shadow: 0 0 0 3px rgba(182, 221, 98, .3); vertical-align: 1px; }
-  :root.land .ins-strip .ins-m, :root.land .ins-strip .ins-ar { color: #112622; }
+  :root.land .ins-strip .ins-m, :root.land .ins-strip .ins-ar { color: var(--bq-accent); }
   :root.land .ins-strip .ins-pg { display: none; }      /* one line, as designed; the others still come with a swipe */
 
   /* ---------- the other parts (the month as planned, the latest transactions…): the same headings, their cards white ---------- */
-  :root.land #view .card.part-out > .part-h h2.sec { min-height: 0; padding: 0; border-radius: 0; background: none; box-shadow: none; color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land #view .card.part-out > .part-h h2.sec { min-height: 0; padding: 0; border-radius: 0; background: none; box-shadow: none; color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
   :root.land #view .card.part-out > .part-h h2.sec::before { display: none; }
-  :root.land #view .card.part-out > .part-h .btn.sm.go { min-height: 44px; padding: 0 2px 0 8px; border: 0; border-radius: 999px; background: none; box-shadow: none; color: #112622; font-size: 14px; font-weight: 600; }
-  :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: #112622; }
+  :root.land #view .card.part-out > .part-h .btn.sm.go { min-height: 44px; padding: 0 2px 0 8px; border: 0; border-radius: 999px; background: none; box-shadow: none; color: var(--bq-accent); font-size: 14px; font-weight: 600; }
+  :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: var(--bq-accent); }
   :root.land #view .mc-ask { border-radius: 24px; }
 
   /* ---------- the bar at the foot: frosted glass, floating, as Wise's (owner, 2026-10-12, with a screenshot of Wise's home: "I want my menu to look
@@ -189,19 +215,19 @@
      use on a soft grey-green pill as tall as the bar's inside. No round + here (v183: "quita el botón (+) del medio"). Scrolling down it gets
      shorter, the icons alone, their names kept for a screen reader (v183); up, or near the top, whole again (features/phone/bosque.js). ---------- */
   :root.land .content { padding-bottom: calc(96px + var(--safe-b)); }
-  :root.land .tabbar { left: 16px; right: 16px; bottom: max(12px, calc(var(--safe-b) - 14px)); display: flex; gap: 0; align-items: stretch; height: 58px; padding: 4px; border: 1px solid rgba(17, 38, 34, .08); border-radius: 999px;
-    background: rgba(255, 255, 255, .72); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 12px 32px -14px rgba(14, 15, 12, .28), inset 0 1px 0 rgba(255, 255, 255, .7);
+  :root.land .tabbar { left: 16px; right: 16px; bottom: max(12px, calc(var(--safe-b) - 14px)); display: flex; gap: 0; align-items: stretch; height: 58px; padding: 4px; border: 1px solid var(--bq-glass-line); border-radius: 999px;
+    background: var(--bq-glass); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 12px 32px -14px rgba(14, 15, 12, .28), inset 0 1px 0 var(--bq-glass-hi);
     transition: height 280ms var(--ease), bottom 280ms var(--ease); }
   :root.land .tabbar .fab { display: none; }
-  :root.land .tabbar a { position: relative; box-sizing: border-box; flex: 1 1 0; min-width: min-content; min-height: 0; gap: 2px; padding: 0 8px; border-radius: 999px; background: transparent; color: #0E0F0C; font-size: 12px; font-weight: 500; letter-spacing: 0;
+  :root.land .tabbar a { position: relative; box-sizing: border-box; flex: 1 1 0; min-width: min-content; min-height: 0; gap: 2px; padding: 0 8px; border-radius: 999px; background: transparent; color: var(--bq-glass-ink); font-size: 12px; font-weight: 500; letter-spacing: 0;
     -webkit-tap-highlight-color: transparent; transition: background 160ms ease-out, transform 160ms ease-out, font-size 200ms var(--ease), gap 200ms var(--ease); }      /* the same share each, more only for a name that needs it ("Transacciones") */
   :root.land .tabbar a::before { display: none; }
-  :root.land .tabbar a svg { width: 22px; height: 22px; color: #112622; }
-  :root.land .tabbar a[aria-current="page"] { background: rgba(17, 38, 34, .08); color: #0E0F0C; font-weight: 600; }
-  :root.land .tabbar a[aria-current="page"] svg { color: #112622; }
-  @media (hover: hover) and (pointer: fine) { :root.land .tabbar a:not([aria-current]):hover { background: rgba(17, 38, 34, .05); } }
-  :root.land .tabbar a:active { transform: scale(.95); background: rgba(17, 38, 34, .1); }
-  :root.land .tabbar :focus-visible { outline: 2px solid #112622; outline-offset: -2px; }
+  :root.land .tabbar a svg { width: 22px; height: 22px; color: var(--bq-glass-icon); }
+  :root.land .tabbar a[aria-current="page"] { background: var(--bq-glass-pick); color: var(--bq-glass-ink); font-weight: 600; }
+  :root.land .tabbar a[aria-current="page"] svg { color: var(--bq-glass-icon); }
+  @media (hover: hover) and (pointer: fine) { :root.land .tabbar a:not([aria-current]):hover { background: var(--bq-glass-hover); } }
+  :root.land .tabbar a:active { transform: scale(.95); background: var(--bq-glass-press); }
+  :root.land .tabbar :focus-visible { outline: 2px solid var(--bq-accent); outline-offset: -2px; }
   /* shorter while the page goes down */
   :root.land.bar-small .tabbar { height: 54px; }      /* its screens still 44 px to tap */
   :root.land.bar-small .tabbar a { gap: 0; font-size: 0; }

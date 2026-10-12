@@ -7,9 +7,11 @@
 //   4. the card's details: "Installments to come", month by month; its list shows nothing still to come;
 //   5. an installment opened says which one it is; deleted, it takes the ones after it; a bank line of it is flagged as a possible duplicate;
 //   6. Spanish; 320 px; no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   // ---------- 1. the arithmetic ----------
   eq(await page.evaluate(() => [instSplit(100001, 3), instDates('2026-01-31', 3), instDates('2026-11-15', 3)]), [[33335, 33333, 33333], ['2026-01-31', '2026-02-28', '2026-03-31'], ['2026-11-15', '2026-12-15', '2027-01-15']], 'equal parts, the odd cents on the first; the 31st becomes the 28th in February');
@@ -55,7 +57,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(id => { const d = findDuplicate({ amount: -10000, date: '2026-11-07', description: 'PHONE STORE PARC 02/10', merchant: 'Phone store' }, id, S.transactions); return d && [d.certainty, d.txn.inst.i]; }, card), ['possible', 2], 'the bank’s line of the second one (“02/10”, another day) is flagged as a possible duplicate, never merged by itself');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- Spanish, 320 px ----------
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
   await page.evaluate(() => { S.user.greeted = true; A['new-tx'](); });
   await page.click('[data-a="tx-pay"][data-v="credit"]'); await page.selectOption('#d-inst', '3'); await page.fill('#d-amount', '300');
   eq(await page.evaluate(() => [document.querySelector('label[for="d-inst"]').innerText, document.querySelector('#d-inst option').innerText, document.querySelector('#tx-inst-say').innerText]), ['Cuotas', 'Al contado', '3 cuotas de R$ 100,00 · la última en diciembre de 2026'], 'es: “Cuotas”, “Al contado”, in plain words');

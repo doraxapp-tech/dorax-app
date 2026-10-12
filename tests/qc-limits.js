@@ -10,10 +10,12 @@
 //      goes back to the list;
 //   6. a renamed category keeps its limit's name; the alerts sentence follows the profile's switch; the company's side has its own; Portuguese and
 //      Spanish say it; no overflow at 320px and every tap target 44px on a phone; no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   const phone = { viewport: { width: 390, height: 844 }, touch: true, mobile: true };
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, ...phone });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, ...phone });
   await page.evaluate(() => { S.user.greeted = true; navigate('categories'); });
   const card = id => page.evaluate(i => { const c = document.querySelector(`[data-a="cat-toggle"][data-id="${i}"]`).closest('.cat-card'); const l = c.querySelector('.cat-lim'), a = c.querySelector('.cat-lim-add'); return l ? 'limit: ' + l.innerText.trim() : a ? 'add' : 'none'; }, id);
   // ---------- 1. on Categories & rules ----------
@@ -96,7 +98,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [...document.querySelectorAll('.lim-list button.lim-c')].filter(b => b.getBoundingClientRect().height < 44).length), 0, 'and every row of the list');
   eq(errors, [], 'no error in the console'); await browser.close();
   // ---------- the Plan on a computer; the company ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => { S.user.greeted = true; navigate('plan'); });
   eq(await page.evaluate(() => { const c = document.querySelector('#limits-card'), pay = document.querySelector('#paylist'); return [!!c, pay.compareDocumentPosition(c) === Node.DOCUMENT_POSITION_FOLLOWING, c.querySelectorAll('.lim-list .lim-c').length > 0, !!c.querySelector('[data-a="plan-guide"]'), !pay.innerText.includes('Groceries')]; }), [true, true, true, true, true], 'a computer: the Plan has its limits card under the payments, with “Plan again”; the payments list has the bills only');
   await page.evaluate(() => { UI.drawer = null; A.space({ v: 'business' }); navigate('categories'); });
@@ -107,7 +109,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
   // ---------- Portuguese and Spanish; the narrowest phone ----------
   for (const [lang, w, words] of [['pt', 320, ['Definir limite', 'Limites de gasto', 'Por mês']], ['es', 390, ['Poner límite', 'Límites de gasto', 'Cada mes']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.user.greeted = true; navigate('categories'); });
     ok(await page.evaluate(x => document.querySelector('.cat-lim-add').innerText.trim() === x, words[0]), `${lang}: “${words[0]}” on Categories`);
     eq(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${lang}, ${w}px: nothing wider than the screen`);

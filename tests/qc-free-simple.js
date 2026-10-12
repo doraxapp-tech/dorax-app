@@ -6,9 +6,11 @@
 //   3. with a pay day: until it, "when you get paid"; with none: the end of the month and the way to set it;
 //   4. not enough: "Not enough money", what is missing in red, what for; the steps end in "Missing"; under R$ 10 a day, the cents;
 //   5. one word for one thing: in Spanish and Portuguese no bill is called an account ("cuenta" / "conta"); 320 px whole; no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   const r = await page.evaluate(() => freeUntil(S, S.today, CUR));
   const money = v => page.evaluate(v => fmt.money(Math.abs(v) >= 1000 ? Math.round(v / 100) * 100 : v, CUR, { trim: true }), v);
@@ -53,7 +55,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- 5. Spanish and Portuguese: one word for one thing; 320 px ----------
   for (const [lang, width, want] of [['es', 390, ['Puedes gastar', 'por día', 'hasta el 31 de octubre, fin de mes. Ya descontamos lo que tienes que pagar.', /cuenta/i]], ['pt', 320, ['Você pode gastar', 'por dia', 'até 31 de outubro, fim do mês. Já descontamos o que você tem que pagar.', /conta/i]]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
     eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [c.querySelector('.part-h h2').innerText, c.querySelector('.fu-big').innerText.trim().split(' ').slice(-2).join(' '), c.querySelector('.fu-say').innerText.trim()]; }), want.slice(0, 3), `${lang}: in plain words`);
     await page.click('#free-open'); await page.waitForSelector('.fu-view');

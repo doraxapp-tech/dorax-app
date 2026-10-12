@@ -14,6 +14,8 @@
 //   6. a computer keeps its compact month; Spanish and Portuguese. From three months back (owner, 2026-10-09: "add a button to go back to the
 //      present month in case the user goes far back in time") "Back to present" sits on the month's left, a plain button (the green one stays
 //      "Add transaction"), the arrows do not move when it comes; clicked, it opens the present month and the focus goes to the month.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 const PHONE = { viewport: { width: 390, height: 844 }, touch: true, mobile: true };
@@ -33,7 +35,7 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
   return { month: S.month, centred: !!o && Math.abs(o.left + o.width / 2 - mid) <= 1.5, back: !!b, label: b ? b.innerText.trim() : null }; });
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, motion: true, ...PHONE });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, motion: true, ...PHONE });
   await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(900);
   // the distances below are in months: since v167 the strip is one month wide (about 80 px); a drag past half a month and lifted moves one month
   const W = await page.evaluate(() => document.querySelector('.pagehead .m-slide.on').getBoundingClientRect().width), px = k => Math.round(W * k);
@@ -103,7 +105,7 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
   eq(errors, [], 'no error in the console'); await browser.close();
 
   // ---------- 4. less motion ----------
-  ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, ...PHONE }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'pt', account: 'example', plan: true, ...PHONE }));
   await page.evaluate(() => { S.month = addMonths(ymOf(S.today), -2); navigate('dashboard'); }); await page.waitForTimeout(300);
   await page.click('.pagehead .m-ph [data-d="-1"]');
   eq(await page.evaluate(() => [!!document.querySelector('.pagehead .m-back'), document.querySelector('.pagehead .m-back .btn').innerText.trim(), document.getAnimations().filter(a => a.playState === 'running').length]), [true, 'Voltar ao presente', 0], 'less motion asked for: the button is simply there (in Portuguese), nothing slides');
@@ -113,7 +115,7 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
 
   // ---------- 5. the narrowest phones ----------
   for (const [lang, w] of [['pt', 320], ['es', 360]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 640 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: 640 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.month = addMonths(ymOf(S.today), -4); navigate('goals'); }); await page.waitForTimeout(300);
     eq(await page.evaluate(() => { const on = document.querySelector('.pagehead .m-slide.on'), s = on.parentElement, r = document.createRange(); r.selectNodeContents(on); const t = r.getBoundingClientRect(), sr = s.getBoundingClientRect(), b = document.querySelector('.pagehead .m-back .btn').getBoundingClientRect();
         return [t.left >= sr.left && t.right <= sr.right, b.right <= innerWidth - 15, document.documentElement.scrollWidth - innerWidth <= 0]; }), [true, true, true], `${w} px: the month’s name stays whole beside the button; nothing runs off the page`);
@@ -121,7 +123,7 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
   }
 
   // ---------- 6. a computer ----------
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 860 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 860 } }));
   await page.evaluate(() => { S.month = addMonths(ymOf(S.today), -5); navigate('dashboard'); }); await page.waitForTimeout(300);
   eq(await page.evaluate(() => { const m = document.querySelector('.topbar .month'); return [!!m, !document.querySelector('.m-strip, .m-back'), m.querySelector('span').textContent === fmt.month(S.month, true)]; }), [true, true, true], 'a computer keeps its compact month in the top bar, with no strip and no button');
   // the way back on a computer

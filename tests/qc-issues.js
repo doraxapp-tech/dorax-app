@@ -7,9 +7,11 @@
 //   4. the other issues: no income, not enough until pay day, an account below zero, transactions without a category, a limit gone over; each with
 //      its ways, each way landing where it should;
 //   5. "Not today"; each side its own; thumbs' sizes; Spanish and Portuguese; no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; navigate('plan'); });
   const bell = () => page.evaluate(() => +((document.querySelector('.bell .count') || {}).textContent || 0));
   const ids = () => page.evaluate(() => activeReminders().filter(r => r.kind === 'issue').map(r => r.id.split(':')[1]));
@@ -70,7 +72,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- Spanish and Portuguese ----------
   for (const [lang, word, fix] of [['es', 'Para resolver', 'Cómo resolverlo'], ['pt', 'Para resolver', 'Como resolver']]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
     await page.evaluate(() => { S.user.greeted = true; navigate('plan'); A.reminders(); });
     eq(await page.evaluate(() => document.querySelector('#overlay .rem-group h3').innerText.trim().toLowerCase()), word.toLowerCase(), `${lang}: “${word}”`);
     await page.click('#overlay [data-a="issue-open"]'); eq(await page.evaluate(() => document.querySelector('.iss-h').innerText.trim().toLowerCase()), fix.toLowerCase(), `${lang}: “${fix}”`);

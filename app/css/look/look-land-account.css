@@ -42,27 +42,27 @@
 
   /* its latest transactions: the grey sheet that rises over the forest, as on Transactions; the days in one white card */
   :root.land #overlay .cv .cv-ops {
-    --ink-strong: #0E0F0C; --ink: #2C2E2B; --ink-2: #454745; --ink-3: #5F625D; --line: #DDE3E1; --line-strong: #C9D2CF; --surface: #FFFFFF; --surface-2: #F3F6F5; --hover-line: #8FA19C;
-    --brand: #112622; --brand-deep: #112622; --focus: #112622;
-    margin-top: 6px; padding-top: 10px; border-radius: 30px 30px 0 0; background: #E9EDEC; box-shadow: none; color: #0E0F0C;
+    --ink-strong: var(--bq-ink); --ink: var(--bq-ink); --ink-2: var(--bq-ink-2); --ink-3: var(--bq-ink-3); --line: var(--bq-line); --line-strong: var(--bq-line-2); --surface: var(--bq-card); --surface-2: var(--bq-card-2); --hover-line: #8FA19C;
+    --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --focus: var(--bq-accent);
+    margin-top: 6px; padding-top: 10px; border-radius: 30px 30px 0 0; background: var(--bq-page); box-shadow: none; color: var(--bq-ink);
   }
-  :root.land #overlay .cv .op-grab { width: 40px; height: 5px; margin-bottom: 12px; background: #C3C9BD; }
-  :root.land #overlay .cv .op-head h3 { color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
-  :root.land #overlay .cv .op-head .linkbtn { color: #112622; font-weight: 600; }
-  :root.land #overlay .cv .op-fn { margin-bottom: 12px; background: #FFFFFF; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land #overlay .cv .op-fn button { border-radius: 999px; color: #454745; font-weight: 500; }
-  :root.land #overlay .cv .op-fn button[aria-pressed="true"], :root.land #overlay .cv .op-fn button[aria-pressed="true"]:hover { background: #112622; color: #B6DD62; font-weight: 600; box-shadow: none; }
-  :root.land #overlay .cv .op-card { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land #overlay .cv .op-day { margin: 0; padding: 12px 0 4px; border-top: 1px solid #DDE3E1; color: #5F625D; letter-spacing: .03em; }
+  :root.land #overlay .cv .op-grab { width: 40px; height: 5px; margin-bottom: 12px; background: var(--bq-grab); }
+  :root.land #overlay .cv .op-head h3 { color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land #overlay .cv .op-head .linkbtn { color: var(--bq-accent); font-weight: 600; }
+  :root.land #overlay .cv .op-fn { margin-bottom: 12px; background: var(--bq-card); border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land #overlay .cv .op-fn button { border-radius: 999px; color: var(--bq-ink-2); font-weight: 500; }
+  :root.land #overlay .cv .op-fn button[aria-pressed="true"], :root.land #overlay .cv .op-fn button[aria-pressed="true"]:hover { background: var(--bq-pick-bg); color: var(--bq-pick-ink); font-weight: 600; box-shadow: none; }
+  :root.land #overlay .cv .op-card { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land #overlay .cv .op-day { margin: 0; padding: 12px 0 4px; border-top: 1px solid var(--bq-line); color: var(--bq-ink-3); letter-spacing: .03em; }
   :root.land #overlay .cv .op-day:first-child { border-top: 0; }
   :root.land #overlay .cv .op-row { min-height: 64px; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
-  :root.land #overlay .cv .op-ico { width: 46px; height: 46px; background: #EDF1F0; }
-  :root.land #overlay .cv .op-ico:not(.cat) { color: #112622; }
-  :root.land #overlay .cv .op-ico:not(.cat) svg { color: #112622; }
-  :root.land #overlay .cv .op-amt { color: #0E0F0C; font-weight: 600; }
-  :root.land #overlay .cv .op-amt.in { color: #2F6B1C; }      /* money in, green as before */
-  :root.land #overlay .cv .op-empty { padding: 18px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #454745; }
-  :root.land #overlay .cv .op-empty .btn.sm { border-color: #DDE3E1; border-radius: 999px; background: #FFFFFF; color: #112622; font-weight: 600; }
+  :root.land #overlay .cv .op-ico { width: 46px; height: 46px; background: var(--bq-circle); }
+  :root.land #overlay .cv .op-ico:not(.cat) { color: var(--bq-accent); }
+  :root.land #overlay .cv .op-ico:not(.cat) svg { color: var(--bq-accent); }
+  :root.land #overlay .cv .op-amt { color: var(--bq-ink); font-weight: 600; }
+  :root.land #overlay .cv .op-amt.in { color: var(--bq-in); }      /* money in, green as before */
+  :root.land #overlay .cv .op-empty { padding: 18px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink-2); }
+  :root.land #overlay .cv .op-empty .btn.sm { border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); color: var(--bq-accent); font-weight: 600; }
 
   /* the installments still to come of a card's credit, on the forest */
   :root.land #overlay .cv .inst-ahead { border: 0; border-radius: 24px; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }

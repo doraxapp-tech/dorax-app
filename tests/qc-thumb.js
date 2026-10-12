@@ -5,7 +5,7 @@
 //      must still land on it (so an enlarged hit area counts, and a neighbour lying over it does not);
 //   2. no text under 12 px. The exceptions, on purpose: the four names in the bar at the foot (10 to 10.5 px, as phones' own bars) and the names under
 //      the quick actions' circles (10.5 px, owner, 2026-10-09);
-//   3. nothing to drag sideways, except the rows made to be swiped (the quick things to do, the month's figures on the dashboard, and the month
+//   3. nothing to drag sideways, except the rows made to be swiped (the summary "Bosque"'s accounts and bills since v194, the quick things to do, the month's figures on the dashboard, and the month
 //      itself, features/phone/phone.month.js);
 // and that what was left to the computer (features/phone/desk-only.js) is a note on a phone, the real thing on a tablet and a computer.
 const { open, ok, eq, done } = require('./pw.js');
@@ -31,7 +31,7 @@ const measure = () => {
   }
   for (const root of scope) { const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
     while ((n = walk.nextNode())) { if (!n.nodeValue.trim()) continue; const p = n.parentElement; if (!p || !vis(p) || p.closest('.sr, svg, option, [aria-hidden="true"], #tabbar, .quick-row')) continue; const fs = parseFloat(getComputedStyle(p).fontSize); if (fs < 12) tiny.push(`${name(p)} ${fs}px “${n.nodeValue.trim().slice(0, 18)}”`); } }
-  for (const root of scope) for (const el of [root, ...root.querySelectorAll('*')]) { const c = getComputedStyle(el); if (/(auto|scroll)/.test(c.overflowX) && el.scrollWidth > el.clientWidth + 6 && vis(el) && !el.matches('.quick-row, .kpis, .lp-shots, .lp-rail, .m-strip, .ins-row')) wide.push(`${name(el)} ${el.scrollWidth}>${el.clientWidth}`); }
+  for (const root of scope) for (const el of [root, ...root.querySelectorAll('*')]) { const c = getComputedStyle(el); if (/(auto|scroll)/.test(c.overflowX) && el.scrollWidth > el.clientWidth + 6 && vis(el) && !el.matches('.quick-row, .kpis, .lp-shots, .lp-rail, .m-strip, .ins-row, .bq-row')) wide.push(`${name(el)} ${el.scrollWidth}>${el.clientWidth}`); }
   // a panel hides what is wider than itself, so that is looked for directly: nothing in it may reach past its own edges
   for (const root of scope) if (root.matches('.drawer, .sheet, .modal')) { const box = root.getBoundingClientRect(); for (const el of root.querySelectorAll('input, select, textarea, button, a, .seg, .field, .form-grid, table, .banner')) { if (!vis(el)) continue; const r = el.getBoundingClientRect(); if (r.right > box.right + 0.5 || r.left < box.left - 0.5) wide.push(`${name(el)} sticks out of its panel`); } }
   const page = document.documentElement.scrollWidth - innerWidth;
@@ -100,7 +100,7 @@ const measure = () => {
     await page.evaluate(() => A.sheet());
     eq(await page.evaluate(() => { const links = [...document.querySelectorAll('.sheet .nav a')].map(a => a.getAttribute('href').slice(1)), n = document.querySelector('#sheet-desk'); return [links.some(l => ['converter', 'openfinance'].includes(l)), links.includes('imports'), !!n && n.innerText.includes(routeLabel('openfinance')) && !n.innerText.includes(routeLabel('imports')) && !n.innerText.includes(routeLabel('converter'))]; }), [false, true, true], `${tag}: More lists only where a phone can go, Imports among them (2026-10-10); one line names what is on the computer (the converter is the company’s)`);
     await page.evaluate(() => { A.close(); navigate('dashboard'); });
-    eq(await page.evaluate(() => [...document.querySelectorAll('.quick-row [data-v]')].map(b => b.dataset.v).includes('import')), true, `${tag}: the summary’s quick things to do offer a statement import again (imports came back to phones, 2026-10-10; the round + keeps only three since 2026-10-11)`);
+    eq(await page.evaluate(() => { A['quick-more'](); const v = [...document.querySelectorAll('.quick-row [data-v], .bq-more-sheet [data-v]')].map(b => b.dataset.v).includes('import'); A.close(); return v; }), true, `${tag}: the summary’s quick things to do offer a statement import again (v194: in the new look, in its More) (imports came back to phones, 2026-10-10; the round + keeps only three since 2026-10-11)`);
     await page.evaluate(() => A.close());
     eq(errors, [], `${tag}, the app: no error in the console`); await browser.close();
   }

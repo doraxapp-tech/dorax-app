@@ -1,6 +1,7 @@
 // QC (owner, 2026-10-11, on the spending limits' green box): "I don't like this box on a box, take the green box out of there; check the whole app
 // and stop making boxes inside boxes; tune down the green a little bit".
-//   1. no page has a box inside a card: an element with its own edge or fill and round corners, inside a card or inside another such box
+//   1. no page has a box inside a card: an element with its own edge or fill and round corners, inside a card or inside another such box (the
+//      light sheet of the new look, .bq-sheet and .bq-txsheet, is the page itself rising over its forest, not a box: v192–v194)
 //      (the household's and the company's side; a computer and a phone; an account with a plan and one without);
 //   2. nor the panels most used: the bell, the summary's order, the spending limits, a yearly expense;
 //   3. what may keep an edge: a button, a field, a place to drop a file, a chart's column, the card's own picture, a card's transactions sheet
@@ -17,12 +18,12 @@ const FIND = () => {
     return (['Top', 'Right', 'Bottom', 'Left'].every(side) || alpha(s.backgroundColor) > .02 || s.backgroundImage !== 'none') && parseFloat(s.borderTopLeftRadius) >= 6; };
   const isBox = e => { const r = e.getBoundingClientRect(); return r.width >= 120 && r.height >= 44 && !e.matches(KEEP) && edged(e); };
   const name = e => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : '');
-  const roots = [...document.querySelectorAll('#view, #overlay .drawer')], out = [];
+  const roots = [...document.querySelectorAll('#view, #overlay .drawer, #overlay .bq-sheet, #view .bq-txsheet')], out = [];      // a light sheet is a page of its own: its white cards are the page's cards (v192–v194)
   for (const e of [...document.querySelectorAll('#view *, #overlay .drawer *')].filter(vis)) {
     if (!isBox(e)) continue;
     let p = e.parentElement, host = null;
     while (p && !roots.includes(p)) { if (vis(p) && ((p.matches('.card') && edged(p)) || isBox(p))) { host = p; break; } p = p.parentElement; }
-    if (!host) host = e.closest('#overlay .drawer');
+    if (!host && !e.closest('.bq-sheet, .bq-txsheet')) host = e.closest('#overlay .drawer');
     if (host) out.push(name(e) + ' in ' + name(host));
   }
   return [...new Set(out)];

@@ -12,7 +12,7 @@
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });      // the previous phone look (tests/pw.js: oldLook) until the light theme below, which checks the new one
   // ---------- 1. no figures ----------
   eq(await page.evaluate(() => [!!document.querySelector('#view .kpis'), document.querySelector('.quick-row').nextElementSibling.id, dashOrder('home').includes('figures')]), [false, 'insight-card', false],
     'household: no row of figures; the quick things to do are followed by the day’s insight; the figures are not a part to order');
@@ -37,12 +37,6 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => navigate('settings'));
   eq(await page.evaluate(() => [!!document.querySelector('.navbar .bar-name'), !document.querySelector('.navbar .bar-who'), document.querySelector('.pagehead h1').getBoundingClientRect().width <= 1, Math.round(document.querySelector('.pagehead').getBoundingClientRect().height)]), [true, true, true, 16], 'a screen with no month: its name in the panel (owner, 2026-10-10), no large title under it, only 16 px of air before the first card');
   await page.evaluate(() => navigate('dashboard'));
-  await page.evaluate(() => { S.settings.theme = 'light'; render(); });
-  eq(await page.evaluate(() => { const m = document.querySelector('.pagehead .month'); return [document.documentElement.classList.contains('app-light'), getComputedStyle(m).backgroundColor !== 'rgb(0, 0, 0)', getComputedStyle(m.querySelector('.m-slide.on')).color]; }), [true, true, 'rgb(255, 255, 255)'],
-    'the light theme: on the summary the month is white on its forest block (v175, "Bosque"), not the dark theme\'s black button');
-  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bq-acts .bq-ico:not(.on)')).backgroundColor !== 'rgb(14, 14, 14)'), 'and light circles');
-  await page.evaluate(() => navigate('plan'));
-  eq(await page.evaluate(() => getComputedStyle(document.querySelector('.pagehead .month .m-slide.on')).color), 'rgb(255, 255, 255)', 'v193: on the other pages too the light theme has the month white on the forest bar');
   await page.evaluate(() => navigate('dashboard'));
   await page.evaluate(() => { S.settings.theme = 'dark'; navigate('dashboard'); });
   // ---------- 3. Savings & goals ----------
@@ -99,6 +93,13 @@ const { open, ok, eq, done } = require('./pw.js');
       const out = [r.days, !!c.querySelector('#runway-open'), !!c.querySelector('.card-h [data-a="whatif"], .card-h [data-a="runway-edit"]'), !!c.querySelector('.card-b [data-a="runway-edit"]')]; [S.transactions, S.plan.lines] = keep; if (keep[2]) S.user.spend = keep[2]; render(); return out; }),
     [null, false, false, true], 'with nothing to measure yet, the card keeps its own button to start, and no What if…? or Adjust in its title');
   eq(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, 'no sideways scroll');
+  // the new look, in the light theme (v175 and after; tests/qc-summary-phone.js has the rest of it)
+  await page.evaluate(() => { window.DORAX_OLD_LOOK = false; S.settings.theme = 'light'; render(); });
+  eq(await page.evaluate(() => { const m = document.querySelector('.pagehead .month'); return [document.documentElement.classList.contains('app-light'), getComputedStyle(m).backgroundColor !== 'rgb(0, 0, 0)', getComputedStyle(m.querySelector('.m-slide.on')).color]; }), [true, true, 'rgb(255, 255, 255)'],
+    'the light theme: on the summary the month is white on its forest block (v175, "Bosque"), not the dark theme\'s black button');
+  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bq-acts .bq-ico:not(.on)')).backgroundColor !== 'rgb(14, 14, 14)'), 'and light circles');
+  await page.evaluate(() => navigate('plan'));
+  ok(await page.evaluate(() => !document.querySelector('.pagehead .month')), 'v194: the other pages have no month row in the new look (owner: "no me gusta la fecha en todas las pantallas, es repetitivo")');
   eq(errors, [], 'no error in the console'); await browser.close();
 
   // ---------- a computer: as it was ----------
@@ -109,7 +110,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 6. Spanish and Portuguese on the narrowest phone ----------
   for (const [lang, w, want] of [['es', 390, ['Días de libertad', 'Ver', 'Gastos fijos de Octubre 2026']], ['pt', 320, ['Dias de liberdade', 'Ver', 'Gastos fixos de Outubro 2026']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.transactions = []; render(); });
     await page.click('#planned-month [data-a="fixed-list"]');
     eq(await page.evaluate(() => [document.querySelector('#runway-card .part-h h2').innerText.trim(), document.querySelector('#runway-card .part-h .btn.go').innerText.trim(), document.querySelector('.s-list h2').innerText.trim()]), want, `${lang}: in the language`);

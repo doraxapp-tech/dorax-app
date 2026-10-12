@@ -5,11 +5,13 @@
 //   2. the round + opens the short list of things to record, in the words of the side in use, with the screen's own "new" first;
 //   3. the dashboard on a phone: days of freedom first, the four things to record as round buttons, the month's figures as a row to swipe;
 //   4. none of it shows on a computer; three languages; a curiosity sits above the bar.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
   const text = async (p, sel) => (await p.locator(sel).innerText()).replace(/\s+/g, ' ');
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', viewport: { width: 390, height: 844 }, touch: true, mobile: true });
 
   // ---------- 1. the bars ----------
   eq(await page.evaluate(() => { const bar = document.querySelector('#tabbar'), kids = [...bar.children], fab = bar.querySelector('.fab'), r = fab.getBoundingClientRect(), b = bar.getBoundingClientRect(), cs = getComputedStyle(fab);
@@ -117,12 +119,12 @@ const { open, ok, eq, done } = require('./pw.js');
   await browser.close();
 
   // ---------- 4. a computer shows none of it; languages; a curiosity above the bar ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', viewport: { width: 1280, height: 900 } }));
   eq(await page.evaluate(() => [['#tabbar', '.more-btn', '.bar-who', '.bar-bal'].map(s => getComputedStyle(document.querySelector(s)).display), document.querySelectorAll('.quick-row, .ins-strip').length, isPhone(), getComputedStyle(document.documentElement).overflowY, getComputedStyle(document.querySelector('.work')).overflowY]), [['none', 'none', 'none', 'none'], 0, false, 'visible', 'visible'], 'a computer: no bar at the foot, no “More” button, no panel at the top; its dashboard is its own page, with no round buttons and no signal; and its page scrolls the usual way');
   eq(await page.evaluate(() => { const top = s => document.querySelector(s).getBoundingClientRect().top; return [top('.kpis') < top('#runway-card'), getComputedStyle(document.querySelector('.kpis')).display]; }), [true, 'grid'], 'and its dashboard keeps its own order: the figures first, in a grid');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
   for (const [lang, width, want] of [['es', 390, ['Registrar un gasto', 'Registrar un ingreso', 'Pagar una cuenta', 'Aportar a una meta', 'Transferir dinero', 'Crear una meta', 'Agregar un costo fijo', 'Poner un límite de gasto', 'Importar un extracto', 'Agregar cuenta', '¿Qué quieres hacer?']], ['pt', 320, ['Registrar um gasto', 'Registrar uma receita', 'Pagar uma conta', 'Guardar em uma meta', 'Transferir dinheiro', 'Criar uma meta', 'Adicionar um custo fixo', 'Definir um limite de gasto', 'Importar um extrato', 'Adicionar conta', 'O que você quer fazer?']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', viewport: { width, height: 700 }, touch: true, mobile: true, curio: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', viewport: { width, height: 700 }, touch: true, mobile: true, curio: true }));
     const where = `${lang}, ${width}px: `;
     eq(await page.evaluate(() => { const row = document.querySelector('.quick-row'), bs = [...row.querySelectorAll('button')], r = bs.map(b => b.getBoundingClientRect()); return [bs.map(b => b.innerText.trim()), document.documentElement.scrollWidth - innerWidth, r.slice(0, 4).every(x => x.left >= 0 && x.right <= innerWidth), r[4].left < innerWidth && r[4].right > innerWidth, row.scrollWidth > row.clientWidth, bs.every(b => b.scrollWidth <= b.clientWidth + 1)]; }), [want.slice(0, 10), 0, true, true, true, true], where + 'the round buttons in the language, each saying what it does: four whole, the fifth peeking in so the row is seen to go on, the rest a swipe away, no word cut, and the page itself no wider than the phone');
     await page.click('#tabbar .fab'); await page.waitForSelector('.sheet.quick');
@@ -138,7 +140,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- the bar on an iPhone, and the side change's logo (owner, 2026-10-08) ----------
   // "move the main menu a little lower on iOS": an iPhone keeps 34px at the foot for its home indicator. The bar used to float 10px above all of it;
   // now it comes down to 22px from the foot, and what sits above it (a notice, the end of the page) comes down with it. With no inset nothing moves.
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', viewport: { width: 390, height: 844 }, touch: true, mobile: true, motion: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', viewport: { width: 390, height: 844 }, touch: true, mobile: true, motion: true }));
   const foot = () => page.evaluate(() => { const b = document.querySelector('#tabbar').getBoundingClientRect(), cu = document.querySelector('#curio-root'), c = document.querySelector('.content'); return [Math.round(innerHeight - b.bottom), Math.round(parseFloat(getComputedStyle(cu).bottom) - (innerHeight - b.top)), Math.round(parseFloat(getComputedStyle(c).paddingBottom) - (innerHeight - b.top))]; });
   // since 2026-10-09 the bar sits on the foot (owner: "fixed at the bottom, not floating"): the inset is inside it, under its buttons
   eq(await foot(), [0, 20, 26], 'no inset at the foot (Android, a browser tab): the bar on the foot, a notice 20px above it, the page’s end clear of it');
@@ -151,7 +153,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => { const s = document.getElementById('side-shift'), l = Math.round(parseFloat(getComputedStyle(s.querySelector('.shift-loader')).width)), fs = sel => parseFloat(getComputedStyle(s.querySelector(sel)).fontSize); return [!s.querySelector('.shift-logo'), l, fs('.shift-say b') >= 12, fs('.shift-say small') >= 12, s.querySelector('.shift-say b').innerText.trim()]; }),
     [true, 34, true, true, 'Loading your company account…'], 'on a phone the loading screen has no logo: the loader and the words');
   eq(errors, [], 'the bar on an iPhone and the loading screen: no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', viewport: { width: 1280, height: 900 }, motion: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', viewport: { width: 1280, height: 900 }, motion: true }));
   await page.click('#rail-side [data-a="space"][data-v="business"]'); await page.waitForSelector('#side-shift');
   eq(await page.evaluate(() => [!document.querySelector('#side-shift .shift-logo'), !!document.querySelector('#side-shift .shift-loader')]), [true, true], 'on a computer too: the loader, no logo');
   await browser.close();

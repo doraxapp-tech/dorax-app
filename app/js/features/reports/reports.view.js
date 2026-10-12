@@ -208,9 +208,10 @@ function viewReports() {
   // month by month, by category, by line, what stands out (it is about spending) and the comparison with the month before. Expenses opens first.
   if (isPhone()) {
     const v = UI.repView === 'in' ? 'in' : 'out', d = dashParts();
-    if (v === 'in') return `${bqHero(`${repSwitch(L)}<section class="tiles">${tIn}${tLeft}${tRate}</section>`)}${repIncome(bk, CUR, L, ym, m, co)}${co ? reportYear(bk, CUR, L, co) : ''}${noteP}`;
+    const top = bqPageOn() ? `<div class="bq-rep-top">${repSwitch(L)}${bqMonthPager()}</div>` : repSwitch(L);      // in the summary's look the month is here, by the switch (v194)
+    if (v === 'in') return `${bqHero(`${top}<section class="tiles">${tIn}${tLeft}${tRate}</section>`)}${repIncome(bk, CUR, L, ym, m, co)}${co ? reportYear(bk, CUR, L, co) : ''}${noteP}`;
     // the categories as a ring that opens into subcategories (in place of the dashboard's bar), and what the spending was paid with (2026-10-09)
-    return `${bqHero(`${repSwitch(L)}<section class="tiles one">${tOut}</section>`)}${d.trendCard}${repRingCats(bk, CUR, ym, co) || d.catCard}${largestCard}${repRingPay(bk, CUR, ym, co)}${obsCard}${cmpCard}${noteP}`;
+    return `${bqHero(`${top}<section class="tiles one">${tOut}</section>`)}${d.trendCard}${repRingCats(bk, CUR, ym, co) || d.catCard}${largestCard}${repRingPay(bk, CUR, ym, co)}${obsCard}${cmpCard}${noteP}`;
   }
   const months = repMonths(bk, CUR, ym);
   return `<section class="tiles">${tIn}${tOut}${tLeft}${tRate}</section>

@@ -6,10 +6,12 @@
 //   3. a group with no plan: "Set a monthly limit for …" opens a field in the form; a wrong number is said; saved, it is a line of the plan
 //      (several purchases), the hint shows at once, the expense typed is kept, and Plan shows it;
 //   4. editing an expense does not count it twice; Portuguese; a computer the same.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => A['new-tx']()); await page.waitForSelector('#d-amount');
   const left = () => page.evaluate(() => { const p = planProgress(B(), ymOf(S.today), CUR, S.today).find(k => k.name === 'Supermercado'); return p.planned - p.spent; });
   const l0 = await left(), fmtM = v => page.evaluate(v => fmt.money(v, 'BRL'), v);
@@ -44,7 +46,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(id => A['open-tx']({ id }), id); await page.waitForSelector('#tx-limit');
   eq(await page.evaluate(() => { const p = planProgress(B(), ymOf(S.today), CUR, S.today).find(k => k.name === 'Salidas'); return [document.querySelector('#tx-limit').innerText.includes(fmt.money(p.planned - p.spent, 'BRL')), p.spent >= 12000]; }), [true, true], 'editing the expense: what is left is counted with it once, not twice');
   eq(errors, [], 'no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, viewport: { width: 1280, height: 860 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'pt', account: 'example', plan: true, viewport: { width: 1280, height: 860 } }));
   await page.evaluate(() => A['new-tx']()); await page.waitForSelector('#d-amount');
   await page.click('.tx-pick[data-k="casa|supermercado"]'); await page.fill('#d-amount', '100');
   ok(await page.evaluate(() => /^Com este gasto restam R\$/.test(document.querySelector('#tx-limit').innerText.trim())), 'a computer, in Portuguese: the same');

@@ -5,9 +5,11 @@
 //      the goals (each against its plan), the month that starts (how much a day, the Plan);
 //   3. the end: "You did it!" with confetti when it was met; a kind word when it was not;
 //   4. "Not now"; Spanish; 320 px; no error in the console.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   const c = await page.evaluate(() => monthClose(B(), '2026-09', CUR));
   const money = v => page.evaluate(v => fmt.money(v, CUR, { round: true }), v);
@@ -45,7 +47,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => { const keep = S.goals; S.goals = []; A['month-close']({ ym: '2026-09' }); A['month-close-step']({ v: '1' }); const r = [document.querySelector('.mc .note').innerText.startsWith('You had no goals'), !!document.querySelector('[data-a="month-close-go"][data-v="goals"]')]; A.close(); S.goals = keep; return r; }), [true, true], 'no goals: said, with the way to create one');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- Spanish, 320 px ----------
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   eq(await page.evaluate(() => document.querySelector('#mc-ask b').innerText), 'Septiembre cerró', 'es: “Septiembre cerró”');
   await page.click('#mc-ask [data-a="month-close"]');

@@ -6,13 +6,15 @@
 //   3. it can be used with the keyboard alone, closes with Escape or a click elsewhere, and reads well in both themes and three languages;
 //   4. the Household / Company switch is centred: between the title and the tools on a wide screen, in the middle on a phone;
 //   5. a phone, which has no side bar, has the same four things in More.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done, TARGET } = require('./pw.js');
 
 (async () => {
   const tag = TARGET + ': ';
   const quiet = p => p.waitForFunction(() => !document.querySelector('#toast-root').innerText.trim(), null, { timeout: 15000 }).catch(() => {});
   {
-    const o = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }), p = o.page;
+    const o = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }), p = o.page;
     // ---------------------------------------------------------------- 1. the top bar
     eq(await p.evaluate(() => ROUTES.map(r => { navigate(r[0]); return [...document.querySelectorAll('#topbar select, #topbar .tbtn, #topbar [data-a="theme"], #topbar [data-k="lang"], #topbar [data-k="theme"]')].length; }).reduce((a, b) => a + b, 0)), 0, tag + 'no screen has a language or a light/dark control in the top bar');
     await p.evaluate(() => navigate('dashboard'));
@@ -102,7 +104,7 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
   }
   // ---------------------------------------------------------------- 5. a phone
   for (const lang of ['en', 'es', 'pt']) {
-    const o = await open({ lang, account: 'example', plan: true, viewport: { width: 390, height: 800 }, mobile: true, touch: true }), p = o.page, where = `${tag}${lang} 390: `, T = k => p.evaluate(k => t(k), k);
+    const o = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: 390, height: 800 }, mobile: true, touch: true }), p = o.page, where = `${tag}${lang} 390: `, T = k => p.evaluate(k => t(k), k);
     eq(await p.evaluate(() => [getComputedStyle(document.querySelector('.rail')).display, document.querySelectorAll('#topbar select, #topbar .tbtn').length]), ['none', 0], where + 'no side bar, and nothing about language or appearance in the top bar');
     await p.evaluate(() => navigate('plan'));
     eq(await p.evaluate(() => { const box = s => { const x = document.querySelector(s).getBoundingClientRect(); return [Math.round(x.left), Math.round(x.top)]; }, pos = () => ['.bar-left', '.navbar .bell', '.more-btn', '.navbar .side-flip', '.pagehead .month'].map(box), pill = () => { const b = document.querySelector('.navbar .side-flip'), r = b.getBoundingClientRect(); return [b.getAttribute('aria-label'), b.dataset.v, r.height >= 40 && r.width >= 40 && r.left >= 0 && r.right <= innerWidth]; };

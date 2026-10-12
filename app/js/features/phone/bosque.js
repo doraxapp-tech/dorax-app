@@ -16,8 +16,8 @@
    reference's statistics and exchange screens): the reference's deep green #112622 (the card of the day's figure #004134) and its lime #B6DD62 (css/look/look-land.css).
    The dark theme, the company's side, the other pages and a computer keep what they had. Every figure comes from the same places as before. */
 
-/** This look is on: a phone, the light theme, the household's side, the summary (the same test app/shell.js uses to mark the page with .land). */
-const bosqueOn = () => !!UI.session && S.settings.theme === 'light' && UI.space !== 'business' && UI.route === 'dashboard' && isPhone();
+/** This look is on: a phone, the household's side, the summary (either theme since v194, the dark one in its dark version) (the same test app/shell.js uses to mark the page with .land). */
+const bosqueOn = () => !!UI.session && UI.space !== 'business' && UI.route === 'dashboard' && isPhone() && !lookOld();      // both themes since v194
 
 const bqSvg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const BQ_OUT = '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>', BQ_IN = '<path d="M17 7 7 17"/><path d="M16 17H7V8"/>';

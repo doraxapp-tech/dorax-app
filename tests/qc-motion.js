@@ -9,13 +9,15 @@
 //      trims tried the same day were taken back, "bring them back, I liked them");
 //   7b. "Another" on the insight of the day moves its fact in;
 //   8. someone who asked for less motion gets none of it.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 // every animation started is written down (its element and first frame), so a busy machine that finishes one before it is read does not hide it
 const spy = () => { window.__an = []; const orig = Element.prototype.animate; Element.prototype.animate = function (k, o) { window.__an.push({ el: this, k: JSON.stringify(k) }); return orig.call(this, k, o); }; };
 
 (async () => {
   // ---------- a phone ----------
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(spy);
   await page.evaluate(() => navigate('plan')); await page.waitForTimeout(500);
   await page.evaluate(() => { UI.plOpen = Object.fromEntries(B().categories.map(c => [c.id, true])); render(); });
@@ -66,7 +68,7 @@ const spy = () => { window.__an = []; const orig = Element.prototype.animate; El
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 
   // ---------- a computer ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, motion: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, motion: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(spy); await page.waitForTimeout(300);
   // ---------- 7. screen to screen ----------
   await page.evaluate(() => navigate('plan'));
@@ -102,7 +104,7 @@ const spy = () => { window.__an = []; const orig = Element.prototype.animate; El
   eq(errors, [], 'computer: no error in the console'); await browser.close();
 
   // ---------- 8. less motion ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   await page.click('.topbar [data-a="month"][data-d="-1"]');
   await page.click('#dash-order-btn'); await page.waitForSelector('.drawer .ord-list');
   await page.click('.drawer .ord-btn[data-id="recent"][data-d="-1"]');

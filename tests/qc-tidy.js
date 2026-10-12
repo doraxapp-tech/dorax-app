@@ -4,6 +4,8 @@
 //   3. the main button is the brand's deep green; the bright green is kept for "now" (a bill that is late or due within a week) and the phone's round +;
 //   4. More, on a phone, in groups;
 //   5. the app's icon is declared maskable, and is one.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const fs = require('fs'), path = require('path');
 
@@ -12,7 +14,7 @@ const fs = require('fs'), path = require('path');
   const toast = p => p.evaluate(() => document.querySelector('#toast').innerText.trim());
 
   // ---------- 1. the company's side, put away ----------
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   // the company gets a fixed cost of its own, due tomorrow, the way a person adds one
   await page.evaluate(() => { S.today = '2026-10-12'; S.month = '2026-10'; A.space({ v: 'business' }); navigate('plan'); A['line-new']({}); Object.assign(UI.drawer.draft, { name: 'Contador', amountText: '300', due: '13' }); A['line-save'](); A.space({ v: 'personal' }); });
   const before = await page.evaluate(() => { const rs = allReminders().filter(r => !snoozedNow(r)), doc = JSON.parse(JSON.stringify(S)); delete doc.today;
@@ -92,7 +94,7 @@ const fs = require('fs'), path = require('path');
 
   // ---------- 4. More on a phone, and the buttons there ----------
   for (const [lang, w] of [['es', 390], ['pt', 320]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: w === 320 ? 568 : 844 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: w === 320 ? 568 : 844 }, touch: true, mobile: true }));
     eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#tabbar .fab')).backgroundColor, getComputedStyle(document.querySelector('#tabbar .fab')).color]), ['rgb(159, 209, 130)', 'rgb(22, 51, 0)'], `${lang}, ${w}px: the round + is the phone’s main action, #006239 with a white + (owner, 2026-10-10)`);
     await page.evaluate(() => A.sheet());
     eq(await page.evaluate(() => { const gs = [...document.querySelectorAll('.sheet .mr-nav .nav-group')].map(g => [...g.querySelectorAll('a')].map(a => a.getAttribute('href').slice(1))), second = document.querySelectorAll('.sheet .mr-nav .nav-group')[1], off = document.querySelector('#sheet-co-off');
@@ -105,7 +107,7 @@ const fs = require('fs'), path = require('path');
     eq(errors, [], `${lang}: no error in the console`); await browser.close();
   }
   // a tablet keeps the files, as a group of their own between the two
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 820, height: 1100 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 820, height: 1100 }, touch: true, mobile: true }));
   await page.evaluate(() => A.sheet());
   eq(await page.evaluate(() => [...document.querySelectorAll('.sheet .mr-nav .nav-group')].map(g => [...g.querySelectorAll('a')].map(a => a.getAttribute('href').slice(1)))), [['accounts', 'reports', 'investments', 'recurring', 'imports'], ['openfinance'], ['categories', 'settings']], 'a tablet’s More has a third group between the two, the bank connection (the converter is the company’s); Imports is with the money, as on a phone');
   await browser.close();
@@ -118,7 +120,7 @@ const fs = require('fs'), path = require('path');
     const big = head('assets/icons/icon-512.png'), small = head('assets/icons/icon-192.png');
     eq([big.slice(0, 2), small.slice(0, 2)], [[512, 512], [192, 192]], 'the files are the sizes the manifest says'); }
   { // drawn in a page, the way a phone would: every corner is the background (nothing is cut off) and the mark sits inside the middle 80%
-    ({ browser, page, errors } = await open({ lang: 'en', viewport: { width: 600, height: 600 } }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 600, height: 600 } }));
     const b64 = fs.readFileSync(path.join(__dirname, '..', 'app', 'assets', 'icons', 'icon-512.png')).toString('base64');
     const px = await page.evaluate(async b64 => { const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode(); const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'); g.drawImage(img, 0, 0); const d = g.getImageData(0, 0, 512, 512).data, at = (x, y) => [d[(y * 512 + x) * 4], d[(y * 512 + x) * 4 + 1], d[(y * 512 + x) * 4 + 2], d[(y * 512 + x) * 4 + 3]];
       const bg = at(2, 2); let far = 0, clear = 0; for (let y = 0; y < 512; y++) for (let x = 0; x < 512; x++) { const p = at(x, y); if (p[3] < 255) clear++; if (Math.abs(p[0] - bg[0]) + Math.abs(p[1] - bg[1]) + Math.abs(p[2] - bg[2]) > 40) far = Math.max(far, Math.hypot(x - 256, y - 256)); }
@@ -128,7 +130,7 @@ const fs = require('fs'), path = require('path');
   // ---------- the app's font on every device (owner, 2026-10-08: "on my Mac the characters are very close together") ----------
   // The tests cannot draw SF Pro or load Inter (no fonts here), so what is checked is what is asked for: Inter first, for the app's text, its large
   // figures and the pieces of the app on the home page; the system font only after it, for when Inter cannot load.
-  { const { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
+  { const { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
     const first = sel => page.evaluate(s => { const el = document.querySelector(s); return el ? getComputedStyle(el).fontFamily.split(',')[0].trim().replace(/"/g, '') : null; }, sel);
     eq([await first('body'), await first('.card-h h2'), await first('.kpi .value, .rw-n'), await page.evaluate(() => /apple-system/.test(getComputedStyle(document.body).fontFamily))], ['Inter', 'Inter', 'Inter', true], 'the app asks for Inter first on every device, a Mac included; the system font stays only as what is left when Inter cannot load');
     eq(await page.evaluate(() => [...document.querySelectorAll('link[rel="stylesheet"]')].some(l => /fonts\.googleapis\.com\/css2\?family=Inter/.test(l.href))), true, 'and Inter is loaded by the page');

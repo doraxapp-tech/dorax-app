@@ -20,7 +20,7 @@
   /* ---------- the light sheet: right under the bar, or under the screen's top on the forest ---------- */
   :root.land-page .topbar > .pagehead { position: relative; margin: 0; padding-bottom: 44px; }
   :root.land-page .topbar > .pagehead.bare { height: auto; min-height: 0; padding: 14px 0 0; }
-  :root.land-page .topbar > .pagehead::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: #E9EDEC; }
+  :root.land-page .topbar > .pagehead::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
   :root.land-page .work:has(#view > .bq-hero) .topbar > .pagehead { padding-bottom: 6px; }
   :root.land-page .work:has(#view > .bq-hero) .topbar > .pagehead.bare { padding: 0; height: 6px; }
   :root.land-page .work:has(#view > .bq-hero) .topbar > .pagehead::after { display: none; }
@@ -30,7 +30,7 @@
     --pos: #B6DD62; --good: #B6DD62; --neg: #FF8A80; --crit: #FF8A80; --brand: #B6DD62; --focus: #B6DD62; --link: #B6DD62;
     position: relative; display: flex; flex-direction: column; gap: 14px; margin: -4px -16px 0; padding: 6px 16px 50px; background: #112622; color: #FFFFFF;
   }
-  :root.land-page #view > .bq-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: #E9EDEC; }
+  :root.land-page #view > .bq-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
   /* on the forest: the large figure bare, its tiles translucent with their dashed edge, the buttons lime and light, the switch lime */
   :root.land-page #view > .bq-hero .card.g-total { padding: 2px 0 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
   :root.land-page #view > .bq-hero .g-total .label { color: #B5C2BE; font-size: 14px; font-weight: 500; }
@@ -45,31 +45,42 @@
   @media (hover: hover) and (pointer: fine) { :root.land-page #view > .bq-hero .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { background: rgba(255, 255, 255, .16); } :root.land-page #view > .bq-hero .btn.primary:hover { background: #C4E57A; } }
   :root.land-page #view > .bq-hero .btn:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
   :root.land-page #view > .bq-hero .seg { padding: 4px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
-  :root.land-page #view > .bq-hero .seg button { min-height: 40px; border-radius: 999px; color: #B5C2BE; font-weight: 500; }
+  :root.land-page #view > .bq-hero .seg button { min-height: 44px; border-radius: 999px; color: #B5C2BE; font-weight: 500; }
   :root.land-page #view > .bq-hero .seg button[aria-pressed="true"], :root.land-page #view > .bq-hero .seg button[aria-pressed="true"]:hover { background: #B6DD62; color: #112622; font-weight: 600; box-shadow: none; }
+
+  /* Reports: its switch and its month side by side (v194: no month row on these screens) */
+  :root.land-page #view > .bq-hero .bq-rep-top { display: flex; align-items: center; gap: 10px; }
+  :root.land-page #view > .bq-hero .bq-rep-top .seg { flex: 1 1 auto; min-width: 0; }
+  @media (max-width: 374px) { :root.land-page #view > .bq-hero .bq-rep-top { flex-wrap: wrap; } :root.land-page #view > .bq-hero .bq-rep-top .seg { flex-basis: 100%; } :root.land-page #view > .bq-hero .bq-rep-top .bq-mon { margin-left: auto; } }      /* a narrow phone: the switch whole, the month under it */
+  /* Plan and Goals with another month in view: which, and the way back to this one */
+  :root.land-page #view > .bq-hero .bq-past { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 4px 4px 4px 14px; border-radius: 999px; background: rgba(182, 221, 98, .14); color: #B6DD62; font-size: 13px; font-weight: 600; }
+  :root.land-page #view > .bq-hero .bq-past-go { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: #B6DD62; color: #112622; font-size: 13px; font-weight: 600; touch-action: manipulation; }
+  :root.land-page #view > .bq-hero .bq-past-go:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
 
   /* ---------- in the sheet: the summary's language ---------- */
   :root.land-page #view {
-    --brand: #112622; --brand-deep: #112622; --link: #112622; --focus: #112622; --select: #E8F3D2; --select-ink: #112622; --switch-on: #112622;
-    --line: #DDE3E1; --line-strong: #C9D2CF; --surface: #FFFFFF; --surface-2: #F3F6F5; --surface-3: #E3E9E7; --well: #FFFFFF; --badge: #E3E9E7;
+    --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --link: var(--bq-accent); --focus: var(--bq-accent); --select: var(--bq-mint); --select-ink: var(--bq-accent); --switch-on: var(--bq-accent);
+    --line: var(--bq-line); --line-strong: var(--bq-line-2); --surface: var(--bq-card); --surface-2: var(--bq-card-2); --surface-3: var(--bq-card-3); --well: var(--bq-card); --badge: var(--bq-card-3);
     --primary: #B6DD62; --primary-ink: #112622; --cta: #B6DD62; --cta-ink: #112622;
   }
-  :root.land-page #view .card { border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land-page #view .card.tile, :root.land-page #view .kpi { border: 1px dashed #C9D2CF; border-radius: 20px; background: #FFFFFF; box-shadow: none; }      /* the tiles keep their dashed edge */
+  :root.land-page #view .card { border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  /* the cards that hold cards keep no box of their own (no boxes inside boxes, owner 2026-10-11): the categories, a part of the page set bare */
+  :root.land-page #view #cat-cats.card, :root.land-page #view .card.part-out { border-radius: 0; background: transparent; box-shadow: none; }
+  :root.land-page #view .card.tile, :root.land-page #view .kpi { border: 1px dashed var(--bq-line-2); border-radius: 20px; background: var(--bq-card); box-shadow: none; }      /* the tiles keep their dashed edge */
   :root.land-page #view .bq-hero .card.tile, :root.land-page #view .bq-hero .kpi { border-color: rgba(255, 255, 255, .24); background: rgba(255, 255, 255, .06); }
-  :root.land-page #view .card-h h2, :root.land-page #view h2.sec { color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land-page #view .card-h h2, :root.land-page #view h2.sec { color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
   :root.land-page #view h2.sec { min-height: 0; padding: 0; border-radius: 0; background: none; box-shadow: none; }
   :root.land-page #view h2.sec::before { display: none; }
   :root.land-page #view .btn { border-radius: 999px; }
-  :root.land-page #view .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: #DDE3E1; background: #FFFFFF; color: #0E0F0C; }
+  :root.land-page #view .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: var(--bq-line); background: var(--bq-card); color: var(--bq-ink); }
   :root.land-page #view .btn.primary { border-color: #B6DD62; background: #B6DD62; color: #112622; font-weight: 600; }
   @media (hover: hover) and (pointer: fine) { :root.land-page #view .btn.primary:hover { border-color: #C4E57A; background: #C4E57A; } }
-  :root.land-page #view .seg { border-color: #DDE3E1; border-radius: 999px; background: #FFFFFF; }
+  :root.land-page #view .seg { border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); }
   :root.land-page #view .seg button { border-radius: 999px; }
-  :root.land-page #view .seg button[aria-pressed="true"], :root.land-page #view .seg button[aria-pressed="true"]:hover { background: #112622; color: #B6DD62; font-weight: 600; box-shadow: none; }
-  :root.land-page #view .banner { border: 0; border-radius: 20px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land-page #view input[type=text], :root.land-page #view input[type=search], :root.land-page #view input[type=number], :root.land-page #view input[type=date], :root.land-page #view select, :root.land-page #view textarea { border-color: #DDE3E1; border-radius: 14px; background-color: #FFFFFF; }
-  :root.land-page #view .meter.go > i { background: #112622; }
+  :root.land-page #view .seg button[aria-pressed="true"], :root.land-page #view .seg button[aria-pressed="true"]:hover { background: var(--bq-pick-bg); color: var(--bq-pick-ink); font-weight: 600; box-shadow: none; }
+  :root.land-page #view .banner { border: 0; border-radius: 20px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+  :root.land-page #view input[type=text], :root.land-page #view input[type=search], :root.land-page #view input[type=number], :root.land-page #view input[type=date], :root.land-page #view select, :root.land-page #view textarea { border-color: var(--bq-line); border-radius: 14px; background-color: var(--bq-card); }
+  :root.land-page #view .meter.go > i { background: var(--bq-accent); }
   /* Accounts & savings: its "Add account" is the lime + in the top bar */
   :root.land-page .acc-ph-acts { display: none; }
 }

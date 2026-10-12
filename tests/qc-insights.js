@@ -1,5 +1,7 @@
 // QC of the insight of the day and of "What if…?" (2026-10-07): the eight kinds of rule of core/insights.js and the sums of core/whatif.js,
 // worked out here by hand; then the dashboard's card and the panel, in three languages and on a phone. The first two parts need no browser.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 const { load } = require('./load.js');
 const T = '2026-10-07';
@@ -83,7 +85,7 @@ const T = '2026-10-07';
   const signup = async (p, name) => { await p.evaluate(() => A['pub-go']({ v: 'signup' })); await p.fill('#au-name', name); await p.fill('#au-email', name.toLowerCase() + '@example.org'); await p.fill('#au-pass', 'UmaSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name'); await p.click('[data-a="onboard-save"]'); await p.click('[data-a="ob-finish"]'); await p.waitForFunction(() => !!UI.session); };
 
   // a new account
-  let { browser, page, errors } = await open({ lang: 'en', today: T, server: { confirmEmail: false } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', today: T, server: { confirmEmail: false } });
   await signup(page, 'Bo');
   let card = await text(page, '#insight-card');
   eq(await page.evaluate(() => { const ids = [...document.querySelectorAll('#view > *')].map(e => e.id), r = document.querySelector('#runway-card'), i = document.querySelector('#insight-card'); return [i.dataset.kind, r.parentElement === i.parentElement && r.getBoundingClientRect().right < i.getBoundingClientRect().left, ids.indexOf('co-ask') >= 0 && ids.indexOf('co-ask') < [...document.querySelectorAll('#view > *')].indexOf(i.parentElement), document.querySelectorAll('#insight-next').length, document.querySelector('#insight-card a.btn').getAttribute('href')]; }),
@@ -161,7 +163,7 @@ const T = '2026-10-07';
 
   // ---------- 4. Spanish and Portuguese, on a phone ----------
   for (const [lang, width, want] of [['es', 390, [/Datos del día/, null, /¿Qué pasa si…\?/, /Al ritmo de hoy/, /Con este cambio/]], ['pt', 320, [/Destaques do dia/, null, /E se…\?/, /No ritmo de hoje/, /Com esta mudança/]]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', viewport: { width, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', viewport: { width, height: 700 }, touch: true, mobile: true }));
     // (owner, 2026-10-08: "show the insights of the day whole but shorten the message, auto slide infinitely to the left; no What if button, a tap
     // on a card opens it; and not every card with the same action")
     eq(await page.evaluate(() => { const c = document.querySelector('#insight-card'), row = c.querySelector('.ins-row'), cs = [...row.querySelectorAll('.ins-c')];
@@ -197,7 +199,7 @@ const T = '2026-10-07';
     await browser.close();
   }
   // ---------- 5. (owner, 2026-10-08: "it is very green, I want it to tend to black, and remove the auto slide") ----------
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => document.querySelector('#insight-card').scrollIntoView({ block: 'center' })); await page.waitForTimeout(1600);
   eq(await page.evaluate(() => document.querySelector('.ins-row').scrollLeft), 0, 'the row stays where it is: it does not slide by itself');
   await page.evaluate(() => { const row = document.querySelector('.ins-row'); row.scrollLeft = row.firstElementChild.offsetWidth + 32; }); await page.waitForTimeout(300);

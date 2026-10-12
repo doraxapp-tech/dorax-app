@@ -10,6 +10,8 @@
 //   8. Spanish and Portuguese on the narrowest phone;
 //   9. the two notices that invite it (a PIN; then Face ID or fingerprint): once per device, one question per visit, never behind the closed screen;
 //   10. the lock opening: an animation over the app, about a second, skipped with a tap, not played with less motion.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
@@ -20,7 +22,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const toast = p => p.evaluate(() => document.querySelector('#toast').innerText.trim());
 
   // ---------- 1. the card ----------
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   await page.addInitScript(BIO); await page.evaluate(BIO);
   await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card');
   eq(await page.evaluate(() => { const c = document.querySelector('#guard-card'), sets = [...c.querySelectorAll('.setting b')].map(b => b.innerText.trim()); return [c.querySelector('h2').innerText.trim(), sets, c.querySelector('[data-a="guard-pin-open"]').innerText.trim(), document.querySelector('#guard-idle').value, [...document.querySelector('#guard-idle').options].map(o => o.text), c.querySelectorAll('.chip.good').length, JSON.stringify(GUARD.of(guardUser()).pin || null), LOCK.on,
@@ -118,7 +120,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'locking, the device’s check, changes: no error in the console'); await browser.close();
 
   // ---------- 3b. the tenth wrong try; 7. the limit without use (an account with a password, to log in again) ----------
-  ({ browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
   const login = async () => { await page.evaluate(() => A['pub-go']({ v: 'login' })); await page.fill('#au-email', 'ana@example.org'); await page.fill('#au-pass', 'UmaSenha2026'); await page.click('[data-a="auth-login"]'); await page.waitForFunction(() => !!UI.session); };
   await page.evaluate(() => A['pub-go']({ v: 'signup' })); await page.fill('#au-name', 'Ana'); await page.fill('#au-email', 'ana@example.org'); await page.fill('#au-pass', 'UmaSenha2026'); await page.check('#au-accept'); await page.click('[data-a="auth-signup"]');
   await page.waitForSelector('#ob-name'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0'); await page.click('[data-a="ob-next"]'); await page.click('[data-a="ob-finish"]'); await page.waitForSelector('.hello');
@@ -151,7 +153,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 8. Spanish and Portuguese, on the narrowest phone ----------
   for (const [lang, want] of [['es', ['Hola, Alex. Escribe tu PIN.', '¿Olvidaste el PIN?', 'PIN incorrecto. Te quedan 4 intentos antes de una espera.', 'Protección en este dispositivo', 'Bloqueo de la app']], ['pt', ['Oi, Alex. Digite seu PIN.', 'Esqueceu o PIN?', 'PIN errado. Restam 4 tentativas antes de uma espera.', 'Proteção neste dispositivo', 'Bloqueio do app']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: 320, height: 568 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: 320, height: 568 }, touch: true, mobile: true }));
     await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card');
     eq(await page.evaluate(() => { const c = document.querySelector('#guard-card'), r = c.getBoundingClientRect(); return [c.querySelector('h2').innerText.trim(), c.querySelector('.setting b').innerText.trim(), document.documentElement.scrollWidth <= innerWidth, [...c.querySelectorAll('button:not(.hint), select')].every(e => e.getBoundingClientRect().height >= 44 && e.getBoundingClientRect().right <= innerWidth)]; }), [want[3], want[4], true, true], `${lang}, 320px: the card in the language, inside the phone, its controls a thumb high`);
     await setPin(page, '2580'); await page.evaluate(() => lockNow()); await type(page, '0000'); await page.waitForFunction(() => document.querySelector('.lock-say').innerText.trim().length > 0);
@@ -164,7 +166,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 9. the two notices that invite it (owner, 2026-10-08: "add notifications so users turn on the PIN or Face ID") ----------
   const notice = p => p.evaluate(() => { const c = document.querySelector('#curio'); return c ? [c.className, c.querySelector('b').innerText.trim(), [...c.querySelectorAll('.row button')].map(b => b.innerText.trim())] : null; });
   const asked = p => p.evaluate(() => localStorage.getItem('dorax-lock-asked'));
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 }, curio: true, lockAsk: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 }, curio: true, lockAsk: true }));
   await page.addInitScript(BIO); await page.reload(); await page.waitForFunction(() => !!UI.session);
   await page.waitForSelector('#curio.nudge', { timeout: 8000 });
   eq(await notice(page), ['curio nudge', 'Lock Dorax on this device?', ['Set a PIN', 'Not now']], 'a device with no lock: a moment after the app opens, a notice offers one');
@@ -189,7 +191,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(!(await page.locator('#curio.nudge').count()), 'with both on there is nothing left to ask');
   eq(errors, [], 'the two notices: no error in the console'); await browser.close();
   // a device with no check of its own gets the first notice and never the second; and a "no" from the device changes nothing
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 }, curio: true, lockAsk: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 }, curio: true, lockAsk: true }));
   await page.addInitScript(() => { window.DORAX_BIO = { available: async () => window.__bioHas === true, make: async () => null, check: async () => false }; }); await page.reload(); await page.waitForFunction(() => !!UI.session);
   await page.waitForSelector('#curio.nudge', { timeout: 8000 }); await page.click('#curio [data-a="lock-ask-yes"]'); await page.fill('#gp-new', '2580'); await page.fill('#gp-again', '2580'); await page.click('[data-a="guard-pin-save"]'); await page.waitForSelector('#guard-after'); await page.waitForTimeout(600);
   eq([await page.locator('#curio').count(), await asked(page)], [0, '{"pin":1}'], 'no Face ID or fingerprint on this device: the second notice is not shown, and is not used up');
@@ -202,7 +204,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq([(await guard(page)).bio || null, await page.locator('#curio').count()], [null, 0], 'the device said no: nothing is switched on, and the profile still has the switch');
   eq(errors, [], 'no check on the device, and the closed screen: no error in the console'); await browser.close();
   // one question per visit: the visit that asks about notifications does not ask about the lock too
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 }, curio: true, lockAsk: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 }, curio: true, lockAsk: true }));
   await page.addInitScript(() => { let perm = 'default'; window.DORAX_PUSH = { supported: () => true, needsInstall: () => false, permission: () => perm, ask: async () => (perm = 'denied'), current: async () => null, subscribe: async () => null, unsubscribe: async () => true }; });
   await page.reload(); await page.waitForFunction(() => !!UI.session); await page.waitForSelector('#curio.nudge', { timeout: 8000 });
   const first = (await notice(page))[1]; await page.click('#curio [data-a="push-ask-no"]'); await page.evaluate(() => navigate('plan')); await page.waitForTimeout(3200);
@@ -212,7 +214,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'one question per visit: no error in the console'); await browser.close();
   // on the narrowest phone, in Spanish and Portuguese: above the bar, inside the screen, thumb-sized
   for (const [lang, want] of [['es', ['¿Le ponemos bloqueo a Dorax en este dispositivo?', 'Crear un PIN', 'Ahora no', '¿Abrir Dorax con Face ID o huella?', 'Activar']], ['pt', ['Vamos colocar um bloqueio no Dorax neste dispositivo?', 'Criar um PIN', 'Agora não', 'Abrir o Dorax com Face ID ou digital?', 'Ativar']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true, curio: true, lockAsk: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true, curio: true, lockAsk: true }));
     await page.addInitScript(BIO); await page.reload(); await page.waitForFunction(() => !!UI.session); await page.waitForSelector('#curio.nudge', { timeout: 8000 });
     const fits = () => page.evaluate(() => { const c = document.querySelector('#curio'), r = c.getBoundingClientRect(), bar = document.querySelector('#tabbar').getBoundingClientRect(), fab = document.querySelector('#tabbar .fab').getBoundingClientRect(), bs = [...c.querySelectorAll('.row button')];
       return [c.querySelector('b').innerText.trim(), bs.map(b => b.innerText.trim()), r.left >= 0 && r.right <= innerWidth && r.top >= 0, r.bottom <= Math.min(bar.top, fab.top), bs.every(b => b.getBoundingClientRect().height >= 44), parseFloat(getComputedStyle(c.querySelector('p')).fontSize) >= 12, document.documentElement.scrollWidth <= innerWidth]; });
@@ -225,7 +227,7 @@ const { open, ok, eq, done } = require('./pw.js');
   }
 
   // ---------- 10. the lock opening (owner, 2026-10-08: "create an unlock animation on entering the web app") ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, motion: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, motion: true }));
   await page.addInitScript(BIO); await page.evaluate(BIO);
   await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
   await page.evaluate(() => { navigate('dashboard'); lockNow(); }); await type(page, '2580'); await page.waitForFunction(() => !LOCK.on);
@@ -245,7 +247,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.mouse.click(195, 420); eq(await page.locator('#unlock-fx').count(), 0, 'a tap on it skips the rest');
   eq(errors, [], 'the opening: no error in the console'); await browser.close();
   // less motion asked for: no layer, the app is just there
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card'); await setPin(page, '2580'); await page.evaluate(() => lockNow()); await type(page, '2580'); await page.waitForFunction(() => !LOCK.on);
   eq([await page.locator('#unlock-fx').count(), await page.locator('.lock').count()], [0, 0], 'for someone who asked their device for less motion nothing is played: the screen opens');
   eq(errors, [], 'less motion: no error in the console'); await browser.close();

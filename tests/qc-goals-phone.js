@@ -8,10 +8,12 @@
 //   3. Create opens a new goal; Contribute and Withdraw ask which goal (only goals with money for a withdrawal) and open its panel;
 //   4. no hand-out of the savings payment on a phone; a computer keeps everything as it was;
 //   5. the company's side, and Spanish and Portuguese on the narrowest phone.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => navigate('goals'));
   // ---------- 1. order and sizes ----------
   eq(await page.evaluate(() => { const v = document.querySelector('#view'), top = s => { const el = v.querySelector(s); return el ? Math.round(el.getBoundingClientRect().top) : null; };
@@ -54,14 +56,14 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 
   // ---------- 4. a computer keeps everything ----------
-  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(() => navigate('goals'));
   eq(await page.evaluate(() => [document.querySelectorAll('.tiles .tile').length, !!document.querySelector('#dist'), document.querySelectorAll('.goal [data-a="goal-move"]').length > 0, !!document.querySelector('.g-total, .g-acts, .g-item')]), [4, true, true, false], 'a computer keeps its four figures, the hand-out and the buttons on each card');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
 
   // ---------- 5. the company's side; Spanish and Portuguese ----------
   for (const [lang, w, want] of [['es', 390, ['Apartado en metas y fondos', ['Crear', 'Aportar', 'Retirar'], '¿A cuál aportas?']], ['pt', 320, ['Reservado em metas e fundos', ['Criar', 'Aportar', 'Retirar'], 'Para qual você aporta?']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => navigate('goals'));
     eq(await page.evaluate(() => [document.querySelector('.g-total .label').innerText.trim(), [...document.querySelectorAll('.g-acts button')].map(b => b.innerText.trim()), [...document.querySelectorAll('.g-acts button, .g-item')].every(b => b.getBoundingClientRect().right <= innerWidth && b.scrollWidth <= b.clientWidth + 1), document.documentElement.scrollWidth - innerWidth]), [want[0], want[1], true, 0], `${lang}, ${w}px: in the language, nothing cut or wider than the screen`);
     await page.click('.g-acts [data-a="goal-pick"][data-dir="in"]'); eq(await page.evaluate(() => document.querySelector('.sheet.g-pick h2').innerText.trim()), want[2], `${lang}: the question in the language`); await page.evaluate(() => A.close());

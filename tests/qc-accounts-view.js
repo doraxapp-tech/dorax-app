@@ -8,10 +8,12 @@
 //   6. (owner, same day: "the eye toggle on the phone has a bug, the figure hides and gets lost") hidden, the balance is still a whole line of dots;
 //   7. "Add account" opens the account form; an account is deleted from its form (Edit account, at its foot), after a confirmation; one with
 //      transactions cannot be deleted until they are moved or deleted.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, beta: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => navigate('accounts')); await page.waitForTimeout(700);
   // ---------- 1. the page ----------
   eq(await page.evaluate(() => { const v = document.querySelector('#view'); return [!!v.querySelector('.acc-ph-acts'), ['#acc-day', '#acc-cc', '#acc-sv', '#acc-cover'].map(q => !!v.querySelector(q)), [...v.querySelectorAll('.acc-grp h2')].map(h => h.innerText.trim()), !v.querySelector('.acc-view, .acc-stack, .cc-grid, [data-a="acct-del-pick"]'), document.documentElement.scrollWidth - innerWidth]; }),
@@ -89,7 +91,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => { const red = cardsOf(personal()).find(a => (BANK_MARKS[a.institution] || {}).bg === '#EC0000'); if (!red) return 'no red card'; A.close(); A['card-view']({ id: red.id }); const c = document.querySelector('#overlay .cv > .ccard'); const m = getComputedStyle(c).backgroundImage.match(/color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)\) 42%/); return m && m.slice(1, 4).map(v => Math.round(v * 255)).join(); }),
     '116,0,0', 'the red card: #EC0000 at 7D (49 %) over black is #740000');
   eq(errors, [], 'no error in the console'); await browser.close();
-  ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'pt', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
   await page.evaluate(() => navigate('accounts'));
   eq(await page.evaluate(() => [!document.querySelector('.acc-view, .acc-ph-acts, .acc-grp'), document.querySelectorAll('.cc-grid .cc-item').length === cardsOf(personal()).length]), [true, true], 'a computer keeps its cards (no rows, no switch); Portuguese');
   ok(await page.evaluate(() => !document.querySelector('.acc-style, .ccard.glow')), 'a computer has the one style too');

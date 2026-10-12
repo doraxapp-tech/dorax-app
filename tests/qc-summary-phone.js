@@ -14,7 +14,8 @@ const PART = { 'free-card': 'free', 'runway-card': 'runway', 'insight-card': 'in
 const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > *')].map(e => P[e.id] || (e.classList.contains('quick-row') ? 'quick' : e.classList.contains('kpis') ? 'figures' : null)).filter(Boolean), PART);
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  // sections 1–4 test the previous phone summary, which the company's side still shares (tests/pw.js: oldLook); from 5 on, the new look
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   // ---------- 1. the heading ----------
   for (const r of ['dashboard', 'transactions', 'plan', 'goals', 'accounts']) {
     await page.evaluate(r => navigate(r), r);
@@ -109,7 +110,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
 
   // ---------- 4. Spanish and Portuguese on the narrowest phone ----------
   for (const [lang, w, want] of [['es', 390, ['Resumen', 'Cuentas', 'Ordenar el resumen', 'Subir Cuentas', 'Orden original']], ['pt', 320, ['Resumo', 'Contas', 'Ordenar o resumo', 'Subir Contas', 'Ordem original']]]) {
-    ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     await page.click('#dash-order-btn'); await page.click('.d-order .ord-btn[data-id="accounts"][data-d="-1"]');
     eq(await page.evaluate(() => [document.querySelector('.pagehead h1').innerText.trim(), document.querySelector('#ac-card h2').innerText.trim(), document.querySelector('.d-order h2').innerText.trim(), document.querySelector('.d-order .ord-btn[data-id="accounts"][data-d="-1"]').getAttribute('aria-label'), document.querySelector('[data-a="dash-order-reset"]').innerText.trim()]),
       want, `${lang}: in the language`);
@@ -238,7 +239,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'tx' && !UI.drawer.isNew)), 'a row opens its transaction');
       await page.evaluate(() => A.close());
       await page.evaluate(() => { S.settings.theme = 'dark'; render(); });
-      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('#tx-card .tx-tbl'), !!document.querySelector('.bq-tx')]), [false, true, false], 'the dark theme keeps its table');
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), document.documentElement.classList.contains('land-dark'), !!document.querySelector('.bq-tx'), getComputedStyle(document.querySelector('.bq-txsheet')).backgroundColor]), [true, true, true, 'rgb(11, 20, 18)'], 'v194: the dark theme has the same Transactions, its sheet the deep green that reads as black');
       await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
       // the other pages, the company's side, the dark theme: as they were
       await page.evaluate(() => navigate('plan'));
@@ -252,6 +253,13 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
         await page.evaluate(r => navigate(r), route); await page.waitForTimeout(150);
         eq(await screen(), { land: 'true,true', page: 'rgb(233, 237, 236)', bar: 'rgba(255, 255, 255, 0.72)', tools, hero: hero ? ['rgb(17, 38, 34)', true, 'rgb(233, 237, 236)'] : null, wide: 0 }, `${route}: the forest bar with only its own tools (${tools || 'none'}), ${hero ? 'its top on the forest and ' : ''}the page as the grey sheet, the glass bar`);
       }
+      // v194 ("no me gusta la fecha en todas las pantallas, es repetitivo"): no month row on Plan, Goals and Reports; Reports has its month by its switch;
+      // Plan with another month in view says which, with the way back
+      for (const r of ['plan', 'goals', 'reports']) { await page.evaluate(r => navigate(r), r); ok(await page.evaluate(() => !document.querySelector('.pagehead .month')), `v194: ${r} has no month row`); }
+      eq(await page.evaluate(() => { const m = document.querySelector('.bq-hero .bq-rep-top .bq-mon'); return m && [...m.querySelectorAll('button')].map(b => b.dataset.a + b.dataset.d).join(); }), 'month-1,month1', 'Reports: its month beside its switch');
+      await page.evaluate(() => { navigate('plan'); A.month({ d: '-1' }); });
+      eq(await page.evaluate(() => { const p = document.querySelector('.bq-hero .bq-past'); return p && [p.querySelector('span').textContent, p.querySelector('[data-a="month-now"]').textContent]; }), ['Viendo Septiembre 2026', 'Volver a octubre'], 'Plan on another month: which, and the way back to this one');
+      await page.click('.bq-past-go'); ok(await page.evaluate(() => S.month === ymOf(S.today) && !document.querySelector('.bq-past')), 'and back');
       await page.evaluate(() => navigate('goals'));
       ok(await page.evaluate(() => !document.querySelector('#view .g-acts [data-a="goal-new"]') && !!document.querySelector('.navbar .bq-new[data-a="goal-new"]')), 'Goals: “Create” is the lime + in the bar, not a third button on the forest');
       await page.click('.navbar .bq-new'); await page.waitForTimeout(200);
@@ -259,7 +267,10 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
       eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'the company’s summary keeps its look');
       await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });
-      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.quick-row'), !!document.querySelector('.bq-acts')]), [false, true, false], 'the dark theme keeps its summary');
+      eq(await page.evaluate(() => { const cs = el => getComputedStyle(el); return [document.documentElement.classList.contains('land-dark'), !!document.querySelector('.bq-acts'), cs(document.querySelector('.work')).backgroundColor, cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(document.querySelector('.bq-acts')).backgroundColor, cs(document.querySelector('.tabbar')).backgroundColor, cs(document.querySelector('.bq-acc-n')).color]; }),
+        [true, true, 'rgb(11, 20, 18)', 'rgb(17, 38, 34)', 'rgb(21, 34, 31)', 'rgba(21, 34, 31, 0.72)', 'rgb(238, 242, 239)'], 'v194 ("el modo oscuro me lleva al diseño viejo"): the dark theme has the new summary in its dark version: the same forest block, the page a green that reads as black, the cards a step lighter, light words, the glass bar dark');
+      for (const r of ['plan', 'goals', 'settings']) { await page.evaluate(r => navigate(r), r); eq(await page.evaluate(() => [document.documentElement.classList.contains('land-page'), getComputedStyle(document.querySelector('.work')).backgroundColor, document.documentElement.scrollWidth - innerWidth]), [true, 'rgb(11, 20, 18)', 0], `v194: ${r} in the dark version too`); }
+      await page.evaluate(() => navigate('dashboard'));
     }
     eq(errors, [], `${w} px, Bosque: no error in the console`); await browser.close();
   }

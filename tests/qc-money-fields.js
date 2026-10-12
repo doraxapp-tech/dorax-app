@@ -6,9 +6,11 @@
 //      since 2026-10-11 an amount fills from the cents and writes its own marks (owner: "don't make me type the point or the comma";
 //      app/js/ui/money-mask.js): 1 → 0,01, 15 → 0,15, 150000 → 1.500,00; a field already holding "5.200" shows "5.200,00" when focused;
 //   3. every marked field of the app does the same.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; S.user.company = true; });
   // ---------- 1. every money field is marked ----------
   const sweep = () => page.evaluate(() => {
@@ -81,7 +83,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(all[0] > 10 && !all[1].length, 'every marked field of every screen refuses letters (' + all[0] + ')', all[1]);
   eq(errors, [], 'no error in the console'); await browser.close();
   // the first-time setup and the company's setup, before an account exists
-  ({ browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 } }));
   const sl = await page.evaluate(() => { const els = [...document.querySelectorAll('input[type=text]')].filter(e => /amount|0,00/.test(e.placeholder) || e.closest('.ob-slide')); return els.map(e => [e.id, e.getAttribute('inputmode')]); });
   ok(sl.length >= 3 && sl.every(x => x[1] === 'decimal'), 'the home page’s calculator: its money fields say so too', sl);
   if (sl.length) { const id = '#' + sl[0][0]; await page.click(id, { clickCount: 3 }); await page.keyboard.type('2k0.000'); eq(await page.inputValue(id), '20.000', 'and refuse letters'); }

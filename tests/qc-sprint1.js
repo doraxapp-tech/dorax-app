@@ -8,11 +8,13 @@
 //   4. "your emergency fund" under Days of freedom (the household's, not the company's);
 //   5. the shortcuts of the app's icon: ?do=expense opens the expense form, ?do=import opens Imports.
 const path = require('path');
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   const logic = await import('file://' + path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'logic.mjs'));
   // ---------- 1. free to spend ----------
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
   const r = await page.evaluate(() => freeUntil(S, S.today, CUR));
   eq([r.free, r.cash - r.bills - r.cards - r.goals, r.until, r.pay], [r.cash - r.bills - r.cards - r.goals, r.free, '2026-10-31', null], 'free to spend: what is in the accounts, less the bills, the card and the goals still due; with no pay day, to the end of the month');
@@ -67,7 +69,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => UI.drawer.kind), 'contact', '“Write to Dorax” opens the contact form');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- the computer ----------
-  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
+  ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => navigate('dashboard'));
   eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [!!c, !!c.querySelector('.fu-bar') && !!c.querySelector('.fu-how') && !c.querySelector('.fu-steps'), /Puedes gastar/.test(c.querySelector('h2').innerText), (document.querySelector('#runway-card .rw-alias') || {}).innerText]; }), [true, true, true, 'Tu reserva de emergencia'], 'a computer: the card with its sum in view, in Spanish; the emergency fund under Days of freedom');
   await page.evaluate(() => A.help()); eq(await page.evaluate(() => [UI.drawer.kind, document.querySelector('.drawer').classList.contains('pop')]), ['help', true], 'Help on a computer: a card in the middle');
@@ -75,7 +77,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 5. the icon's shortcuts ----------
   for (const [what, check, label] of [['expense', () => !!UI.drawer && UI.drawer.kind === 'tx' && UI.drawer.draft.type === 'expense', 'the expense form'], ['import', () => UI.route === 'imports', 'Imports']]) {
     const file = 'file://' + path.join(__dirname, '..', process.env.DORAX_TARGET === 'bundle' ? 'dist/dorax-preview.html' : 'app/index.html').replace(/ /g, '%20') + '?do=' + what;
-    ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, url: file }));
+    ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, url: file }));
     await page.waitForTimeout(300);
     eq(await page.evaluate(check), true, `the icon’s shortcut ?do=${what} opens ${label}`);
     eq(await page.evaluate(() => /do=/.test(location.search)), false, `?do=${what}: the address goes back to plain`);

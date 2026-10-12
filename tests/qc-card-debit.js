@@ -10,10 +10,12 @@
 //   5. a credit card with no account at its bank is saved alone, credit only; the first debit on it makes its debit at its bank (at zero, linked), and
 //      it stays one card, with both functions;
 //   6. "Record payment" in the plan, for a cost paid from a card, offers the same choice, and the payment lands where it was chosen.
+// v194: the household's phone has the summary "Bosque" in both themes (tests/qc-summary-phone.js tests it); this suite tests the parts of the
+// previous phone look that the company's side and a computer still share, so it opens the app in that look (tests/pw.js: oldLook)
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   const [card, deb] = await page.evaluate(() => { const c = S.accounts.find(a => a.type === 'credit' && a.scope === 'personal'); return [c.id, cardDebitAcct(c).id]; });
   eq(await page.evaluate(([c, d]) => [acct(d).type, acct(d).institution === acct(c).institution], [card, deb]), ['checking', true], 'the account behind a card: by default a checking account at the same bank');
   await page.evaluate(() => A['new-tx']()); await page.waitForSelector('#d-account');

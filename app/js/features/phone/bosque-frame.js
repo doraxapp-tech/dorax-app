@@ -30,5 +30,15 @@ function bqBack() {
   const p = typeof backForPage === 'function' ? backForPage() : null, say = p ? backSay(p) : t('Back to {name}', { name: routeLabel('dashboard') });
   return p ? `<button class="bq-tool bq-back" data-a="back" aria-label="${esc(say)}">${icon('left')}</button>` : `<a class="bq-tool bq-back" href="#dashboard" aria-label="${esc(say)}">${icon('left')}</a>`;
 }
-/** The top of a screen on the forest, the rest rising over it as the light sheet: in this look; as it was otherwise. */
-const bqHero = inner => bqPageOn() ? `<section class="bq-hero">${inner}</section>` : inner;
+/** The top of a screen on the forest, the rest rising over it as the light sheet: in this look; as it was otherwise. With no month row on these
+    screens, Plan and Goals say so when another month than this one is in view, with the way back to it. */
+const bqHero = inner => {
+  if (!bqPageOn()) return inner;
+  const now = ymOf(S.today), past = S.month !== now && (UI.route === 'plan' || UI.route === 'goals');
+  return `<section class="bq-hero">${past ? `<div class="bq-past"><span>${esc(t('Viewing {month}', { month: fmt.month(S.month) }))}</span><button class="bq-past-go" data-a="month-now">${esc(t('Back to {month}', { month: mcMonth(now) }))}</button></div>` : ''}${inner}</section>`;
+};
+/** The month in a screen's top, as Transactions has it: the one before, its name, the one after (not past this one). */
+function bqMonthPager() {
+  const m = S.month, now = ymOf(S.today);
+  return `<div class="bq-mon" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${m <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(m, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${m >= now ? 'disabled' : ''}>${icon('right')}</button></div>`;
+}
