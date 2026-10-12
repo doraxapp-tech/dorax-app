@@ -1,7 +1,7 @@
 /* Dorax Finance — the page listens once: clicks, keys, fields, drag and drop, hints, pulling a sheet down. */
 // ---------- events ----------
 document.addEventListener('click', e => {
-  const q = e.target.closest('.lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
+  const q = e.target.closest('.l2-faq summary, .lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
   if (q && q.parentElement.animate && !reducedMotion()) { e.preventDefault(); faqToggle(q.parentElement); return; }
   if (UI.menu && !e.target.closest('#rail-foot')) { UI.menu = false; renderShell(); }      // a click anywhere else closes the menu beside the name; the click itself still counts
   if (UI.goalMenu && !e.target.closest('.gmenu-wrap')) { UI.goalMenu = false; renderOverlay(); }      // and the goal's menu (features/goals)

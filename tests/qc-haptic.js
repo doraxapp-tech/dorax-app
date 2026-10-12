@@ -42,8 +42,8 @@ const { open, ok, eq, done } = require('./pw.js');
   for (const [lang, w] of [['es', 390], ['pt', 320]]) {
     ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
-    const home = await page.evaluate(() => { const b = document.querySelector('.bar-bal .bb-link').getBoundingClientRect(); return [document.querySelector('.bar-bal').classList.contains('co'), Math.abs((b.left + b.right) / 2 - innerWidth / 2) < 30, !document.querySelector('.bar-bal .space')]; });
-    eq(home, [false, true, true], `${lang}, ${w}px: the household’s net balance stays in the middle, with no currency beside it`);
+    const home = await page.evaluate(() => { const b = document.querySelector('.bar-bal .bb-link').getBoundingClientRect(), e = document.querySelector('.bar-bal .bb-eye').getBoundingClientRect(); return [document.querySelector('.bar-bal').classList.contains('co'), b.left <= 18, e.left >= b.right - 1, getComputedStyle(document.querySelector('.bar-bal .bb-link')).textAlign, !document.querySelector('.bar-bal .space')]; });
+    eq(home, [false, true, true, 'left', true], `${lang}, ${w}px: the household’s net balance on the left, the eye beside it, as the company’s (owner, 2026-10-11), with no currency beside it`);
     await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); }); await page.waitForTimeout(200);
     const row = () => page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(), bal = r('.bar-bal .bb-link'), eye = r('.bar-bal .bb-eye'), sw = r('.bar-bal .space'), b = document.querySelector('.bar-bal .bb-link b');
       return [bal.left <= 18, eye.left >= bal.right - 1, sw.left >= eye.right, Math.abs(sw.right - (innerWidth - 16)) <= 2, sw.top < bal.bottom && sw.bottom > bal.top, document.querySelectorAll('.pagehead .space').length, b.scrollWidth <= b.clientWidth + 1, document.documentElement.scrollWidth <= innerWidth,

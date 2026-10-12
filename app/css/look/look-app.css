@@ -1,0 +1,99 @@
+/* Dorax Finance — the second look, inside the app (owner, 2026-10-11, after the home page's second look: "en este mismo lenguaje visual, en todas
+   las páginas de la webapp, quiero que se vea el dashboard, los onboardings, etc"; chosen with him: the light theme exactly as the home page and the
+   default for new accounts, the dark one kept with the same shapes, letters and buttons; the setup and the Journey light as the home page).
+   What the home page's language is, brought in here:
+     - a warm sage-white page (#F2F4EE) with white cards on it, the app's forest (#163300) and lime (#9FD182), mint (#E2F6D5) for what is chosen;
+     - round shapes: 24px cards and panels, pills for buttons, chips and the chosen tab;
+     - Inter everywhere (the small monospace labels too), headings in 600 with their letters a little closer, small text never tightened;
+     - the tab on screen is a forest pill with lime words, like the Household | Company choice over the home page's phone;
+     - the fact of the day is a forest card with lime words, like the home page's FIIs card.
+   This file loads after every other one of the app, so it only has to say what changes. The pages before login: css/look/look-public.css;
+   the setup, the Journey and the tours: css/look/look-pages.css. */
+
+/* ---------- the light theme: the home page's colours ---------- */
+:root.app-light {
+  --bg: #F2F4EE; --surface: #FFFFFF; --surface-2: #F7F8F4; --surface-3: #E9EDE4; --well: #EEF1EA; --lift: #FFFFFF; --badge: #E3E8DD; --pit: #F7F8F4;
+  --line: #E1E5DC; --line-strong: #C3C9BD; --graphite: #ACB2A6; --field: #868B82;
+  --ink-3: #5F625D;
+  --btn: #FFFFFF; --btn-line: #D3D8CD; --btn-hover: #FFFFFF;
+  --glass: rgba(242, 244, 238, .88); --glass-line: #E1E5DC;
+  --track: #E3E8DD; --grid: #E6EAE1; --col-muted: #C3C9BD; --switch-off: #C3C9BD;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { :root.app-light { --glass: #F2F4EE; } }
+
+/* ---------- shapes and letters, both themes ---------- */
+:root.in-app { --r-card: 24px; --r-lg: 24px; --r-mid: 18px; --r: 10px; --mono: var(--font); }
+:root.in-app .topbar h1 { font-weight: 600; letter-spacing: -.02em; }      /* its size stays 20px (owner, 2026-10-05 and 10-08) */
+:root.in-app .hello h2, :root.in-app .pf-head h2 { font-size: 26px; font-weight: 600; letter-spacing: -.03em; line-height: 1.12; }
+:root.in-app .card-h h2 { font-weight: 600; letter-spacing: -.01em; }
+:root.in-app .kpi .value, :root.in-app .figure b, :root.in-app .tile .value { letter-spacing: -.02em; }
+:root.in-app .drawer header h2, :root.in-app .modal h2 { letter-spacing: -.02em; }
+/* small text stays open (owner: tight small letters are hard to read): the labels that were monospace keep a hair of room in Inter */
+:root.in-app .mono, :root.in-app .brand small { letter-spacing: .02em; }
+
+/* ---------- cards: white on the page, with a hairline; nothing heavier ---------- */
+:root.app-light .card { border-color: var(--line); }
+/* panels, sheets and dialogs take the round 24 px of --r-lg from their own rules (components/panels.css); on a phone what rises from the foot is
+   round only at the top (base/responsive.css; owner, 2026-10-11: "the menus that come up have a radius at the bottom and it looks odd") */
+
+/* ---------- buttons: the main one lime with forest words (already), the others white pills with a hairline, as on the home page ---------- */
+:root.app-light .btn:not(.primary):not(.danger):not(.linkbtn):hover { border-color: var(--hover-line); }
+
+/* ---------- the menu on a computer: on the page itself; the tab on screen a forest pill with lime words ---------- */
+:root.in-app .nav a { border-radius: 999px; padding-block: 9px; }
+:root.app-light .rail { background: var(--bg); border-right: 0; }      /* no line beside the menu (owner, 2026-10-11) */
+:root.app-light .nav a:hover { background: rgba(255, 255, 255, .6); }
+/* the tab on screen: white, its words and icon forest (owner, 2026-10-11: "el tab activo: background blanco y el color del text y el icono: #163300") */
+:root.app-light:not(.side-co) .nav a[aria-current="page"] { background: #FFFFFF; color: #163300; font-weight: 600; box-shadow: 0 1px 2px rgba(14, 15, 12, .06); }
+:root.app-light:not(.side-co) .nav a[aria-current="page"] svg { color: #163300; }
+:root.app-light .rail-foot { border-radius: var(--r-mid); background: #FFFFFF; }
+:root.app-light .topbar { background: color-mix(in srgb, var(--bg) 88%, transparent); }
+
+/* ---------- the fact of the day, in the light theme: a forest card with lime words, like the home page's FIIs card (the dark theme keeps its #131313, owner 2026-10-08) ---------- */
+:root.app-light:not(.side-co) .ins-pc { background: #163300; border-color: #163300; color: #D6DCCF;
+  --ink: #E8EBE6; --ink-strong: #FFFFFF; --ink-2: #C9D2C0; --ink-3: #A9B3A0; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .28);
+  --btn: rgba(255, 255, 255, .06); --btn-line: rgba(255, 255, 255, .24); --btn-hover: rgba(255, 255, 255, .1); --spark: #9FD182; --brand: #9FD182; --link: #9FD182; --focus: #9FD182; }
+:root.app-light:not(.side-co) .ins-pc .card-h h2 { color: #9FD182; }
+:root.app-light:not(.side-co) .ins-pc .grow b { color: #FFFFFF; }
+:root.app-light:not(.side-co) .ins-pc .btn { color: #E8EBE6; }
+:root.app-light:not(.side-co) .ins-pc .ins-mark { color: #9FD182; opacity: .14; }
+:root.app-light:not(.side-co) .ins-pc .fl-ico { background: #9FD182; color: #163300; border-color: #9FD182; }
+
+/* ---------- the big figures' cents, small (js/ui/cents.js), as on the home page ---------- */
+.cents { font-size: max(12px, .62em); font-weight: inherit; letter-spacing: 0; opacity: .72; color: inherit; }
+
+/* ---------- a section's label: the home page's small chip with its lime dot (it was a grey monospace line in capitals) ---------- */
+:root.in-app h2.sec { display: flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 30px; padding: 0 13px 0 11px; border-radius: 999px; font-family: var(--font); font-size: 12.5px; font-weight: 600; letter-spacing: .01em; text-transform: none; }
+:root.in-app h2.sec::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: #9FD182; box-shadow: 0 0 0 3px rgba(159, 209, 130, .3); }
+:root.app-light h2.sec { background: #FFFFFF; box-shadow: 0 0 0 1px var(--line); color: #163300; }
+:root.in-app:not(.app-light) h2.sec { background: rgba(255, 255, 255, .05); box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); color: #9FD182; }
+:root.in-app.side-co h2.sec { color: var(--ink-strong); } :root.in-app.side-co h2.sec::before { background: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 30%, transparent); }
+
+/* ---------- the company's side: its blue, as the home page draws it (the "Company" choice filled blue with dark words; its fact a dark card) ---------- */
+:root.app-light.side-co .nav a[aria-current="page"] { background: #5B9DFF; color: #0E0F0C; }
+:root.app-light.side-co .nav a[aria-current="page"] svg { color: #0E0F0C; }
+:root.app-light.side-co .ins-pc { background: #0E0F0C; border-color: rgba(91, 157, 255, .4); color: #D4D4D4;
+  --ink: #E8EBE6; --ink-strong: #FFFFFF; --ink-2: #C3C7BF; --ink-3: #959793; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .28);
+  --btn: rgba(255, 255, 255, .06); --btn-line: rgba(255, 255, 255, .24); --btn-hover: rgba(255, 255, 255, .1); --link: #5B9DFF; --focus: #5B9DFF; }
+:root.app-light.side-co .ins-pc .card-h h2 { color: #5B9DFF; }
+:root.app-light.side-co .ins-pc .grow b { color: #FFFFFF; }
+:root.app-light.side-co .ins-pc .btn { color: #E8EBE6; }
+:root.app-light.side-co .ins-pc .ins-mark { color: #5B9DFF; opacity: .16; }
+
+/* ---------- the light theme: the menu stays on the sage page, the work area is white with its bar (owner, 2026-10-11: "leave the sidebar with the
+   current background colour, but make the right view's background white along with the header"; then the same on phones). The page colour is
+   white inside .work, so whatever reads it there (the bar's glass, a badge's ring) follows. ---------- */
+:root.app-light .work { --bg: #FFFFFF; --glass: rgba(255, 255, 255, .9); background: #FFFFFF; }
+html.app-light.in-app, html.app-light.in-app body { background: #FFFFFF; }      /* the scroll bar's gutter on the right is white too; the menu paints its own sage */
+/* phones too (owner, same day: "haz los cambios anteriores en móvil también"): the page and its bar at the top white, no tint of green behind them */
+@media (max-width: 920px) {
+  :root.app-light .navbar { background: rgba(255, 255, 255, .92); }
+  :root.app-light .bar-bal { background: none; }
+}
+
+/* ---------- no dark shadow behind anything in the light theme (owner, 2026-10-11: "the cards in light mode have a black shadow in the background,
+   remove it"): a card, a figure, a tile sit flat on the page with their hairline; the bank cards keep only the light on their top edge; the round +
+   keeps a soft green breath under it, and its ring is the bar's own white (it was the old sage page) ---------- */
+:root.app-light :is(.card, .kpi, .tile) { box-shadow: none; }
+:root.app-light :is(.w-card, .w-mini, .cc-tap, .w-tap) .ccard { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2); }
+@media (max-width: 920px) { :root.app-light .tabbar .fab { box-shadow: 0 0 0 4px #FFFFFF, 0 8px 18px -8px rgba(22, 51, 0, .35); } }

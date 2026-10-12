@@ -14,16 +14,14 @@ function acctCard(a) {
 function viewAccounts() {
   const co = UI.space === 'business', list = co ? business() : personal();
   if (!list.length) return `<div class="card"><div class="empty"><b>${co ? t('No company accounts yet') : t('No accounts yet')}</b>${co ? t('Add the company’s first account to plan its costs and keep its reserves in it.') : t('Add your first account to start importing statements.')}<div style="margin-top:12px"><button class="btn primary" data-a="account-add">${icon('plus')}${co ? t('Add company account') : t('Add account')}</button></div></div></div>`;
+  if (isPhone()) return phoneAccounts(list);      // a phone: one button, the accounts as rows by kind, how long the savings last (features/accounts/accounts.phone.js)
   // no figures on top, on the phone (owner, 2026-10-08: "remove from Accounts the KPI cards of the household's net balance, it is already in the bar on
   // top, and the number of accounts, it is irrelevant") nor on the computer (owner, 2026-10-09: "on the computer remove the KPI cards from the Accounts tab")
   const head = `<h2 class="sec">${co ? t('Company (PJ)') : t('Household')} ${hint(co ? 'accBiz' : 'accHouse')}</h2>`;
-  // a phone's cards come in two parts, the accounts and the savings (features/accounts/wallet.js): the first part is headed "Accounts" (the side is said
-  // in the top bar), the second "Your savings"
-  const phHead = `<h2 class="sec">${t('Accounts')} ${hint(co ? 'accBiz' : 'accHouse')}</h2>`, sv = list.filter(a => a.type === 'savings');
+  const sv = list.filter(a => a.type === 'savings');
   // the earlier design (Settings, "Accounts as cards" off): its cards, then the savings as rows
   const old = () => `<div class="grid g-3">${list.map(acctCard).join('')}</div><hr class="cc-div"><section class="cc-group sv-group" aria-labelledby="cc-h-savings">${savingsHead(sv, !isPhone())}${sv.length ? `<div class="sv-rows">${sv.map(savingsRow).join('')}</div>` : savingsNone()}</section>`;
   const cards = walletOn() ? walletAccounts(list) : old();      // the cards: features/accounts/wallet.js
-  if (isPhone()) return `${walletOn() ? `${acctPhoneActs()}<div class="acc-head">${phHead}${acctViewSwitch()}</div>` : head}${cards}`;
   // a computer: the cards on the left, seven tenths of the width; on the right, what they add up to (accountsAside)
   return `${walletOn() ? '' : head}<div class="acc-cols"><div class="acc-main">${cards}</div><aside class="acc-side" aria-label="${t('What your accounts add up to')}">${accountsAside(list)}</aside></div>`;
 }
@@ -46,17 +44,8 @@ function accountsAside(list) {
       ${curs.map(c => `<div class="acc-total"><span>${curs.length > 1 ? t('Total saved in {cur}', { cur: c }) : t('Total saved')}</span><b class="num">${fmt.money(sum(sv.filter(a => a.currency === c).map(a => at(a))), c)}</b></div>`).join('')}
       ${moved ? `<p class="acc-note"><b class="num ${moved > 0 ? 'pos' : 'neg'}">${fmt.money(moved, cur, { sign: true })}</b> ${t('since {date}', { date: fmt.date(monthStart) })}</p>` : `<p class="acc-note">${t('No change since {date}.', { date: fmt.date(monthStart) })}</p>`}`
     : `<p class="acc-note">${t('No savings account yet.')}</p><button class="btn sm" data-a="acct-add-savings">${icon('plus')}${t('Add a savings account')}</button>`);
-  // 2. how long the savings last at the pace of spending (the household's days of freedom, features/ahead)
-  let cover = '';
-  if (!co) {
-    const r = runway(S, S.today, cur);
-    if (r.days !== null && r.cushion.amount > 0) {
-      const f = rwFigure(r.days, false);
-      cover = card('acc-cover', t('How long your savings last'), `<p class="acc-big">${esc(f.span)}</p><p class="acc-note">${t('of spending, at {amount} a month.', { amount: fmt.money(r.burn.amount, cur, { trim: true }) })}</p>
-        ${r.next ? `<p class="acc-note">${t('To reach {mark}: {amount} more saved.', { mark: rwMark(r.next.days), amount: `<b class="num">${fmt.money(r.next.missing, cur, { trim: true })}</b>` })}</p>` : ''}
-        <button class="btn sm" data-a="runway-view" aria-haspopup="dialog">${t('See the days of freedom')}</button>`);
-    }
-  }
+  // 2. how long the savings last at the pace of spending (accountsCover, shared with a phone's Accounts)
+  const cover = co ? '' : accountsCover(cur);
   // 3. what the side has, owes, and adds up to
   const spendable = mine.filter(a => a.type !== 'savings' && a.type !== 'credit'), cards = mine.filter(a => a.type === 'credit');
   const have = sum(spendable.map(a => at(a))), owed = sum(cards.map(a => at(a))), net = have + svNow + owed;
@@ -68,6 +57,19 @@ function accountsAside(list) {
   const inv = co ? [] : cardInvoices(S, S.today, cur).filter(x => !x.paid);
   const cardBox = cards.length ? card('acc-cards', t('Your cards'), `<ul class="acc-list cards">${cards.map(a => {
     const x = inv.find(i => i.accountId === a.id), used = a.creditLimit ? Math.round(Math.max(0, -at(a)) * 100 / a.creditLimit) : null, m = cardMain(a);
-    return `<li>${asideMark(m)}<span class="grow"><b>${esc(m.name)}</b><small>${x ? (x.estimate ? t('Next invoice ≈ {amount}, due {date}', { amount: fmt.money(x.amount, cur), date: fmt.date(x.date) }) : t('Invoice {amount}, due {date}', { amount: fmt.money(x.amount, cur), date: fmt.date(x.date) })) : a.dueDay ? t('Invoice paid') : t('No due date')}${used !== null ? ' · ' + t('{pct} of the limit used', { pct: fmt.pct(used) }) : ''}</small></span></li>`; }).join('')}</ul>`) : '';
+    return `<li>${asideMark(m)}<span class="grow"><b>${esc(m.name)}</b><small>${cardInvoiceSay(a, x, cur)}${used !== null ? ' · ' + t('{pct} of the limit used', { pct: fmt.pct(used) }) : ''}</small></span></li>`; }).join('')}</ul>`) : '';
   return savings + cover + sumUp + cardBox;
 }
+
+/** How long the savings last at the pace of spending (the household's days of freedom, features/ahead): in a computer's column on the right and on a
+    phone's Accounts. Nothing when there is nothing saved or no pace yet. */
+function accountsCover(cur) {
+  const r = runway(S, S.today, cur); if (r.days === null || !(r.cushion.amount > 0)) return '';
+  const f = rwFigure(r.days, false);
+  return `<section class="card acc-box" id="acc-cover"><div class="card-b"><h2>${t('How long your savings last')}</h2><p class="acc-big">${esc(f.span)}</p><p class="acc-note">${t('of spending, at {amount} a month.', { amount: fmt.money(r.burn.amount, cur, { trim: true }) })}</p>
+        ${r.next ? `<p class="acc-note">${t('To reach {mark}: {amount} more saved.', { mark: rwMark(r.next.days), amount: `<b class="num">${fmt.money(r.next.missing, cur, { trim: true })}</b>` })}</p>` : ''}
+        <button class="btn sm" data-a="runway-view" aria-haspopup="dialog">${t('See the days of freedom')}</button></div></section>`;
+}
+/** A credit card's next invoice, in words: its amount and due date (an estimate while it is still open), paid, or no due date set. */
+const cardInvoiceSay = (a, x, cur) => x ? (x.estimate ? t('Next invoice ≈ {amount}, due {date}', { amount: fmt.money(x.amount, cur), date: fmt.date(x.date) }) : t('Invoice {amount}, due {date}', { amount: fmt.money(x.amount, cur), date: fmt.date(x.date) })) : a.dueDay ? t('Invoice paid') : t('No due date');
+

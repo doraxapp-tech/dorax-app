@@ -1,6 +1,6 @@
 // QC of deleting an account whose card has two functions (owner, 2026-10-09: "accounts with debit and credit have a bug when deleting: when I create
 // it, it sits in one list, and when I delete it, it moves to the other list and is not deleted"). The account and its card are one: deleting the account
-// deletes its credit ledger and its debit balance with it, from the edit form and from the phone's "Delete account"; nothing is left behind in another list.
+// deletes its credit ledger and its debit balance with it, from the edit form (on a phone, reached from the account's panel); nothing is left behind in another list.
 const { open, ok, eq, done } = require('./pw.js');
 let x;
 
@@ -19,16 +19,19 @@ let x;
   ok((await p.evaluate(() => document.querySelector('#modal-root').innerText)).includes('with its credit and its debit'), 'the confirmation says the card goes with it');
   await p.click('#modal-ok'); await p.waitForTimeout(300);
   eq([await left('Itaú'), await groups()], [[], before], 'deleted: the account and its credit are gone; no card is left in another list');
-  // 2. a savings account whose card has debit and credit, deleted from the phone's "Delete account"
+  // 2. a savings account whose card has debit and credit, deleted on a phone from its panel and its form
   await p.evaluate(() => { A['account-add'](); Object.assign(UI.drawer.draft, { name: 'Inter', institution: 'Inter', type: 'savings', openingText: '500', debitCard: true, spendOpeningText: '50', hasCredit: true, creditLimitText: '800', creditOwedText: '0', creditDue: addDays(S.today, 10) }); A['save-account'](); }); await p.waitForTimeout(200);
   eq((await left('Inter')).sort(), ['Inter', 'Inter (credit)', 'Inter (debit)'], 'a savings account with debit and credit is three ledgers behind one card');
   await browser.close();
   ({ browser, page: p } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await p.evaluate(() => { navigate('accounts'); A['account-add'](); Object.assign(UI.drawer.draft, { name: 'Inter', institution: 'Inter', type: 'savings', openingText: '500', debitCard: true, spendOpeningText: '50', hasCredit: true, creditLimitText: '800', creditOwedText: '0', creditDue: addDays(S.today, 10) }); A['save-account'](); }); await p.waitForTimeout(200);
-  await p.evaluate(() => A['acct-del-pick']()); await p.waitForSelector('.acc-del');
-  eq(await p.evaluate(() => [...document.querySelectorAll('.acc-del button b')].map(b => b.innerText.trim()).filter(n => /Inter/.test(n))), ['Inter'], 'the phone’s list of accounts to delete has the card once, not its credit and debit apart');
-  await p.evaluate(() => document.querySelector('.acc-del button[data-id="' + S.accounts.find(a => a.name === 'Inter').id + '"]').click()); await p.waitForSelector('#modal-ok'); await p.click('#modal-ok'); await p.waitForTimeout(300);
-  eq(await p.evaluate(() => S.accounts.filter(a => /Inter/.test(a.name)).map(a => a.name)), [], 'deleting it takes all three');
+  // since 2026-10-11 a phone deletes an account from its panel: Edit account, then Delete at the foot of its form (the list to pick from is gone)
+  await p.evaluate(() => { A.close(); navigate('accounts'); }); await p.waitForTimeout(200);
+  eq(await p.evaluate(() => [...document.querySelectorAll('#acc-sv .ac-row')].map(r => r.querySelector('.grow b').innerText.trim()).filter(n => /Inter/.test(n))), ['Inter'], 'the phone’s Accounts lists the card once, under the savings, not its credit and debit apart');
+  await p.evaluate(() => document.querySelector('#acc-sv .ac-row[data-id="' + S.accounts.find(a => a.name === 'Inter').id + '"]').click()); await p.waitForSelector('#overlay .cv-acts');
+  await p.evaluate(() => document.querySelector('#overlay .cv-acts [data-v="edit"]').click()); await p.waitForSelector('[data-a="delete-account"]');
+  await p.click('[data-a="delete-account"]'); await p.waitForSelector('#modal-ok'); await p.click('#modal-ok'); await p.waitForTimeout(300);
+  eq(await p.evaluate(() => S.accounts.filter(a => /Inter/.test(a.name)).map(a => a.name)), [], 'deleting it from its form takes all three');
   // 3. a card with transactions on its credit is not deleted
   await p.evaluate(() => { A['account-add'](); Object.assign(UI.drawer.draft, { name: 'C6', institution: 'C6 Bank', type: 'checking', openingText: '0', hasCredit: true, creditLimitText: '500', creditOwedText: '0', creditDue: addDays(S.today, 10) }); A['save-account'](); const cr = S.accounts.find(a => a.name === 'C6 (credit)'); S.transactions.push({ id: 'qa-c6', accountId: cr.id, date: S.today, description: 'X', merchant: 'X', amount: -1000, currency: 'BRL', type: 'expense', categoryId: 'other', subcategoryId: null, status: 'confirmed' }); A['edit-account']({ id: S.accounts.find(a => a.name === 'C6').id }); }); await p.waitForSelector('[data-a="delete-account"]');
   eq(await p.evaluate(() => [document.querySelector('[data-a="delete-account"]').disabled, document.querySelector('[data-a="delete-account"]').dataset.tip]), [true, 'Delete or move its 1 transactions first'], 'a card with a transaction on its credit can’t be deleted yet, and says why');

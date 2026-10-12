@@ -40,8 +40,12 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => A.close());
   // ---------- 4. one card, two functions (owner, 2026-10-09: "why do two cards come out when I register a credit card? … it should be one card with
   // two functions, as in the real world") ----------
-  await page.evaluate(() => { S.user.acctStack = false; navigate('accounts'); }); await page.waitForTimeout(300);
-  eq(await page.evaluate(([c, d]) => { const items = [...document.querySelectorAll('#view .cc-item')], mine = items.filter(i => i.dataset.id === c || i.dataset.id === d);
+  // since 2026-10-11 a phone's Accounts lists rows (features/accounts/accounts.phone.js) and draws a card in its panel; the cards themselves, one per
+  // account with its functions inside it, are checked as a computer's Accounts draws them (walletAccounts), and on the phone through the rows and the panel
+  await page.evaluate(() => { window.__cards = () => { const d = document.createElement('div'); d.innerHTML = walletAccounts(inCompany() ? business() : personal()); return d; }; navigate('accounts'); }); await page.waitForTimeout(300);
+  eq(await page.evaluate(([c, d]) => { const day = document.querySelector(`#acc-day .ac-row[data-id="${d}"]`), cr = document.querySelector(`#acc-cc .ac-row[data-id="${c}"]`); A['card-view']({ id: c, fn: 'credit' }); const r = [!!day, !!cr, UI.drawer.id === d, document.querySelector('#overlay .cv > .ccard .cc-kind').textContent.trim(), UI.drawer.fn]; A.close(); return r; }, [card, deb]),
+    [true, true, true, 'Débito · Crédito', 'credit'], 'a phone: the account under Día a día, its credit under Tarjetas de crédito; the card’s row opens the one card, both functions on it, on its credit');
+  eq(await page.evaluate(([c, d]) => { const items = [...__cards().querySelectorAll('.cc-item')], mine = items.filter(i => i.dataset.id === c || i.dataset.id === d);
       return [mine.length, mine[0] && mine[0].dataset.id === d, mine[0] && mine[0].querySelector('.cc-kind').textContent.trim(), mine[0] && /Factura R\$/.test(mine[0].querySelector('.cc-amt').innerText), items.length === personal().length - 1]; }, [card, deb]),
     [1, true, 'Débito · Crédito', true, true], 'Accounts: the account and its credit are one card, shown as the account, its balance large and the invoice under it, both functions on it');
   await page.evaluate(d => A['edit-account']({ id: d }), deb); await page.waitForSelector('#a-hascredit');
@@ -65,14 +69,14 @@ const { open, ok, eq, done } = require('./pw.js');
     [true, true, true, true], 'a new account: no “Belongs to” (it is the side in use), the currency beside the balance (owner, 2026-10-09)');
   await page.click('label:has(#a-hascredit)'); await page.waitForSelector('#a-climit');      // the switch's label, as a finger taps it
   await page.fill('#a-climit', '2.000'); await page.fill('#a-cowed', '150'); await page.fill('#a-cdue', await page.evaluate(() => addDays(S.today, 10))); await page.tap('[data-a="save-account"]'); await page.waitForTimeout(250);
-  eq(await page.evaluate(n0 => { const m = S.accounts.find(a => a.name === 'Conta Inter'), c = m && cardCredit(m); return [S.accounts.length - n0, !!c && c.type, c && c.debitAccountId === m.id, c && c.creditLimit, c && c.opening, c && c.name, document.querySelectorAll(`#view .cc-item[data-id="${m.id}"]`).length, !document.querySelector(`#view .cc-item[data-id="${c && c.id}"]`)]; }, n0),
+  eq(await page.evaluate(n0 => { const m = S.accounts.find(a => a.name === 'Conta Inter'), c = m && cardCredit(m); return [S.accounts.length - n0, !!c && c.type, c && c.debitAccountId === m.id, c && c.creditLimit, c && c.opening, c && c.name, __cards().querySelectorAll(`.cc-item[data-id="${m.id}"]`).length, !__cards().querySelector(`.cc-item[data-id="${c && c.id}"]`)]; }, n0),
     [2, 'credit', true, 200000, -15000, 'Conta Inter (crédito)', 1, true], 'saved: the account and its credit (linked, its limit and invoice), and one card on screen');
   // ---------- 5. a credit card with no account at its bank: one card too ----------
   await page.evaluate(() => { A['account-add'](); Object.assign(UI.drawer.draft, { name: 'Cartão C6', institution: 'C6 Bank', type: 'credit', openingText: '0', dueDate: addDays(S.today, 10) }); renderOverlay(); }); await page.waitForSelector('#a-limit');
   ok(await page.evaluate(() => !document.querySelector('#a-debit, #a-hascredit')), 'a credit card: its limit and due date, nothing about debit');
   const n1 = await page.evaluate(() => S.accounts.length);
   await page.tap('[data-a="save-account"]'); await page.waitForTimeout(250);
-  eq(await page.evaluate(n1 => { const c = S.accounts.find(a => a.name === 'Cartão C6'); return [S.accounts.length - n1, document.querySelectorAll(`#view .cc-item[data-id="${c.id}"]`).length, document.querySelector(`#view .cc-item[data-id="${c.id}"] .cc-kind`).textContent.trim()]; }, n1),
+  eq(await page.evaluate(n1 => { const c = S.accounts.find(a => a.name === 'Cartão C6'); return [S.accounts.length - n1, __cards().querySelectorAll(`.cc-item[data-id="${c.id}"]`).length, __cards().querySelector(`.cc-item[data-id="${c.id}"] .cc-kind`).textContent.trim()]; }, n1),
     [1, 1, 'Crédito'], 'saved alone: no second account made, one card, credit only');
   const c6 = await page.evaluate(() => S.accounts.find(a => a.name === 'Cartão C6').id);
   await page.evaluate(() => A['new-tx']()); await page.waitForSelector('#d-account'); await page.selectOption('#d-account', c6); await page.waitForTimeout(100);
@@ -80,7 +84,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(c => { const d = S.accounts.find(a => a.name === 'C6 Bank (débito)'); return [!!d && d.type, acct(c).debitAccountId === (d && d.id), UI.drawer.draft.accountId === (d && d.id), /Pon su saldo en Cuentas/.test(document.querySelector('.tx-pay').innerText)]; }, c6),
     ['checking', true, true, true], 'a debit on it the first time: its debit is made at its bank, at zero, linked to the card, and asks for its balance');
   await page.evaluate(() => { A.close(); render(); }); await page.waitForTimeout(200);
-  eq(await page.evaluate(c => { const d = cardDebitAcct(acct(c)), it = [...document.querySelectorAll('#view .cc-item')].filter(i => i.dataset.id === c || i.dataset.id === d.id); return [it.length, it[0].dataset.id === d.id, it[0].querySelector('.cc-kind').textContent.trim()]; }, c6),
+  eq(await page.evaluate(c => { const d = cardDebitAcct(acct(c)), it = [...__cards().querySelectorAll('.cc-item')].filter(i => i.dataset.id === c || i.dataset.id === d.id); return [it.length, it[0].dataset.id === d.id, it[0].querySelector('.cc-kind').textContent.trim()]; }, c6),
     [1, true, 'Débito · Crédito'], 'and it stays one card, now with both functions');
   // ---------- 5b. (owner, 2026-10-09: "if the user picks savings, add 'its card has debit' beside 'its card has credit'… if I have a savings account
   // and record an expense the system takes the money out of my savings: how does it know it was not debit or credit?") ----------
@@ -97,14 +101,14 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(await page.evaluate(() => /solo tiene crédito/.test(document.querySelector('.drawer .body').innerText)), 'credit only: it says an expense in this account goes on the invoice');
   await page.fill('#a-cdue', await page.evaluate(() => addDays(S.today, 10))); await page.fill('#a-cowed', '0'); await page.tap('[data-a="save-account"]'); await page.waitForTimeout(250);
   const sav = await page.evaluate(() => S.accounts.find(a => a.name === 'Poupança BB').id);
-  eq(await page.evaluate(id => [acct(id).debitCard, !!cardCredit(acct(id)), document.querySelector(`#view .cc-item[data-id="${id}"] .cc-kind`).textContent.trim()], sav), [false, true, 'Ahorro · Crédito'], 'saved: its card has credit and no debit, and says so');
+  eq(await page.evaluate(id => [acct(id).debitCard, !!cardCredit(acct(id)), __cards().querySelector(`.cc-item[data-id="${id}"] .cc-kind`).textContent.trim()], sav), [false, true, 'Ahorro · Crédito'], 'saved: its card has credit and no debit, and says so');
   await page.evaluate(() => A['new-tx']()); await page.waitForSelector('#d-account'); await page.selectOption('#d-account', sav); await page.waitForTimeout(150);
   eq(await page.evaluate(() => [!document.querySelector('.tx-paywith'), /Va a la factura de .*Su tarjeta no tiene débito/.test(document.querySelector('.tx-pay').innerText)]), [true, true], 'an expense in it: no choice, it says it goes on the invoice');
   await page.fill('#d-amount', '30'); await page.fill('#d-merchant', 'Livraria'); await page.tap('[data-a="save-tx"]'); await page.waitForTimeout(250);
   eq(await page.evaluate(id => { const x = S.transactions.find(k => k.merchant === 'Livraria'); return [!!x && x.accountId === cardCredit(acct(id)).id, accountBalance(S, id, S.today)]; }, sav), [true, 100000], 'saved on the card’s credit: the savings are untouched');
   await page.evaluate(id => A['edit-account']({ id }), sav); await page.waitForSelector('#a-hasdebit'); await page.click('label:has(#a-hasdebit)'); await page.waitForSelector('#a-sopen');
   await page.fill('#a-sopen', '200'); await page.tap('[data-a="save-account"]'); await page.waitForTimeout(250);
-  eq(await page.evaluate(id => { const sp = cardSpend(acct(id)), it = document.querySelector(`#view .cc-item[data-id="${id}"]`); return [!!sp && sp.type, sp && sp.opening, accountBalance(S, id, S.today), !document.querySelector(`#view .cc-item[data-id="${sp && sp.id}"]`), /SALDO|Saldo/i.test(it.querySelector('.cc-amt small').textContent), it.querySelector('.cc-amt b').textContent.trim(), /Ahorrado R\$ 1\.000,00/.test(it.querySelector('.cc-amt').textContent)]; }, sav),
+  eq(await page.evaluate(id => { const sp = cardSpend(acct(id)), it = __cards().querySelector(`.cc-item[data-id="${id}"]`); return [!!sp && sp.type, sp && sp.opening, accountBalance(S, id, S.today), !__cards().querySelector(`.cc-item[data-id="${sp && sp.id}"]`), /SALDO|Saldo/i.test(it.querySelector('.cc-amt small').textContent), it.querySelector('.cc-amt b').textContent.trim(), /Ahorrado R\$ 1\.000,00/.test(it.querySelector('.cc-amt').textContent)]; }, sav),
     ['checking', 20000, 100000, true, true, 'R$ 200,00', true], 'debit switched on with its balance: kept apart, one card, that balance large and what is saved under it');
   await page.evaluate(() => A['new-tx']()); await page.waitForSelector('#d-account'); await page.selectOption('#d-account', sav); await page.waitForTimeout(150);
   eq(await page.evaluate(() => [...document.querySelectorAll('.tx-paywith button')].map(b => b.innerText.trim() + (b.getAttribute('aria-pressed') === 'true' ? '*' : ''))), ['Crédito', 'Débito*'], 'debit and credit: an expense in the account asks, Débito pressed since the account itself was chosen');

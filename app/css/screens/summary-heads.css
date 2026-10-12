@@ -1,0 +1,18 @@
+/* Dorax Finance — the summary's cards on a phone, their names outside them (features/phone/summary-heads.js; owner, 2026-10-11). The part is a frame
+   with no box; its name sits on the page as the pages' section label (the chip with the lime dot, its (i) in it, look/look-app.css: h2.sec), its way
+   to its page on the right; the box under it holds the rest. */
+@media (max-width: 920px) {
+  #view .card.part-out { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; overflow: visible; }
+  #view .card.part-out > .part-h { padding: 0 0 12px; gap: 6px 8px; flex-wrap: wrap; align-items: center; }
+  #view .card.part-out > .part-h h2.sec { margin: 0; white-space: nowrap; }
+  #view .card.part-out > .part-h h2.sec .hint { margin-left: 2px; }
+  #view .card.part-out > .part-h > .sub { order: 3; flex: 1 0 100%; padding-left: 2px; }      /* a line under the name (To do's total), never squeezing the name */
+  #view .card.part-out > .part-h .part-t { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; flex: 1 1 auto; }
+  #view .card.part-out > .part-h .part-t + .right { margin-left: 0; }
+  #view .card.part-out > .part-h .sub { font-size: 13px; color: var(--ink-2); }
+  #view .card.part-out > .part-h .part-t .sub { padding-left: 2px; }
+  #view .card.part-out > .part-h .right { margin-left: auto; flex: none; }
+  #view .part-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); min-width: 0; }
+  #view .part-box > .card-b:first-child { padding-top: 18px; }
+  #view .part-box > .rw-tap { border-radius: var(--r-card); }
+}

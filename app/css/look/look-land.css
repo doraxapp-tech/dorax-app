@@ -1,0 +1,67 @@
+/* Dorax Finance — the phone's summary in the home page's language (owner, 2026-10-11: "commit el estilo landing solo en resumen para verlo live",
+   after the design "Dorax móvil estilo landing"; before it he asked why the light theme was all white, with almost no contrast).
+   Only there for now: a phone, the light theme, the household's side, the summary. app/shell.js (applyTheme) puts .land on the page's root then;
+   the other pages, the dark theme and the company's side keep their look.
+   What changes on this page:
+     - the page is the home page's sage (#F2F4EE) and its cards stay white with their hairline, so every block stands out on its own, no shadow;
+     - the round buttons at the top, the month and Journey are white on the sage, with a hairline;
+     - "You can spend" is the page's one forest card: its name a chip with lime words, the figure large and white, a lime ring at its corner, and
+       its lime "See" at the foot, as the home page's forest cards (the ring hangs from the top corner, above the figure's row, so a long
+       amount never runs into it, down to 320 px);
+     - the quick things to do are white tiles, each with its circle (the first lime, the others mint), to swipe as before;
+     - the way from a part to its page ("Open plan", "Open goals") is a forest link, not a framed button.
+   Nothing moves and nothing goes: the parts, their order and what each tap does are the same. */
+@media (max-width: 920px) {
+  /* ---------- the page: sage, as the home page ---------- */
+  html.app-light.in-app.land, html.app-light.in-app.land body { background: #F2F4EE; }
+  :root.land .work { --bg: #F2F4EE; --glass: rgba(242, 244, 238, .92); background: #F2F4EE; }
+  :root.land .navbar { background: rgba(242, 244, 238, .92); }
+
+  /* ---------- the round buttons at the top: white on the sage ---------- */
+  :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { background: #FFFFFF; border-color: #E1E5DC; color: #0E0F0C; }
+  :root.land .navbar .bell .count { background: #9FD182; color: #163300; box-shadow: 0 0 0 2px #F2F4EE; }
+
+  /* ---------- the net balance ---------- */
+  :root.land .bar-bal .bb-link small { color: #454745; font-weight: 500; }
+  :root.land .bar-bal .bb-link b { font-weight: 600; letter-spacing: -.045em; }
+
+  /* ---------- the month and Journey: white pills ---------- */
+  :root.land .pagehead .month.m-ph { background: #FFFFFF; border-color: #E1E5DC; }
+  :root.land .jr-btn { background: #FFFFFF; border-color: #E1E5DC; }
+  :root.land .jr-btn svg { color: #163300; }
+
+  /* ---------- a part's way to its page: a forest link ---------- */
+  :root.land #view .card.part-out > .part-h .btn.sm.go { min-height: 44px; padding: 0 2px 0 8px; border: 0; border-radius: 999px; background: none; box-shadow: none; color: #163300; font-size: 14px; font-weight: 600; }
+  :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: #163300; }
+
+  /* ---------- the notice about the month that closed: round as the cards ---------- */
+  :root.land #view .mc-ask { border-radius: 24px; }
+
+  /* ---------- "You can spend": the forest card ---------- */
+  :root.land #view #free-card.part-out {
+    position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px 22px 22px; border-radius: 28px; color: #FFFFFF;
+    background: #163300 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Ccircle cx='110' cy='110' r='90' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='2'/%3E%3Ccircle cx='110' cy='110' r='70' fill='none' stroke='%239FD182' stroke-width='10' stroke-linecap='round' stroke-dasharray='300 440' transform='rotate(-20 110 110)'/%3E%3C/svg%3E") no-repeat right -78px top -112px / 220px 220px;
+  }
+  /* its name on top, the figure, and its "See" at the foot: the head's two halves join the card's own column */
+  :root.land #view #free-card.part-out > .part-h { display: contents; }
+  :root.land #view #free-card .part-h .part-t { order: 0; }
+  :root.land #view #free-card.part-out > .part-box { order: 1; align-self: stretch; background: none; border: 0; border-radius: 0; }
+  :root.land #view #free-card .part-h .right { order: 2; margin: 0; }
+  :root.land #view #free-card h2.sec { background: rgba(255, 255, 255, .06); box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); color: #9FD182; }
+  :root.land #view #free-card .rw-tap { width: calc(100% + 12px); margin: -6px; padding: 6px; gap: 12px; border-radius: 16px; color: #FFFFFF; }
+  :root.land #view #free-card .rw-tap:active { background: rgba(255, 255, 255, .06); }
+  :root.land #view #free-card .rw-tap:focus-visible { outline-color: #9FD182; }
+  :root.land #view #free-card .fu-big { color: #C9D2C0; font-size: 18px; }
+  :root.land #view #free-card .fu-n { color: #FFFFFF; font-size: 52px; letter-spacing: -.045em; }
+  :root.land #view #free-card .fu-say { max-width: 290px; color: #C9D2C0; }
+  :root.land #view #free-card .part-h .btn.sm.go { min-height: 44px; padding: 0 16px 0 20px; border: 0; border-radius: 999px; background: #9FD182; color: #163300; font-size: 14px; font-weight: 600; }
+  :root.land #view #free-card .part-h .btn.sm.go svg { color: #163300; }
+  :root.land #view #free-card .part-h .btn.sm.go:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+
+  /* ---------- the quick things to do: white tiles, to swipe ---------- */
+  :root.land .quick-row { gap: 10px; padding: 2px 16px 4px; }
+  :root.land .quick-row button { flex: 0 0 calc((100% - 30px) / 3.3); justify-content: flex-start; gap: 8px; min-height: 104px; padding: 14px 8px 12px; border: 1px solid #E1E5DC; border-radius: 22px; background: #FFFFFF; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.25; }
+  :root.land .quick-row .fl-ico { width: 40px; height: 40px; border-color: #E2F6D5; background: #E2F6D5; color: #163300; }
+  :root.land .quick-row button:first-child .fl-ico { border-color: #9FD182; background: #9FD182; }
+  :root.land .quick-row .fl-ico svg { width: 19px; height: 19px; }
+}

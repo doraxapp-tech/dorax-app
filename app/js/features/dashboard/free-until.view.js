@@ -54,6 +54,9 @@ const fuDetails = r => `${fuBar(r)}<h3 class="fu-h">${t('How we worked it out')}
 function freeCard() {
   if (inCompany()) return '';
   const r = freeUntil(S, S.today, CUR); if (!r) return '';
+  // a phone's summary shows the card only while there is something free to spend (owner, 2026-10-11: "remove 'Not enough money' from the summary on
+  // the phone"): short of money, it says so in the bell, with the same steps (features/reminders/issues.view.js), and the card steps out
+  if (isPhone() && !fuOk(r)) return '';
   if (isPhone()) return `<section class="card rw-ph fu" id="free-card"><button class="rw-tap" id="free-open" data-a="free-view" aria-haspopup="dialog">
       <span class="rw-h"><b>${fuTitle(r)}</b><span class="rw-see">${t('See')}${icon('right')}</span></span>
       ${fuBig(r)}<span class="fu-say">${fuSay(r)}</span></button></section>`;

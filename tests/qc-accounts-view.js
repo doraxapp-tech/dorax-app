@@ -1,50 +1,44 @@
-// QC of the two views of a phone's Accounts (owner, 2026-10-08: "on the phone, in Accounts, make a button to change the cards' view from all of them
-// to grouped one on top of another, as we had in the summary tab; the user chooses").
-//   1. two icons beside the side's name: every card (the default) or stacked; the one in use is pressed;
-//   2. stacked: every account of the side, each card's top strip above the next, the last one whole; the cards slide to their places;
-//   3. a tap on a card opens it, large, with its details and what can be done with it; closing it, the focus returns to that card;
-//   4. the choice is kept with the person's settings; back to every card; a computer has no switch; Portuguese;
-//   5. (owner, same day: "add the tap action on the cards in the summary tab: when the user taps a card a menu opens with details and actions")
+// QC of a phone's Accounts and the panel of an account.
+//   1. (owner, 2026-10-11: "do what you propose") one button, then the accounts as rows by kind under their totals (day to day, credit cards, savings)
+//      and how long the savings last; no view switch and no delete button any more (an account is deleted from its form); a computer keeps its cards;
+//   2. a tap on a row opens the account's panel, the card large with its details and what can be done with it; closing it, the focus returns to the row;
+//   5. (owner, 2026-10-08: "add the tap action on the cards in the summary tab: when the user taps a card a menu opens with details and actions")
 //      a tap on a card of the summary opens the same panel: the card, its details, and an expense or an income in it, its transactions, its form;
 //      an expense starts in that account; a credit card has no income; its transactions open with the panel closed;
 //   6. (owner, same day: "the eye toggle on the phone has a bug, the figure hides and gets lost") hidden, the balance is still a whole line of dots;
-//   7. (owner, same day: "add on the phone in Accounts two buttons, 'add account' and 'delete account'") add opens the account form; delete asks which
-//      account; one with transactions is there but cannot be chosen (they go first, as on its form); one without is deleted after a confirmation.
+//   7. "Add account" opens the account form; an account is deleted from its form (Edit account, at its foot), after a confirmation; one with
+//      transactions cannot be deleted until they are moved or deleted.
 const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
   let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => navigate('accounts')); await page.waitForTimeout(700);
-  eq(await page.evaluate(() => { const v = document.querySelector('.acc-head .acc-view'), bs = [...v.querySelectorAll('button')]; return [!!document.querySelector('.acc-head h2.sec'), v.getAttribute('aria-label'), bs.map(b => [b.dataset.v, b.getAttribute('aria-label'), b.getAttribute('aria-pressed')]), bs.every(b => b.getBoundingClientRect().height >= 40 && b.getBoundingClientRect().width >= 44), document.querySelectorAll('.cc-grid .cc-item').length === cardsOf(personal()).length, !document.querySelector('.acc-stack')]; }),
-    [true, 'Vista de las tarjetas', [['all', 'Todas las tarjetas', 'true'], ['stack', 'Apiladas', 'false']], true, true, true], 'two icons beside the side’s name; every card to start with');
-  await page.evaluate(() => { window.__an = []; const o = Element.prototype.animate; Element.prototype.animate = function (k, x) { window.__an.push(this.className); return o.call(this, k, x); }; });
-  await page.click('.acc-view [data-v="stack"]');
-  // since v122 the accounts and the savings are two stacks, one under each heading (tests/qc-savings-accounts.js)
-  eq(await page.evaluate(() => { const cs = [...document.querySelectorAll(".acc-stack .w-card")], all = cardsOf(personal()), order = [...all.filter(a => a.type !== 'savings'), ...all.filter(a => a.type === 'savings')]; return [S.user.acctStack, cs.map(c => c.dataset.id).join() === order.map(a => a.id).join(), [...document.querySelectorAll('.acc-stack')].every(st => { const r = [...st.querySelectorAll('.w-card')].map(c => c.offsetTop); return r.every((x, i) => !i || x - r[i - 1] === 40); }), !document.querySelector('.cc-grid'), document.querySelector('.acc-view [data-v="stack"]').getAttribute('aria-pressed'), window.__an.filter(c => c === 'w-card').length > 0]; }),
-    [true, true, true, true, 'true', true], 'stacked: every account, the accounts then the savings, each card 40 px below the one before in its stack, the last whole; the cards slide to their places');
-  await page.click('.acc-stack .w-card:nth-child(2)', { position: { x: 120, y: 18 } }); await page.waitForSelector('.drawer .cv, .sheet .cv');
-  eq(await page.evaluate(() => [UI.drawer.kind, UI.drawer.id === cardsOf(personal())[1].id, !!document.querySelector('#overlay .cv .ccard'), !!document.querySelector('#overlay .cv .cv-ops')]), ['card-view', true, true, true], 'a tap on a card opens it, large, with its details and its transactions a tap away');
+  // ---------- 1. the page ----------
+  eq(await page.evaluate(() => { const v = document.querySelector('#view'); return [!!v.querySelector('.acc-ph-acts'), ['#acc-day', '#acc-cc', '#acc-sv', '#acc-cover'].map(q => !!v.querySelector(q)), [...v.querySelectorAll('.acc-grp h2')].map(h => h.innerText.trim()), !v.querySelector('.acc-view, .acc-stack, .cc-grid, [data-a="acct-del-pick"]'), document.documentElement.scrollWidth - innerWidth]; }),
+    [true, [true, true, true, true], ['Día a día', 'Tarjetas de crédito', 'Tus ahorros'], true, 0], 'one button, then Día a día, Tarjetas de crédito and Tus ahorros as rows, then how long the savings last; no view switch, no stack, no delete button; nothing wider than the phone');
+  eq(await page.evaluate(() => [...document.querySelectorAll('.acc-grp .ac-row')].every(r => r.getBoundingClientRect().height >= 56 && !!r.querySelector('.inst') && !!r.querySelector('.grow b') && !!r.querySelector('.num') && r.querySelector('.num').getBoundingClientRect().right <= innerWidth - 16)), true, 'each row: the bank’s mark, the name, what it holds, a thumb high, inside the screen');
+  // ---------- 2. a row opens its panel ----------
+  const second = await page.evaluate(() => document.querySelectorAll('.acc-grp .ac-row')[1].dataset.id);
+  await page.tap(`.acc-grp .ac-row[data-id="${second}"]`); await page.waitForSelector('.drawer .cv, .sheet .cv');
+  eq(await page.evaluate(id => [UI.drawer.kind, UI.drawer.id === cardMain(acct(id)).id, !!document.querySelector('#overlay .cv .ccard'), !!document.querySelector('#overlay .cv .cv-ops')], second), ['card-view', true, true, true], 'a tap on a row opens its panel, the card large, its details and its transactions');
   await page.keyboard.press('Escape'); await page.waitForTimeout(400);
-  eq(await page.evaluate(() => document.activeElement.dataset.id === cardsOf(personal())[1].id), true, 'closed: the focus is back on that card');
-  await page.evaluate(() => { navigate('dashboard'); navigate('accounts'); });
-  ok(await page.evaluate(() => !!document.querySelector('.acc-stack')), 'the choice is kept');
-  await page.click('.acc-view [data-v="all"]');
-  eq(await page.evaluate(() => [S.user.acctStack, !!document.querySelector('.cc-grid'), !document.querySelector('.acc-stack')]), [false, true, true], 'and back to every card');
-  // ---------- 7. add and delete ----------
-  eq(await page.evaluate(() => [...document.querySelectorAll('.acc-acts .btn')].map(b => [b.dataset.a, b.innerText.trim(), b.getBoundingClientRect().height >= 44])), [['account-add', 'Agregar cuenta', true], ['acct-del-pick', 'Eliminar cuenta', true]], 'two buttons on top of Accounts: Agregar cuenta and Eliminar cuenta, a thumb high');
-  await page.tap('.acc-acts [data-a="account-add"]'); await page.waitForTimeout(300);
+  eq(await page.evaluate(() => document.activeElement.dataset.id), second, 'closed: the focus is back on that row');
+  // ---------- 7. add, and delete from the account's form ----------
+  eq(await page.evaluate(() => [...document.querySelectorAll('.acc-ph-acts .btn')].map(b => [b.dataset.a, b.innerText.trim(), b.getBoundingClientRect().height >= 44])), [['account-add', 'Agregar cuenta', true]], 'one button on top of Accounts: Agregar cuenta, a thumb high');
+  await page.tap('.acc-ph-acts [data-a="account-add"]'); await page.waitForTimeout(300);
   eq(await page.evaluate(() => [UI.drawer && UI.drawer.kind, UI.drawer && UI.drawer.isNew, UI.drawer && UI.drawer.draft.scope]), ['account', true, 'personal'], 'Agregar cuenta opens the form for a new account of the household');
   eq(await page.evaluate(() => { const o = [...document.querySelectorAll('#a-inst option')].map(x => x.textContent), banks = o.slice(0, -1); return [banks.join() === banks.slice().sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' })).join(), o[o.length - 1], document.querySelector('#a-inst').value]; }), [true, 'Otra', 'Nubank'], 'the banks are A to Z, Otra last, and a new account still starts on Nubank (owner, 2026-10-09)');
   await page.evaluate(() => { A.close(); S.accounts.push({ id: 'qa-empty', name: 'Conta PicPay', institution: 'PicPay', type: 'checking', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 }); render(); }); await page.waitForTimeout(200);
-  await page.tap('.acc-acts [data-a="acct-del-pick"]'); await page.waitForSelector('.sheet .acc-del');
-  eq(await page.evaluate(() => { const bs = [...document.querySelectorAll('.sheet .acc-del button')]; return [document.querySelector('.sheet h2').innerText, bs.length === cardsOf(personal()).length, bs.filter(b => b.getAttribute('aria-disabled') === 'true').map(b => b.dataset.id).join() === cardsOf(personal()).filter(a => cardTxCount(a)).map(a => a.id).join(), bs.find(b => b.dataset.id === 'qa-empty').getAttribute('aria-disabled'), bs[0].innerText.includes(cardTxCount(acct(bs[0].dataset.id)) + ' transacciones')]; }),
-    ['¿Qué cuenta quieres eliminar?', true, true, null, true], 'Eliminar cuenta asks which: every card once (its credit and debit inside it, owner 2026-10-09); one with transactions is there, says how many go first (on any part of the card), and cannot be chosen');
-  await page.waitForTimeout(350); await page.tap('.sheet .acc-del button[aria-disabled="true"]', { force: true }); await page.waitForTimeout(200);      // the sheet has come up
-  eq(await page.evaluate(() => [UI.sheet, !document.querySelector('.modal'), S.accounts.length]), ['acct-del', true, await page.evaluate(() => S.accounts.length)], 'a tap on one with transactions does nothing');
-  await page.tap('.sheet .acc-del [data-id="qa-empty"]'); await page.waitForSelector('.modal');
-  ok(await page.evaluate(() => /Conta PicPay/.test(document.querySelector('.modal').innerText) && !!acct('qa-empty')), 'one without transactions asks first');
+  await page.tap('.acc-grp .ac-row[data-id="nu-conta"]'); await page.waitForSelector('#overlay .cv-acts');
+  await page.tap('#overlay .cv-acts [data-v="edit"]'); await page.waitForSelector('[data-a="delete-account"]');
+  eq(await page.evaluate(() => [document.querySelector('[data-a="delete-account"]').disabled, /\d/.test(document.querySelector('[data-a="delete-account"]').dataset.tip || '')]), [true, true], 'an account with transactions: its form’s delete is off, and says how many go first');
+  await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+  await page.tap('.acc-grp .ac-row[data-id="qa-empty"]'); await page.waitForSelector('#overlay .cv-acts');
+  await page.tap('#overlay .cv-acts [data-v="edit"]'); await page.waitForSelector('[data-a="delete-account"]');
+  await page.tap('[data-a="delete-account"]'); await page.waitForSelector('.modal');
+  ok(await page.evaluate(() => /Conta PicPay/.test(document.querySelector('.modal').innerText) && !!acct('qa-empty')), 'one without transactions: its panel, Edit account, Delete, and it asks first');
   await page.click('#modal-ok'); await page.waitForTimeout(300);
-  eq(await page.evaluate(() => [!acct('qa-empty'), !document.querySelector('.acc-stack [data-id="qa-empty"], .cc-item[data-id="qa-empty"]')]), [true, true], 'and is deleted once confirmed');
+  eq(await page.evaluate(() => [!acct('qa-empty'), !document.querySelector('.ac-row[data-id="qa-empty"]')]), [true, true], 'and is deleted once confirmed, its row gone');
   // ---------- 5. the summary's cards ----------
   await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(500);
   const first = await page.evaluate(() => walletChosen()[0].id);
@@ -76,9 +70,6 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(id => { A.close(); A['card-tx']({ id }); }, first); await page.waitForSelector('#overlay .cv-ops');
   await page.tap('#overlay .op-head .linkbtn'); await page.waitForTimeout(500);
   eq(await page.evaluate(id => [UI.route, UI.tx.account === id, !UI.drawer], first), ['transactions', true, true], '"View all" opens the Transactions screen on that account, the panel closed');
-  await page.evaluate(() => { S.user.acctStack = false; navigate('accounts'); }); await page.waitForTimeout(500);
-  await page.tap(`.cc-item[data-id="${first}"] .cc-meta [data-a="card-tx"]`); await page.waitForSelector('#overlay .cv-ops');
-  eq(await page.evaluate(id => [UI.route, UI.drawer.id === id, !!document.activeElement.closest('.cv-ops')], first), ['accounts', true, true], '"View transactions" under a card in Accounts opens its panel at its transactions');
   await page.evaluate(() => { A.close(); S.transactions = S.transactions.filter(x => x.id !== 'qa-today'); render(); }); await page.waitForTimeout(300);
   // ---------- 6. the eye ----------
   await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(500);
@@ -89,16 +80,18 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 9. (owner, 2026-10-08: "lower the brightness of the cards of the classic style, e.g. the red one to #ec00007d, and follow the same pattern
   // for the others; remove the other style of cards") ----------
   await page.evaluate(() => { A.close(); navigate('accounts'); }); await page.waitForTimeout(400);
-  eq(await page.evaluate(() => { const cs = [...document.querySelectorAll('#view .ccard')], mid = c => { const m = getComputedStyle(c).backgroundImage.match(/color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)\) 42%/) || getComputedStyle(c).backgroundImage.match(/rgb\((\d+), (\d+), (\d+)\) 42%/); return m ? m.slice(1, 4).map(Number).map(v => v > 1 ? v / 255 : v) : null; };
-      return [!document.querySelector('.acc-style, .cs-seg, .ccard.glow'), cs.length > 0 && cs.every(c => { const want = [1, 3, 5].map(i => parseInt(c.style.getPropertyValue('--cc').slice(i, i + 2), 16) / 255 * .49), got = mid(c); return got && got.every((v, i) => Math.abs(v - want[i]) < .01); }),
-        cs.every(c => getComputedStyle(c).color === 'rgb(255, 255, 255)' && getComputedStyle(c.querySelector('.cc-amt b')).color === 'rgb(255, 255, 255)')]; }),
+  // since 2026-10-11 a phone's Accounts draws each card in its panel: every account's card, one panel after the other
+  eq(await page.evaluate(() => { const mid = c => { const m = getComputedStyle(c).backgroundImage.match(/color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)\) 42%/) || getComputedStyle(c).backgroundImage.match(/rgb\((\d+), (\d+), (\d+)\) 42%/); return m ? m.slice(1, 4).map(Number).map(v => v > 1 ? v / 255 : v) : null; };
+      const each = cardsOf(personal()).map(a => { A.close(); A['card-view']({ id: a.id }); const c = document.querySelector('#overlay .cv > .ccard'), want = [1, 3, 5].map(i => parseInt(c.style.getPropertyValue('--cc').slice(i, i + 2), 16) / 255 * .49), got = mid(c);
+        return [!!got && got.every((v, i) => Math.abs(v - want[i]) < .01), getComputedStyle(c).color === 'rgb(255, 255, 255)' && getComputedStyle(c.querySelector('.cc-amt b')).color === 'rgb(255, 255, 255)']; }); A.close();
+      return [!document.querySelector('.acc-style, .cs-seg, .ccard.glow'), each.length > 0 && each.every(x => x[0]), each.every(x => x[1])]; }),
     [true, true, true], 'one style of card: the bank’s colour at 49 % over black (Santander’s red is #EC00007D on the black page), white words on every card; no choice of style');
-  eq(await page.evaluate(() => { const c = [...document.querySelectorAll('#view .ccard')].find(x => x.style.getPropertyValue('--cc') === '#EC0000'); if (!c) return 'no red card'; const m = getComputedStyle(c).backgroundImage.match(/color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)\) 42%/); return m && m.slice(1, 4).map(v => Math.round(v * 255)).join(); }),
+  eq(await page.evaluate(() => { const red = cardsOf(personal()).find(a => (BANK_MARKS[a.institution] || {}).bg === '#EC0000'); if (!red) return 'no red card'; A.close(); A['card-view']({ id: red.id }); const c = document.querySelector('#overlay .cv > .ccard'); const m = getComputedStyle(c).backgroundImage.match(/color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)\) 42%/); return m && m.slice(1, 4).map(v => Math.round(v * 255)).join(); }),
     '116,0,0', 'the red card: #EC0000 at 7D (49 %) over black is #740000');
   eq(errors, [], 'no error in the console'); await browser.close();
   ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 860 } }));
   await page.evaluate(() => navigate('accounts'));
-  eq(await page.evaluate(() => [!document.querySelector('.acc-view'), acctViewSwitch().includes('Empilhados')]), [true, true], 'a computer has no switch; Portuguese');
+  eq(await page.evaluate(() => [!document.querySelector('.acc-view, .acc-ph-acts, .acc-grp'), document.querySelectorAll('.cc-grid .cc-item').length === cardsOf(personal()).length]), [true, true], 'a computer keeps its cards (no rows, no switch); Portuguese');
   ok(await page.evaluate(() => !document.querySelector('.acc-style, .ccard.glow')), 'a computer has the one style too');
   // the opened account's actions on a computer (owner, 2026-10-09: "there is room to put them side by side, make them smaller; they all weigh the
   // same, I can't tell the main action; they don't look like buttons"): one row of the app's own buttons, recording an expense filled, editing quiet

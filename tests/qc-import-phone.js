@@ -33,7 +33,7 @@ const phone = (w = 390, h = 844, more = {}) => ({ lang: 'en', account: 'example'
   ({ browser, page, errors } = await open(phone(390, 844, { tours: false })));
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); A.sheet(); });
   eq(await page.evaluate(() => [[...document.querySelectorAll('.sheet .mr-nav a')].some(a => a.getAttribute('href') === '#imports'), !/Imports/.test((document.querySelector('#sheet-desk') || {}).innerText || '')]), [true, true], 'More lists Imports with the money; it is no longer “on the computer”');
-  await page.evaluate(() => { A.close(); A.quick(); }); ok(await page.evaluate(() => !!document.querySelector('.sheet.quick [data-v="import"]')), 'the round + offers “Import a statement”');
+  await page.evaluate(() => { A.close(); navigate('dashboard'); }); ok(await page.evaluate(() => !!document.querySelector('.quick-row [data-v="import"]')), 'the summary’s round buttons offer “Import a statement” (the + keeps only three since 2026-10-11)');
   await page.evaluate(() => { A.close(); setMain(acct('nu-conta'), true); S.transactions = S.transactions.filter(x => x.date < '2026-10-01'); navigate('imports'); });
   eq(await page.evaluate(() => [!!document.querySelector('#imp-start .ip-pick'), document.querySelector('#imp-file-m').accept.includes('.ofx'), document.querySelector('#imp-dest').value, document.querySelectorAll('#view table').length, !!document.querySelector('.ip-hist li')]), [true, true, 'nu-conta', 0, true], 'the screen: one button, OFX and CSV, the main account chosen above it, no table, the latest imports');
   await page.selectOption('#imp-dest', 'nu-conta');

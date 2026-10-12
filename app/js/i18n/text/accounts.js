@@ -96,4 +96,5 @@ addTexts([
   ["Invoice paid","Factura pagada","Fatura paga"],
   ["No due date","Sin fecha de vencimiento","Sem data de vencimento"],
   ["{pct} of the limit used","{pct} del límite usado","{pct} do limite usado"],
+  ["Day to day", "Día a día", "Dia a dia"],
 ]);

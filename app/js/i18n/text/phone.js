@@ -70,7 +70,4 @@ addTexts([
   ["Preferences","Preferencias","Preferências"],
   ["Cost", "Costo", "Custo"],
   ["Record", "Registrar", "Registrar"],
-  ["In {screen}", "En {screen}", "Em {screen}"],
-  ["All actions", "Todas las acciones", "Todas as ações"],
-  ["Fewer actions", "Menos acciones", "Menos ações"],
 ]);

@@ -310,7 +310,7 @@ let LIVE = null;
   await page.click('#overlay [data-a="contact-send"]'); await page.waitForSelector('#contact-done');
   ok(/Message sent/.test(await txt('#contact-done')), 'contact: sent'); eq(await page.locator('#overlay .proto, #overlay .chip.warn').count(), 0, 'contact: no prototype box');
   d = await db(); eq(d.contact.map(m => [m.email, m.topic, m.message, m.lang, !!m.user_id]), [['ana.g@example.org', 'question', 'Olá, tenho uma dúvida sobre o plano.', 'en', true]], 'the message is on the server, with who wrote it');
-  await page.click('[data-a="close"]'); await logout(); await page.click('.lp-foot [data-v="contact"], footer [data-v="contact"]');
+  await page.click('[data-a="close"]'); await logout(); await page.click('.l2-foot [data-v="contact"], footer [data-v="contact"]');
   await page.fill('#ct-email', 'visitor@example.org'); await page.selectOption('#ct-topic', 'data'); await page.fill('#ct-message', 'Quero apagar os meus dados, por favor.'); await page.click('[data-a="contact-send"]'); await page.waitForSelector('#contact-done');
   d = await db(); eq([d.contact.length, d.contact[1].email, d.contact[1].topic, d.contact[1].user_id], [2, 'visitor@example.org', 'data', null], 'contact before login: sent without an account');
 

@@ -109,6 +109,11 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [!!document.querySelector('.sheet'), document.querySelector('#toast').innerText.trim()]), [false, 'Every bill of the month is paid.'], 'every bill paid: Pay bills says so, and opens no empty list');
   await page.evaluate(() => { planProgress = window.__real; render(); });
 
+  // a new fixed cost from Plan itself (owner, 2026-10-11, once the round + kept only three): a button the whole width at the foot of the list
+  await page.evaluate(() => { A.close(); navigate('plan'); });
+  eq(await page.evaluate(() => { const b = document.querySelector('#paylist .pl-new .btn'), r = b.getBoundingClientRect(), list = document.querySelector('#paylist .pl-list').getBoundingClientRect(); return [b.innerText.trim(), r.top >= list.bottom - 1, r.height >= 44, Math.round(r.width) >= Math.round(list.width) - 34]; }),
+    ['New fixed cost', true, true, true], 'Plan: “New fixed cost” at the foot of the list, the whole width, a thumb high');
+  await page.click('#paylist .pl-new .btn'); eq(await page.evaluate(() => UI.drawer && ['line-form', 'plan-guide'].includes(UI.drawer.kind)), true, 'and it opens a new fixed cost'); await page.evaluate(() => A.close());
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 
   // ---------- 4. a computer ----------

@@ -2,8 +2,9 @@
 // appears it has a button to add an account. Also add the option to quick access").
 //   1. every message that asks for an account carries the button, and the button opens the account form for the side in use;
 //   2. the screens that are empty without an account (Accounts, the converter, Imports) show the same button;
-//   3. the quick things to do (the phone's round + and the dashboard's row) have "Add an account": first while there is none, last once there is one,
-//      and not twice on Accounts; on the company's side it is a company account in the page's currency;
+//   3. the dashboard's row of quick things to do has "Add an account": first while there is none, last once there is one; on the company's side it
+//      is a company account in the page's currency. The round + offers only an expense, an income and a transfer (owner, 2026-10-11), and with no
+//      account its expense asks for one, with the button;
 //   4. Spanish and Portuguese on the narrowest phone, a thumb-sized button in the message.
 const { open, ok, eq, done } = require('./pw.js');
 
@@ -54,21 +55,21 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 3. the quick things to do, on a phone ----------
   ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   const row = () => page.evaluate(() => [...document.querySelectorAll('.quick-row button')].map(b => b.dataset.v));
-  // v149: the list is this screen's, then "All actions" unfolded (the three always there sit apart, at its foot)
-  const sheet = async () => { await page.click('#tabbar .fab'); if (await page.locator('.quick-all').count()) await page.click('.quick-all'); const r = await page.evaluate(() => [...document.querySelectorAll('.quick-grid')].flatMap((g, i, all) => [...g.querySelectorAll('button')].map(b => [b.dataset.v, b.innerText.trim(), b.classList.contains('wide'), i === all.length - 1 ? g.children.length : 0]))); await page.evaluate(() => A.close()); return r; };
+  // v167 (owner, 2026-10-11: "leave only three: expense, income, transfer"): the round +'s list is those three, on every screen
+  const sheet = async () => { await page.click('#tabbar .fab'); const r = await page.evaluate(() => [...document.querySelectorAll('.sheet.quick button[data-v]')].map(b => b.dataset.v)); await page.evaluate(() => A.close()); return r; };
   eq((await row()).slice(-1), ['account'], 'with accounts, “Add an account” is the last round button of the dashboard’s row');
-  const withAcc = await sheet();
-  eq([withAcc[withAcc.length - 1].slice(0, 2), withAcc[withAcc.length - 1][3] % 2 === 0 || withAcc[withAcc.length - 1][2]], [['account', 'Add account'], true], 'and the last of the round +’s list; never alone in half a row');
+  eq(await sheet(), ['expense', 'income', 'transfer'], 'the round + offers only the three: adding an account is not one of them');
   await page.evaluate(noAccounts);
   eq((await row())[0], 'account', 'with no account it is the first round button: everything else needs one');
-  eq((await sheet())[0].slice(0, 2), ['account', 'Add account'], 'and the first of the round +’s list');
+  eq(await sheet(), ['expense', 'income', 'transfer'], 'the round + still offers the three');
+  await page.click('#tabbar .fab'); await page.click('.sheet.quick [data-v="expense"]');
+  eq([await toast(page), await page.evaluate(() => !!UI.drawer)], [['Add an account first.', 'account-add', 'Add account'], false], 'and its “Expense” with no account: the message and its button to add one, no empty panel');
   await page.click('.quick-row [data-v="account"]'); eq((await form(page)).slice(0, 3), [true, 'personal', 'BRL'], 'it opens a new household account'); await page.evaluate(() => A.close());
   await page.click('.quick-row [data-v="expense"]');
   eq([await toast(page), await page.evaluate(() => !!UI.drawer)], [['Add an account first.', 'account-add', 'Add account'], false], '“Record an expense” with no account: the message and its button, no empty panel');
   ok(await page.evaluate(() => { const b = document.querySelector('#toast button').getBoundingClientRect(); return b.height >= 44 && b.right <= innerWidth && b.left >= 0; }), 'on a phone the message’s button is a thumb high');
   await page.evaluate(() => navigate('accounts'));
-  const onAccounts = await sheet();
-  eq([onAccounts.filter(x => /account/i.test(x[1])).length, onAccounts[0].slice(0, 2), onAccounts[0][2]], [1, ['main', 'Add account'], true], 'on Accounts the screen’s own “Add account” is the one: not offered twice');
+  eq(await sheet(), ['expense', 'income', 'transfer'], 'on Accounts the + offers the same three (adding an account: the dashboard’s row)');
   eq(errors, [], 'phone, household: no error in the console'); await browser.close();
   // the company's side: a company account, in the page's currency
   ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));

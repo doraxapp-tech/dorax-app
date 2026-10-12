@@ -8,7 +8,7 @@
 //      logo, its name and how much it has saved; add the savings' totals"): the savings one by one and their total, how long they last, what the side
 //      has and owes adding up to its net balance, and each card's invoice; under 1180px the column goes below the cards;
 //   4. a side with no savings account says so and offers to add one, set to savings;
-//   5. a phone: the accounts, then the savings; every card or stacked (the stack with the savings as rows under it);
+//   5. a phone (since 2026-10-11, features/accounts/accounts.phone.js): the accounts as rows, the savings under “Your savings” with their total;
 //   6. Goals no longer shows where the money is: it says the money is in the savings accounts and leads there; its figures are "set aside", and the
 //      dashboard's card is "Goals".
 const { open, ok, eq, done } = require('./pw.js');
@@ -63,13 +63,10 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 5. a phone ----------
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
-  await page.evaluate(() => { S.user.greeted = true; S.user.acctStack = false; navigate('accounts'); }); await page.waitForSelector('.sv-group');
-  eq(await page.evaluate(() => [document.querySelector('.acc-head h2').textContent.trim(), [...document.querySelectorAll('#view > .cc-grid .cc-item, .content > .cc-grid .cc-item')].map(i => acct(i.dataset.id).type).filter(x => x === 'savings').length, [...document.querySelectorAll('.sv-group .cc-item')].map(i => acct(i.dataset.id).name), document.querySelector('#cc-h-savings').textContent.trim(), document.querySelectorAll('.sv-split').length, !document.querySelector('.acc-side')]),
-    ['Cuentas', 0, ['Mercado Pago', 'Santander'], 'Tus ahorros', 0, true], 'a phone: the accounts, then “Tus ahorros” with each savings card (no split, no column on the right)');
+  await page.evaluate(() => { S.user.greeted = true; navigate('accounts'); }); await page.waitForSelector('#acc-sv');
+  eq(await page.evaluate(() => [document.querySelector('#acc-sv h2').textContent.trim(), [...document.querySelectorAll('#acc-sv .ac-row')].map(r => acct(r.dataset.id).name), document.querySelector('#acc-sv .acc-grp-total').innerText.trim(), [...document.querySelectorAll('#acc-day .ac-row, #acc-cc .ac-row')].filter(r => acct(r.dataset.id).type === 'savings').length, document.querySelectorAll('.sv-split').length, !document.querySelector('.acc-side'), /En metas|Libre R\$/.test(document.querySelector('#view').innerText)]),
+    ['Tus ahorros', ['Mercado Pago', 'Santander'], 'R$ 16.800,00', 0, 0, true, false], 'a phone: the accounts as rows, then “Tus ahorros” with each savings account and their total (no split, no column on the right)');
   eq(await page.evaluate(() => [...document.querySelectorAll('.tabbar a, #tabbar a, #tabbar button')].map(b => b.innerText.trim()).filter(x => /Metas|Ahorros/.test(x))), ['Metas'], 'the phone’s bar says Metas');
-  await page.evaluate(() => A['acct-view']({ v: 'stack' })); await page.waitForTimeout(500);
-  eq(await page.evaluate(() => [document.querySelectorAll('.acc-stack').length, document.querySelectorAll('.sv-group .acc-stack .w-card').length, [...document.querySelectorAll('.sv-rows .sv-row')].map(r => r.querySelector('.sv-row-h .grow').innerText.trim()), document.querySelectorAll('.sv-rows .sv-split').length]),
-    [2, 2, ['Mercado Pago', 'Santander'], 0], 'stacked: the accounts and the savings each in their stack, the savings as rows under theirs (the stack shows no details)');
   await page.evaluate(() => navigate('goals')); await page.waitForSelector('#goal-money');
   ok(await page.evaluate(() => /Apartado en metas y fondos/.test(document.querySelector('.g-total').innerText) && !!document.querySelector('#goal-money a[href="#accounts"]')), 'Goals on a phone: set aside, and the way to the savings');
   eq(errors, [], 'no error in the console (phone)'); await browser.close();

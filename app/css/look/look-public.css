@@ -1,0 +1,59 @@
+/* Dorax Finance — the second look for the pages before login other than the home page (owner, 2026-10-11: "en todas las páginas de la webapp"):
+   log in, create account, confirm the email, a new password, the short wait, the legal pages and the contact form. Until now they kept the dark
+   system of DESIGN 1.md (css/public/landing-system.css); now they are light as the home page: the sage-white page, white fields with a hairline,
+   ink words, forest links, the lime main button with forest words, Inter. The rules carry #public so they win over the dark ones without !important. */
+html:has(#public:not([hidden]) > :is(.auth.single, .auth, .legal)), body:has(#public:not([hidden]) > :is(.auth.single, .auth, .legal)) { background: #F2F4EE; }      /* .auth.single listed so this weighs as much as the dark rule it follows */
+#public > :is(.auth, .legal) {
+  color-scheme: light;
+  --bg: #F2F4EE; --surface: #FFFFFF; --surface-2: #FFFFFF; --surface-3: #E9EDE4; --well: #EEF1EA; --lift: #FFFFFF; --badge: #E3E8DD; --pit: #F7F8F4;
+  --line: #E1E5DC; --line-strong: #C3C9BD; --graphite: #ACB2A6; --hover-line: #8E9488; --field: #868B82; --track: #DCE2D5; --glass: #F2F4EE; --glass-line: #E1E5DC;
+  --ink-strong: #0E0F0C; --ink: #0E0F0C; --ink-2: #454745; --ink-3: #5F625D; --on-dark: #0E0F0C;
+  --brand: #163300; --link: #163300; --focus: #163300; --ring: #163300; --on-brand: #9FD182; --brand-edge: #CDEFB6; --brand-deep: #163300;
+  --primary: #9FD182; --primary-hover: #B9E2A2; --primary-ink: #163300; --primary-line: transparent;
+  --btn: #FFFFFF; --btn-hover: #FFFFFF; --btn-line: #C3C9BD; --select: #E2F6D5; --select-ink: #163300;
+  --pos: #2F5711; --neg: #C4302B; --good: #2F5711; --warn: #B87A00; --crit: #D03238; --info: #5F625D;
+  --good-bg: #E2F6D5; --warn-bg: rgba(184, 122, 0, .12); --crit-bg: rgba(208, 50, 56, .09); --info-bg: rgba(14, 15, 12, .05);
+  --r-card: 24px; --r-lg: 24px; --r-mid: 18px; --r: 12px; --r-sm: 10px; --r-ico: 14px; --mono: var(--font);
+  background: #F2F4EE; color: #0E0F0C;
+}
+#public > :is(.auth, .legal) .brand { color: #163300; }
+#public > :is(.auth, .legal) .logo .ac { stroke: #9FD182; }
+#public > :is(.auth, .legal) :focus-visible { outline-color: #163300; }
+#public > :is(.auth, .legal) :is(b, strong) { color: inherit; }
+
+/* the card of login and sign-up: on the page, as before (no box), with the home page's words and fields */
+#public .auth.single .auth-card h1 { font-size: 30px; font-weight: 600; letter-spacing: -.035em; line-height: 1.12; color: #0E0F0C; }
+#public .auth.single .auth-card > p { color: #454745; letter-spacing: 0; }
+#public .auth.single .auth-card > p b { color: #0E0F0C; }
+#public .auth.single .field > label, #public .auth.single .lbl-row label { color: #454745; letter-spacing: 0; }
+#public .auth.single input:not([type=checkbox]) { min-height: 48px; padding: 10px 16px; border-radius: 14px; border: 1px solid #C3C9BD; background: #FFFFFF; color: #0E0F0C; letter-spacing: 0; }
+#public .auth.single input:not([type=checkbox]):hover { border-color: #8E9488; }
+#public .auth.single input:not([type=checkbox]):focus { border-color: #163300; box-shadow: 0 0 0 3px rgba(22, 51, 0, .12); }
+#public .auth.single input::placeholder { color: #8E9488; }
+#public .auth.single input[type=checkbox] { accent-color: #163300; }
+#public .auth.single .pw-eye { color: #5F625D; border-radius: 10px; } #public .auth.single .pw-eye:hover { color: #0E0F0C; }
+#public .auth.single .pw-rules { color: #5F625D; letter-spacing: 0; } #public .auth.single .pw-rules li.ok { color: #163300; } #public .auth.single .pw-rules .tickbox { border-color: #C3C9BD; }
+#public .auth.single .field > label.check.accept, #public .auth.single .auth-alt, #public .auth.single .or { color: #5F625D; letter-spacing: 0; }
+#public .auth.single .or::before, #public .auth.single .or::after { background: #E1E5DC; }
+#public .auth.single .linkbtn, #public .auth.single .auth-alt .linkbtn, #public .auth.single .auth-card .linkbtn { color: #163300; font-weight: 600; }
+#public .auth.single .linkbtn:hover:not(:disabled) { color: #163300; }
+#public .auth.single .auth-card .linkbtn:disabled { color: #ACB2A6; }
+#public :is(.auth, .legal) .btn { border-radius: 999px; }
+#public :is(.auth, .legal) .btn.primary { background-color: #9FD182; border: 1px solid #9FD182; color: #163300; font-weight: 600; }
+#public :is(.auth, .legal) .btn.primary:hover:not(:disabled) { background-color: #ABD991; border-color: #ABD991; color: #163300; }
+#public .auth.single .btn.lg { min-height: 52px; font-size: 16px; }
+#public .auth.single .btn:not(.primary):not(.gbtn):not(.ghost), #public .auth.single .gbtn:not(.g-dark) { background-color: #FFFFFF; border-color: #C3C9BD; color: #0E0F0C; }
+#public .auth.single .btn:not(.primary):not(.gbtn):not(.ghost):hover:not(:disabled), #public .auth.single .gbtn:not(.g-dark):hover:not(:disabled) { background-color: #FFFFFF; border-color: #8E9488; }
+#public .auth.single .btn.ghost { color: #454745; } #public .auth.single .btn.ghost:hover:not(:disabled) { color: #0E0F0C; }
+#public .auth.single .modal-icon, #public .auth.single .modal-icon.neutral { background: #E2F6D5; border-color: #E2F6D5; color: #163300; }
+#public .auth.single .banner { background: #FFFFFF; color: #0E0F0C; border: 1px solid #E1E5DC; }
+#public .auth.gate .spinner { border-color: #DCE2D5; border-top-color: #163300; }
+
+/* the legal pages and the contact form */
+#public .legal .legal-page h1 { font-weight: 600; letter-spacing: -.035em; color: #0E0F0C; }
+#public .legal .legal-page section p, #public .legal .legal-body section p { color: #454745; }
+#public .legal .legal-page h2 { color: #0E0F0C; }
+#public .legal :is(.legal-foot, .note) { color: #5F625D; }
+#public .legal .linkbtn { color: #163300; }
+#public .legal :is(input, select, textarea) { border-radius: 14px; border: 1px solid #C3C9BD; background: #FFFFFF; color: #0E0F0C; }
+#public .legal :is(input, select, textarea):focus { border-color: #163300; box-shadow: 0 0 0 3px rgba(22, 51, 0, .12); }

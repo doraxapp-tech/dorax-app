@@ -69,7 +69,7 @@ const dashCustom = side => { const o = dashOrder(side); return DASH_PARTS[side |
 function phoneParts(parts) {
   const ids = dashOrder().filter(id => parts[id]), hid = dashHidden(), on = ids.filter(id => !hid.includes(id)), off = ids.length - on.length;
   UI.dashShown = ids;      // what the list offers: every part with something to show, hidden or not
-  return on.map(id => parts[id]).join('') + (ids.length > 1 ? `<div class="dash-order"><button class="btn ghost" id="dash-order-btn" data-a="dash-order" aria-haspopup="dialog">${icon('sort')}${t('Reorder the dashboard')}${off ? `<span class="d-off">${tn(off, '{n} part hidden', '{n} parts hidden')}</span>` : ''}</button></div>` : '');
+  return on.map(id => partOut(parts[id])).join('') + (ids.length > 1 ? `<div class="dash-order"><button class="btn ghost" id="dash-order-btn" data-a="dash-order" aria-haspopup="dialog">${icon('sort')}${t('Reorder the dashboard')}${off ? `<span class="d-off">${tn(off, '{n} part hidden', '{n} parts hidden')}</span>` : ''}</button></div>` : '');
 }
 /** The computer's summary: the parts in the order chosen, two to a row; the accounts' cards and the latest transactions take the whole width, and a
     card with no other beside it (its neighbour is a wide one, or the last) takes the whole width too, so no row has a hole. A row that starts with

@@ -83,7 +83,10 @@ function applyTheme(pub) {
   root.classList.toggle('in-app', !pub);      // the app itself is on screen: the room for the page's scroll bar is kept (css/base/tokens.css)
   // on a phone the browser's own bar takes the colour of the panel at the top of the page, so the two read as one piece
   const phone = !pub && window.matchMedia && matchMedia('(max-width: 920px)').matches;
-  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
+  // a phone's summary, light, on the household's side: the home page's language, its sage page and forest card (owner, 2026-10-11: "commit el estilo
+  // landing solo en resumen para verlo live"; css/look/look-land.css), and the browser's bar the same sage
+  const land = light && phone && UI.space !== 'business' && UI.route === 'dashboard'; root.classList.toggle('land', land);
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#F2F4EE' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the
     bar cluttered); where the data lives is said in Settings, under Your data. It never claims a save that did not happen. */
@@ -179,7 +182,7 @@ function renderNow() {
   UI.autoScroll = false; UI.flash = null;
   walletAfter();      // the wallet's open row keeps its card (features/accounts/wallet.js)
   if (before) morph(before);
-  renderOverlay(); renderCurio();
+  renderOverlay(); renderCurio(); centsSmall();      // the big figures' cents drawn small (ui/cents.js)
   if (id) { const el = $(id); if (el && el !== document.activeElement) { el.focus({ preventScroll: true }); if (pos && el.setSelectionRange) try { el.setSelectionRange(pos[0], pos[1]); } catch (e) { } } }
   else if (key) { const el = document.querySelector(key); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); }
 }

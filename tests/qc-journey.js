@@ -110,8 +110,8 @@ const pushRefresh_wait = page => page.evaluate(() => pushRefresh());      // thi
   // ---------- a phone ----------
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, beta: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
-  eq(await page.evaluate(() => { const b = document.querySelector('.pagehead .jr-btn'), m = document.querySelector('.pagehead .m-row .month'), r = b.getBoundingClientRect(), q = m.getBoundingClientRect(); return [b.innerText.trim(), r.left >= q.right, Math.abs(r.top - q.top) <= 2, r.height >= 44, r.right <= innerWidth, document.documentElement.scrollWidth <= innerWidth]; }),
-    ['Jornada', true, true, true, true, true], 'a phone: “Jornada” at the right of the month, on its row, a thumb high, inside the screen');
+  eq(await page.evaluate(() => { const b = document.querySelector('.pagehead .jr-btn'), m = document.querySelector('.pagehead .m-row .month'), r = b.getBoundingClientRect(), q = m.getBoundingClientRect(); return [b.innerText.trim(), r.left >= q.right && r.left - q.right <= 12, Math.abs(r.top - q.top) <= 2, r.height >= 44, r.right <= innerWidth, document.documentElement.scrollWidth <= innerWidth]; }),
+    ['Jornada', true, true, true, true, true], 'a phone: “Jornada” right beside the month, on the left of its row (owner, 2026-10-11), a thumb high, inside the screen');
   await page.tap('.pagehead .jr-btn'); await page.waitForSelector('#jstart .js-light');      // the first time: the onboarding's page (qc-journey-start.js)
   ok(await page.evaluate(() => { const r = document.querySelector('#jstart').getBoundingClientRect(); return r.top <= 0 && r.left <= 0 && r.width >= innerWidth && r.height >= innerHeight && !document.querySelector('.drawer'); }), 'it opens as a page of its own, the whole screen, not a panel');
   eq(errors, [], 'no error in the console (phone)'); await browser.close();

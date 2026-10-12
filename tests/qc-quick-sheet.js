@@ -1,50 +1,53 @@
-// QC (owner, 2026-10-11): "on the phone the middle button is out of control, it has too many buttons; filter them by tab, show the ones relevant to
-// the tab the person is looking at, or find a better solution if there is one".
-//   1. always the same three, at the foot of the list, right over the +, in the same place on every screen: an expense, an income, a transfer;
-//   2. then two or three for the screen in use, named by the screen; a screen with nothing of its own gets the summary's; a screen's own "new" first;
-//   3. "All actions" folds the rest: nothing is lost, and nothing is listed twice;
-//   4. a side with no account yet: adding one comes first;
-//   5. the company's words; Spanish at 320 px with every word whole; no error in the console.
-// The list itself and every action's landing: qc-phone.js. Thumbs and type sizes: qc-thumb.js.
+// QC of the round +'s list on a phone. Owner, 2026-10-11 (v149): "on the phone the middle button is out of control, it has too many buttons;
+// filter them by tab". Then, the same day (v167): "the + button still has too many actions, leave only three: EXPENSE, INCOME, TRANSFER".
+//   1. on every screen the same title and the same three big buttons, side by side, in the same place: an expense, an income, a transfer; nothing
+//      else in the list (no screen's own part, no "All actions");
+//   2. said in full to a screen reader, the focus on the expense; each does what it says;
+//   3. the company's words; with no account the expense asks for one;
+//   4. Spanish at 320 px with every word whole, the list short enough not to scroll; no error in the console.
+// The summary's row of round buttons keeps every action: qc-phone.js. Thumbs and type sizes: qc-thumb.js.
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
   await page.evaluate(() => { S.user.greeted = true; });
-  const at = route => page.evaluate(r => { A.close(); navigate(r); A.quick(); const s = document.querySelector('.sheet.quick'), h = s.querySelector('.quick-h');
-    return { base: [...s.querySelectorAll('.quick-base button')].map(b => b.dataset.v), h: h ? h.textContent.trim() : '', here: [...s.querySelectorAll('.quick-h + .quick-grid button')].map(b => b.dataset.v), all: !!s.querySelector('.quick-all'), y: s.querySelector('.quick-base').getBoundingClientRect().top }; }, route);
-  // ---------- 1. the three, on every screen, in the same place ----------
-  const routes = await page.evaluate(() => ROUTES.map(r => r[0]).filter(r => !['settings', 'profile'].includes(r) && typeof routeMain === 'function'));
+  const at = route => page.evaluate(r => { A.close(); navigate(r); A.quick(); const s = document.querySelector('.sheet.quick');
+    return { all: [...s.querySelectorAll('button[data-v]')].map(b => b.dataset.v), base: [...s.querySelectorAll('.quick-base button')].map(b => b.dataset.v), extra: s.querySelectorAll('.quick-h, .quick-all, .quick-grid, #quick-rest').length, y: Math.round(s.querySelector('.quick-base').getBoundingClientRect().top), h: s.querySelector('h2').innerText.trim() }; }, route);
+  // ---------- 1. the three, on every screen, in the same place, and nothing else ----------
+  const routes = await page.evaluate(() => ROUTES.map(r => r[0]).filter(r => typeof routeMain === 'function'));
   const seen = {};
   for (const r of routes) seen[r] = await at(r);
-  ok(Object.values(seen).every(x => x.base.join() === 'expense,income,transfer'), 'every screen: an expense, an income, a transfer', Object.entries(seen).filter(([, x]) => x.base.join() !== 'expense,income,transfer').map(([r]) => r));
-  ok(new Set(Object.values(seen).map(x => Math.round(x.y))).size === 1, 'in the same place on every screen, so the thumb learns it: + then “Expense” is always the same two taps');
-  // ---------- 2. the screen's own ----------
-  eq(await at('investments').then(x => [x.h, x.here[0]]), ['In Investments', 'main'], 'Investments: its own “new” first');
-  eq(await page.evaluate(() => document.querySelector('.quick-h + .quick-grid [data-v="main"]').innerText.trim() === routeMain('investments')[2]), true, 'said in the screen’s own words');
-  eq(await at('settings').then(x => [x.h, x.here]), ['In Settings', ['pay', 'save', 'import']], 'a screen with nothing of its own: the summary’s');
-  ok(Object.values(seen).every(x => x.here.length >= 1 && x.here.length <= 4), 'never more than four for a screen (three, and its own “new”)');
-  // ---------- 3. nothing lost, nothing twice ----------
-  for (const r of ['dashboard', 'plan', 'goals', 'investments']) {
-    const all = await page.evaluate(r => { A.close(); navigate(r); A.quick(); A['quick-all'](); return [...document.querySelectorAll('.sheet.quick button[data-v]')].map(b => b.dataset.v); }, r);
-    const want = await page.evaluate(() => quickList().map(x => x[0]));
-    eq([all.length, new Set(all).size, [...all].sort().join()], [want.length, want.length, [...want].sort().join()], `${r}: unfolded, every action once`);
+  ok(Object.values(seen).every(x => x.all.join() === 'expense,income,transfer' && x.base.join() === 'expense,income,transfer' && x.extra === 0), 'every screen: an expense, an income, a transfer, and nothing else', Object.entries(seen).filter(([, x]) => x.all.join() !== 'expense,income,transfer' || x.extra).map(([r, x]) => r + ':' + x.all.join('/')));
+  ok(new Set(Object.values(seen).map(x => x.y)).size === 1, 'in the same place on every screen, so the thumb learns it: + then “Expense” is always the same two taps');
+  eq(seen.dashboard.h, 'What do you want to do?', 'the title stays');
+  // ---------- 2. a screen reader, the focus, and what each does ----------
+  eq(await page.evaluate(() => { A.close(); navigate('dashboard'); A.quick(); const s = document.querySelector('.sheet.quick'), bs = [...s.querySelectorAll('.quick-base button')];
+    return [s.getAttribute('role'), bs.map(b => b.getAttribute('aria-label')), bs.map(b => b.innerText.trim()), document.activeElement.dataset.v, bs.every(b => b.getBoundingClientRect().height >= 88 && b.getBoundingClientRect().width >= 88 && b.querySelector('svg')), s.getBoundingClientRect().bottom <= innerHeight + 1, s.scrollHeight <= s.clientHeight + 1]; }),
+    ['dialog', ['Record an expense', 'Record an income', 'Transfer money'], ['Expense', 'Income', 'Transfer'], 'expense', true, true, true], 'short words beside their icons, said in full to a screen reader; the focus on the expense; three big buttons; the list fits, nothing scrolls');
+  for (const [v, want] of [['expense', 'expense'], ['income', 'income'], ['transfer', 'transfer']]) {
+    await page.evaluate(() => { A.close(); A.quick(); }); await page.click(`.sheet.quick [data-v="${v}"]`);
+    eq(await page.evaluate(() => [UI.sheet, UI.drawer && UI.drawer.kind, UI.drawer && UI.drawer.draft.type]), [false, 'tx', want], `“${v}” opens a new transaction already set as ${want}`);
   }
-  eq(await page.evaluate(() => [document.querySelector('#quick-rest').hidden, document.querySelector('.quick-all').getAttribute('aria-controls')]), [false, 'quick-rest'], 'the folded part is named by the button that opens it');
-  // ---------- 4. no account yet ----------
-  eq(await page.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope === 'business'); A.close(); navigate('plan'); A.quick(); const v = [...document.querySelectorAll('.quick-h + .quick-grid button')].map(b => b.dataset.v); A.close(); S.accounts = keep; render(); return v; }), ['account', 'pay', 'cost', 'limit'], 'no household account yet: adding one comes first, before the screen’s own');
-  // ---------- 5. the company ----------
-  await page.evaluate(() => { A.close(); A.space({ v: 'business' }); }); await page.waitForTimeout(300);
-  eq(await page.evaluate(() => { navigate('plan'); A.quick(); return [[...document.querySelectorAll('.quick-base button')].map(b => b.innerText.trim()), document.querySelector('.quick-h').textContent.trim()]; }), [['Cost', 'Received', 'Transfer'], 'In Plan'], 'the company: a cost, money received, a transfer');
+  await page.evaluate(() => A.close());
+  // ---------- 3. the company, and no account ----------
+  await page.evaluate(() => { A.space({ v: 'business' }); navigate('plan'); A.quick(); }); await page.waitForTimeout(200);
+  eq(await page.evaluate(() => [...document.querySelectorAll('.quick-base button')].map(b => b.innerText.trim() + '|' + b.getAttribute('aria-label'))), ['Cost|Record a cost', 'Received|Record money received', 'Transfer|Transfer money'], 'the company: a cost, money received, a transfer');
+  eq(await page.evaluate(() => { const keep = S.accounts; S.accounts = keep.filter(a => a.scope !== 'business'); A.close(); A.quick(); const v = [...document.querySelectorAll('.sheet.quick button[data-v]')].map(b => b.dataset.v); A['quick-go']({ v: 'expense' }); const r = [v, !!UI.drawer, (document.querySelector('#toast') || {}).innerText || '']; S.accounts = keep; A.close(); render(); return [r[0], r[1], /account/i.test(r[2])]; }),
+    [['expense', 'income', 'transfer'], false, true], 'a side with no account: the same three, and its “Cost” asks for an account instead of opening an empty panel');
   await page.evaluate(() => { A.close(); A.space({ v: 'personal' }); });
+  // what rises from the foot of a phone is round only at the top, in both themes (owner, 2026-10-11: "the menus that come up have a radius at the
+  // bottom and it looks odd"; the light theme had given them four round corners in v164)
+  for (const theme of ['light', 'dark']) {
+    eq(await page.evaluate(th => { S.settings.theme = th; render(); const r = []; for (const open of [() => A.quick(), () => A.sheet(), () => A['new-tx']()]) { A.close(); open(); const el = document.querySelector('#overlay .sheet, #overlay .drawer'), cs = getComputedStyle(el); r.push([cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomLeftRadius, cs.borderBottomRightRadius, Math.round(el.getBoundingClientRect().bottom) === innerHeight]); } A.close(); return r; }, theme),
+      [['24px', '24px', '0px', '0px', true], ['24px', '24px', '0px', '0px', true], ['24px', '24px', '0px', '0px', true]], `${theme}: the + list, More and a panel rise from the foot round only at the top`);
+  }
+  await page.evaluate(() => { S.settings.theme = 'dark'; render(); });
   eq(errors, [], 'phone: no error in the console'); await browser.close();
-  // ---------- Spanish, 320 px ----------
+  // ---------- 4. Spanish, 320 px ----------
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));
-  await page.evaluate(() => { S.user.greeted = true; navigate('plan'); A.quick(); A['quick-all'](); });
+  await page.evaluate(() => { S.user.greeted = true; navigate('plan'); A.quick(); });
   eq(await page.evaluate(() => { const s = document.querySelector('.sheet.quick'), whole = el => el.getBoundingClientRect().left >= 0 && el.getBoundingClientRect().right <= innerWidth && el.scrollWidth <= el.clientWidth + 1;
-    return [[...s.querySelectorAll('.quick-base button')].map(b => b.innerText.trim()), s.querySelector('.quick-h').textContent.trim(), s.querySelector('.quick-all').innerText.trim(), [...s.querySelectorAll('.quick-base span:last-child, .quick-grid button')].every(whole), document.documentElement.scrollWidth - innerWidth, s.scrollHeight <= s.clientHeight + 1 || getComputedStyle(s).overflowY !== 'visible']; }),
-    [['Gasto', 'Ingresos', 'Transferencia'], 'En Plan', 'Menos acciones', true, 0, true], 'es, 320 px: “Gasto”, “Ingresos”, “Transferencia” whole; “En Plan”; unfolded, it scrolls inside itself');
-  eq(await page.evaluate(() => { const s = document.querySelector('.sheet.quick'), base = s.querySelector('.quick-base'), y = () => Math.round(base.getBoundingClientRect().bottom); const a = y(); s.scrollTop = 0; const b = y(); s.scrollTop = s.scrollHeight; return [a === b && b === y(), y() <= innerHeight + 1, [...s.querySelectorAll('.quick-grid button')].every(b => b.querySelector('span:last-child').getClientRects().length <= 2 && b.getBoundingClientRect().height <= 70)]; }),
-    [true, true, true], 'es, 320 px: the three stay at the foot while the list scrolls; no button of the grid over two lines');
+    return [s.querySelector('h2').innerText.trim(), [...s.querySelectorAll('.quick-base button')].map(b => b.innerText.trim()), [...s.querySelectorAll('.quick-base span:last-child')].every(whole), document.documentElement.scrollWidth - innerWidth, s.scrollHeight <= s.clientHeight + 1, Math.round(s.querySelector('.quick-base').getBoundingClientRect().bottom) <= innerHeight]; }),
+    ['¿Qué quieres hacer?', ['Gasto', 'Ingresos', 'Transferencia'], true, 0, true, true], 'es, 320 px: “Gasto”, “Ingresos”, “Transferencia” whole; nothing scrolls; nothing wider than the phone');
   eq(errors, [], 'es: no error in the console'); await browser.close();
   done('qc-quick-sheet');
 })().catch(e => { console.error('qc-quick-sheet: Error', e); process.exit(1); });

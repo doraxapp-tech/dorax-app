@@ -24,10 +24,11 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 2. the month's button ----------
   for (const r of ['dashboard', 'plan', 'goals']) {
     await page.evaluate(r => navigate(r), r);
-    // since 2026-10-08 (owner: "use 100% of the space, background #000000, border #1A1A1A, the date in green, no divider under it"): features/phone/phone.month.js
+    // since 2026-10-08 (owner: "background #000000, border #1A1A1A, the date in green, no divider under it"); since 2026-10-11 compact and on the left
+    // ("make the date selector smaller and move it to the left together with Journey"): features/phone/phone.month.js, css/look/look-phone.css
     eq(await page.evaluate(() => { const m = document.querySelector('.pagehead .month'), cs = getComputedStyle(m), ph = document.querySelector('.pagehead'), pr = ph.getBoundingClientRect(), mr = m.getBoundingClientRect();
-        return [cs.backgroundColor, cs.borderTopColor, getComputedStyle(m.querySelector('.m-slide.on')).color, [...m.querySelectorAll('button')].every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 38), (jb => jb ? Math.round(jb.right) === Math.round(pr.right - 16) && mr.right <= jb.left - 6 : Math.round(mr.width) === Math.round(pr.width - 32))(ph.querySelector('.jr-btn') && ph.querySelector('.jr-btn').getBoundingClientRect()), getComputedStyle(ph).borderBottomWidth]; }),
-      ['rgb(0, 0, 0)', 'rgb(26, 26, 26)', 'rgb(159, 209, 130)', true, true, '0px'], `${r}: the month takes the whole row (on the summary, up to the Journey button, v130), black with a #1A1A1A edge, the month in green, its arrows a thumb high; no line under it`);
+        return [cs.backgroundColor, cs.borderTopColor, getComputedStyle(m.querySelector('.m-slide.on')).color, [...m.querySelectorAll('button')].every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 38), (jb => Math.round(mr.left) === Math.round(pr.left + 16) && mr.width <= 175 && (jb ? jb.left - mr.right >= 6 && jb.left - mr.right <= 12 : true))(ph.querySelector('.jr-btn') && ph.querySelector('.jr-btn').getBoundingClientRect()), getComputedStyle(ph).borderBottomWidth]; }),
+      ['rgb(0, 0, 0)', 'rgb(26, 26, 26)', 'rgb(159, 209, 130)', true, true, '0px'], `${r}: the month compact on the left (on the summary the Journey button right beside it; owner, 2026-10-11), black with a #1A1A1A edge, the month in green, its arrows a thumb high; no line under it`);
   }
   // the same grey for the circles of the quick things to do, and 14 px more around the title (owner, 2026-10-08)
   await page.evaluate(() => navigate('dashboard'));
@@ -77,8 +78,8 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { A.close(); S.transactions = window.__tx; render(); }); await page.waitForTimeout(250);
   // ---------- 5. the days of freedom ----------
   const rw = await page.evaluate(() => { const c = document.querySelector('#runway-card'), b = c.querySelector('#runway-open');
-    return [b && b.tagName, b && b.dataset.a, b.querySelector('.rw-h b').innerText.trim(), !!b.querySelector('.rw-n'), !!b.querySelector('.rw-track'), !!b.querySelector('.rw-next'), !!c.querySelector('.rw-say, .rw-basis, [data-a="whatif"], [data-a="runway-edit"], .info'), [...c.querySelectorAll('.rw-seg .lbl')].every(l => getComputedStyle(l).display === 'none'), Math.round(c.getBoundingClientRect().height) < 230]; });
-  eq(rw, ['BUTTON', 'runway-view', 'Days of freedom', true, true, true, false, true, true], 'the card is one thing to tap: its name, the figure, the track and the next mark; no sentence, no figures behind it, no buttons; under 230 px high');
+    return [b && b.tagName, b && b.dataset.a, c.querySelector('.part-h h2').innerText.trim(), !!b.querySelector('.rw-n'), !!b.querySelector('.rw-track'), !!b.querySelector('.rw-next'), !!c.querySelector('.rw-say, .rw-basis, [data-a="whatif"], [data-a="runway-edit"], .info'), [...c.querySelectorAll('.rw-seg .lbl')].every(l => getComputedStyle(l).display === 'none'), Math.round((c.querySelector('.part-box') || c).getBoundingClientRect().height) < 230]; });
+  eq(rw, ['BUTTON', 'runway-view', 'Days of freedom', true, true, true, false, true, true], 'the card is one thing to tap: the figure, the track and the next mark, its name right above it (outside, since 2026-10-11); no sentence, no figures behind it, no buttons; its box under 230 px high');
   eq(await page.evaluate(() => { const c = document.querySelector('#runway-card'), u = c.querySelector('.rw-u').getBoundingClientRect(), e = c.querySelector('.rw-e'), p = c.querySelector('.rw-fig .pill');
     return [!!e, e && e.getBoundingClientRect().left - u.right < 16, !p || p.getBoundingClientRect().left > e.getBoundingClientRect().right, /^Next goal: /.test(c.querySelector('.rw-next').innerText)]; }), [true, true, true, true], 'a goal passed: the 🎉 right after the figure’s words, the month’s change at the end of the line; the next goal and what reaches it');
   const fig = await page.evaluate(() => document.querySelector('#runway-card .rw-n').innerText.trim());
@@ -89,7 +90,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => A['runway-view']()); await page.click('.drawer footer [data-a="runway-edit"]'); eq(await page.evaluate(() => UI.drawer.kind), 'runway', 'Adjust opens');
   // the company's runway counts what it keeps (2026-10-09: savings only): a reserve account gives it a figure
   await page.evaluate(() => { A.close(); S.accounts.push({ id: 'co-res', name: 'Reserve', institution: 'Nubank', type: 'savings', currency: 'BRL', scope: 'business', purpose: '', opening: 1000000 }); A.space({ v: 'business' }); }); await page.waitForTimeout(250);
-  eq(await page.evaluate(() => [!!document.querySelector('#runway-open'), (document.querySelector('#runway-open .rw-h b') || {}).innerText]), [true, 'Company runway'], 'the company’s side has the same short card');
+  eq(await page.evaluate(() => [!!document.querySelector('#runway-open'), (document.querySelector('#runway-card .part-h h2') || {}).innerText]), [true, 'Company runway'], 'the company’s side has the same short card');
   await page.evaluate(() => A.space({ v: 'personal' }));
   eq(await page.evaluate(() => { const keep = [S.transactions, S.plan.lines, S.user.spend]; S.transactions = []; S.plan.lines = []; delete S.user.spend; render(); const r = runway(S, S.today, CUR), c = document.querySelector('#runway-card');
       const out = [r.days, !!c.querySelector('#runway-open'), !!c.querySelector('.card-h [data-a="whatif"], .card-h [data-a="runway-edit"]'), !!c.querySelector('.card-b [data-a="runway-edit"]')]; [S.transactions, S.plan.lines] = keep; if (keep[2]) S.user.spend = keep[2]; render(); return out; }),
@@ -108,7 +109,7 @@ const { open, ok, eq, done } = require('./pw.js');
     ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.transactions = []; render(); });
     await page.click('#planned-month [data-a="fixed-list"]');
-    eq(await page.evaluate(() => [document.querySelector('#runway-open .rw-h b').innerText.trim(), document.querySelector('#runway-open .rw-see').innerText.trim(), document.querySelector('.s-list h2').innerText.trim()]), want, `${lang}: in the language`);
+    eq(await page.evaluate(() => [document.querySelector('#runway-card .part-h h2').innerText.trim(), document.querySelector('#runway-card .part-h .btn.go').innerText.trim(), document.querySelector('.s-list h2').innerText.trim()]), want, `${lang}: in the language`);
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.s-list .g-pick-list button')].every(b => b.scrollWidth <= b.clientWidth + 1) && (r => r.right <= innerWidth)(document.querySelector('#runway-open .rw-next').getBoundingClientRect())), `${lang} at ${w} px: everything fits, no sideways scroll`);
     eq(errors, [], `${lang}: no error in the console`); await browser.close();
   }

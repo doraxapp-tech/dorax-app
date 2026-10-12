@@ -50,6 +50,13 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
   // since the usability QC of 2026-10-08, what needs doing comes right after the days of freedom
   // since 2026-10-08 the two charts are in Reports (qc-reports-phone) and a phone shows six parts to start with; the others wait in the list, hidden
   eq(def, ['free', 'runway', 'todo', 'quick', 'insight', 'goals', 'accounts'], 'by default (free to spend first since 2026-10-10): the days of freedom, To do, quick access, the day’s insight, the goals and then the accounts (owner, 2026-10-09); the investments and the latest transactions wait, hidden');
+  // the cards' names outside them (owner, 2026-10-11: "take the headings out of the summary's cards, on the phone, e.g. the Goals card, Transactions")
+  eq(await page.evaluate(() => { const cards = [...document.querySelectorAll('#view > .card')]; return [cards.length > 0 && cards.every(c => c.classList.contains('part-out') && c.firstElementChild.classList.contains('part-h') && !!c.querySelector(':scope > .part-h h2') && c.lastElementChild.classList.contains('part-box') && !c.querySelector('.part-box .card-h, .part-box .rw-h')),
+      getComputedStyle(document.querySelector('#goals-card')).borderTopWidth, getComputedStyle(document.querySelector('#goals-card .part-box')).borderTopWidth, document.querySelector('#goals-card .part-h').getBoundingClientRect().bottom <= document.querySelector('#goals-card .part-box').getBoundingClientRect().top + 1,
+      [...document.querySelectorAll('#view > .card .part-h h2')].map(h => h.innerText.trim())]; }),
+    [true, '0px', '1px', true, ['You can spend', 'Days of freedom', 'To do', 'Goals', 'Accounts']], 'each card’s name is outside it, right above its box: the part has no box of its own, the box under the name holds the rest');
+  await page.tap('#runway-card .part-h .btn.go'); await page.waitForTimeout(300);
+  eq(await page.evaluate(() => UI.drawer && UI.drawer.kind), 'runway-view', 'the “See” beside a name does what its card does'); await page.evaluate(() => A.close());
   eq(await page.evaluate(() => { const b = document.querySelector('#view > .dash-order:last-child button'); return b ? [b.innerText.replace(/\s+/g, ' ').trim(), b.getBoundingClientRect().height >= 44] : null; }), ['Reorder the dashboard 2 parts hidden', true], 'at the foot, a button a thumb high: Reorder the dashboard, saying two parts are hidden');
   await page.click('#dash-order-btn');
   const sheet = await page.evaluate(() => { const s = document.querySelector('.sheet.d-order'), li = [...s.querySelectorAll('.ord-list li')];
@@ -106,9 +113,39 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
     await page.click('#dash-order-btn'); await page.click('.d-order .ord-btn[data-id="accounts"][data-d="-1"]');
     eq(await page.evaluate(() => [document.querySelector('.pagehead h1').innerText.trim(), document.querySelector('#ac-card h2').innerText.trim(), document.querySelector('.d-order h2').innerText.trim(), document.querySelector('.d-order .ord-btn[data-id="accounts"][data-d="-1"]').getAttribute('aria-label'), document.querySelector('[data-a="dash-order-reset"]').innerText.trim()]),
       want, `${lang}: in the language`);
-    ok(await page.evaluate(() => { const h = document.querySelector('.pagehead h1'), m = document.querySelector('.pagehead .month'); return h.getBoundingClientRect().width <= 1 && (document.querySelector('.pagehead .jr-btn') || m).getBoundingClientRect().right >= innerWidth - 20 && m.getBoundingClientRect().right <= innerWidth - 16 && document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.d-order .ord-list li')].every(l => l.scrollWidth <= l.clientWidth + 1); }),
-      `${lang} at ${w} px: no title on top (the bar says it), the month and the Journey (v130) filling its row, the list fits, no sideways scroll`);
+    ok(await page.evaluate(() => { const h = document.querySelector('.pagehead h1'), m = document.querySelector('.pagehead .month'); const jb = document.querySelector('.pagehead .jr-btn'), mr = m.getBoundingClientRect(); return h.getBoundingClientRect().width <= 1 && Math.round(mr.left) === 16 && (!jb || (jb.getBoundingClientRect().left - mr.right <= 12 && jb.getBoundingClientRect().right <= innerWidth - 16)) && document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.d-order .ord-list li')].every(l => l.scrollWidth <= l.clientWidth + 1); }),
+      `${lang} at ${w} px: no title on top (the bar says it), the month on the left and the Journey right beside it (v167), the list fits, no sideways scroll`);
     eq(errors, [], `${lang}: no error in the console`); await browser.close();
   }
+  // ---------- 5. the home page's language on the summary (owner, 2026-10-11: "commit el estilo landing solo en resumen para verlo live") ----------
+  // a phone, light, the household: the sage page, the forest "You can spend" with its name on top and its lime "See" at the foot, white tiles; nowhere else
+  for (const w of [390, 320]) {
+    ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: w, height: 844 }, touch: true, mobile: true }));
+    await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
+    const land = () => page.evaluate(() => { const root = document.documentElement, f = document.querySelector('#free-card'), cs = el => el ? getComputedStyle(el) : {};
+      const chip = f && f.querySelector('h2.sec'), fig = f && f.querySelector('.fu-n'), see = f && f.querySelector('.part-h .btn.go'), tile = document.querySelector('.quick-row button');
+      const r = el => el.getBoundingClientRect();
+      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor,
+        free: f ? [cs(f).backgroundColor, cs(chip).color, cs(fig).color, cs(see).backgroundColor, r(chip).bottom <= r(fig).top && r(fig).bottom <= r(see).top, Math.round(r(see).height) >= 44, r(see).left - r(f).left < 40] : null,
+        tile: tile ? [cs(tile).backgroundColor, cs(tile).borderTopColor, Math.round(r(tile).height) >= 92, parseFloat(cs(tile).fontSize) >= 12] : null,
+        wide: document.documentElement.scrollWidth - innerWidth };
+    });
+    eq(await land(), { on: true, meta: '#F2F4EE', page: 'rgb(242, 244, 238)', free: ['rgb(22, 51, 0)', 'rgb(159, 209, 130)', 'rgb(255, 255, 255)', 'rgb(159, 209, 130)', true, true, true],
+      tile: ['rgb(255, 255, 255)', 'rgb(225, 229, 220)', true, true], wide: 0 }, `${w} px: the summary in the home page's language (sage page, forest card with its name on top and its lime See at the foot, white tiles)`);
+    if (w === 390) {
+      // the other pages, the company's side, the dark theme: as they were
+      await page.evaluate(() => navigate('plan'));
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor]), [false, 'rgb(255, 255, 255)'], 'Plan keeps its white page');
+      await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
+      eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'the company’s summary keeps its look');
+      await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });
+      eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'the dark theme keeps its look');
+    }
+    eq(errors, [], `${w} px, the landing look: no error in the console`); await browser.close();
+  }
+  ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
+  await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
+  eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'a computer keeps its summary');
+  eq(errors, [], 'computer, the landing look: no error in the console'); await browser.close();
   done('qc-summary-phone');
 })();

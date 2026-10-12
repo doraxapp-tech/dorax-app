@@ -24,26 +24,36 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.click('.navbar [data-a="sheet"]'); await page.waitForSelector('.sheet .nav');
   eq(await page.evaluate(() => [document.querySelector('.sheet .nav a').getAttribute('href'), !!document.querySelector('.sheet .nav a[href="#accounts"]')]), ['#transactions', true], 'Transactions is the first thing in More; Accounts is in it');
   await page.evaluate(() => A.close()); await page.waitForTimeout(250);
-  // ---------- 2. Accounts ----------
+  // ---------- 2. Accounts on a phone (owner, 2026-10-11: "do what you propose"): one button, the accounts as rows by kind under their totals, how long
+  // the savings last; a card's face is in its panel (features/accounts/accounts.phone.js) ----------
   await page.evaluate(() => navigate('accounts')); await page.waitForFunction(() => UI.route === 'accounts');
-  const cards = await page.evaluate(() => { const items = [...document.querySelectorAll('.cc-grid .cc-item')], list = cardsOf(personal());      // one card per account, its credit inside it (2026-10-09)
-    return { n: items.length === list.length, each: items.every(it => { const a = acct(it.dataset.id), c = it.querySelector('.ccard'), r = c.getBoundingClientRect(), b = BANK_MARKS[a.institution], bal = accountBalance(S, a.id, S.today);
+  eq(await page.evaluate(() => { const v = document.querySelector('#view'), parts = ['.acc-ph-acts', '#acc-day', '#acc-cc', '#acc-sv', '#acc-cover'].map(q => v.querySelector(q)), list = personal(), base = cardsOf(list);
+      const day = base.filter(a => ['checking', 'cash'].includes(a.type)), cc = list.filter(a => a.type === 'credit'), sv = base.filter(a => a.type === 'savings'), ids = q => [...v.querySelectorAll(q + ' .ac-row')].map(b => b.dataset.id).join();
+      const tot = (q, xs) => v.querySelector(q + ' .acc-grp-total').innerText.trim() === fmt.money(xs.reduce((n, a) => n + accountBalance(S, a.id, S.today), 0), 'BRL');
+      return [parts.every(Boolean) && parts.every((e, k) => !k || (parts[k - 1].compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING)), ids('#acc-day') === day.map(a => a.id).join(), ids('#acc-cc') === cc.map(a => a.id).join(), ids('#acc-sv') === sv.map(a => a.id).join(),
+        tot('#acc-day', day), tot('#acc-cc', cc), tot('#acc-sv', sv), [...v.querySelectorAll('.acc-ph-acts .btn')].map(b => b.dataset.a), !v.querySelector('.tiles, .tile, .acc-view, .ccard, [data-a="acct-del-pick"]'), !/Household net balance|beta|being tried/i.test(v.innerText)]; }),
+    [true, true, true, true, true, true, true, ['account-add'], true, true], 'Accounts on a phone: one button, then day to day, credit cards and savings as rows under their totals, then how long the savings last; no figures on top, no view switch, no delete button, no card faces on the page');
+  eq(await page.evaluate(() => [...document.querySelectorAll('#acc-cc .ac-row')].every(r => { const a = acct(r.dataset.id); return r.querySelector('.num').classList.contains('neg') === (accountBalance(S, a.id, S.today) < 0) && !!r.querySelector('.meter') === !!a.creditLimit && /Invoice|No due date/.test(r.querySelector('small').innerText); })),
+    true, 'a credit card’s row: what is owed in red, its next invoice and due date, and a bar of the limit used');
+  // each card's face, in its panel: a real card's shape, in its bank's colour, its balance (owed on a card), the holder, the kind, the chip; no number made up
+  eq(await page.evaluate(() => cardsOf(personal()).every(a => { A.close(); A['card-view']({ id: a.id }); const c = document.querySelector('#overlay .cv > .ccard'), r = c.getBoundingClientRect(), b = BANK_MARKS[a.institution], bal = accountBalance(S, a.id, S.today);
       return Math.abs(r.width / r.height - 1.586) < .02 && (!b || c.style.getPropertyValue('--cc') === b.bg) && c.querySelector('.cc-amt b').textContent.trim() === fmt.money(a.type === 'credit' ? -bal : bal, a.currency)
-        && c.querySelector('.cc-holder').textContent.trim() === S.user.name.toLocaleUpperCase() && c.querySelector('.cc-kind').textContent.trim().length > 0 && !/\d{4}\s?\d{4}/.test(c.textContent) && !!(c.querySelector('.cc-logo .inst') && c.querySelector('.cc-chip'))
-        && it.querySelector('.cc-meta [data-a="card-tx"], .cc-meta [data-a="view-account"]') && it.querySelector('.cc-meta [data-a="edit-account"]'); }),
-      credit: [...document.querySelectorAll('.ccard.credit .cc-amt small')].every(s => s.textContent.trim() === 'Owed'), old: document.querySelectorAll('#view .card.acct').length, beta: !document.querySelector('.beta-note, [data-a="wallet-beta"]') && !/beta|being tried/i.test(document.querySelector('#view').innerText) }; });
-  eq([cards.n, cards.each, cards.credit, cards.old, cards.beta], [true, true, true, 0, true], 'Accounts: every account a card of a real card’s shape, in its bank’s colour, its balance (owed on a card), the holder, the kind, the chip; no number made up; its buttons under it; no notice that it is being tried');
-  // ---------- 2b. the card opens its panel (its transactions a tap further); no figures on top ----------
-  eq(await page.evaluate(() => { const v = document.querySelector('#view'); return [!!v.querySelector('.tiles, .tile'), /Household net balance|Each currency is totalled/.test(v.innerText), v.firstElementChild.matches('.acc-acts') && v.firstElementChild.nextElementSibling.matches('.acc-head')]; }), [false, false, true], 'a phone: no figures on top of Accounts (the household’s net balance is in the bar above, the number of accounts said nothing); add and delete, the side’s name (with the view switch) and the cards come first');
-  const tap = await page.evaluate(() => { const b = document.querySelectorAll('.cc-grid .cc-tap')[1]; const r = b.getBoundingClientRect(); return { id: b.dataset.id, label: b.getAttribute('aria-label'), h: r.height, a: b.dataset.a, tag: b.tagName, name: acct(b.dataset.id).name }; });
-  // since 2026-10-09 (owner: "when I tap a card in Accounts it takes me to transactions; I want it to open the menu as in the summary tab")
-  eq([tap.tag, tap.a, tap.h >= 44, tap.label.startsWith(tap.name + ': ') && !/View transactions$/.test(tap.label)], ['BUTTON', 'card-view', true, true], 'each card is one button, its name and balance said');
-  await page.tap(`.cc-grid .cc-tap[data-id="${tap.id}"]`); await page.waitForSelector('#overlay .cv');
+        && c.querySelector('.cc-holder').textContent.trim() === S.user.name.toLocaleUpperCase() && c.querySelector('.cc-kind').textContent.trim().length > 0 && !/\d{4}\s?\d{4}/.test(c.textContent) && !!(c.querySelector('.cc-logo .inst') && c.querySelector('.cc-chip')); }) && (A.close(), true)),
+    true, 'each account’s card, in its panel: a real card’s shape, in its bank’s colour, its balance, the holder, the kind, the chip; no number made up');
+  // ---------- 2b. a row opens the account's panel; closed, the focus is back on the row ----------
+  const tap = await page.evaluate(() => { const b = document.querySelectorAll('#acc-day .ac-row')[1]; const r = b.getBoundingClientRect(); return { id: b.dataset.id, label: b.getAttribute('aria-label'), h: r.height, a: b.dataset.a, tag: b.tagName, name: acct(b.dataset.id).name }; });
+  eq([tap.tag, tap.a, tap.h >= 44, tap.label.startsWith(tap.name + ': ')], ['BUTTON', 'card-view', true, true], 'each account is one row, one button, its name and balance said');
+  await page.tap(`#acc-day .ac-row[data-id="${tap.id}"]`); await page.waitForSelector('#overlay .cv');
   const acts = await page.evaluate(id => acct(id).type === 'credit' ? ['expense', 'edit'] : ['expense', 'income', 'edit'], tap.id);      // a credit card takes no income; the transactions are under the actions
-  eq(await page.evaluate(() => [UI.route, UI.drawer.kind, UI.drawer.id, [...document.querySelectorAll('#overlay .cv-acts button')].map(b => b.dataset.v)]), ['accounts', 'card-view', tap.id, acts], 'a tap on the card: its panel opens, with its details and what can be done with it, as on the summary');
+  eq(await page.evaluate(() => [UI.route, UI.drawer.kind, UI.drawer.id, [...document.querySelectorAll('#overlay .cv-acts button')].map(b => b.dataset.v)]), ['accounts', 'card-view', tap.id, acts], 'a tap on the row: its panel opens, with the card, its details and what can be done with it, as on the summary');
   await page.keyboard.press('Escape'); await page.waitForTimeout(350);
-  eq(await page.evaluate(() => document.activeElement.classList.contains('cc-tap') && document.activeElement.dataset.id), tap.id, 'closed: the focus is back on that card');
-  await page.tap(`.cc-grid .cc-tap[data-id="${tap.id}"]`); await page.waitForSelector('#overlay .cv-ops');
+  eq(await page.evaluate(() => document.activeElement.classList.contains('ac-row') && document.activeElement.dataset.id), tap.id, 'closed: the focus is back on that row');
+  const cc = await page.evaluate(() => document.querySelector('#acc-cc .ac-row').dataset.id);
+  await page.tap(`#acc-cc .ac-row[data-id="${cc}"]`); await page.waitForSelector('#overlay .cv-ops');
+  eq(await page.evaluate(() => [UI.drawer.fn, document.querySelector('#overlay .op-fn [aria-pressed="true"]') ? document.querySelector('#overlay .op-fn [aria-pressed="true"]').dataset.v : 'credit only']), ['credit', await page.evaluate(id => cardCredit(cardMain(acct(id))) ? 'credit' : 'credit only', cc)], 'a credit card’s row opens its panel on its credit');
+  await page.keyboard.press('Escape'); await page.waitForTimeout(350);
+  eq(await page.evaluate(() => document.activeElement.dataset.id), cc, 'closed: the focus is back on the card’s row');
+  await page.tap(`#acc-day .ac-row[data-id="${tap.id}"]`); await page.waitForSelector('#overlay .cv-ops');
   await page.tap('#overlay .op-head .linkbtn'); await page.waitForFunction(() => UI.route === 'transactions');
   eq(await page.evaluate(() => [UI.tx.account, !UI.drawer]), [tap.id, true], 'its transactions come up in the panel, and all of them are one tap further, the panel closed');
   await page.evaluate(() => navigate('accounts')); await page.waitForFunction(() => UI.route === 'accounts');
@@ -91,8 +101,8 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => { const b = document.querySelector('#set-beta'); return [b.querySelector('b').innerText.trim(), !!b.querySelector('.chip'), /beta/i.test(b.innerText)]; }), ['Accounts as cards', false, false], 'Settings: “Accounts as cards”, no word of a beta');
   await page.click('label.switch:has(#set-wallet)'); await page.waitForFunction(() => S.settings.wallet === false);
   await page.evaluate(() => navigate('accounts'));
-  eq(await page.evaluate(() => [S.settings.wallet, document.querySelectorAll('#view .card.acct').length > 0, !!document.querySelector('.cc-grid'), [...document.querySelectorAll('#tabbar a')].map(a => a.getAttribute('href'))]), [false, true, false, ['#dashboard', '#transactions', '#plan', '#goals']],
-    'switched off: the previous cards and the previous bar');
+  eq(await page.evaluate(() => [S.settings.wallet, !!document.querySelector('#acc-day .ac-row'), !!document.querySelector('.cc-grid, #view .ccard'), [...document.querySelectorAll('#tabbar a')].map(a => a.getAttribute('href'))]), [false, true, false, ['#dashboard', '#transactions', '#plan', '#goals']],
+    'switched off: the previous bar; a phone’s Accounts keeps its rows (since 2026-10-11 they are not cards either way)');
   await page.evaluate(() => navigate('dashboard'));
   ok(await page.evaluate(() => !!document.querySelector('#ac-card .ac-list') && !document.querySelector('.wallet')), 'and the list of accounts on the dashboard');
   await page.evaluate(() => navigate('settings')); await page.click('label.switch:has(#set-wallet)'); await page.waitForFunction(() => S.settings.wallet === true);

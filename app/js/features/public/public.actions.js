@@ -33,6 +33,16 @@ const PUBLIC_ACTIONS = {
     const c = calcState(); try { localStorage.setItem(CALC_KEY, JSON.stringify({ at: Date.now(), dream: c.dream, cost: c.cost, saved: c.saved })); } catch (e) { /* a browser that keeps nothing: the setup starts empty */ }
     PUBLIC_ACTIONS['pub-go']({ v: 'signup' });
   },
+  /** The home page's phone: the household's side or the company's (2026-10-11). Only the phone and the two buttons are drawn again, and the pressed one keeps the focus. */
+  'lp-side'(ds) {
+    UI.lpSide = ds.v === 'co' ? 'co' : 'home'; const co = UI.lpSide === 'co', ph = $('l2-phone'); if (ph) ph.outerHTML = l2Phone(co);
+    document.querySelectorAll('.l2-sg').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.v === 'co') === co)));
+  },
+  /** One of the four moments of the month opens and shows how it looks in Dorax; only the four are drawn again. */
+  'lp-moment'(ds) {
+    const n = Math.max(0, Math.min(3, +ds.v || 0)), row = $('l2-moments'); UI.lpMoment = n; if (!row) return;
+    row.innerHTML = l2Moments(); const el = row.querySelector('.l2-mo.on'); if (el) el.focus({ preventScroll: true });
+  },
   'pub-scroll'(ds) { const el = $(ds.id); if (el) el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }); },
   // contact: the same form before login (a page) and inside the app (a panel). The message goes to the server.
   contact() { UI.sheet = false; UI.contact = null; UI.drawer = { kind: 'contact', title: t('Contact') }; renderOverlay(); const el = $('ct-message'); if (el) el.focus(); },

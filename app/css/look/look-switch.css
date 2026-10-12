@@ -1,0 +1,28 @@
+/* Dorax Finance — the switches (a row of two or three choices: Credit | Debit, Expense | Income | Transfer, Plan | Actual | Difference…).
+   Owner, 2026-10-11: "I don't like the very light green of the switches, e.g. Credit/Debit, and they all have a different size for some reason;
+   standardise them, every switch the same large size as Debit/Credit (the size is on the computer; on a phone they look fine)".
+     - the choice made, in the light theme: ink #0E0F0C with white words on a soft grey track, on both sides. Chosen with him the same day, after a
+       forest one ("not so green, I don't like it") and a white one, over lime: lime is the colour of the main button (Save, Add transaction), and a
+       lime choice beside it makes two things look like the one to press. The dark theme keeps its own.
+     - on a computer every switch the same size, large but not enormous (owner, same day: "don't make the switches enormous now"): 44 px choices,
+       the thumb's size, on a 50 px track, 14 px words, as on a phone; in a panel it takes the panel's
+       width, as Credit | Debit and Expense | Income | Transfer do; on a page it is as wide as its words. Phones keep their 44 px (screens/thumb.css).
+       The exceptions keep their size (their colour follows the others): Accept | Ignore on each row of an import's review, so a long statement
+       stays a table to scan, not a column of tall rows; and the two in the frame, the top bar's and the person's menu's (below).
+   This file loads after the others, so it only says what changes. */
+
+/* ---------- the choice made ---------- */
+:root.app-light .seg { background: #EEF1EA; border-color: #E1E5DC; }
+:root.app-light .seg button[aria-pressed="true"], :root.app-light .seg button[aria-pressed="true"]:hover, :root.app-light .seg.rep-view button[aria-pressed="true"] { background: #0E0F0C; color: #FFFFFF; font-weight: 600; box-shadow: none; }
+
+/* ---------- one size on a computer ---------- */
+@media (min-width: 921px) {
+  .seg { padding: 2px; gap: 2px; }
+  .seg:not(.rv-dec) button, .seg.tx-pocket button, .tx-pay .seg button { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; font-size: 14px; font-weight: 500; line-height: 1.2; text-align: center; }
+  .drawer .seg { display: flex; width: 100%; align-self: stretch; }
+  .drawer .seg button { flex: 1 1 0; min-width: 0; padding: 0 12px; }
+  /* two places of the frame keep the frame's height, where a 50 px switch would crowd them: the top bar (its month, Journey and main button are 36 to 38 px;
+     the company's BRL | USD) and the person's menu (rows of 40 px; Appearance, two icons) */
+  .topbar .seg button { min-height: 32px; padding: 0 14px; }      /* 38 px with its track, as the main button beside it: the bar keeps its height on both sides */
+  .umenu .seg button { min-height: 0; width: 36px; height: 26px; padding: 0; }
+}

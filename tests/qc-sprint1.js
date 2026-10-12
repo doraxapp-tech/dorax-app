@@ -25,13 +25,13 @@ const { open, ok, eq, done } = require('./pw.js');
   const withPay = await page.evaluate(() => { const y = +S.today.slice(0, 4), row = (S.pay[y] || [])[0]; if (!row) return null; row.day = 20; const x = freeUntil(S, S.today, CUR); return [x.until, !!x.pay]; });
   if (withPay) eq(withPay, ['2026-10-20', true], 'with a pay day on the 20th, it runs to the 20th');
   // a shortfall
-  eq(await page.evaluate(() => { const keep = S.transactions.slice(); S.transactions.push({ id: 'big-out', accountId: 'nu-conta', date: S.today, type: 'expense', amount: -5000000, currency: 'BRL', categoryId: 'other', status: 'confirmed', merchant: 'Big' }); navigate('dashboard'); const c = document.querySelector('#free-card'), out = [c.querySelector('.fu-big').classList.contains('neg'), /Not enough money/.test(c.innerText) && /to pay everything/.test(c.innerText)]; S.transactions = keep; navigate('dashboard'); return out; }),
-    [true, true], 'when what is due is more than what there is: the figure in red and how much is missing, without blame');
+  eq(await page.evaluate(() => { const keep = S.transactions.slice(); S.transactions.push({ id: 'big-out', accountId: 'nu-conta', date: S.today, type: 'expense', amount: -5000000, currency: 'BRL', categoryId: 'other', status: 'confirmed', merchant: 'Big' }); navigate('dashboard'); const gone = !document.querySelector('#free-card'); A['free-view'](); const c = document.querySelector('.fu-view'), out = [gone, c.querySelector('.fu-big').classList.contains('neg'), UI.drawer.title === 'Not enough money' && /to pay everything/.test(c.innerText)]; A.close(); S.transactions = keep; navigate('dashboard'); return out; }),
+    [true, true, true], 'when what is due is more than what there is: no card on the phone’s summary (owner, 2026-10-11; the bell says it); its details: the figure in red and how much is missing, without blame');
   await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
   eq(await page.evaluate(() => !document.querySelector('#free-card')), true, 'the company’s side has none (a pay day is the household’s)');
   await page.evaluate(() => { A.space({ v: 'personal' }); navigate('dashboard'); });
   // ---------- 4. the people's words ----------
-  eq(await page.evaluate(() => (document.querySelector('#runway-card .rw-alias') || {}).innerText), 'Your emergency fund', 'Days of freedom says “Your emergency fund” under its name');
+  eq(await page.evaluate(() => (document.querySelector('#runway-card .part-h .sub, #runway-card .rw-alias') || {}).innerText), 'Your emergency fund', 'Days of freedom says “Your emergency fund” under its name (on a phone under its name outside the card, 2026-10-11)');
   // ---------- 2. spending limits ----------
   const add = amount => page.evaluate(a => { S.transactions.push({ id: 'g' + a, accountId: 'nu-card', date: S.today, type: 'expense', amount: -a, currency: 'BRL', categoryId: 'casa', subcategoryId: 'supermercado', status: 'confirmed', merchant: 'Mercado' }); render(); }, amount);
   await add(80000);      // 214,80 + 800 = 1.014,80 of 1.200: 85%

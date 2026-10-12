@@ -15,7 +15,7 @@ const { open, ok, eq, done, fixture } = require('./pw.js');
 const { createServer, rewriteFor } = require('../tools/serve.js');
 
 const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato' };
-const MARK = { landing: '.lp-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title' };
+const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title' };
 const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance' };
 
 (async () => {
@@ -66,11 +66,11 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
   await page.goForward(); await page.waitForSelector(MARK.login); eq(await at(page), '/entrar', 'Forward: the login');
   await page.click('.auth-back'); await page.waitForSelector(MARK.landing); eq(await at(page), '/', '"Home" on the login: the home page');
   // Back on the home page returns to where it was being read
-  await page.evaluate(() => document.querySelector('.lp-foot').scrollIntoView()); const y = await page.evaluate(() => window.scrollY);
-  await page.click('.lp-foot [data-v="privacy"]'); await page.waitForSelector(MARK.privacy); eq([await at(page), await page.evaluate(() => window.scrollY)], ['/privacidade', 0], 'the footer → Privacy policy, from its top');
+  await page.evaluate(() => document.querySelector('.l2-foot').scrollIntoView()); const y = await page.evaluate(() => window.scrollY);
+  await page.click('.l2-foot [data-v="privacy"]'); await page.waitForSelector(MARK.privacy); eq([await at(page), await page.evaluate(() => window.scrollY)], ['/privacidade', 0], 'the footer → Privacy policy, from its top');
   await page.goBack(); await page.waitForSelector(MARK.landing); ok(y > 500 && Math.abs(await page.evaluate(() => window.scrollY) - y) < 4, 'Back: the home page, where it was being read', [y, await page.evaluate(() => window.scrollY)]);
   // a section of the home page is still a section, not a page
-  await page.click('.lp-nav [data-id="lp-faq"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');
+  await page.click('.l2-nav [data-id="lp-faq"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');
 
   // ---------- 4. Ctrl + click: another tab ----------
   const [tab] = await Promise.all([ctx.waitForEvent('page'), page.click('.lp-actions [data-v="signup"]', { modifiers: ['Control'] })]);

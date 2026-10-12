@@ -1,0 +1,34 @@
+/* Dorax Finance — the phone's top of the page, in the second look (owner, 2026-10-11: "on the phone: align the household's net balance to the left,
+   make the date selector smaller and move it to the left together with Journey"). Both themes; a computer keeps its own bar (app/shell.js).
+     - the household's net balance on the left, the eye beside it, as the company's has been since 2026-10-10 (screens/phone.css, .bar-bal.co);
+     - the month a compact pill on the left: its two arrows and the month between them, as wide as the month's name; Journey right beside it.
+       The strip still swipes (features/phone/phone.month.js), one month at a time; the months before and after no longer peek in at its edges.
+       Far back, "Back to present" comes in beside the month, as before, and the Journey steps out meanwhile (screens/journey.css). */
+@media (max-width: 920px) {
+  /* ---------- the net balance, on the left ---------- */
+  .bar-bal:not(.co) { display: flex; align-items: center; justify-content: flex-start; gap: 2px; padding-inline: 16px; padding-bottom: 4px; }
+  .bar-bal:not(.co) .bb-link { flex: 0 1 auto; align-items: flex-start; text-align: left; padding: 4px 0; }
+  .bar-bal:not(.co) .bb-eye { flex: none; align-self: flex-end; }
+
+  /* ---------- the month, compact, on the left; Journey beside it ---------- */
+  .pagehead.has-month { justify-content: flex-start; gap: 6px 8px; }
+  .pagehead .m-row, .pagehead:has(.jr-btn) .m-row { flex: 0 0 auto; }
+  .pagehead .month.m-ph { flex: 0 0 auto; }
+  .pagehead .m-ph button, .pagehead .m-row.far .m-ph button { width: 44px; }      /* a thumb's 44 px (screens/thumb.css widens what a finger gets to 52) */
+  .pagehead .m-row .m-strip { flex: 0 0 auto; width: calc(8ch + 14px); -webkit-mask-image: none; mask-image: none; }
+  .pagehead .m-ph .m-slide, .pagehead:has(.jr-btn) .m-ph .m-slide { width: calc(8ch + 14px); }
+  .pagehead .m-strip::before, .pagehead .m-strip::after, .pagehead:has(.jr-btn) .m-strip::before, .pagehead:has(.jr-btn) .m-strip::after { flex-basis: 0; }
+  .pagehead .m-back { margin-right: 0; padding-right: 0; }      /* beside the month now, not at the screen's edge */
+}
+/* far back on a phone narrower than 375 px: the month, its name whole, and "Back to present" beside it; the arrows step out (the strip still swipes,
+   the button is the way back), as they did below 360 px before (screens/phone.css) */
+@media (max-width: 374px) {
+  .pagehead .m-row.far .m-ph button { display: none; }
+}
+/* the narrowest phones (320 px): the month and Journey a little tighter, so they share one row; with a streak the flame and its number say Journey,
+   so its word steps out of sight (a screen reader still hears "Journey · 12 days streak", its label) */
+@media (max-width: 359px) {
+  .pagehead .m-row .m-strip, .pagehead .m-ph .m-slide, .pagehead:has(.jr-btn) .m-ph .m-slide { width: calc(8ch + 6px); }
+  .pagehead .jr-btn { padding-inline: 10px; }
+  .pagehead .jr-btn:has(b) > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}

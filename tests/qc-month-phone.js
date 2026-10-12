@@ -1,8 +1,9 @@
 // QC of the month on a phone (owner, 2026-10-08: "on the phone make the date selector use 100% of the space, background #000000 and border
 // #1A1A1A, put the date in green, and let it be swiped to move between months. If the user goes far back, make a button 'back to present' appear
 // with a push animation: it comes in from right to left and pushes the date, which shrinks. Remove the divider under the date too.").
-//   1. the month takes the whole row, black with a #1A1A1A edge, the month in green; no line under it; the strip rests on the month on screen,
-//      the next and previous ones just showing at its edges; a screen reader hears the month once, and the arrows;
+//   1. the month a compact pill on the left, Journey right beside it (owner, 2026-10-11: "make the date selector smaller and move it to the left
+//      together with Journey"), black with a #1A1A1A edge, the month in green; no line under it; the strip is one month wide and rests on the month
+//      on screen; a screen reader hears the month once, and the arrows;
 //   2. a finger swipes it: to the right, the month before (the page comes in from the left); to the left, the month after; a quick flick moves
 //      one month, however fast (what is under the finger follows it, so a drag across two months' width moves two); nothing past the present;
 //      a short, slow drag springs back;
@@ -34,16 +35,18 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
 (async () => {
   let { browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, motion: true, ...PHONE });
   await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(900);
+  // the distances below are in months: since v167 the strip is one month wide (about 80 px); a drag past half a month and lifted moves one month
+  const W = await page.evaluate(() => document.querySelector('.pagehead .m-slide.on').getBoundingClientRect().width), px = k => Math.round(W * k);
   const now = await page.evaluate(() => ymOf(S.today)), back = n => page.evaluate(n => addMonths(ymOf(S.today), -n), n);
   // ---------- 1. the row ----------
   eq(await page.evaluate(() => { const ph = document.querySelector('.pagehead'), row = ph.querySelector('.m-row'), m = ph.querySelector('.month'), s = m.querySelector('.m-strip'), cs = getComputedStyle(m);
       const sl = [...s.querySelectorAll('.m-slide')], on = s.querySelector('.m-slide.on'), prev = on.previousElementSibling.getBoundingClientRect(), sr = s.getBoundingClientRect();
-      const jb = ph.querySelector('.jr-btn').getBoundingClientRect(), mr = m.getBoundingClientRect(), pr = ph.getBoundingClientRect();      // since v130 the summary's row ends with the Journey button
-      return [Math.round(mr.left) === Math.round(pr.left + 16) && Math.round(jb.right) === Math.round(pr.right - 16) && mr.right <= jb.left - 6, cs.backgroundColor, cs.borderTopColor, getComputedStyle(on).color, getComputedStyle(ph).borderBottomWidth,
-        on.dataset.ym === S.month, sl[0].dataset.ym === minMonth() && sl[sl.length - 1].dataset.ym === ymOf(S.today), prev.right > sr.left + 4 && prev.left < sr.left,
+      const jb = ph.querySelector('.jr-btn').getBoundingClientRect(), mr = m.getBoundingClientRect(), pr = ph.getBoundingClientRect();      // since v130 the summary's row has the Journey button; since v167 right beside the month
+      return [Math.round(mr.left) === Math.round(pr.left + 16) && jb.left - mr.right >= 6 && jb.left - mr.right <= 12 && mr.width <= 175 && jb.right < pr.right - 40, cs.backgroundColor, cs.borderTopColor, getComputedStyle(on).color, getComputedStyle(ph).borderBottomWidth,
+        on.dataset.ym === S.month, sl[0].dataset.ym === minMonth() && sl[sl.length - 1].dataset.ym === ymOf(S.today), Math.abs(sr.width - on.getBoundingClientRect().width) <= 1 && prev.right <= sr.left + 1,
         s.getAttribute('aria-hidden'), s.tabIndex, m.querySelector('.sr').textContent === fmt.month(S.month, true), [...m.querySelectorAll('button')].map(b => b.getAttribute('aria-label')), !!row.querySelector('.m-back')]; }),
     [true, 'rgb(0, 0, 0)', 'rgb(26, 26, 26)', 'rgb(159, 209, 130)', '0px', true, true, true, 'true', -1, true, ['Mes anterior', 'Mes siguiente'], false],
-    'the month takes the row up to the Journey button (v130), black with a #1A1A1A edge, in green, no line under it; the strip holds every month from the first to the present and rests on this one, the month before just showing at its edge; a screen reader hears the month once and the two arrows; no button at the present');
+    'the month a compact pill on the left, the Journey button right beside it (v167), black with a #1A1A1A edge, in green, no line under it; the strip holds every month from the first to the present, is one month wide and rests on this one; a screen reader hears the month once and the two arrows; no button at the present');
   ok((await state(page)).centred, 'the month on screen sits in the middle of the strip');
   // ---------- 2. a finger ----------
   await page.evaluate(() => { window.__cls = []; new MutationObserver(() => { const c = document.querySelector('#view').className; if (/from-/.test(c)) __cls.push(c.match(/from-\w+/)[0]); }).observe(document.querySelector('#view'), { attributes: true, attributeFilter: ['class'] }); });
@@ -60,16 +63,16 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
     await page.evaluate(() => monthGo(ymOf(S.today))); await page.waitForTimeout(500);
   }
   await page.evaluate(() => { window.__cls = []; });
-  await swipe(page, 150);
+  await swipe(page, px(.8));
   eq([await state(page), await page.evaluate(() => [...new Set(__cls)].join())], [{ month: await back(1), centred: true, back: false, label: null }, 'from-prev'], 'a swipe to the right: the month before, in the middle of the strip, its page coming in from the left');
-  await swipe(page, 120, 2);
+  await swipe(page, px(.9), 2);
   eq([await state(page), await page.evaluate(() => [getComputedStyle(document.querySelector('.pagehead .m-strip')).scrollSnapType, getComputedStyle(document.querySelector('.pagehead .m-slide')).scrollSnapStop])],
     [{ month: await back(2), centred: true, back: false, label: null }, ['x mandatory', 'always']], 'a quick flick moves one month, not several: the strip comes to rest on a month, and stops at each one');
-  await swipe(page, -150);
+  await swipe(page, -px(.8));
   eq(await state(page), { month: await back(1), centred: true, back: false, label: null }, 'to the left: the month after');
-  await swipe(page, -150); await swipe(page, -150);
+  await swipe(page, -px(.8)); await swipe(page, -px(.8));
   eq((await state(page)).month, now, 'and nothing past the present');
-  await swipe(page, 30, 10, 40);
+  await swipe(page, px(.3), 10, 40);
   eq(await state(page), { month: now, centred: true, back: false, label: null }, 'a short, slow drag springs back: nothing changes');
   // ---------- 3. back to the present ----------
   await page.click('.pagehead .m-ph [data-d="-1"]'); await page.waitForTimeout(250); await page.click('.pagehead .m-ph [data-d="-1"]'); await page.waitForTimeout(250);
@@ -83,19 +86,19 @@ const state = page => page.evaluate(() => { const s = document.querySelector('.p
   await page.waitForTimeout(500);
   eq(await page.evaluate(() => { const row = document.querySelector('.pagehead .m-row').getBoundingClientRect(), m = document.querySelector('.pagehead .m-ph').getBoundingClientRect(), b = document.querySelector('.pagehead .m-back .btn').getBoundingClientRect(), on = document.querySelector('.pagehead .m-slide.on'), s = on.parentElement;
       const tw = (() => { const r = document.createRange(); r.selectNodeContents(on); return r.getBoundingClientRect(); })(), sr = s.getBoundingClientRect();
-      return [Math.round(m.left) === Math.round(row.left), b.right <= row.right + 0.5 && b.left >= m.right + 7, m.width < row.width - 150, tw.left >= sr.left && tw.right <= sr.right, b.height >= 44, document.querySelector('.pagehead .m-back .btn').innerText.trim(), getComputedStyle(document.querySelector('.pagehead .jr-btn')).display, Math.round(row.right) === Math.round(document.querySelector('.pagehead').getBoundingClientRect().right - 16)]; }),
-    [true, true, true, true, true, 'Volver al presente', 'none', true], 'once in: the month shrank to make room and keeps its name whole; the button a thumb high, at the row’s end; the Journey steps out meanwhile (no room for three)');
+      return [Math.round(m.left) === Math.round(row.left), b.right <= row.right + 0.5 && b.left >= m.right + 7 && b.left - m.right <= 12, m.width < row.width - 150, tw.left >= sr.left && tw.right <= sr.right, b.height >= 44, document.querySelector('.pagehead .m-back .btn').innerText.trim(), getComputedStyle(document.querySelector('.pagehead .jr-btn')).display, b.right <= document.querySelector('.pagehead').getBoundingClientRect().right - 16 + 0.5]; }),
+    [true, true, true, true, true, 'Volver al presente', 'none', true], 'once in: the month keeps its name whole; the button a thumb high, right beside it, inside the screen; the Journey steps out meanwhile (no room for three)');
   await page.evaluate(() => { window.__anims = []; });
   await page.click('.pagehead .m-back .btn'); await page.waitForTimeout(20);
   eq(await page.evaluate(() => { const a = window.__anims.find(x => x[0] === 'm-back leaving'); return [S.month === ymOf(S.today), !!a && a[2], !!a && /"width":"0px"\}\]$/.test(a[1])]; }),
     [true, true, true], 'tapped: the present month, and the button leaves the way it came, out of reach while it goes');
   await page.waitForTimeout(400);
-  eq(await page.evaluate(() => [!!document.querySelector('.pagehead .m-back'), document.activeElement.getAttribute('aria-label'), (() => { const m = document.querySelector('.pagehead .m-ph').getBoundingClientRect(), jb = document.querySelector('.pagehead .jr-btn').getBoundingClientRect(), pr = document.querySelector('.pagehead').getBoundingClientRect(); return Math.round(m.left) === Math.round(pr.left + 16) && Math.round(jb.right) === Math.round(pr.right - 16) && m.right <= jb.left - 6; })()]),
+  eq(await page.evaluate(() => [!!document.querySelector('.pagehead .m-back'), document.activeElement.getAttribute('aria-label'), (() => { const m = document.querySelector('.pagehead .m-ph').getBoundingClientRect(), jb = document.querySelector('.pagehead .jr-btn').getBoundingClientRect(), pr = document.querySelector('.pagehead').getBoundingClientRect(); return Math.round(m.left) === Math.round(pr.left + 16) && jb.left - m.right >= 6 && jb.left - m.right <= 12; })()]),
     [false, 'Mes anterior', true], 'then it is gone, the month and the Journey share the row again, and the focus is on the month');
   await page.evaluate(() => { S.month = addMonths(ymOf(S.today), -5); navigate('plan'); }); await page.waitForTimeout(500);
-  await swipe(page, -150); await swipe(page, -150);
+  await swipe(page, -px(.8)); await swipe(page, -px(.8));
   eq(await state(page), { month: await back(3), centred: true, back: true, label: 'Volver al presente' }, 'swiping forward, the button stays while still three months back');
-  await swipe(page, -150); await page.waitForTimeout(300);
+  await swipe(page, -px(.8)); await page.waitForTimeout(300);
   eq(await state(page), { month: await back(2), centred: true, back: false, label: null }, 'and goes once within reach');
   eq(errors, [], 'no error in the console'); await browser.close();
 

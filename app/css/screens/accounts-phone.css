@@ -1,0 +1,16 @@
+/* Dorax Finance — Accounts on a phone (features/accounts/accounts.phone.js; owner, 2026-10-11): one button, the accounts as rows by kind under their
+   totals, how long the savings last. The rows are the summary's (screens/phone.css, .ac-list), with a chevron: each opens its account. */
+@media (max-width: 920px) {
+  .acc-ph-acts { display: flex; margin: 8px 0 4px; }
+  .acc-ph-acts .btn { flex: 1 1 auto; min-height: 48px; gap: 8px; }
+  .acc-grp .card-h { align-items: baseline; }
+  .acc-grp-total { margin-left: auto; font-size: 16px; font-weight: 600; letter-spacing: -.01em; color: var(--ink-strong); white-space: nowrap; }
+  .acc-grp-total .neg { color: var(--neg); }
+  .acc-grp .ac-row > svg { flex: none; width: 16px; height: 16px; margin-left: -4px; color: var(--ink-3); }
+  .acc-grp .ac-row > .num { font-family: var(--fig); font-size: 16px; font-weight: 600; letter-spacing: -.005em; color: var(--ink-strong); white-space: nowrap; }
+  .acc-grp .ac-row > .num.neg { color: var(--neg); }
+  .acc-grp .ac-row small { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.35; }      /* an invoice and its date read whole */
+  .acc-grp .ac-row .meter { margin-top: 6px; height: 4px; }
+  .acc-grp .sv-none { padding: 2px 0 4px; }
+  #acc-cover .acc-big { font-size: 26px; font-weight: 600; letter-spacing: -.02em; }
+}

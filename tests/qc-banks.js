@@ -26,7 +26,7 @@ const PICTURE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><re
   const inl = banksTool.inlineText(tmp); ok(/"nubank":"data:image\/svg\+xml;base64,/.test(inl) && /"itau":"data:image\/jpeg;base64,/.test(inl), 'for the one-file preview the pictures are written into the list itself');
   fs.rmSync(tmp, { recursive: true, force: true });
 
-  // ---- the accounts page
+  // ---- the accounts page (a computer's cards; a phone's rows since 2026-10-11, features/accounts/accounts.phone.js)
   const tag = TARGET + ': ';
   for (const [lang, viewport, theme] of [['pt', { width: 1440, height: 900 }, 'dark'], ['en', { width: 390, height: 800 }, 'light']]) {
     const o = await open({ lang, account: 'example', plan: true, viewport, mobile: viewport.width < 500, touch: viewport.width < 500 }), p = o.page, where = `${tag}${lang} ${viewport.width} ${theme}: `;
@@ -34,12 +34,12 @@ const PICTURE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><re
       S.accounts.push({ id: 'qa-c6', name: 'Conta C6', institution: 'C6 Bank', type: 'checking', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 }, { id: 'qa-other', name: 'Cooperativa', institution: 'Sicoob <b>', type: 'savings', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 }, { id: 'qa-none', name: 'Carteira', institution: '', type: 'cash', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 });
       window.__logos = { ...BANK_LOGOS }; for (const k of Object.keys(BANK_LOGOS)) delete BANK_LOGOS[k];        // first without any logo file: what every bank looks like until its file is added
       navigate('accounts'); }, theme).catch(async () => { await p.evaluate(() => { for (const k of Object.keys(BANK_LOGOS)) delete BANK_LOGOS[k]; navigate('accounts'); }); });
-    await p.waitForSelector('.acct .inst');
-    const read = () => p.evaluate(() => [...document.querySelectorAll('.acct')].map(c => { const i = c.querySelector('.inst'), cs = getComputedStyle(i), r = i.getBoundingClientRect(), img = i.querySelector('img');
+    await p.waitForSelector('.acct .inst, .acc-grp .ac-row .inst');
+    const read = () => p.evaluate(() => [...document.querySelectorAll('.acct, .acc-grp .ac-row')].map(c => { const i = c.querySelector('.inst'), cs = getComputedStyle(i), r = i.getBoundingClientRect(), img = i.querySelector('img');
       return { name: c.querySelector('b').innerText, cls: i.className, text: i.innerText.trim(), label: i.getAttribute('aria-label') || (img && img.alt) || null, bg: cs.backgroundColor, ink: cs.color, size: [Math.round(r.width), Math.round(r.height)], round: cs.borderRadius, img: img ? [img.naturalWidth > 0, Math.round(img.getBoundingClientRect().width)] : null }; }));
     let cards = await read(); const by = n => cards.find(c => c.name === n) || {}, nu = cards.find(c => c.label === 'Nubank') || {};
     ok(cards.length >= 4 && cards.every(c => c.size[0] === 36 && c.size[1] === 36 && c.round === '50%'), where + 'every account has a round badge of the same size', cards.map(c => c.size));
-    const off = await p.evaluate(() => [...document.querySelectorAll('.acct .inst')].filter(i => i.innerText.trim()).map(i => { const r = document.createRange(); r.selectNodeContents(i); const t = r.getBoundingClientRect(), b = i.getBoundingClientRect(); return [Math.abs((t.top + t.bottom) / 2 - (b.top + b.bottom) / 2), Math.abs((t.left + t.right) / 2 - (b.left + b.right) / 2)]; }));
+    const off = await p.evaluate(() => [...document.querySelectorAll('.acct .inst, .acc-grp .ac-row .inst')].filter(i => i.innerText.trim()).map(i => { const r = document.createRange(); r.selectNodeContents(i); const t = r.getBoundingClientRect(), b = i.getBoundingClientRect(); return [Math.abs((t.top + t.bottom) / 2 - (b.top + b.bottom) / 2), Math.abs((t.left + t.right) / 2 - (b.left + b.right) / 2)]; }));
     ok(off.length >= 3 && off.every(([y, x]) => y <= 1.5 && x <= 1.5), where + 'the letters sit in the middle of every badge', off.map(o => o.map(Math.round)));
     eq([nu.cls, nu.text, nu.bg, nu.ink], ['inst bank', 'NU', 'rgb(130, 10, 209)', 'rgb(255, 255, 255)'], where + 'a Nubank account wears Nubank’s colour and letters, and says the bank’s name to a screen reader');
     eq([by('Conta C6').cls, by('Conta C6').text, by('Conta C6').label, by('Conta C6').bg], ['inst bank', 'C6', 'C6 Bank', 'rgb(36, 36, 36)'], where + 'so does a C6 Bank account');
@@ -47,12 +47,12 @@ const PICTURE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><re
     eq(new Set(cards.filter(c => c.cls === 'inst bank').map(c => c.bg)).size, new Set(cards.filter(c => c.cls === 'inst bank').map(c => c.label)).size, where + 'different banks have different colours');
     // a logo file is there for one bank: that bank shows the picture, the others keep their colour
     await p.evaluate(pic => { BANK_LOGOS.nubank = 'data:image/svg+xml,' + encodeURIComponent(pic); render(); }, PICTURE);
-    await p.waitForFunction(() => { const i = document.querySelector('.acct .inst.pic img'); return i && i.complete && i.naturalWidth > 0; });
+    await p.waitForFunction(() => { const i = document.querySelector('.acct .inst.pic img, .acc-grp .ac-row .inst.pic img'); return i && i.complete && i.naturalWidth > 0; });
     cards = await read(); const nu2 = cards.find(c => c.label === 'Nubank') || {};
     eq([nu2.cls, nu2.text, nu2.img, cards.filter(c => c.cls === 'inst pic').length === cards.filter(c => c.label === 'Nubank').length, (cards.find(c => c.name === 'Conta C6') || {}).cls], ['inst pic', '', [true, 36], true, 'inst bank'], where + 'with a logo file for Nubank, its accounts show the picture, named for screen readers; the other banks keep their colour');
     // and with the logo files that really are in app/assets/banks/ (none, some or all of them): each one loads, whole, in its badge
     const real = await p.evaluate(async () => { for (const k of Object.keys(BANK_LOGOS)) delete BANK_LOGOS[k]; Object.assign(BANK_LOGOS, window.__logos || {}); render();
-      const imgs = [...document.querySelectorAll('.acct .inst.pic img')]; await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+      const imgs = [...document.querySelectorAll('.acct .inst.pic img, .acc-grp .ac-row .inst.pic img')]; await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
       return { listed: Object.keys(BANK_LOGOS).length, shown: imgs.length, broken: imgs.filter(i => !i.naturalWidth).map(i => i.alt), small: imgs.filter(i => i.naturalWidth && Math.min(i.naturalWidth, i.naturalHeight) < 144).map(i => i.alt), unnamed: imgs.filter(i => !i.alt).length }; });
     eq([real.broken, real.small, real.unnamed, real.listed === 0 || real.shown > 0], [[], [], 0, true], where + `the ${real.listed} logo file(s) in the folder load in their badges, are big enough to stay sharp, and name their bank`);
     eq(await p.evaluate(() => document.documentElement.scrollWidth - innerWidth) <= 0, true, where + 'nothing runs off the side');

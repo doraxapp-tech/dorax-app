@@ -71,21 +71,22 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
       await page.evaluate(v => A['pub-go']({ v }), v);
       const m = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - window.innerWidth, text: document.querySelector('#public').innerText, light: document.documentElement.classList.contains('app-light') }));
       ok(m.over <= 0, `${lang} ${w}px public ${v}: no sideways scroll`, m.over);
-      if (v === 'landing') { const [n, n2] = await page.evaluate(() => ['.lp-cta h2', '#lp-pj h2'].map(sel => { const h = document.querySelector(sel); return Math.round(h.getBoundingClientRect().height / parseFloat(getComputedStyle(h).lineHeight)); })); ok(n <= 2, `${lang} ${w}px home page: the closing heading is two lines at most (owner, 2026-10-05)`, n); ok(n2 <= 2, `${lang} ${w}px home page: the "for entrepreneurs" heading is two lines at most (owner, 2026-10-05: "too long")`, n2); }
+      if (v === 'landing') { const [n, n2] = await page.evaluate(() => ['.l2-end h2', '#lp-pj h2'].map(sel => { const h = document.querySelector(sel); return Math.round(h.getBoundingClientRect().height / parseFloat(getComputedStyle(h).lineHeight)); })); ok(n <= 2, `${lang} ${w}px home page: the closing heading is two lines at most (owner, 2026-10-05)`, n); ok(n2 <= 2, `${lang} ${w}px home page: the "for entrepreneurs" heading is two lines at most (owner, 2026-10-05: "too long")`, n2); }
       const bad = m.text.match(BAD); ok(!bad, `${lang} ${w}px public ${v}: no broken value`, bad && m.text.slice(Math.max(0, bad.index - 60), bad.index + 40));
-      ok(!m.light, `${lang} ${w}px public ${v}: stays dark`);
+      ok(!m.light, `${lang} ${w}px public ${v}: not in the app's light theme (its light/dark switch is for the app only)`);
       if (v === 'landing') { ok(!/emailed link|link sent to your email|enlace que llega|link enviado/i.test(m.text), `${lang} ${w}px: the home page no longer promises a login by link`); ok(/Google/.test(await page.evaluate(() => document.querySelector('#lp-faq').textContent)), `${lang} ${w}px: the home page mentions Google login (in its questions, since the "your data" section was removed)`); }
       // free for now (owner, 2026-10-05): no plans section, no prices, no paid tier named, and no link left pointing at a section that is not there
       if (v === 'landing' || v === 'terms') ok(!/R\$\s?7,99|R\$\s?14,99|R\$\s?79,90|R\$\s?149,90|\bPremium\b|\bPlus\b|Stripe/.test(m.text), `${lang} ${w}px public ${v}: no prices and no paid plan named`, (m.text.match(/.{0,40}(R\$\s?7,99|R\$\s?14,99|Premium|Plus\b|Stripe).{0,40}/) || [])[0]);
-      // the "home and company" hero (owner, 2026-10-07): who it is for, a two-part heading, one line, ONE button, and what trying costs right under it; nine questions, the first one about the price
-      if (v === 'landing') { const hero = await page.evaluate(() => { const c = document.querySelector('.lp-hero .lp-copy'), trust = c.querySelector('.lp-trust'), btn = c.querySelector('.btn.primary').getBoundingClientRect(), tr = trust.getBoundingClientRect(), lead = c.querySelector('.lead');
-          return { parts: [c.querySelectorAll('.eyebrow').length, c.querySelectorAll('h1').length, c.querySelectorAll('h1 .hl').length, c.querySelectorAll('.lead').length, c.querySelectorAll('.btn').length, c.querySelectorAll('.lp-trust').length], under: tr.top >= btn.bottom && tr.top - btn.bottom <= 24, bits: trust.textContent.split(' · ').length,
-            leadLines: Math.round(lead.getBoundingClientRect().height / parseFloat(getComputedStyle(lead).lineHeight)), h1Lines: Math.round(c.querySelector('h1').getBoundingClientRect().height / parseFloat(getComputedStyle(c.querySelector('h1')).lineHeight)), faq: document.querySelectorAll('.lp-faq details').length, first: document.querySelector('.lp-faq summary').textContent }; });
-        eq(hero.parts, [1, 1, 1, 1, 1, 1], `${lang} ${w}px home page: the hero is a label, one heading in two parts, one line, one button and the line under it`);
-        ok(hero.under && hero.bits === 3, `${lang} ${w}px home page: "free, no card, no bank password" sits right under the button`, [hero.under, hero.bits]);
-        ok(hero.h1Lines <= 2 && hero.leadLines <= 3, `${lang} ${w}px home page: a short heading (two lines at most) and a short line under it (three at most)`, [hero.h1Lines, hero.leadLines]);
+      // the hero (owner, 2026-10-07; second look approved 2026-10-11): who it is for, a two-part heading, one line, the main button with "How it works" beside it,
+      // and what trying costs right under them; nine questions, the first one about the price
+      if (v === 'landing') { const hero = await page.evaluate(() => { const c = document.querySelector('.l2-hero .l2-copy'), trust = c.querySelector('.l2-trust'), row = c.querySelector('.l2-cta').getBoundingClientRect(), tr = trust.getBoundingClientRect(), lead = c.querySelector('.l2-lead');
+          return { parts: [c.querySelectorAll('.l2-eyebrow').length, c.querySelectorAll('h1').length, c.querySelectorAll('h1 .hl').length, c.querySelectorAll('.l2-lead').length, c.querySelectorAll('.l2-btn').length, c.querySelectorAll('.l2-btn.lime').length, c.querySelectorAll('.l2-trust').length], under: tr.top >= row.bottom && tr.top - row.bottom <= 32, bits: trust.textContent.split(' · ').length,
+            leadLines: Math.round(lead.getBoundingClientRect().height / parseFloat(getComputedStyle(lead).lineHeight)), h1Lines: Math.round(c.querySelector('h1').getBoundingClientRect().height / parseFloat(getComputedStyle(c.querySelector('h1')).lineHeight)), faq: document.querySelectorAll('.l2-faq details').length, first: document.querySelector('.l2-faq summary').textContent }; });
+        eq(hero.parts, [1, 1, 1, 1, 2, 1, 1], `${lang} ${w}px home page: the hero is a label, one heading in two parts, one line, the main button and "How it works", and the line under them`);
+        ok(hero.under && hero.bits === 3, `${lang} ${w}px home page: "free, no card, no bank password" sits right under the buttons`, [hero.under, hero.bits]);
+        ok(hero.h1Lines <= 2 && hero.leadLines <= 4, `${lang} ${w}px home page: a short heading (two lines at most) and a short line under it (four at most)`, [hero.h1Lines, hero.leadLines]);
         eq(hero.faq, 9, `${lang} ${w}px home page: nine questions`); ok(/free|gratis|grátis/i.test(hero.first), `${lang} ${w}px home page: the first question is about the price`, hero.first); }
-      if (v === 'landing') { const d = await page.evaluate(() => ({ plans: document.querySelectorAll('#lp-plans, .lp-plans, .tier, [data-a="lp-bill"]').length, dead: [...document.querySelectorAll('[data-a="pub-scroll"]')].filter(b => !document.getElementById(b.dataset.id)).map(b => b.dataset.id), empty: [...document.querySelectorAll('.lp-go, .lp-sec-h .row')].filter(r => !r.children.length).length }));
+      if (v === 'landing') { const d = await page.evaluate(() => ({ plans: document.querySelectorAll('#lp-plans, .lp-plans, .tier, [data-a="lp-bill"]').length, dead: [...document.querySelectorAll('[data-a="pub-scroll"]')].filter(b => !document.getElementById(b.dataset.id)).map(b => b.dataset.id), empty: [...document.querySelectorAll('.l2-cta, .l2-pj-go, .l2-end-r')].filter(r => !r.children.length).length }));
         eq([d.plans, d.dead, d.empty], [0, [], 0], `${lang} ${w}px home page: no plans section, every link in the page has its section, no empty button row`);
         ok(/free|gratis|gratuito/i.test(await page.evaluate(() => document.querySelector('#lp-faq').textContent)), `${lang} ${w}px home page: the questions say it is free for now`); }
     }
@@ -94,8 +95,8 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
   }
   // C2. the questions on the home page open and close with a slide; with reduced motion they snap, as the browser does it
   {
-    const o = await open({ lang: 'pt', motion: 'no-preference' }); const p = o.page; await p.waitForSelector('.lp-faq details');
-    const q = p.locator('.lp-faq details').nth(1), sum = q.locator('summary'); await sum.scrollIntoViewIfNeeded();
+    const o = await open({ lang: 'pt', motion: 'no-preference' }); const p = o.page; await p.waitForSelector('.l2-faq details');
+    const q = p.locator('.l2-faq details').nth(1), sum = q.locator('summary'); await sum.scrollIntoViewIfNeeded();
     const h = () => q.evaluate(d => Math.round(d.getBoundingClientRect().height)), state = () => q.evaluate(d => [d.open, d.classList.contains('closing'), d.style.overflow, d.getAnimations({ subtree: true }).length]);
     const closed = await h(); await sum.click(); await p.waitForTimeout(60); const mid = await h(), during = await state();
     await p.waitForFunction(d => d.getAnimations({ subtree: true }).length === 0, await q.elementHandle()); const opened = await h();
@@ -107,105 +108,67 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
     await sum.click(); await p.waitForFunction(d => d.getAnimations({ subtree: true }).length === 0, await q.elementHandle()); eq([await h(), ...(await state())], [closed, false, false, '', 0], 'closed: the same height as before, and really closed');
     await sum.focus(); await p.keyboard.press('Enter'); await p.waitForFunction(d => d.open && d.getAnimations({ subtree: true }).length === 0, await q.elementHandle()); ok(true, 'the keyboard opens it too');
     eq(o.errors, [], 'questions with motion: no console errors'); await o.browser.close();
-    const r = await open({ lang: 'pt' }); await r.page.waitForSelector('.lp-faq details'); const rq = r.page.locator('.lp-faq details').nth(1); await rq.locator('summary').click();
+    const r = await open({ lang: 'pt' }); await r.page.waitForSelector('.l2-faq details'); const rq = r.page.locator('.l2-faq details').nth(1); await rq.locator('summary').click();
     eq(await rq.evaluate(d => [d.open, d.getAnimations({ subtree: true }).length]), [true, 0], 'reduced motion: the question opens at once, with no animation'); await r.browser.close();
   }
 
-  // C3. the home page, login and sign-up follow the owner's style reference (DESIGN 1.md, 2026-10-05), with the green main button he asked back; the rest keeps its own look
+  // C3. the home page's second look (owner, 2026-10-11, on the design canvas built from Wise's landing and his references: "La amé, push it"):
+  // light and warm, the app's forest and lime, Inter as in the app, Dorax's own pieces as pictures. Login and sign-up keep the dark system of
+  // DESIGN 1.md with the green main button (not asked to change); the legal pages keep their own look.
   for (const [w, h] of [[1440, 900], [390, 844]]) {
-    const o = await open({ lang: 'pt', viewport: { width: w, height: h } }); const p = o.page; await p.waitForSelector('.lp-actions');
+    const o = await open({ lang: 'pt', viewport: { width: w, height: h }, mobile: w < 500, touch: w < 500 }); const p = o.page; await p.waitForSelector('.lp-actions');
     const m = await p.evaluate(() => {
       const cs = (sel, prop) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[prop] : 'missing ' + sel; };
-      const all = [...document.querySelectorAll('.lp *')].filter(e => e.getClientRects().length);
-      const inMock = e => !!e.closest('.phone, .ill, .lp-float, .pjg, .pj-figs, .shot, .calc, .logo');      // .calc: the calculator is a piece of the app too (its sliders and dream buttons are the first-time setup's)
-      const chroma = c => { const m = /rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?/.exec(c); if (!m || m[4] === '0') return 0; return Math.max(+m[1], +m[2], +m[3]) - Math.min(+m[1], +m[2], +m[3]); };
       return {
-        canvas: [cs('.lp', 'backgroundColor'), getComputedStyle(document.body).backgroundColor],
-        main: [cs('.lp-copy .btn.primary', 'backgroundColor'), cs('.lp-copy .btn.primary', 'borderTopColor'), cs('.lp-copy .btn.primary', 'color'), cs('.lp-copy .btn.primary', 'borderTopLeftRadius'), cs('.lp-copy .btn.primary', 'boxShadow')],
-        other: [cs('.lp-cta .btn:not(.primary)', 'backgroundColor'), cs('.lp-cta .btn:not(.primary)', 'borderTopColor'), cs('.lp-cta .btn:not(.primary)', 'color')],       // the hero has one button since 2026-10-07; the closing call to action still has a second one beside the main one
-        h1: [cs('.lp h1', 'fontWeight'), cs('.lp h1', 'backgroundImage'), cs('.lp h1', 'color'), cs('.lp h1 .hl', 'color'), cs('.lp h2', 'fontWeight')],
-        font: cs('.lp', 'fontFamily').split(',')[0].trim(),
-        card: [cs('.bento article', 'borderTopLeftRadius'), cs('.bento article', 'boxShadow'), cs('.bento article', 'backgroundImage'), cs('.bento article', 'backgroundColor'), cs('.bento article', 'borderTopColor')],
-        nav: [cs('.lp-link', 'color'), cs('.lp-link', 'fontWeight')],
-        shadows: all.filter(e => !inMock(e) && /\d+px \d+px \d+px/.test(getComputedStyle(e).boxShadow) && !/0px 0px 0px/.test(getComputedStyle(e).boxShadow)).map(e => e.className).slice(0, 5),
-        gradients: all.filter(e => !inMock(e) && /gradient/.test(getComputedStyle(e).backgroundImage)).map(e => e.className).slice(0, 5),
-        round: all.filter(e => !inMock(e) && !e.matches('.btn, .lp-link, .lang-pill, .lang-pill *, .vs-box h3 i') && parseFloat(getComputedStyle(e).borderTopLeftRadius) > 8 && e.getBoundingClientRect().width > 12).map(e => e.className).slice(0, 5),
-        colour: all.filter(e => !inMock(e) && !e.matches('.btn.primary') && (chroma(getComputedStyle(e).color) > 24 || chroma(getComputedStyle(e).backgroundColor) > 24 || chroma(getComputedStyle(e).borderTopColor) > 24)).map(e => e.tagName + '.' + e.className).slice(0, 5),
-        pattern: [...document.querySelectorAll('.lp .weave')].filter(e => e.getClientRects().length).length,
-        logo: getComputedStyle(document.querySelector('.lp .logo .ac')).stroke, wide: Math.round(document.querySelector('.lp-sec').getBoundingClientRect().width),
+        canvas: [cs('.lp2', 'backgroundColor'), getComputedStyle(document.body).backgroundColor],
+        main: [cs('.l2-copy .l2-btn.lime', 'backgroundColor'), cs('.l2-copy .l2-btn.lime', 'color'), cs('.l2-copy .l2-btn.lime', 'borderTopLeftRadius'), cs('.l2-copy .l2-btn.white', 'backgroundColor')],
+        h1: [cs('.l2-h1', 'fontWeight'), cs('.l2-h1', 'color'), cs('.l2-h1 .hl', 'color'), cs('.l2-h2', 'fontWeight')],
+        font: cs('.lp2', 'fontFamily').split(',')[0].trim(),
+        logo: [getComputedStyle(document.querySelector('.l2-nav .logo')).color, getComputedStyle(document.querySelector('.l2-nav .logo .ac')).stroke],
+        old: document.querySelectorAll('.lp2 .lp, .lp2 .lp-hero, .lp2 .lp-sec, .lp2 .bento, .lp2 .phone, .lp2 .shot, .lp2 .weave').length,
+        ids: [...document.querySelectorAll('.lp2 main > section[id]')].map(e => e.id).join(' '),
       };
     });
-    eq(m.canvas, ['rgb(8, 9, 10)', 'rgb(8, 9, 10)'], `${w}px home page: the canvas is #08090a, to the edges of the window`);
-    eq(m.main, ['rgb(0, 98, 57)', 'rgba(62, 207, 142, 0.45)', 'rgb(247, 248, 248)', '9999px', 'none'], `${w}px home page: the main action is Dorax green, a pill, no shadow`);
-    eq(m.other, ['rgb(20, 21, 22)', 'rgb(35, 37, 42)', 'rgb(247, 248, 248)'], `${w}px home page: the second action beside a main one is a dark pill`);
-    eq(m.h1, ['510', 'none', 'rgb(247, 248, 248)', 'rgb(138, 143, 152)', '510'], `${w}px home page: headings at weight 510, plain near-white, no metal and no green`);
-    ok(/Inter/.test(m.font), `${w}px home page: set in Inter`, m.font);
-    eq(m.card, ['8px', 'none', 'none', 'rgb(20, 21, 22)', 'rgb(35, 37, 42)'], `${w}px home page: a card is the first grey, a hairline, 8px, no shadow, no gradient`);
-    eq(m.nav, ['rgb(138, 143, 152)', '510'], `${w}px home page: links in the bar are muted, weight 510`);
-    eq([m.shadows, m.gradients, m.round, m.colour, m.pattern], [[], [], [], [], 0], `${w}px home page: no drop shadow, no gradient, nothing rounder than 8px but pills, no colour outside the logo, the main button and the product pictures, no pattern`);
-    eq(m.logo, 'rgb(62, 207, 142)', `${w}px home page: the logo keeps its green quarter`);
-    // headings as in the owner's reference; the links of the bar in its middle; the closing call to action with no box (2026-10-05)
-    eq(await p.evaluate(() => { const g = (sel, prop) => getComputedStyle(document.querySelector(sel))[prop], vw = document.documentElement.clientWidth, c = document.querySelector('.lp-cta'), cs = getComputedStyle(c), h = c.querySelector('h2').getBoundingClientRect(), row = c.querySelector('.row').getBoundingClientRect();
-      const nav = document.querySelector('.lp-nav nav'), nr = nav.getBoundingClientRect(), lr = document.querySelector('.lp-nav .brand').getBoundingClientRect(), ar = document.querySelector('.lp-actions').getBoundingClientRect(), shown = getComputedStyle(nav).display !== 'none';
-      return { h1: [g('.lp h1', 'fontSize'), g('.lp h1', 'fontWeight'), g('.lp h1', 'letterSpacing'), parseFloat(g('.lp h1', 'lineHeight')) / parseFloat(g('.lp h1', 'fontSize')) <= 1.07, g('.lp h1', 'fontOpticalSizing')], h2: [g('.lp-sec h2', 'fontSize'), g('.lp-sec h2', 'fontWeight'), g('.lp-cta h2', 'fontSize'), c.querySelectorAll('h2 span, h2 br').length, g('.lp-cta h2', 'textWrap')], body: getComputedStyle(document.documentElement).fontOpticalSizing,
-        nav: !shown || (Math.abs((nr.left + nr.right) / 2 - vw / 2) <= 1 && nr.left > lr.right + 8 && nr.right < ar.left - 8),
-        cta: [cs.backgroundColor, cs.backgroundImage, cs.borderTopWidth, cs.boxShadow, c.querySelectorAll('p, .weave').length, c.querySelectorAll('.btn').length, Math.abs((h.left + h.right) / 2 - vw / 2) <= 1, Math.abs((row.left + row.right) / 2 - vw / 2) <= 1, parseFloat(cs.paddingTop) >= 64] }; }),
-      { h1: [w > 920 ? '60px' : '34px', '510', w > 920 ? '-1.32px' : '-0.748px', true, 'auto'], h2: [w > 920 ? '60px' : '34px', '510', w > 920 ? '60px' : w > 430 ? '34px' : `${+(w * .084).toFixed(2)}px`, 0, 'balance'], body: 'none', nav: true, cta: ['rgba(0, 0, 0, 0)', 'none', '0px', 'none', 0, 2, true, true, true] },
-      `${w}px home page: big headings at ${w > 920 ? 60 : 34}px, weight 510, set solid, in the display cut (the rest of the text keeps its own); the bar's links in its middle, clear of the logo and the buttons; the closing call to action is one short sentence (on a narrow phone its size follows the width, so it stays on two lines) and two buttons, centred, with no box`);
-    eq(await p.evaluate(() => { const g = (sel, prop) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[prop] : 'missing ' + sel; };
-      return [g('.ill .ring-fg', 'stroke'), g('.ill .meter.go > i', 'backgroundColor'), g('.ill .mcols i.hot', 'backgroundColor'), g('.f-chart polyline', 'stroke'), g('.ill-flow .fl.a', 'stroke'), g('.phone.duo.home .rw-seg .bar > i', 'backgroundColor'), g('.ill .g-bars b', 'color')]; }),
-      ['rgb(62, 207, 142)', 'rgb(62, 207, 142)', 'rgb(62, 207, 142)', 'rgb(62, 207, 142)', 'rgb(62, 207, 142)', 'rgb(62, 207, 142)', 'rgb(247, 248, 248)'], `${w}px home page: the data in the graphs is green (ring, bars, columns, line, flow, the household's track in the hero); the words beside it stay in the text colour`);
-    // the hero's picture (owner, 2026-10-07, after choosing the "home and company" hero): the app on two phones, the household's and the company's, built alike
-    eq(await p.evaluate(() => { const st = document.querySelector('.lp-hero .lp-stage.duo'), ph = [...st.querySelectorAll('.phone.duo')], r = ph.map(e => e.getBoundingClientRect()), g = (e, sel, prop) => getComputedStyle(e.querySelector(sel))[prop];
-      return { two: [ph.length, ph[0].classList.contains('home'), ph[1].classList.contains('co'), document.querySelectorAll('.lp-hero .lp-float').length],
-        hidden: [st.getAttribute('role'), !!st.getAttribute('aria-label'), ph.every(e => e.parentElement.getAttribute('aria-hidden') === 'true'), st.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length],
-        parts: ph.map(e => [e.querySelectorAll('.ph-seg span').length, e.querySelectorAll('.ph-seg span.on').length, e.querySelectorAll('.rw-n').length, e.querySelectorAll('.rw-seg').length, e.querySelectorAll('.ph-goal .meter > i').length, e.querySelectorAll('.ph-pay b').length]),
-        on: ph.map(e => [...e.querySelectorAll('.ph-seg span')].findIndex(x => x.classList.contains('on'))), fig: ph.map(e => e.querySelector('.rw-n').textContent),
-        side: ph.map(e => [g(e, '.ph-top', 'backgroundColor'), g(e, '.rw-seg .bar > i', 'backgroundColor'), g(e, '.ph-seg span.on', 'color'), g(e, '.ph-screen', 'backgroundColor'), g(e, '.ph-rw', 'backgroundColor')]),
-        layout: [r[0].right <= r[1].left, r[1].top > r[0].top, Math.abs(r[0].width - r[1].width) <= 1, r[1].right <= document.documentElement.clientWidth],
-        fits: ph.every(e => [...e.querySelectorAll('.ph-top, .ph-rw, .ph-goal, .ph-pay, .ph-tab')].every(x => { const a = x.getBoundingClientRect(), b = e.getBoundingClientRect(); return a.left >= b.left && a.right <= b.right + .5 && a.bottom <= b.bottom + .5; })) }; }),
-      { two: [2, true, true, 0], hidden: ['img', true, true, 0], parts: [[2, 1, 1, 4, 1, 1], [2, 1, 1, 4, 1, 1]], on: [0, 1], fig: ['3', '5'],
-        side: [['rgb(0, 98, 57)', 'rgb(62, 207, 142)', 'rgb(0, 98, 57)', 'rgb(0, 0, 0)', 'rgb(7, 7, 7)'], ['rgb(31, 78, 158)', 'rgb(91, 157, 255)', 'rgb(31, 78, 158)', 'rgb(0, 0, 0)', 'rgb(7, 7, 7)']], layout: [true, true, true, true], fits: true },
-      `${w}px home page: the hero shows the app on two phones side by side, the second one lower: the household's (green panel, "Household" chosen, 3 months of freedom) and the company's (blue panel, "Company" chosen, 5 months of runway), each with its track of four marks, a goal with its month and what is still to pay, on the app's own black; one picture for a screen reader, nothing in it can be pressed, nothing spills out of a phone`);
-    // small text is not tightened (owner: tight letter spacing on small text is hard to read), and a piece of the app has a frame that can be seen on the page (2026-10-07)
+    eq(m.canvas, ['rgb(242, 244, 238)', 'rgb(242, 244, 238)'], `${w}px home page: the page is the warm sage-white #F2F4EE, to the edges of the window`);
+    eq(m.main, ['rgb(159, 209, 130)', 'rgb(22, 51, 0)', '999px', 'rgb(255, 255, 255)'], `${w}px home page: the main action is a lime pill with forest words; the second one is white`);
+    eq(m.h1, ['600', 'rgb(14, 15, 12)', 'rgb(22, 51, 0)', '500'], `${w}px home page: the heading in ink with its second part in forest; section headings at weight 500`);
+    ok(/Inter/.test(m.font), `${w}px home page: set in Inter, as the app`, m.font);
+    eq(m.logo, ['rgb(22, 51, 0)', 'rgb(159, 209, 130)'], `${w}px home page: the logo in forest with its lit quarter in lime`);
+    eq(m.old, 0, `${w}px home page: none of the first look's pieces is left in the page`);
+    eq(m.ids, 'lp-calc lp-days lp-what lp-pj lp-how lp-data lp-faq', `${w}px home page: the sections in the approved order`);
+    // the phone of the hero: one picture for a screen reader, nothing in it to press, nothing spills out of it; the choice over it changes its side
+    eq(await p.evaluate(() => { const st = document.querySelector('.l2-stage'), ph = st.querySelector('#l2-phone');
+      return { hidden: [st.getAttribute('role'), !!st.getAttribute('aria-label'), ph.getAttribute('aria-hidden'), st.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length],
+        seg: [...document.querySelectorAll('.l2-sg')].map(b => b.getAttribute('aria-pressed')), co: ph.classList.contains('co'), fig: ph.querySelector('.l2-pbig b').textContent,
+        fits: [...ph.querySelectorAll('.l2-phead, .l2-pc, .l2-kds, .l2-tabs')].every(x => { const a = x.getBoundingClientRect(), b = ph.getBoundingClientRect(); return a.left >= b.left - .5 && a.right <= b.right + .5 && a.bottom <= b.bottom + .5; }) }; }),
+      { hidden: ['img', true, 'true', 0], seg: ['true', 'false'], co: false, fig: '3', fits: true }, `${w}px home page: the phone shows the household's side (3 and a half months of freedom); it is one picture for a screen reader and nothing in it can be pressed or spills out`);
+    await p.click('.l2-sg.co');
+    eq(await p.evaluate(() => { const ph = document.querySelector('#l2-phone'); return [ph.classList.contains('co'), [...document.querySelectorAll('.l2-sg')].map(b => b.getAttribute('aria-pressed')), ph.querySelector('.l2-pbig b').textContent, getComputedStyle(ph.querySelector('.rw-seg .bar > i')).backgroundColor, document.activeElement.dataset.v]; }),
+      [true, ['false', 'true'], '5', 'rgb(91, 157, 255)', 'co'], `${w}px home page: "Company" turns the phone to the company's side, in its blue (5 months of runway); the button keeps the focus`);
+    // the moments of the month: the one pressed opens and shows a piece of the app; only one is open
+    await p.click('.l2-mo[data-v="2"]');
+    eq(await p.evaluate(() => [[...document.querySelectorAll('.l2-mo')].map(b => b.getAttribute('aria-pressed')).join(' '), document.querySelectorAll('.l2-mo-ui').length, document.activeElement.dataset.v, getComputedStyle(document.querySelector('.l2-mo.on')).backgroundColor]),
+      ['false false true false', 1, '2', 'rgb(22, 51, 0)'], `${w}px home page: a moment of the month opens in forest with how it looks in Dorax; the others close; the focus stays on it`);
+    // small text is not tightened (owner: tight letter spacing on small text is hard to read); words can be read on what is behind them
     eq(await p.evaluate(() => { const ls = sel => { const e = document.querySelector(sel); if (!e) return 'missing ' + sel; const v = getComputedStyle(e).letterSpacing; return v === 'normal' ? 0 : parseFloat(v); };
-      return [['.lp-link', '.lp .eyebrow', '.lp-trust', '.bento p', '.lp-plain p', '.lp-flow p', '.lp-note', '.lp .ft-cols h3', '.lp-actions .btn', '.lp .shot .note', '.lp .shot .btn', '.phone.duo small'].map(ls).filter(v => !(v >= 0)),
-        ['.lp .duo-pane', '.lp .shot.mini', '.lp .shot-back', '.lp .phone.duo'].map(sel => getComputedStyle(document.querySelector(sel)).borderTopColor)]; }),
-      [[], ['rgb(52, 52, 58)', 'rgb(52, 52, 58)', 'rgb(52, 52, 58)', 'rgb(52, 52, 58)']], `${w}px home page: no small text with negative letter spacing; every piece of the app has the same lighter hairline round it`);
-    // "how it calculates" shows a piece of the app, as the app looks, and nothing in it can be pressed (owner, 2026-10-05)
-    eq(await p.evaluate(() => { const sh = document.querySelector('#lp-method .shot'), g = (sel, prop) => getComputedStyle(sh.querySelector(sel))[prop], sec = document.querySelector('#lp-method');
-      const front = sh.querySelector('.shot-front').getBoundingClientRect(), back = sh.querySelector('.shot-back').getBoundingClientRect(), text = sh.querySelector('.shot-back .card-h').getBoundingClientRect(), h = sec.querySelector('.lp-split-h h2').getBoundingClientRect(), lead = sec.querySelector('.lead.big').getBoundingClientRect();
-      return { hidden: [sh.getAttribute('aria-hidden'), sh.hasAttribute('inert'), sh.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length],
-        app: [g('.card', 'backgroundColor'), g('.card', 'borderTopLeftRadius'), g('.chip', 'borderTopLeftRadius'), /mono/i.test(g('.tile .value', 'fontFamily')), g('.chip.good i', 'backgroundColor'), g('.shot-back', 'backgroundColor')],
-        parts: [sh.querySelectorAll('.tile').length, sh.querySelectorAll('.paylist tbody tr').length, sh.querySelectorAll('.budget').length, sh.querySelectorAll('.shot-tip').length, sec.querySelectorAll('.lp-plain > div').length, sec.querySelectorAll('.fl-ico, article').length],
-        layout: innerWidth > 900 ? [h.right <= lead.left, front.left < back.left && front.right <= text.left + parseFloat(getComputedStyle(sh.querySelector('.shot-back .card-h')).paddingLeft) + 1] : [h.bottom <= lead.top, front.bottom <= back.top] }; }),
-      { hidden: ['true', true, 0], app: ['rgb(0, 0, 0)', '16px', '9999px', true, 'rgb(93, 187, 139)', 'rgb(0, 0, 0)'], parts: [4, 5, 2, 1, 6, 0], layout: [true, true] },
-      `${w}px home page: "how it calculates" shows the Plan screen and the "Plan vs actual" card as the app draws them (its colours, radii and type), decoration only, nothing in it can be pressed or focused; ${w > 900 ? 'heading left and words right, the card in front without covering the text behind' : 'stacked'}; the six rules are plain text`);
-    // "for entrepreneurs" and "how it works" show pieces of the app too (owner, 2026-10-05: "do the same … add parts of the app"; "how it works needs an update")
-    eq(await p.evaluate(() => { const sec = document.querySelector('#lp-pj'), sh = sec.querySelector('.shot.duo'), r = sel => sec.querySelector(sel).getBoundingClientRect();
-      const head = r('.duo-head'), pic = r('.shot.duo'), list = r('.duo-list'), panes = [...sh.querySelectorAll('.duo-pane')].map(e => e.getBoundingClientRect()), wide = innerWidth > 1140;
-      return { hidden: [sh.getAttribute('aria-hidden'), sh.hasAttribute('inert'), sh.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length],
-        parts: [panes.length, sh.querySelectorAll('.duo-pane.home .acct').length, sh.querySelectorAll('.duo-pane.co tbody tr').length, sh.querySelectorAll('.duo-join span').length, sec.querySelectorAll('.duo-list > li').length, sec.querySelectorAll('.duo-list h3').length],
-        // not the pattern of "how it calculates" again: no heading-left-words-right header, no screen behind a card, no row of plain columns, nothing fading out
-        other: [sec.querySelectorAll('.lp-split-h, .shot-back, .shot-front, .lp-plain, .lp-note').length, document.querySelectorAll('.pj-figs, .pjg, .shot.pj').length, [...sh.querySelectorAll('.duo-pane')].every(e => /^none/.test(getComputedStyle(e).maskImage || 'none')), panes[0].bottom < panes[1].top],
-        look: [getComputedStyle(sh.querySelector('.acct')).backgroundColor, /mono/i.test(getComputedStyle(sh.querySelector('.acct .bal')).fontFamily), getComputedStyle(sh.querySelector('.duo-pane')).backgroundColor],
-        layout: wide ? [head.right <= pic.left && list.right <= pic.left, head.bottom <= list.top, head.width >= pic.width && head.width <= pic.width * 1.3] : [head.bottom <= pic.top, pic.bottom <= list.top, true] }; }),
-      { hidden: ['true', true, 0], parts: [2, 2, 3, 1, 4, 4], other: [0, 0, true, true], look: ['rgb(7, 7, 7)', true, 'rgb(0, 0, 0)'], layout: [true, true, true] },
-      `${w}px home page: "for entrepreneurs" is its own layout, not "how it calculates" again: ${w > 1140 ? 'half and half, the heading, the words and the four points on the left, the picture on the right' : 'the heading and the words, then the picture, then the four points'}; the picture is two whole panes (the household's two accounts over the company's monthly statements) joined by "never mixed", as the app draws them, decoration only`);
-    eq(await p.evaluate(() => { const sec = document.querySelector('#lp-how'), lis = [...sec.querySelectorAll('.lp-flow > li')], figs = [...sec.querySelectorAll('.lp-flow .shot.mini')], top = e => Math.round(e.getBoundingClientRect().top);
-      return { steps: [lis.length, figs.length, lis.map(li => li.querySelector('.fl-n').textContent).join(' '), lis.every(li => li.querySelectorAll('h3').length === 1 && li.querySelectorAll('.fl-txt p').length === 1)],
-        hidden: [figs.every(f => f.getAttribute('aria-hidden') === 'true' && f.hasAttribute('inert')), figs.reduce((n, f) => n + f.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length, 0)],
-        parts: [figs[0].querySelectorAll('.acct').length, figs[1].querySelectorAll('tbody tr').length, figs[2].querySelectorAll('.li.todo').length, figs[3].querySelectorAll('.budget').length],
-        old: sec.querySelectorAll('.lp-steps, .st-node, .st-path, .st-line').length,
-        layout: [lis.every(li => li.querySelector('.shot').getBoundingClientRect().bottom <= li.querySelector('.fl-txt').getBoundingClientRect().top + 1), innerWidth > 900 ? top(lis[0]) === top(lis[1]) && top(lis[2]) === top(lis[3]) && top(lis[2]) > top(lis[0]) : lis.every((li, i) => !i || top(li) > top(lis[i - 1]))] }; }),
-      { steps: [4, 4, '01 02 03 04', true], hidden: [true, 0], parts: [4, 4, 2, 2], old: 0, layout: [true, true] },
-      `${w}px home page: "how it works" is four steps, each a small piece of the app (accounts, the plan, the to-do list, plan vs actual) above its number, title and line, ${w > 900 ? 'two by two' : 'one under the other'}; no numbered path; the pictures are decoration only`);
-    // sections and the rules between them (owner, 2026-10-05): room to breathe; a faint rule as wide as the window that fades at both ends
-    eq(await p.evaluate(() => { const secs = [...document.querySelectorAll('.lp .lp-sec')], pad = parseFloat(getComputedStyle(secs[1]).paddingTop), vw = document.documentElement.clientWidth;
-      const rules = [...secs.slice(1), document.querySelector('.lp-foot')].map(e => { const b = getComputedStyle(e, '::before'), r = e.getBoundingClientRect(); return { own: getComputedStyle(e).borderTopWidth, h: b.height, fade: /linear-gradient\(90deg, rgba\(0, 0, 0, 0\) 0%, rgba\(255, 255, 255, 0\.0\d+\) 22%.*rgba\(0, 0, 0, 0\) 100%\)/.test(b.backgroundImage), from: Math.round(r.left + parseFloat(b.left)), wide: Math.round(parseFloat(b.width)) }; });
-      return [document.querySelectorAll('#lp-for, #lp-change, #lp-data, .who-fig, .venn, .who-bento, .vs-box, .lp-rules').length, secs.map(e => e.id).join(' '), pad >= 64 && pad <= 120, rules.length, rules.every(r => r.own === '0px' && r.h === '1px' && r.fade), rules.every(r => r.from <= 0 && r.from + r.wide >= vw), document.documentElement.scrollWidth - innerWidth]; }),
-      [0, 'lp-calc lp-pj lp-how lp-what lp-method lp-faq', true, 6, true, true, 0], `${w}px home page: no "who it is for", no comparison and no "your bank login" section; 64 to 120px above each section; six faint rules, each as wide as the window and fading at both ends; nothing scrolls sideways`); ok(m.wide <= 1080, `${w}px home page: the column is 1080px at most`, m.wide);
-    // login and sign-up: the same system
+      return ['.l2-link', '.l2-eyebrow', '.l2-trust', '.l2-mo-p', '.l2-st-p span', '.l2-faq details summary', '.l2-ft-cols h3', '.l2-fl > small', '.l2-tc p', '.lp2 .calc .ob-slide-h label'].map(ls).filter(v => !(v >= 0)); }),
+      [], `${w}px home page: no small text with negative letter spacing`);
+    const low = await p.evaluate(() => {
+      const rgb = c => { const m = /rgba?\(([\d.]+), ([\d.]+), ([\d.]+)(?:, ([\d.]+))?/.exec(c); return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null; };
+      const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
+      const bgOf = e => { for (let x = e; x; x = x.parentElement) { const c = rgb(getComputedStyle(x).backgroundColor); if (c && c[3] > .9) return c; } return [242, 244, 238, 1]; };
+      const out = [];
+      for (const e of document.querySelectorAll('.lp2 *')) {
+        if (e.closest('[aria-hidden="true"], .sr, select, option') || !e.getClientRects().length) continue;
+        if (![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+        const s = getComputedStyle(e); if (s.visibility === 'hidden' || +s.opacity === 0) continue;
+        const fg = rgb(s.color), bg = bgOf(e), a = lum(fg), b = lum(bg), r = (Math.max(a, b) + .05) / (Math.min(a, b) + .05), big = parseFloat(s.fontSize) >= 24 || (parseFloat(s.fontSize) >= 18.6 && +s.fontWeight >= 700);
+        if (r < (big ? 3 : 4.5)) out.push(`${e.tagName}.${e.className} ${r.toFixed(2)} "${e.textContent.trim().slice(0, 30)}"`);
+      }
+      return out.slice(0, 8);
+    });
+    eq(low, [], `${w}px home page: every word that can be read has enough contrast with what is behind it (4.5:1, 3:1 for large text)`);
+    // login and sign-up: light as the home page since 2026-10-11 (owner: "en todas las páginas de la webapp"; css/look/look-public.css)
     for (const v of ['signup', 'login']) {
       await p.evaluate(v => A['pub-go']({ v }), v); await p.waitForSelector('#au-pass');
       const a = await p.evaluate(() => { const cs = (sel, prop) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[prop] : 'missing ' + sel; }, btn = '.au-form .btn.primary';
@@ -216,17 +179,17 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
           link: [cs('.auth-alt .linkbtn', 'color'), cs('.auth-alt .linkbtn', 'fontWeight')], font: cs('.auth.single', 'fontFamily').split(',')[0].trim(),
           side: document.querySelectorAll('.auth-side').length,
           gradients: all.filter(e => /gradient/.test(getComputedStyle(e).backgroundImage)).map(e => e.className).slice(0, 5), pattern: [...document.querySelectorAll('.auth.single .weave')].length,
-          colour: all.filter(e => !e.matches('.btn.primary, .gbtn.g-dark, .gbtn.g-dark *') && (chroma(getComputedStyle(e).color) > 24 || chroma(getComputedStyle(e).backgroundColor) > 24 || chroma(getComputedStyle(e).borderTopColor) > 24)).map(e => e.tagName + '.' + e.className).slice(0, 5) }; });
-      eq(a.canvas, ['rgb(8, 9, 10)', 'rgb(8, 9, 10)'], `${w}px ${v}: the same canvas as the home page`);
-      eq(a.main, ['rgb(0, 98, 57)', 'rgb(247, 248, 248)', '9999px'], `${w}px ${v}: the main button is Dorax green, a pill`);
-      eq(a.title, ['510', '24px', 'rgb(247, 248, 248)'], `${w}px ${v}: the title at 24px, weight 510`);
-      eq(a.field, ['rgb(20, 21, 22)', 'rgb(98, 102, 109)', '4px'], `${w}px ${v}: a field is the first grey, a border that can be seen, 4px`);
-      eq(a.link, ['rgb(247, 248, 248)', '510'], `${w}px ${v}: links are near-white at weight 510, not green`); ok(/Inter/.test(a.font), `${w}px ${v}: set in Inter`, a.font);
+          colour: all.filter(e => !e.matches('.btn.primary, .gbtn.g-dark, .gbtn.g-dark *, .linkbtn, .linkbtn *, .brand, .brand *, input:focus') && (chroma(getComputedStyle(e).color) > 24 || chroma(getComputedStyle(e).backgroundColor) > 24 || chroma(getComputedStyle(e).borderTopColor) > 24)).map(e => e.tagName + '.' + e.className).slice(0, 5) }; });
+      eq(a.canvas, ['rgb(242, 244, 238)', 'rgb(242, 244, 238)'], `${w}px ${v}: the same sage-white page as the home page`);
+      eq(a.main, ['rgb(159, 209, 130)', 'rgb(22, 51, 0)', '999px'], `${w}px ${v}: the main button is the home page's lime pill with forest words`);
+      eq(a.title, ['600', '30px', 'rgb(14, 15, 12)'], `${w}px ${v}: the title at 30px, weight 600, in ink`);
+      eq(a.field, ['rgb(255, 255, 255)', 'rgb(195, 201, 189)', '14px'], `${w}px ${v}: a field is white with an edge that can be seen, 14px corners`);
+      eq(a.link, ['rgb(22, 51, 0)', '600'], `${w}px ${v}: links are forest at weight 600`); ok(/Inter/.test(a.font), `${w}px ${v}: set in Inter`, a.font);
       eq(a.side, 0, `${w}px ${v}: one block, no panel beside the form`);
-      eq([a.gradients, a.pattern, a.colour], [[], 0, []], `${w}px ${v}: no gradient, no pattern, no colour but the logo and the main button`);
+      eq([a.gradients, a.pattern, a.colour], [[], 0, []], `${w}px ${v}: no gradient, no pattern, no colour but the logo, the links and the main button`);
     }
-    // the pages that were not asked for keep their own look
-    await p.evaluate(() => A['pub-go']({ v: 'terms' })); await p.waitForSelector('#legal-title'); eq(await p.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(0, 0, 0)', `${w}px: the legal pages keep their own look`);
+    // the legal pages: light too since 2026-10-11
+    await p.evaluate(() => A['pub-go']({ v: 'terms' })); await p.waitForSelector('#legal-title'); eq(await p.evaluate(() => [getComputedStyle(document.body).backgroundColor, getComputedStyle(document.querySelector('#legal-title')).color]), ['rgb(242, 244, 238)', 'rgb(14, 15, 12)'], `${w}px: the legal pages are light as the home page`);
     eq(o.errors, [], `${w}px style reference: no console errors`); await o.browser.close();
   }
 
@@ -268,13 +231,14 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
     await type('calc-cost', '6.000'); await type('calc-saved', '0'); await slide('calc-monthly-r', 500); await p.click('#calc-try'); const tried = await read();
     eq([tried.fields[2], tried.ranges[2][0], tried.month], ['550', 550, 'Agosto 2027'], `${w}px calculator: "Testar" turns 500 a month into 550 (the field and the slider both), and the date comes one month closer`);
     ok(await p.evaluate(() => !!document.activeElement && !!document.activeElement.closest('#calc-tool')), `${w}px calculator: the focus stays in the tool after "Testar"`);
-    // layout: one frame; on a computer the amounts on the left and the answer on the right, on a phone the answer above the sliders and the way in last
-    eq(await p.evaluate(() => { const r = sel => document.querySelector(sel).getBoundingClientRect(), tool = r('#calc-tool'), dreams = r('.calc-dreams'), inn = r('.calc-in'), out = r('#calc-out'), more = r('#calc-more'), go = r('.calc-go'), h2 = document.querySelector('#lp-calc h2');
-        const inside = [...document.querySelectorAll('#calc-tool *')].every(e => { const a = e.getBoundingClientRect(); return !a.width || (a.left >= tool.left - .5 && a.right <= tool.right + .5); });
-        return [dreams.bottom <= inn.top + 1 && dreams.bottom <= out.top + 1, innerWidth > 900 ? inn.right <= out.left + 1 && out.bottom <= more.top + 1 && more.bottom <= go.top + 1 : out.bottom <= inn.top + 1 && inn.bottom <= more.top + 1 && more.bottom <= go.top + 1, inside,
-          Math.round(h2.getBoundingClientRect().height / parseFloat(getComputedStyle(h2).lineHeight)) <= 2, document.documentElement.scrollWidth - innerWidth, getComputedStyle(document.querySelector('#calc-tool')).borderTopColor,
+    // layout (second look, 2026-10-11): one card split in two; on a computer the heading, the dreams, the amounts and the way in on the left and the answer
+    // with its tip on the right, in mint; on a phone the answer right under the dreams, above the sliders, and the way in last
+    eq(await p.evaluate(() => { const r = sel => document.querySelector(sel).getBoundingClientRect(), card = r('.l2-calc'), dreams = r('.calc-dreams'), inn = r('.calc-in'), out = r('#calc-out'), more = r('#calc-more'), go = r('.calc-go'), h2 = document.querySelector('#lp-calc h2');
+        const inside = [...document.querySelectorAll('.l2-calc *')].every(e => { const a = e.getBoundingClientRect(); return !a.width || (a.left >= card.left - .5 && a.right <= card.right + .5); });
+        return [dreams.bottom <= inn.top + 1, innerWidth > 900 ? inn.right <= out.left + 1 && out.bottom <= more.top + 1 && inn.bottom <= go.top + 1 && go.right <= more.left + 1 : dreams.bottom <= out.top + 1 && out.bottom <= inn.top + 1 && inn.bottom <= more.top + 1 && more.bottom <= go.top + 1, inside,
+          Math.round(h2.getBoundingClientRect().height / parseFloat(getComputedStyle(h2).lineHeight)) <= 2, document.documentElement.scrollWidth - innerWidth, [getComputedStyle(document.querySelector('#calc-out')).backgroundColor, getComputedStyle(document.querySelector('.l2-calc')).backgroundColor],
           [...document.querySelectorAll('#calc-tool button, #calc-tool input[type=range]')].every(e => innerWidth > 900 || e.getBoundingClientRect().height >= 44)]; }),
-      [true, true, true, true, 0, 'rgb(52, 52, 58)', true], `${w}px calculator: the dreams across the top; ${w > 900 ? 'the amounts on the left, the answer on the right with the tip and the way in under it' : 'the answer right under the dreams and above the sliders, so it is in sight while one is dragged, then the tip, then the way in'}; nothing spills out of its frame, the heading is two lines at most, the frame is the pieces' own hairline${w > 900 ? '' : ', and everything to press is 44px tall'}`);
+      [true, true, true, true, 0, ['rgb(226, 246, 213)', 'rgb(255, 255, 255)'], true], `${w}px calculator: ${w > 900 ? 'the dreams over the amounts and the way in on the left, the answer on the right with the tip under it' : 'the answer right under the dreams and above the sliders, so it is in sight while one is dragged, then the tip, then the way in'}; nothing spills out of the card (white, the answer in mint), the heading is two lines at most${w > 900 ? '' : ', and everything to press is 44px tall'}`);
     // the way in keeps the dream on this device and opens sign-up; the first-time setup of the new account starts from it
     await p.click('#calc-tool .ob-dream[data-v="safety"]'); await type('calc-cost', '9.500'); await type('calc-saved', '1.200');
     await p.click('[data-a="calc-go"]'); await p.waitForSelector('#au-name');

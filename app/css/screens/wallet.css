@@ -128,19 +128,6 @@
 @media (max-width: 920px) { .wp-btn { width: 44px; height: 44px; } }
 
 
-/* a phone's Accounts: every card, or stacked (features/accounts/wallet.js, owner 2026-10-08). The two views are two icons beside the side's name,
-   the one in use in the brand's green */
-.acc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.acc-head h2.sec { margin: 0; }
-.acc-view { display: inline-flex; padding: 2px; gap: 2px; background: #000000; border: 1px solid #1A1A1A; border-radius: var(--pill); }
-.acc-view button { width: 44px; height: 40px; display: grid; place-items: center; border: 0; border-radius: var(--pill); background: none; color: var(--ink-3); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background var(--t1) ease-out, color var(--t1) ease-out; }
-.acc-view button[aria-pressed="true"] { background: #1A1A1A; color: var(--brand); }
-.acc-view button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.acc-view svg { width: 18px; height: 18px; }
-:root.app-light .acc-view { background: var(--surface-3); border-color: var(--line); }
-:root.app-light .acc-view button[aria-pressed="true"] { background: var(--surface); color: var(--brand-deep); }
-.acc-stack { margin-top: 14px; }
-
 /* a card is pressed to open it (the summary's row on a phone, owner 2026-10-08) */
 .w-tap { all: unset; box-sizing: border-box; display: block; cursor: pointer; border-radius: 16px; -webkit-tap-highlight-color: transparent; }
 .w-tap .ccard { transition: transform var(--t1) ease-out; }
@@ -154,13 +141,6 @@
 .cv-acts.pc .btn svg { width: 15px; height: 15px; }
 .cv-acts.pc .cv-edit { margin-left: auto; }
 .cv-acts button { animation: none; }
-
-/* a phone's Accounts: add and delete on top; in the list of what to delete, an account with transactions is there but cannot be chosen */
-.acc-acts { margin: 14px 0 18px; }
-.acc-del button[aria-disabled="true"] { cursor: default; opacity: .55; }
-.acc-del button[aria-disabled="true"]:active { transform: none; }
-.acc-del .inst { flex: none; width: 36px; height: 36px; border-radius: 50%; overflow: hidden; }
-.acc-del .inst img { width: 100%; height: 100%; display: block; object-fit: cover; }
 
 /* the main account (owner, 2026-10-09): said under its card; its panel has the switch */
 .cc-mainchip { align-self: flex-start; }

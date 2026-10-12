@@ -4,6 +4,8 @@
    "Mark as paid", "Record payment" and "Edit" are. Each group keeps its one button for all its fixed-amount bills. No pages: the whole month is
    one short list. The account, the kind of cost and the note about what "Mark as paid" records are in the details too.
    A computer keeps its table (payList). */
+/* 2026-10-11 (owner, after the round + kept only an expense, an income and a transfer: "make the change in Plan"): a new fixed cost is added at the
+   foot of the list of fixed costs, a button the whole width (a computer has "New fixed cost" in its top bar). */
 /** Whether a group of the month's payments is open: as the person left it, else only the first group. */
 const plOpen = (id, first) => UI.plOpen && id in UI.plOpen ? !!UI.plOpen[id] : id === first;
 function phonePayList(ym, prog) {
@@ -27,7 +29,8 @@ function phonePayList(ym, prog) {
   };
   return `<section class="card" id="paylist"><div class="card-h"><h2>${t('Payments, {month}', { month: fmt.month(ym) })}</h2>${hint('planPayments')}${late.length ? `<span class="chip warn"><i></i>${tn(late.length, '{n} late', '{n} late')}</span>` : ''}${open.length ? `<span class="chip">${tn(open.length, '{n} to pay', '{n} to pay')}</span>` : `<span class="chip good"><i></i>${t('All bills paid')}</span>`}</div>
     ${dueMissing() ? `<div class="pl-due"><button class="btn sm" data-a="due-days">${icon('calendar')}${t('Due days')} <span class="count">${t('{n} missing', { n: dueMissing() })}</span></button></div>` : ''}
-    <div class="pl-list">${B().categories.map(group).join('')}</div></section>`;
+    <div class="pl-list">${B().categories.map(group).join('')}</div>
+    <div class="pl-new"><button class="btn" data-a="line-new">${icon('plus')}${t('New fixed cost')}</button></div></section>`;
 }
 
 /* The top of Plan and its income, on a phone (owner, 2026-10-08, "yes" to: the four figures as in Goals, "Still to pay" large and the other

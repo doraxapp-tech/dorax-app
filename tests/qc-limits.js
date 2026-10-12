@@ -72,8 +72,8 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.fill('#lm-amount', '320'); await page.click('[data-a="limit-save"]');
   eq(await tr(), [null, 30000, 32000], 'set again: the same line runs again from this month');
   // ---------- 5. the list, and every way to it ----------
-  await page.evaluate(() => A.quick()); await page.click('.sheet.quick [data-v="limit"]'); await page.waitForSelector('.lim-list');
-  eq(await page.evaluate(() => [UI.drawer.kind, document.querySelector('#overlay h2').innerText, [...document.querySelectorAll('.lim-list > li')].length]), ['limits', 'Spending limits', 4], 'a phone’s +: “Set a spending limit” opens the list, one row per expense category');
+  await page.evaluate(() => { A.close(); navigate('dashboard'); }); await page.click('.quick-row [data-v="limit"]'); await page.waitForSelector('.lim-list');
+  eq(await page.evaluate(() => [UI.drawer.kind, document.querySelector('#overlay h2').innerText, [...document.querySelectorAll('.lim-list > li')].length]), ['limits', 'Spending limits', 4], 'a phone’s summary, its round buttons: “Set a spending limit” opens the list, one row per expense category (the + keeps only three since 2026-10-11)');
   eq(await page.evaluate(() => [...document.querySelectorAll('.lim-list .lim-c')].map(b => b.innerText.replace(/\s+/g, ' ').trim())),
     ['Groceries R$ 214,80 of R$ 1.200 this month · faster than the month', 'Transport R$ 0 of R$ 320 this month', 'Another limit in Home', 'Subscriptions Its costs are fixed bills in the Plan.', await page.evaluate(s => `Nights out ${fmt.money(s, CUR, { trim: true })} of R$ 600 this month`, spent), 'Bars R$ 0 of R$ 200 this month', 'Another limit in Other'],
     'the list: each limit and what is spent of it; a category that can have none says why');

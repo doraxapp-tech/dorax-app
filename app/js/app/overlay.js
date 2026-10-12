@@ -9,7 +9,6 @@ function renderOverlay() {
   else if (UI.sheet === 'dash-order') h = dashOrderSheet();      // the order of the summary's parts (features/phone/phone.summary.js)
   else if (UI.sheet === 'fixed-list') h = fixedListSheet();      // the month's fixed costs and their details, from the summary (same file)
   else if (UI.sheet === 'goal-list') h = goalListSheet();
-  else if (UI.sheet === 'acct-del') h = acctDelSheet();      // which account to delete, from a phone's Accounts (features/accounts/wallet.js)
   else if (UI.sheet === 'pay-pick') h = payPickSheet();      // which cost to mark as paid or to pay (features/phone/phone.plan.js)      // the goals and funds and their details, from the summary (same file)
   else if (UI.sheet) h = moreSheet();
   else if (d) h = inBook(d.book = d.book || bookKey(), () => `<div class="scrim" data-a="close"></div><aside class="drawer${d.pop ? ' pop' : ''}${d.full ? ' full' : ''}${d.wide ? ' wide' : ''}${d.mid ? ' mid' : ''}" role="dialog" aria-modal="true" aria-label="${esc(d.title)}"><div class="grab" aria-hidden="true"></div><header><span class="dr-back-slot">${backPanelButton()}</span><h2>${esc(d.title)}</h2><button class="btn ghost sm" data-a="close" aria-label="${t('Close')}">${icon('x')}</button></header>${({ tx: txDrawer, account: accountDrawer, profile: profileDrawer, 'goal-form': goalFormDrawer, 'goal-view': goalViewDrawer, 'goal-move': goalMoveDrawer,
@@ -22,7 +21,7 @@ function renderOverlay() {
   if (!open && was && root.firstChild && !reducedMotion() && !UI.skipExit) {       // leave: quicker than the entrance, and it never blocks the page underneath
     root.classList.remove('in'); root.classList.add('out');
     renderOverlay.t = setTimeout(() => { root.innerHTML = ''; root.classList.remove('out'); setInert(); }, window.innerWidth <= 920 ? 230 : 170);   // a sheet has further to travel than a side panel
-  } else { root.classList.remove('out'); root.classList.toggle('in', open && !was && !reducedMotion()); root.innerHTML = h; }
+  } else { root.classList.remove('out'); root.classList.toggle('in', open && !was && !reducedMotion()); root.innerHTML = h; centsSmall(root); }
   UI.overlayOpen = open; UI.skipExit = false; setInert();
   // the field a refusal pointed at (fail, below): red, and the reason right under it, where the cursor and the eyes are; on a phone the top of a
   // long panel is out of sight. A refusal with no field keeps its reason at the top.

@@ -1,7 +1,7 @@
 /* Dorax Finance — clicks: the frame of the app: panels, dialogs, the month, the theme, the pager. Joined into A in app/actions.js. */
 const SHELL_ACTIONS = {
   close() {
-    const d = UI.drawer || {}, back = ({ 'tx-filters': '#tx-filters-btn', 'wallet-pick': '#wallet-pick-btn', 'dash-order': '#dash-order-btn', 'card-view': `#ac-card .w-mini[data-id="${d.id}"], #ac-card .w-tap[data-id="${d.id}"], .acc-stack .w-card[data-id="${d.id}"], .cc-grid .cc-tap[data-id="${d.id}"]` })[d.kind];      // back to what opened it
+    const d = UI.drawer || {}, back = ({ 'tx-filters': '#tx-filters-btn', 'wallet-pick': '#wallet-pick-btn', 'dash-order': '#dash-order-btn', 'card-view': `#ac-card .w-mini[data-id="${d.id}"], #ac-card .w-tap[data-id="${d.id}"], .acc-stack .w-card[data-id="${d.id}"], .cc-grid .cc-tap[data-id="${d.id}"], .acc-grp .ac-row[data-id="${d.from || d.id}"]` })[d.kind];      // back to what opened it
     UI.drawer = null; UI.sheet = false; renderOverlay(); const el = back && document.querySelector(back); if (el) el.focus({ preventScroll: true });
   },
   // the menu beside the person's name (features/profile/profile.view.js): language, appearance, help, log out

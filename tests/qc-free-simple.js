@@ -14,7 +14,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const money = v => page.evaluate(v => fmt.money(Math.abs(v) >= 1000 ? Math.round(v / 100) * 100 : v, CUR, { trim: true }), v);
   const day = await money(r.perDay), total = await money(r.free);
   // ---------- 1. the card ----------
-  eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [c.querySelector('.rw-h b').innerText, c.querySelector('.fu-big').innerText.trim(), c.querySelector('.fu-say').innerText.trim()]; }),
+  eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [c.querySelector('.part-h h2').innerText, c.querySelector('.fu-big').innerText.trim(), c.querySelector('.fu-say').innerText.trim()]; }),
     ['You can spend', `${day} a day`, 'until October 31, the end of the month. What you have to pay is already taken off.'], 'the card: “You can spend”, the day’s share, until when, and why it is safe');
   ok(await page.evaluate(t => !document.querySelector('#free-card').innerText.includes(t), total), 'the card shows no total: one figure, a day’s, so it does not compete with the net balance');
   // ---------- 2. the details ----------
@@ -37,10 +37,11 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 4. not enough; a few reais a day ----------
   await page.evaluate(() => { S.transactions.push({ id: 'big-out', accountId: 'nu-conta', date: S.today, type: 'expense', amount: -5000000, currency: 'BRL', categoryId: 'other', status: 'confirmed', merchant: 'Big' }); render(); });
   const neg = await page.evaluate(() => freeUntil(S, S.today, CUR));
-  eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [c.querySelector('.rw-h b').innerText, c.querySelector('.fu-big').classList.contains('neg'), getComputedStyle(c.querySelector('.fu-n')).color === getComputedStyle(document.documentElement).getPropertyValue('--neg').trim() || c.querySelector('.fu-big.neg') !== null, c.querySelector('.fu-say').innerText.trim()]; }),
-    ['Not enough money', true, true, 'to pay everything until October 31, the end of the month.'], 'not enough: said plainly, what is missing in red, and what for');
-  eq(await page.evaluate(() => document.querySelector('#free-card .fu-n').innerText), await money(-neg.free), 'the figure is what is missing');
-  await page.click('#free-open');
+  // a phone's summary leaves the card out while money is short (owner, 2026-10-11: "remove 'Not enough money' from the summary on the phone"): the bell
+  // says it, with the same steps (features/reminders/issues.view.js)
+  eq(await page.evaluate(() => [!document.querySelector('#free-card'), issuesAll().some(r => r.what === 'short')]), [true, true], 'not enough: the phone’s summary has no card for it; the bell says it');
+  await page.evaluate(() => A['free-view']()); await page.waitForSelector('.fu-view');
+  eq(await page.evaluate(() => [document.querySelector('.fu-view .fu-big').classList.contains('neg'), document.querySelector('.fu-view .fu-n').innerText, document.querySelector('.fu-view .fu-say').innerText.trim()]), [true, await money(-neg.free), 'to pay everything until October 31, the end of the month.'], 'its details: what is missing in red, the figure is what is missing, and what for');
   eq(await page.evaluate(() => [!document.querySelector('.fu-bar'), [...document.querySelectorAll('.fu-steps li')].pop().querySelector('.grow b').innerText, !!document.querySelector('.fu-steps .fu-total.neg'), !document.querySelector('.fu-div'), UI.drawer.title]), [true, 'Missing', true, true, 'Not enough money'], 'its details: no bar, the steps end in “Missing”, no share a day');
   await page.evaluate(() => { A.close(); const x = S.transactions.find(k => k.id === 'big-out'); const f = freeUntil(S, S.today, CUR); x.amount += -f.free + 10000; render(); });
   const small = await page.evaluate(() => freeUntil(S, S.today, CUR));
@@ -54,7 +55,7 @@ const { open, ok, eq, done } = require('./pw.js');
   for (const [lang, width, want] of [['es', 390, ['Puedes gastar', 'por día', 'hasta el 31 de octubre, fin de mes. Ya descontamos lo que tienes que pagar.', /cuenta/i]], ['pt', 320, ['Você pode gastar', 'por dia', 'até 31 de outubro, fim do mês. Já descontamos o que você tem que pagar.', /conta/i]]]) {
     ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width, height: 700 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.user.greeted = true; navigate('dashboard'); });
-    eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [c.querySelector('.rw-h b').innerText, c.querySelector('.fu-big').innerText.trim().split(' ').slice(-2).join(' '), c.querySelector('.fu-say').innerText.trim()]; }), want.slice(0, 3), `${lang}: in plain words`);
+    eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [c.querySelector('.part-h h2').innerText, c.querySelector('.fu-big').innerText.trim().split(' ').slice(-2).join(' '), c.querySelector('.fu-say').innerText.trim()]; }), want.slice(0, 3), `${lang}: in plain words`);
     await page.click('#free-open'); await page.waitForSelector('.fu-view');
     eq(await page.evaluate(re => [...document.querySelectorAll('.fu-steps li.out, .fu-legend .legend-row')].filter(l => new RegExp(re, 'i').test(l.innerText)).map(l => l.innerText), want[3].source), [], `${lang}: what is taken off is never called an account (“${want[3].source}”)`);
     eq(await page.evaluate(() => { const v = document.querySelector('.fu-view'), tiny = [...v.querySelectorAll('*')].filter(e => e.children.length === 0 && e.textContent.trim() && parseFloat(getComputedStyle(e).fontSize) < 12).length; return [v.scrollWidth <= v.clientWidth, tiny, document.documentElement.scrollWidth - innerWidth]; }), [true, 0, 0], `${lang}, ${width} px: nothing to drag sideways, no text under 12 px`);

@@ -209,6 +209,11 @@
   .pl-tog .chip { flex: none; }
   .pl-rows { display: flex; flex-direction: column; } .pl-rows[hidden] { display: none; }
   .pl-list > .pl-grp:nth-last-child(2):not(.on) { border-bottom: 0; border-radius: 0 0 calc(var(--r-card) - 1px) calc(var(--r-card) - 1px); }      /* the last group closed: its band follows the card's corners */
+  /* a new fixed cost, at the foot of the list (owner, 2026-10-11): the list no longer ends the card, so its last band keeps square corners */
+  #paylist:has(.pl-new) .pl-list { border-bottom: 1px solid var(--line); }
+  #paylist:has(.pl-new) .pl-list > .pl-grp:nth-last-child(2):not(.on) { border-radius: 0; }
+  .pl-new { padding: 14px 16px 16px; }
+  .pl-new .btn { width: 100%; min-height: 48px; gap: 8px; }
   @media (prefers-reduced-motion: reduce) { .pl-tog > svg { transition: none; } }
   .pl-grp .grow { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .pl-grp .cat b { font-weight: 600; font-size: 15px; color: var(--ink-strong); }
@@ -405,7 +410,6 @@
 @media (max-width: 920px) {
   .content { gap: 24px; }
   .content > h2.sec { margin-top: 8px; }
-  .acc-acts { margin: 8px 0 0; }
 }
 
 /* a phone has no way back on top (owner, 2026-10-10): its own back (the gesture or Android's button) is the way back there (app/back.js) */

@@ -31,6 +31,8 @@ const T = '2026-10-02';
   // ---------- 2. the side is chosen in the menu ----------
   let { browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } });
   await signup(page, 'Ana');
+  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['light', true], 'a new account starts in the light theme (owner, 2026-10-11, with the second look)');
+  await page.evaluate(() => { S.settings.theme = 'dark'; render(); });      // the colours checked below are the dark theme's
   eq(await page.evaluate(() => [document.querySelector('#rail-side').innerHTML, getComputedStyle(document.querySelector('#rail-side')).display, !!document.querySelector('#co-ask'), hasCompany()]), ['', 'none', true, false], 'a new account has no Household | Company choice: the app is the household’s alone and the dashboard asks first (owner: "by default the switch is not shown until they answer")');
   await page.evaluate(() => { S.user.company = true; render(); });      // the answer was yes; the setup is followed below from the menu's choice
   eq(await page.evaluate(() => { const b = document.querySelector('#rail-side .rail-flip'); return [[...document.querySelectorAll('#rail-side [data-a="space"]')].map(x => [x.getAttribute('aria-label'), x.dataset.v, !!x.querySelector('svg')]), !!b.closest('.brand') && b.closest('.rail-tools').contains(document.querySelector('#rail-eye')), document.querySelectorAll('.topbar .space, .topbar .side-tag, .side-seg').length, getComputedStyle(document.querySelector('.bar-bal')).display]; }),
@@ -99,6 +101,7 @@ const T = '2026-10-02';
   // leaving the setup for later
   ({ browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
   await signup(page, 'Bo');
+  await page.evaluate(() => { S.settings.theme = 'dark'; render(); });      // the colours checked below are the dark theme's (a new account starts light)
   await page.click('#co-ask [data-a="co-answer"][data-v="yes"]'); await page.waitForSelector('#co-setup');
   await page.fill('#cos-name', 'Not yet'); await page.click('[data-a="co-setup-later"]');
   eq(await page.evaluate(() => [UI.coSetup, S.user.coLater, 'company' in S.user, S.accounts.length, !!(S.company && S.company.name), !!document.querySelector('#co-empty'), document.querySelector('#co-band h2').innerText.trim(), document.querySelector('#co-band [data-a="company-edit"]').innerText.trim()]),

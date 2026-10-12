@@ -101,12 +101,7 @@ function walletAccounts(list) {
   // 2026-10-09 (owner: "on the computer, in Accounts, remove the buttons under the card and the number of transactions: all that is seen on clicking the
   // card"): under a card on a computer, only what it is for and how much of its limit is used
   const item = a => `<div class="cc-item" data-id="${a.id}"><button class="cc-tap" data-a="card-view" data-id="${a.id}" aria-haspopup="dialog" aria-label="${esc(sayPh(a))}">${cardFace(a)}</button><div class="cc-meta">${cardMeta(a, false, !phone)}</div></div>`;
-  // a phone: the accounts, then the savings under their own heading (owner, 2026-10-09: "group accounts and savings"); every card, or each part stacked
-  if (isPhone()) {
-    const kept = list.filter(a => a.type !== 'savings'), sv = list.filter(a => a.type === 'savings'), stack = !!S.user.acctStack;
-    return `${kept.length ? (stack ? acctStack(kept) : `<div class="cc-grid">${kept.map(item).join('')}</div>`) + '<hr class="cc-div">' : ''}
-      <section class="cc-group sv-group" aria-labelledby="cc-h-savings">${savingsHead(sv)}${sv.length ? (stack ? acctStack(sv) + `<div class="sv-rows">${sv.map(savingsRow).join('')}</div>` : `<div class="cc-grid" data-kind="savings">${sv.map(item).join('')}</div>`) : savingsNone()}</section>`;
-  }
+  // a phone has its own Accounts since 2026-10-11: rows by kind (features/accounts/accounts.phone.js)
   const rank = a => { const i = CC_ORDER.indexOf(a.type); return i < 0 ? CC_ORDER.length - 1 : i; }, kinds = [...new Set([...list, { type: 'savings' }].sort((a, b) => rank(a) - rank(b)).map(a => a.type))];      // the savings always have their place
   // each group under its own name, where "Household" used to head the page ("use that space for the card's group, and the same in the sections below")
   const name = k => ({ checking: t('Checking accounts'), savings: t('Savings accounts'), cash: t('Cash'), credit: t('Credit cards') })[k] || (ACCT_TYPES().find(x => x[0] === k) || [0, k])[1];
@@ -133,31 +128,6 @@ function savingsRow(a) {
 }
 /** No savings account yet: where the goals would be kept, and the way to add one. */
 const savingsNone = () => `<div class="sv-none"><p class="note">${t('No savings account yet. It is where your goals are kept.')}</p><button class="btn sm" data-a="acct-add-savings">${icon('plus')}${t('Add a savings account')}</button></div>`;
-
-// ---------- a phone's Accounts: every card, or stacked (owner, 2026-10-08: "on the phone, in Accounts, make a button to change the cards' view from
-// all of them to grouped one on top of another, as we had in the summary tab; the user chooses") ----------
-/** The two views, as two icons beside the side's name. The choice is the person's, kept with their settings (S.user.acctStack). */
-function acctViewSwitch() {
-  const stack = !!S.user.acctStack, b = (v, on, ic, label) => `<button data-a="acct-view" data-v="${v}" aria-pressed="${on}" aria-label="${label}">${icon(ic)}</button>`;
-  return `<span class="acc-view" role="group" aria-label="${t('Cards view')}">${b('all', !stack, 'list', t('All the cards'))}${b('stack', stack, 'wallet', t('Stacked'))}</span>`;
-}
-/** Add and delete, at the top of a phone's Accounts (owner, 2026-10-08: "add on the phone in Accounts two buttons, 'add account' and 'delete
-    account'"). Delete asks which account, from a list; one that still has transactions is shown but cannot be chosen, as on its form: they are
-    moved or deleted first, so no movement is ever lost with its account. */
-function acctPhoneActs() {
-  return `<div class="g-acts two acc-acts" role="group" aria-label="${t('Accounts')}"><button class="btn primary" data-a="account-add">${icon('plus')}${t('Add account')}</button><button class="btn" data-a="acct-del-pick" aria-haspopup="dialog">${t('Delete account')}</button></div>`;
-}
-function acctDelSheet() {
-  const list = cardsOf(UI.space === 'business' ? business() : personal()), title = t('Which account do you want to delete?'), n = cardTxCount;      // one row per card, its credit and debit inside it
-  return `<div class="scrim" data-a="close"></div><div class="sheet g-pick s-list" role="dialog" aria-label="${esc(title)}"><div class="grab" aria-hidden="true"></div><h2>${esc(title)}</h2>
-    <div class="g-pick-list acc-del">${list.map(a => { const k = n(a); return `<button data-a="acct-del-go" data-id="${a.id}" ${k ? 'aria-disabled="true"' : ''}>${bankMark(a.institution)}<span class="grow"><b>${esc(a.name)}</b><small>${esc(k ? t('Delete or move its {n} transactions first', { n: k }) : (ACCT_TYPES().find(x => x[0] === a.type) || [0, a.type])[1] + ' · ' + t('No transactions'))}</small></span></button>`; }).join('')}</div></div>`;
-}
-/** Stacked as the summary had them: each card shows its top strip above the next, the last one whole. A tap opens that card, large, with its
-    details and what can be done with it (the computer's card-view panel). */
-function acctStack(list) {
-  list = cardsOf(list);
-  return `<div class="wallet acc-stack" style="--n:${list.length}">${list.map((a, i) => `<button class="w-card" data-a="card-view" data-id="${a.id}" style="--i:${i}" aria-haspopup="dialog" aria-label="${esc(cardSay(a))}">${cardFace(a)}</button>`).join('')}<span class="w-space" aria-hidden="true"></span></div>`;
-}
 
 // ---------- the wallet, on the dashboard (the phone's, and since 2026-10-08 the computer's: "the design is approved, use it on the web's dashboard") ----------
 const W_STRIP = 40;      // px of each card that shows above the next one in the stack (owner, 2026-10-08: "top: calc(var(--i) * 40px)")
@@ -297,16 +267,10 @@ const WALLET_ACTIONS = {
   },
   'wallet-pick-reset'() { const o = Object.assign({}, S.user.walletPick); delete o[walletSide()]; S.user.walletPick = o; UI.walletAt = 0; save(); render(); const el = document.querySelector('#overlay footer .btn.primary'); if (el) el.focus({ preventScroll: true }); },
   'wallet-step'(ds) { const row = $('wallet-row'); if (!row) return; const n = row.querySelectorAll('.w-slide').length, i = Math.max(0, Math.min(n - 1, (UI.walletAt || 0) + (+ds.d))); UI.walletAt = i; walletGo(row, i, true); },
-  // every card, or stacked: the cards slide from where they were to their place in the other view
-  'acct-view'(ds) { const stack = ds.v === 'stack'; if (!!S.user.acctStack === stack) return; flip('#view .cc-item[data-id], #view .w-card[data-id]', () => { S.user.acctStack = stack; save(); renderNow(); }); },
   // what is done from an opened card: the panel gives way to the expense or income (in that account), its transactions or its own form
   /** From the savings, when there is no savings account: the account form, set to savings. */
   'acct-add-savings'() { const co = UI.space === 'business'; A['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : 'BRL', type: 'savings' }); const el = $('a-name'); if (el) el.focus(); },
-  'acct-del-pick'() { UI.sheet = 'acct-del'; renderOverlay(); const el = document.querySelector('.sheet .acc-del button:not([aria-disabled])'); if (el) el.focus({ preventScroll: true }); },
-  'acct-del-go'(ds) {
-    const a = cardMain(acct(ds.id)); if (!a || cardTxCount(a)) return;      // one with transactions stays: they go first
-    UI.sheet = false; renderOverlay(); deleteCard(a);
-  },
+
   'card-do'(ds) {
     const a = acct(ds.id); if (!a) return; UI.drawer = null; UI.sheet = false;
     if (ds.v === 'edit') return A['edit-account']({ id: a.id });
@@ -316,7 +280,7 @@ const WALLET_ACTIONS = {
     const x = UI.drawer.draft, cr = cardCredit(a); x.accountId = ds.v === 'expense' && cr ? cr.id : ds.v === 'expense' ? cardRoute(a.id) : debitTarget(a).id;      // money received goes where it is spent from if (ds.v === 'income') { x.type = 'income'; x.dir = 'in'; }
     txKind(x); renderOverlay(); const el = $('d-say') || $('d-amount'); if (el) el.focus();
   },
-  'card-view'(ds) { const a = cardMain(acct(ds.id)); if (!a) return; UI.drawer = { kind: 'card-view', id: a.id, title: a.name, book: bookKey() }; renderOverlay(); },
+  'card-view'(ds) { const a = cardMain(acct(ds.id)); if (!a) return; UI.drawer = { kind: 'card-view', id: a.id, from: ds.id, title: a.name, book: bookKey(), ...(ds.fn === 'credit' && cardCredit(a) ? { fn: 'credit' } : {}) }; renderOverlay(); },      // a credit card's row on a phone's Accounts opens on its credit; closed, the focus goes back to the row that opened it (from)
   /** Debit | Credit over a card's transactions: which of its two functions is listed. */
   'card-fn'(ds) { const d = UI.drawer; if (!d || d.kind !== 'card-view') return; d.fn = ['credit', 'saved'].includes(ds.v) ? ds.v : 'debit'; renderOverlay(); const el = document.querySelector(`#overlay .op-fn [data-v="${d.fn}"]`); if (el) el.focus({ preventScroll: true }); },
   /** "View transactions" under a card in Accounts: its panel, at its transactions. */
