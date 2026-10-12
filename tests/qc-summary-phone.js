@@ -103,9 +103,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
   eq(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, 'no sideways scroll');
   eq(errors, [], 'no error in the console'); await browser.close();
 
-  // ---------- a computer (v199: the summary's look there too, tests/qc-desk-land.js): the accounts as logos, no order, as the phone ----------
+  // ---------- a computer (v199: the summary's look there too; v201: a web page's layout, not the phone's parts; tests/qc-desk-land.js) ----------
   ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
-  eq(await page.evaluate(() => [!!document.querySelector('#ac-card'), !!document.querySelector('.dash-order #dash-order-btn'), !!document.querySelector('.hello #dash-order-btn'), parseFloat(getComputedStyle(document.querySelector('.topbar h1')).fontSize)]), [true, false, false, 20], 'v199: a computer has the summary’s look: its accounts as logos, no “Reorder the dashboard” (as the phone), its title on the forest, and its title as it was');
+  eq(await page.evaluate(() => [!!document.querySelector('#ac-card'), !!document.querySelector('.dash-order #dash-order-btn'), !!document.querySelector('.bq-dhero .bq-dacts #dash-order-btn'), !!document.querySelector('#view .dash-grid'), parseFloat(getComputedStyle(document.querySelector('.topbar h1')).fontSize)]), [false, false, true, true, 20], 'v201: a computer has the summary’s colours with a web page’s layout: the computer’s parts three to a row (not the phone’s accounts card), “Reorder the dashboard” in the header’s row of buttons, the bar’s title as it was');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
 
   // ---------- 4. Spanish and Portuguese on the narrowest phone ----------

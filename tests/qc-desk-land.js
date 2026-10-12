@@ -2,10 +2,12 @@
 // side bar "Verde bosque"; css/look/look-land-desk.css, features/phone/bosque-desk.js).
 //   1. the household on a computer wears it (the company's side and the previous look do not): the side bar and the top bar in the forest, the screen
 //      in use a lime pill, the main button lime, the grey page rising under the bar with rounded corners (or under a screen's own forest top);
-//   2. the summary: the greeting, the net balance and "You can spend" on the forest; two columns: the four buttons, the accounts, what there is to pay
-//      and the month's spending (its chart as wide as its card) on the left, the days of freedom, the goals and the insight on the right;
+//   2. the summary (v201, the same day: "claramente se ve que es una versión agrandada de celular, no una versión web"): a dashboard's header on the
+//      forest (greeting, net balance, "You can spend" at its right, the month's four figures side by side, a row of buttons), the computer's parts three
+//      to a row under it, no hole at the end; on a narrower window the figures go under the balance, two by two;
 //   3. its buttons work: a new expense has no keypad on a computer (its keyboard), the sentence to write it in one go is there;
-//   4. Transactions: the search always open with the filters beside it, the switch, the figure and the chart on the forest, the list in its column;
+//   4. Transactions: a forest header (the switch, the figure, the month, the chart wide at their right) and the computer's table under it, whose
+//      search the header follows as it is typed;
 //   5. the panels wear the phone's colours (an account's panel on the forest); a contribution is slid into its goal and answered by its screen;
 //   6. both themes: every text readable (4.5 to 1, 3 to 1 when large); nothing wider than the window at 1440 and 1024 px; the folded side bar; no error.
 const { open, ok, eq, done } = require('./pw.js');
@@ -45,33 +47,53 @@ const CONTRAST = () => {
   eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'the company’s side keeps its own look');
   await page.evaluate(() => { A.space({ v: 'personal' }); navigate('dashboard'); });
 
-  // ---------- 2. the summary ----------
-  const sum = await page.evaluate(() => { const v = document.getElementById('view'), hero = v.querySelector('.bq-dhero'), cols = [...v.querySelectorAll('.bq-dgrid > .bq-dcol')], ids = c => [...c.children].map(e => e.id || e.className.split(' ')[0]);
-    const card = document.querySelector('#bq-moves-card .bq-mv'), svg = card && card.querySelector('.bq-chart svg'), vb = svg ? +svg.getAttribute('viewBox').split(' ')[2] : 0;
-    return [!!hero.querySelector('.hello h2'), !!hero.querySelector('.bq-dbal .bb-link b'), !!hero.querySelector('.bq-dh-r #free-card #free-open'), cols.length, ids(cols[0]), ids(cols[1]).map(s => s.replace(/^bq-pair$/, 'pair')), cols[0].getBoundingClientRect().right < cols[1].getBoundingClientRect().left, Math.abs(vb - card.getBoundingClientRect().width) < 48, !document.querySelector('#dash-order-btn')]; });
-  eq(sum, [true, true, true, 2, ['quick-acts', 'ac-card', 'todo', 'bq-moves-card'], ['pair', 'insight-card'], true, true, true],
-    'the summary: the greeting, the net balance and “You can spend” on the forest; the four buttons, the accounts, what there is to pay and the month’s spending on the left, the days of freedom with the goals and the insight on the right; its chart drawn as wide as its card; no “Reorder”');
+  // ---------- 2. the summary (v201: a web page's layout, not the phone's parts enlarged) ----------
+  const sum = await page.evaluate(() => { const v = document.getElementById('view'), hero = v.querySelector('.bq-dhero'), r = el => el.getBoundingClientRect();
+    const figs = [...hero.querySelectorAll('.bq-dkpis > .bq-dk')], tops = figs.map(f => Math.round(r(f).top)), grid = v.querySelector('.dash-grid'), cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 0;
+    const bal = r(hero.querySelector('.bq-dbal')), free = r(hero.querySelector('.bq-dh-r'));
+    return [!!hero.querySelector('.hello h2'), !!hero.querySelector('.bq-dbal .bb-link b'), !!hero.querySelector('.bq-dh-r #free-card #free-open'), free.left > bal.right, figs.map(f => f.dataset.k).join(), new Set(tops).size,
+      [...hero.querySelectorAll('.bq-dacts .bq-dact')].map(b => b.dataset.v || b.dataset.a).join(), !!hero.querySelector('.bq-dacts #dash-order-btn'), cols, !!v.querySelector('.dash-grid #todo'), !v.querySelector('#quick-acts, #ac-card, .bq-dgrid, #bq-moves-card')]; });
+  eq(sum, [true, true, true, true, 'income,spending,left,unpaid', 1, 'expense,income,transfer,quick-more', true, 6, true, true],
+    'the summary: a dashboard’s header on the forest (the greeting and the net balance, “You can spend” at its right, the month’s four figures side by side, a row of buttons with “Reorder”), the computer’s parts three to a row under it; none of the phone’s parts');
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#insight-card')).backgroundColor, getComputedStyle(document.querySelector('#insight-card .grow b')).color]), ['rgb(17, 38, 34)', 'rgb(255, 255, 255)'], 'the insight of the day on the forest, its fact white');
+  eq(await page.evaluate(() => { const v = document.getElementById('view'), more = v.querySelector(':scope > .dash-more'), last = [...v.querySelectorAll('.dash-grid > *')].pop(); const gr = Math.round(v.querySelector('.dash-grid').getBoundingClientRect().right); return [!more || Math.abs(Math.round(more.getBoundingClientRect().right) - gr) <= 1, Math.abs(Math.round(last.getBoundingClientRect().right) - gr) <= 1]; }), [true, true],
+    'no hole at the end of the parts (a last row of two shares the width); “Also for the summary” on the page’s column');
+  await page.click('.bq-dk[data-k="spending"]'); await page.waitForTimeout(250);
+  eq(await page.evaluate(() => [UI.drawer && UI.drawer.kind, UI.drawer && UI.drawer.k]), ['kpi', 'spending'], 'a figure of the header opens how it is worked out');
+  await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+  for (const w of [1100, 1024]) {
+    await page.setViewportSize({ width: w, height: 800 }); await page.waitForTimeout(250);
+    eq(await page.evaluate(() => { const h = document.querySelector('.bq-dhero'), r = el => el.getBoundingClientRect(), k = r(h.querySelector('.bq-dkpis')), bal = h.querySelector('.bq-dbal .bb-link b');
+      return [k.top >= r(h.querySelector('.bq-dh-r')).bottom - 1, [...h.querySelectorAll('.bq-dk b')].every(b => b.scrollWidth <= b.clientWidth + 1 && r(b).right <= k.right + 1), r(bal).height < 60]; }), [true, true, true], `${w} px: the four figures under the balance and “You can spend”, none of them cut, the balance on one line`);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(300);
 
   // ---------- 3. its buttons ----------
-  await page.click('#quick-acts [data-v="expense"]'); await page.waitForSelector('#overlay .drawer');
+  await page.click('.bq-dacts [data-v="expense"]'); await page.waitForSelector('#overlay .drawer');
   eq(await page.evaluate(() => [UI.drawer.kind, UI.drawer.pad, !!document.querySelector('#overlay .bq-pad'), document.getElementById('d-amount').getAttribute('inputmode'), !!document.getElementById('d-say'), getComputedStyle(document.querySelector('#overlay .drawer')).backgroundColor]),
     ['tx', false, false, 'decimal', true, 'rgb(233, 237, 236)'], 'a new expense on a computer: no keypad (its keyboard types the amount), the sentence to write it in one go, the panel in the page’s grey');
   await page.evaluate(() => A.close()); await page.waitForTimeout(250);
 
-  // ---------- 4. Transactions ----------
+  // ---------- 4. Transactions: a forest header, the computer's table ----------
   await page.evaluate(() => navigate('transactions')); await page.waitForTimeout(200);
-  eq(await page.evaluate(() => { const top = document.querySelector('.bq-txtop'), q = document.getElementById('tx-q'), list = document.querySelector('.bq-txsheet #tx-list');
-    return [getComputedStyle(top).backgroundColor, !!q && top.contains(q), !!top.querySelector('#tx-filters-btn'), !!top.querySelector('.bq-kind'), !!top.querySelector('.bq-chart svg'), Math.round(list.getBoundingClientRect().width) <= 920, !document.querySelector('.topbar .bq-tool')]; }),
-    ['rgb(17, 38, 34)', true, true, true, true, true, true], 'Transactions on a computer: the search always open, the filters beside it, the switch and the chart on the forest; the list in a column of its own width');
-  await page.fill('#tx-q', 'Assa'); await page.waitForTimeout(250);
-  eq(await page.evaluate(() => [UI.tx.q, document.querySelectorAll('#tx-list .bq-op').length > 0, [...document.querySelectorAll('#tx-list .bq-op-t b')].every(b => /assa/i.test(b.textContent))]), ['Assa', true, true], 'the search finds as it is typed');
+  eq(await page.evaluate(() => { const top = document.querySelector('#view > .bq-dtx'), card = document.getElementById('tx-card'), r = el => el.getBoundingClientRect(), svg = top.querySelector('.bq-chart svg');
+    return [getComputedStyle(top).backgroundColor, !!top.querySelector('.bq-kind'), !!top.querySelector('.bq-sum-v'), !!svg && r(svg).left > r(top.querySelector('.bq-dtx-l')).right, !!card && !!card.querySelector('#tx-q') && !!card.querySelector('#tx-filters-btn') && !!card.querySelector('table'), !document.querySelector('.bq-txtop, .bq-txsheet, .topbar .bq-tool'), Math.round(r(card).width) > 1000]; }),
+    ['rgb(17, 38, 34)', true, true, true, true, true, true], 'Transactions on a computer: the switch, the figure and the month on the forest with the chart wide at their right; under it the computer’s table with its search and filters, the page’s width');
+  eq(await page.evaluate(() => { const c = document.querySelector('#tx-card .fchips'), chip = c && c.querySelector('.fchip'); return c ? [parseFloat(getComputedStyle(c).paddingLeft) >= 16, Math.round(chip.getBoundingClientRect().height) <= 40] : [true, true]; }), [true, true], 'the filters applied sit inside the card, as the table’s rows (the phone’s pills stay on the phone)');
+  const before = await page.evaluate(() => document.querySelector('#bq-dtx .bq-sum-v').textContent);
+  await page.fill('#tx-q', 'Assa'); await page.waitForTimeout(300);
+  eq(await page.evaluate(b => [UI.tx.q, document.querySelectorAll('#tx-list tbody tr').length > 0, [...document.querySelectorAll('#tx-list tbody tr')].every(tr => /assa/i.test(tr.textContent)), document.querySelector('#bq-dtx .bq-sum-v').textContent !== b, document.activeElement.id], before), ['Assa', true, true, true, 'tx-q'],
+    'the search finds as it is typed; the header’s figure follows it; the focus stays in the search');
   await page.evaluate(() => { UI.tx.q = ''; render(); });
+  await page.click('.bq-kind [data-v="income"]'); await page.waitForTimeout(200);
+  eq(await page.evaluate(() => [UI.tx.type, document.activeElement.dataset.v]), ['income', 'income'], 'the switch filters the table, the focus stays on it');
+  await page.evaluate(() => { UI.tx.type = 'expense'; render(); });
 
   // ---------- 5. the panels ----------
-  await page.evaluate(() => navigate('dashboard')); await page.click('#ac-card .bq-acc'); await page.waitForSelector('#overlay .drawer .cv');
+  await page.evaluate(() => A['card-view']({ id: personal()[0].id })); await page.waitForSelector('#overlay .drawer .cv');
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#overlay .drawer')).backgroundColor, [...document.querySelectorAll('#overlay .bq-cv-acts .btn')].map(b => getComputedStyle(b).borderRadius)[0]]), ['rgb(17, 38, 34)', '999px'], 'an account’s panel on the forest, its buttons pills');
   await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+  await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(200);
   await page.click('#free-open'); await page.waitForSelector('#overlay .bq-sheet');
   ok(await page.evaluate(() => { const sh = document.querySelector('#overlay .bq-sheet'), dr = sh.closest('.drawer, .sheet'); return Math.abs(sh.getBoundingClientRect().left - dr.getBoundingClientRect().left) <= 1 && Math.abs(sh.getBoundingClientRect().right - dr.getBoundingClientRect().right) <= 1; }), '“You can spend”: the grey sheet as wide as its panel');
   await page.evaluate(() => A.close()); await page.waitForTimeout(250);

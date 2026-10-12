@@ -49,7 +49,7 @@ function txTools() {
 /** The currency the totals are counted in: the account's when one is chosen, else the side's own. */
 const txCurOf = f => txAcctOnSide(f.account) ? acct(f.account).currency : txSideBiz() ? BCUR() : CUR;
 /** While the search is typed: the list (and in the summary's look its figure) follow without drawing the page again, so the field keeps its focus. */
-function txLive() { $('tx-list').innerHTML = txList(); const tt = $('tx-tools'); if (tt) tt.innerHTML = txTools(); const s = $('bq-txsum'); if (s) s.innerHTML = bqTxSum(); }
+function txLive() { $('tx-list').innerHTML = txList(); const tt = $('tx-tools'); if (tt) tt.innerHTML = txTools(); const s = $('bq-txsum'); if (s) s.innerHTML = bqTxSum(); const d = $('bq-dtx'); if (d) d.innerHTML = bqTxDeskIn(); }
 function txList() {
   if (typeof bqTxOn === 'function' && bqTxOn()) return bqTxList();      // by day, in the summary's look (features/phone/bosque-moves.js)
   const rows = filteredTx(), f = UI.tx, applied = txApplied();
@@ -95,8 +95,8 @@ function txRuleNote() {
 }
 function viewTransactions() {
   if (typeof bqTxOn === 'function' && bqTxOn()) return bqTxView();      // a phone, light, the household: "Movimientos · Bosque" (features/phone/bosque-moves.js)
-  const f = UI.tx;
-  return `${txPairsNote()}${txInbox()}${txRuleNote()}
+  const f = UI.tx, top = typeof landOn === 'function' && landOn() ? bqTxDeskTop() : '';      // a computer in the summary's look: its forest header (v201, features/phone/bosque-desk.js)
+  return `${top}${txPairsNote()}${txInbox()}${txRuleNote()}
   <section class="card" id="tx-card">
     <div class="toolbar tx-bar">
       <div class="search"><label class="sr" for="tx-q">${t('Search transactions')}</label><input type="search" id="tx-q" placeholder="${t('Search merchant, description, note or amount')}" value="${esc(f.q)}" data-c="tx-filter" data-k="q" data-live="1"></div>

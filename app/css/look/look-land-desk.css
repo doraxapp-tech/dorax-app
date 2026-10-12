@@ -91,39 +91,71 @@
   :root.land #view > :is(.bq-dhero, .bq-hero) { position: relative; margin-inline: 0; padding: 8px var(--bq-gut) 62px; background: #112622; color: #FFFFFF; }
   :root.land #view > :is(.bq-dhero, .bq-hero)::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
 
-  /* ---------- the summary ---------- */
-  :root.land #view > .bq-dhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); align-items: end; gap: 24px 48px; }
-  :root.land .bq-dhero .hello { margin: 0 0 18px; }
+  /* ---------- the summary: a dashboard's header on the forest (v201: "una versión web", not the phone's parts enlarged) ---------- */
+  :root.land #view > .bq-dhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); grid-template-areas: "bal free" "figs free" "acts acts"; align-items: start; gap: 22px 48px; }
+  :root.land .bq-dh-l { grid-area: bal; min-width: 0; }
+  :root.land .bq-dh-r { grid-area: free; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; }
+  :root.land .bq-dhero .hello { margin: 0 0 14px; }
   :root.land .bq-dhero .hello h2 { margin: 0; color: #B5C2BE; font-size: 16px; font-weight: 500; letter-spacing: 0; }
   :root.land .bq-dbal { display: flex; align-items: flex-end; gap: 6px; }
   :root.land .bq-dbal .bb-link { display: flex; flex-direction: column; gap: 6px; color: #FFFFFF; text-decoration: none; }
   :root.land .bq-dbal .bb-link small { color: #B5C2BE; font-size: 14px; font-weight: 500; }
-  :root.land .bq-dbal .bb-link b { color: #FFFFFF; font-family: var(--fig); font-size: 48px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+  :root.land .bq-dbal .bb-link b { white-space: nowrap; color: #FFFFFF; font-family: var(--fig); font-size: 44px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
   :root.land .bq-dbal .bb-link b .cents { color: #B5C2BE; opacity: 1; font-size: .5em; letter-spacing: 0; }
   :root.land .bq-dbal .bb-link b.neg { color: #FF8A80; }
   :root.land .bq-dbal .bb-link:focus-visible, :root.land .bq-dbal .bb-eye:focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; border-radius: 12px; }
-  :root.land .bq-dbal .bb-eye { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; color: #B5C2BE; cursor: pointer; }
+  :root.land .bq-dbal .bb-eye { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; color: #B5C2BE; cursor: pointer; }
   :root.land .bq-dbal .bb-eye:hover { background: rgba(255, 255, 255, .08); color: #FFFFFF; }
   :root.land .bq-dbal .bb-eye svg { width: 20px; height: 20px; }
-  /* "You can spend" at the right of the block: the figure on the forest, the lime strip under it as a card */
+  /* the month's four figures side by side, a hairline between them; each opens how it is worked out */
+  :root.land .bq-dkpis { grid-area: figs; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .12); }
+  :root.land .bq-dk { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 4px 16px 4px 0; border-radius: 12px; }
+  :root.land .bq-dk + .bq-dk { padding-left: 18px; border-left: 1px solid rgba(255, 255, 255, .12); border-radius: 0; }
+  :root.land .bq-dk-k { color: #B5C2BE; font-size: 13px; font-weight: 500; }
+  :root.land .bq-dk b { color: #FFFFFF; font-size: 22px; font-weight: 600; letter-spacing: -.03em; white-space: nowrap; }
+  :root.land .bq-dk b .cents { color: #B5C2BE; font-size: .62em; }
+  :root.land .bq-dk.neg b { color: #FF8A80; }
+  :root.land .bq-dk small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #8FA19C; font-size: 12px; line-height: 1.4; }
+  :root.land .bq-dk small .pill { padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #FFFFFF; font-size: 11.5px; }
+  :root.land .bq-dk small .pill.down { background: rgba(182, 221, 98, .16); color: #B6DD62; } :root.land .bq-dk small .pill.up { background: rgba(255, 138, 128, .16); color: #FF8A80; }
+  :root.land .bq-dk:focus-visible { outline: 2px solid #B6DD62; outline-offset: 4px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .bq-dk:hover .bq-dk-k { color: #FFFFFF; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .3); text-underline-offset: 3px; } }
+  /* a narrower window: the four figures under the balance and "You can spend", the whole width; narrower still, two by two */
+  @media (max-width: 1240px) { :root.land #view > .bq-dhero:not(.bq-dtx) { grid-template-columns: minmax(0, 1fr) minmax(260px, 330px); grid-template-areas: "bal free" "figs figs" "acts acts"; gap: 22px 32px; } }
+  @media (max-width: 1100px) {
+    :root.land .bq-dkpis { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; }
+    :root.land .bq-dk:nth-child(odd) { padding-left: 0; border-left: 0; }
+  }
+  /* "You can spend" at the right: the figure on the forest, the lime strip under it as a card */
   :root.land .bq-dh-r .bq-free { margin: 0; }
   :root.land .bq-dh-r .bq-free-top { padding: 0 0 14px; background: none; }
-  :root.land .bq-dh-r .bq-free-foot { margin: 0; border-radius: 24px; }
+  :root.land .bq-dh-r .bq-free-foot { margin: 0; border-radius: 22px; }
   @media (hover: hover) and (pointer: fine) { :root.land .bq-free-foot:hover { background: #C4E57A; } }
-  /* the page in two columns: what is done and seen most on the left, the days of freedom, the goals and the day's fact on the right */
-  :root.land #view > .bq-dgrid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr); align-items: start; gap: 28px; }
-  :root.land #view > .bq-dgrid.one { grid-template-columns: minmax(0, 1fr); }
-  :root.land .bq-dcol { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
-  :root.land .bq-dgrid .bq-acts { padding: 14px 10px; }
-  :root.land .bq-dgrid .bq-acts button { min-height: 84px; }
-  @media (hover: hover) and (pointer: fine) { :root.land .bq-acts button:hover .bq-ico:not(.on) { background: var(--bq-circle-2); } :root.land .bq-acts button:hover .bq-ico.on { background: #C4E57A; } }
-  /* the accounts and the bills: no swiping on a wide screen, they wrap */
-  :root.land .bq-row { flex-wrap: wrap; margin: 0; padding: 0; overflow: visible; }
-  :root.land .bq-accs { gap: 12px 10px; }
-  :root.land .bq-bills { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); align-items: stretch; }
-  :root.land .bq-bill { width: 100%; }
-  @media (hover: hover) and (pointer: fine) { :root.land .bq-bill:hover, :root.land .bq-tile:hover { box-shadow: inset 0 0 0 1px var(--bq-line-2), 0 8px 24px -16px rgba(17, 38, 34, .35); } :root.land .bq-acc:hover .bq-mark { box-shadow: inset 0 0 0 1px var(--bq-line-2); } }
-  :root.land .bq-dcol.side .bq-pair { margin-top: 0; }
+  /* the row of buttons: pills, the expense lime, the order of the parts at the right end */
+  :root.land .bq-dacts { grid-area: acts; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  :root.land .bq-dact { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px 0 14px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #FFFFFF; font-size: 14px; font-weight: 600; transition: background-color 120ms ease-out; }
+  :root.land .bq-dact svg { width: 18px; height: 18px; color: #B6DD62; }
+  :root.land .bq-dact.main { background: #B6DD62; box-shadow: none; color: #112622; }
+  :root.land .bq-dact.main svg { color: #112622; }
+  :root.land .bq-dact:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .bq-dact:hover { background: rgba(255, 255, 255, .14); } :root.land .bq-dact.main:hover { background: #C4E57A; } }
+  :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #B5C2BE; font-weight: 500; }
+  :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { color: #FFFFFF; background: rgba(255, 255, 255, .06); }
+  :root.land .bq-dacts .d-order-btn svg { color: #B5C2BE; }
+  /* the parts under it: the computer's own, in the page's language (cards white with a hairline, 24 px corners, pills) */
+  :root.land #view > .dash-more { width: auto; }      /* "Also for the summary" on the page's column, not over its right margin */
+  @media (min-width: 1241px) {      /* three to a row; a last row of two shares the width, a last one alone with the one before it (2 + 2) */
+    :root.land #view .dash-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    :root.land #view .dash-grid > * { grid-column: span 2; }
+    :root.land #view .dash-grid > :nth-child(3n+1):nth-last-child(2), :root.land #view .dash-grid > :nth-child(3n+1):nth-last-child(2) + *,
+    :root.land #view .dash-grid > :nth-child(3n+1):nth-last-child(4), :root.land #view .dash-grid > :nth-child(3n+1):nth-last-child(4) ~ *, :root.land #view .dash-grid > :only-child { grid-column: span 3; }
+  }
+  :root.land #view .kpi, :root.land #view .card.tile { border: 1px dashed var(--bq-line-2); border-radius: 20px; background: var(--bq-card); box-shadow: none; }      /* the tiles keep their dashed edge */
+  :root.land #view .seg { border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); }
+  :root.land #view .seg button { border-radius: 999px; }
+  :root.land #view .seg button[aria-pressed="true"], :root.land #view .seg button[aria-pressed="true"]:hover { background: var(--bq-pick-bg); color: var(--bq-pick-ink); font-weight: 600; box-shadow: none; }
+  :root.land #view .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: var(--bq-line); background: var(--bq-card); color: var(--bq-ink); }
+  :root.land #view .banner { border: 0; border-radius: 20px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   /* the insight of the day as a computer has it, on the forest (it was the brand's dark green on the light page): the fact white, its name lime */
   :root.land #view .card.ins-pc { --ink: #F1F4EE; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); background: #112622; box-shadow: none; color: #D6DCCF; }
   :root.land #view .ins-pc .card-h h2 { color: #B6DD62; }
@@ -135,31 +167,22 @@
   :root.land #view .ins-pc .btn:not(.primary):hover { background: rgba(255, 255, 255, .14); }
   :root.land #view .ins-pc .ins-dots i { background: rgba(255, 255, 255, .22); } :root.land #view .ins-pc .ins-dots i.on { background: #B6DD62; }
   :root.land #view .ins-pc :focus-visible { outline-color: #B6DD62; }
-  :root.land .bq-dcol.side .ins-strip { margin: 0; }
 
-  /* ---------- Transactions: the block on the forest, the list in a column of its own width on the grey ---------- */
-  :root.land #view > .bq-tx { display: flex; flex-direction: column; margin-inline: 0; }
-  :root.land .bq-txtop { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(300px, 380px); align-items: center; gap: 18px 12px; padding: 8px var(--bq-gut) 56px; }
-  :root.land .bq-txtop > .bq-find { grid-column: 1; }
-  :root.land .bq-txtop > .bq-tt { grid-column: 2; display: flex; }
-  :root.land .bq-txtop > .bq-kind { grid-column: 3; margin-left: 12px; }
-  :root.land .bq-txtop > :not(.bq-find):not(.bq-kind):not(.bq-tt) { grid-column: 1 / -1; }
-  /* the filters: a round button as the phone's (look-land-moves.css) */
-  :root.land .bq-txtop .bq-tool { position: relative; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 1px solid rgba(255, 255, 255, .14); border-radius: 50%; background: rgba(255, 255, 255, .08); color: #FFFFFF; cursor: pointer; }
-  :root.land .bq-txtop .bq-tool svg { width: 19px; height: 19px; }
-  :root.land .bq-txtop .bq-tool:hover { background: rgba(255, 255, 255, .14); }
-  :root.land .bq-txtop .bq-tool:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
-  :root.land .bq-txtop .bq-tool .count { position: absolute; top: -3px; right: -3px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #B6DD62; color: #112622; box-shadow: 0 0 0 2px #112622; font-size: 11px; font-weight: 700; line-height: 1; }
-  :root.land .bq-txtop .bq-sum-v { font-size: 44px; }
-  :root.land .bq-txtop .bq-chart { margin: 4px 0 0; }
-  :root.land .bq-txtop .bq-chart figcaption { margin-inline: 0; }
-  :root.land .bq-txsheet { padding: 10px var(--bq-gut) 0; }
-  :root.land .bq-txsheet > *, :root.land .bq-txsheet > .banner { width: 100%; max-width: 920px; margin-inline: auto; box-sizing: border-box; }
-  :root.land .bq-txsheet > .bq-grab { width: 40px; }
-  @media (hover: hover) and (pointer: fine) { :root.land .bq-op:hover .bq-op-ico { background: var(--bq-circle-2); } :root.land .bq-op:hover .bq-op-t b { text-decoration: underline; text-decoration-color: var(--bq-line-2); text-underline-offset: 3px; } }
+  /* ---------- Transactions: a forest header (the switch, the figure, the month; the chart wide at its right), the computer's table under it ---------- */
+  :root.land #view > .bq-dtx { grid-template-columns: minmax(280px, 1fr) minmax(0, 1.7fr); grid-template-areas: none; align-items: end; gap: 24px 40px; padding-top: 6px; }
+  :root.land .bq-dtx-l { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; min-width: 0; }
+  :root.land .bq-dtx .bq-kind { width: 100%; max-width: 380px; }
+  :root.land .bq-dtx .bq-sum-v { font-size: 44px; }
+  :root.land .bq-dtx-r { min-width: 0; }
+  :root.land .bq-dtx .bq-chart { margin: 0; }
+  :root.land .bq-dtx .bq-chart figcaption { margin-inline: 0; }
+  /* the table in its white card: a row lit under the pointer */
+  :root.land #tx-card .search input { min-height: 44px; border-color: var(--bq-line); border-radius: 999px; background-color: var(--bq-card-2); }
+  @media (hover: hover) and (pointer: fine) { :root.land #tx-card tbody tr:hover > td { background: var(--bq-card-2); } }
 
   /* ---------- the other screens: their top on the forest (Reports) or the grey right under the bar; the summary's language in the sheet ---------- */
   :root.land-page #view > .bq-hero { gap: 18px; }
+  :root.land #view .card .tbl.dist th { white-space: normal; vertical-align: bottom; }      /* a table in half a page's width (Investments' income of the month): its headings on two lines rather than its last column cut off */
 
   /* ---------- the panels at the right: the grey sheet as wide as the panel (a computer's panel has 22 px at its sides) ---------- */
   :root.land #overlay .drawer { border-radius: 28px; box-shadow: 0 24px 60px -24px rgba(14, 15, 12, .45); }

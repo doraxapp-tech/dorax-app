@@ -130,6 +130,5 @@ addTexts([
   ["{n} income", "{n} ingreso", "{n} receita"],
   ["{n} incomes", "{n} ingresos", "{n} receitas"],
   ["Show {n} more", "Mostrar {n} más", "Mostrar mais {n}"],
-  ["Clear search", "Borrar la búsqueda", "Limpar a busca"],
   ["Changes saved", "Cambios guardados", "Alterações salvas"],
 ]);

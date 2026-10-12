@@ -86,7 +86,7 @@
   :root.land .bq-grab { align-self: center; width: 40px; height: 5px; border-radius: 999px; background: var(--bq-grab); }
   :root.land .bq-txsheet > .banner { margin: 0; border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   :root.land .bq-txsheet .banner .btn.sm { border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); color: var(--bq-accent); font-weight: 600; }
-  :root.land #tx-list { display: flex; flex-direction: column; gap: 12px; }
+  :root.land .bq-txsheet #tx-list { display: flex; flex-direction: column; gap: 12px; }
   :root.land .bq-txh { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
   :root.land .bq-txh h2 { margin: 0; color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
   :root.land .bq-txh .bq-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -97,9 +97,9 @@
   :root.land .bq-add:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
   @media (hover: hover) and (pointer: fine) { :root.land .bq-add:hover { background: #C4E57A; } }
   /* the filters applied, as white pills */
-  :root.land #tx-list .fchips { padding: 0; border: 0; }
-  :root.land #tx-list .fchip { min-height: 44px; padding: 4px 10px 4px 14px; border: 0; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); font-size: 13px; font-weight: 500; }
-  :root.land #tx-list .fchip svg { color: var(--bq-ink-2); }
+  :root.land .bq-txsheet #tx-list .fchips { padding: 0; border: 0; }
+  :root.land .bq-txsheet #tx-list .fchip { min-height: 44px; padding: 4px 10px 4px 14px; border: 0; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); font-size: 13px; font-weight: 500; }
+  :root.land .bq-txsheet #tx-list .fchip svg { color: var(--bq-ink-2); }
 
   /* every day in one white card */
   :root.land .bq-txcard { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
