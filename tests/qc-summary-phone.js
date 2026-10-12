@@ -124,7 +124,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
   // round logos, what there is to pay as cards, the days of freedom and the goals side by side, the bar at the foot floating; nowhere else
   for (const w of [390, 320]) {
     ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: w, height: 844 }, touch: true, mobile: true }));
-    await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
+    await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); });
     const look = () => page.evaluate(() => { const root = document.documentElement, cs = el => el ? getComputedStyle(el) : {}, r = el => el.getBoundingClientRect();
       const f = document.querySelector('#view > .bq-free'), head = document.querySelector('.topbar > .pagehead'), foot = f && f.querySelector('.bq-free-foot'), bal = document.querySelector('.bar-bal .bb-link b');
       const acts = [...document.querySelectorAll('#quick-acts button')], tab = document.querySelector('.tabbar');
@@ -265,9 +265,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.click('#tx-list .bq-op'); await page.waitForTimeout(200);
       ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'tx' && !UI.drawer.isNew)), 'a row opens its transaction');
       await page.evaluate(() => A.close());
-      await page.evaluate(() => { S.settings.theme = 'dark'; render(); });
+      await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; render(); });
       eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), document.documentElement.classList.contains('land-dark'), !!document.querySelector('.bq-tx'), getComputedStyle(document.querySelector('.bq-txsheet')).backgroundColor]), [true, true, true, 'rgb(11, 20, 18)'], 'v194: the dark theme has the same Transactions, its sheet the deep green that reads as black');
-      await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
+      await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); });
       // the other pages, the company's side, the dark theme: as they were
       await page.evaluate(() => navigate('plan'));
       // ---------- 8. the other screens in the same look (v193: "sigue con el resto de la webapp"; "no repitas los botones de cambio de cuenta, campana,
@@ -293,17 +293,17 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'goal-form')), 'and it opens a new goal'); await page.evaluate(() => A.close());
       await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
       eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'the company’s summary keeps its look');
-      await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });
+      await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = S.settings.themePhone = 'dark'; navigate('dashboard'); });
       eq(await page.evaluate(() => { const cs = el => getComputedStyle(el); return [document.documentElement.classList.contains('land-dark'), !!document.querySelector('.bq-acts'), cs(document.querySelector('.work')).backgroundColor, cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(document.querySelector('.bq-acts')).backgroundColor, cs(document.querySelector('.tabbar')).backgroundColor, cs(document.querySelector('.bq-acc-n')).color]; }),
         [true, true, 'rgb(11, 20, 18)', 'rgb(17, 38, 34)', 'rgb(21, 34, 31)', 'rgba(21, 34, 31, 0.72)', 'rgb(238, 242, 239)'], 'v194 ("el modo oscuro me lleva al diseño viejo"): the dark theme has the new summary in its dark version: the same forest block, the page a green that reads as black, the cards a step lighter, light words, the glass bar dark');
       // v196: Automatic follows the device, in the new look too; More offers it
-      await page.evaluate(() => { S.settings.theme = 'system'; render(); }); await page.emulateMedia({ colorScheme: 'light' }); await page.waitForTimeout(100);
+      await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'system'; render(); }); await page.emulateMedia({ colorScheme: 'light' }); await page.waitForTimeout(100);
       const light1 = await page.evaluate(() => document.documentElement.classList.contains('land-dark'));
       await page.emulateMedia({ colorScheme: 'dark' }); await page.waitForTimeout(100);
       eq([light1, await page.evaluate(() => document.documentElement.classList.contains('land-dark'))], [false, true], 'Automatic: the light version with a light device, the dark one when the device turns dark');
       await page.click('.navbar .more-btn'); await page.waitForTimeout(150);
       eq(await page.evaluate(() => { const sel = document.getElementById('theme-m'); return [[...sel.options].map(o => o.value).join(), sel.value, document.querySelector('#theme-m').closest('.mr-pick').querySelector('.mr-val').textContent]; }), ['system,light,dark', 'system', 'Automático'], 'More offers Automatic, Light and Dark, Automatic chosen');
-      await page.evaluate(() => { A.close(); S.settings.theme = 'dark'; render(); }); await page.emulateMedia({ colorScheme: 'light' });
+      await page.evaluate(() => { A.close(); S.settings.theme = S.settings.themePhone = 'dark'; render(); }); await page.emulateMedia({ colorScheme: 'light' });
       eq(await page.evaluate(() => { const i = document.querySelector('#quick-acts .bq-ico.on'); return [getComputedStyle(i).backgroundColor, getComputedStyle(i).color, getComputedStyle(document.querySelector('#bq-moves-card .now')).stroke]; }), ['rgb(182, 221, 98)', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)'], 'v195: in the dark theme the expense’s icon is deep green on its lime (it was lime on lime), and the chart’s line lime on the dark card');
       eq(await page.evaluate(() => { const g = document.querySelector('#goals-card .bq-tile'), d = document.querySelector('#todo .bq-bill.first .bq-due'); return [getComputedStyle(g).color, getComputedStyle(g.querySelector('.bq-tile-h')).color, getComputedStyle(g.querySelector('.bq-bar')).backgroundColor, getComputedStyle(d).backgroundColor, getComputedStyle(d).color]; }),
         ['rgb(182, 221, 98)', 'rgb(182, 221, 98)', 'rgba(182, 221, 98, 0.18)', 'rgb(182, 221, 98)', 'rgb(17, 38, 34)'], 'v195: in the dark theme the goals’ words are lime on their dark mint, their bars’ track visible; the nearest bill’s day deep green on its lime');
@@ -313,7 +313,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
     eq(errors, [], `${w} px, Bosque: no error in the console`); await browser.close();
   }
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
-  await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); });
   eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [true, true], 'v199: a computer has the summary’s look too (tests/qc-desk-land.js)');
   eq(errors, [], 'computer, Bosque: no error in the console'); await browser.close();
   done('qc-summary-phone');

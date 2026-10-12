@@ -38,9 +38,9 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await look('#toast'), ['rgba(44, 44, 46, 0.94)', 'rgba(255, 255, 255, 0.14)', 'rgb(212, 212, 212)'], 'the toast: a medium-light black, a fine light edge, white words');
   await page.evaluate(() => { UI.curio = { cheer: 'mark', mark: 90 }; renderCurio(); }); await page.waitForSelector('#curio');
   eq([await look('#curio'), await page.evaluate(() => getComputedStyle(document.querySelector('#curio b')).color)], [['rgba(44, 44, 46, 0.94)', 'rgba(255, 255, 255, 0.14)', 'rgb(212, 212, 212)'], 'rgb(212, 212, 212)'], 'a milestone: the same, its title white, no green');
-  await page.evaluate(() => { UI.curio = null; renderCurio(); S.settings.theme = 'light'; applyTheme && applyTheme(); render(); toast('Saved.'); });
+  await page.evaluate(() => { UI.curio = null; renderCurio(); S.settings.theme = S.settings.themePhone = 'light'; applyTheme && applyTheme(); render(); toast('Saved.'); });
   eq((await look('#toast'))[0], 'rgba(44, 44, 46, 0.94)', 'in the light theme too');
-  await page.evaluate(() => { S.settings.theme = 'dark'; applyTheme && applyTheme(); render(); });
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; applyTheme && applyTheme(); render(); });
   // ---------- 4. the flame ----------
   await page.evaluate(() => navigate('plan')); await page.click('#nav a[href="#dashboard"]'); await page.waitForTimeout(80);
   eq(await page.evaluate(() => { const b = document.querySelector('.jr-btn'); return [b.classList.contains('lit'), getComputedStyle(b.querySelector('svg')).animationName]; }), [true, 'jr-catch'], 'arriving at the summary: the flame lights up');

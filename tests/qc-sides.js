@@ -32,15 +32,15 @@ const T = '2026-10-02';
   // ---------- 2. the side is chosen in the menu ----------
   let { browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } });
   await signup(page, 'Ana');
-  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['system', true], 'a new account follows its device (v196, owner: "muestra el lado oscuro o claro desde el primer inicio basado en la configuración de su dispositivo"): this one is light');
+  eq(await page.evaluate(() => [themeChoice(), document.documentElement.classList.contains('app-light')]), ['system', true], 'a new account follows its device (v196, owner: "muestra el lado oscuro o claro desde el primer inicio basado en la configuración de su dispositivo"): this one is light');
   await page.emulateMedia({ colorScheme: 'dark' }); await page.waitForTimeout(150);
-  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light'), themeNow()]), ['system', false, 'dark'], 'the device turns dark: the app follows, with no choice made');
+  eq(await page.evaluate(() => [themeChoice(), document.documentElement.classList.contains('app-light'), themeNow()]), ['system', false, 'dark'], 'the device turns dark: the app follows, with no choice made');
   await page.click('#user-menu-btn'); await page.waitForTimeout(100);
   eq(await page.evaluate(() => [...document.querySelectorAll('#user-menu [data-a="theme-set"]')].map(b => b.dataset.v + ':' + b.getAttribute('aria-pressed')).join()), 'system:true,dark:false,light:false', 'the menu offers Automatic, Dark and Light, Automatic chosen');
   await page.click('#user-menu [data-a="theme-set"][data-v="light"]');
-  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['light', true], 'Light chosen: light, whatever the device says');
+  eq(await page.evaluate(() => [themeChoice(), document.documentElement.classList.contains('app-light')]), ['light', true], 'Light chosen: light, whatever the device says');
   await page.emulateMedia({ colorScheme: 'light' }); await page.evaluate(() => { UI.menu = false; renderShell(); });
-  await page.evaluate(() => { S.settings.theme = 'dark'; render(); });      // the colours checked below are the dark theme's
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; render(); });      // the colours checked below are the dark theme's
   eq(await page.evaluate(() => [document.querySelector('#rail-side').innerHTML, getComputedStyle(document.querySelector('#rail-side')).display, !!document.querySelector('#co-ask'), hasCompany()]), ['', 'none', true, false], 'a new account has no Household | Company choice: the app is the household’s alone and the dashboard asks first (owner: "by default the switch is not shown until they answer")');
   await page.evaluate(() => { S.user.company = true; render(); });      // the answer was yes; the setup is followed below from the menu's choice
   eq(await page.evaluate(() => { const b = document.querySelector('#rail-side .rail-flip'); return [[...document.querySelectorAll('#rail-side [data-a="space"]')].map(x => [x.getAttribute('aria-label'), x.dataset.v, !!x.querySelector('svg')]), !!b.closest('.brand') && b.closest('.rail-tools').contains(document.querySelector('#rail-eye')), document.querySelectorAll('.topbar .space, .topbar .side-tag, .side-seg').length, getComputedStyle(document.querySelector('.bar-bal')).display]; }),
@@ -109,7 +109,7 @@ const T = '2026-10-02';
   // leaving the setup for later
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
   await signup(page, 'Bo');
-  await page.evaluate(() => { S.settings.theme = 'dark'; render(); });      // the colours checked below are the dark theme's (a new account starts light)
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; render(); });      // the colours checked below are the dark theme's (a new account starts light)
   await page.click('#co-ask [data-a="co-answer"][data-v="yes"]'); await page.waitForSelector('#co-setup');
   await page.fill('#cos-name', 'Not yet'); await page.click('[data-a="co-setup-later"]');
   eq(await page.evaluate(() => [UI.coSetup, S.user.coLater, 'company' in S.user, S.accounts.length, !!(S.company && S.company.name), !!document.querySelector('#co-empty'), document.querySelector('#co-band h2').innerText.trim(), document.querySelector('#co-band [data-a="company-edit"]').innerText.trim()]),

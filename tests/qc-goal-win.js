@@ -11,7 +11,7 @@ const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   const phone = { lang: 'en', account: 'example', plan: true, mobile: true, touch: true, viewport: { width: 390, height: 844 } };
   let { browser, page, errors } = await open(phone);
-  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = 'light'; navigate('dashboard'); render(); });
+  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); render(); });
   // the goal with the least saved: a contribution of 25% of its target passes a quarter
   const G = await page.evaluate(() => { const g = B().goals.filter(g => g.status === 'active' && g.kind === 'goal' && g.target > 0).map(g => ({ id: g.id, name: g.name, target: g.target, pct: goalStatus(B(), g, B().today).pct })).sort((a, b) => a.pct - b.pct)[0]; return g; });
   const openMove = (dir = 'in', extra = {}) => page.evaluate(([id, dir, extra]) => { A.close(); A['goal-move']({ id, dir, ...extra }); }, [G.id, dir, extra]);
@@ -82,7 +82,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 5. with motion ----------
   ({ browser, page, errors } = await open({ ...phone, motion: true }));
-  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = 'dark'; navigate('dashboard'); render(); });
+  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = S.settings.themePhone = 'dark'; navigate('dashboard'); render(); });
   await page.evaluate(id => { A['goal-move']({ id, dir: 'in' }); }, G.id); await page.waitForTimeout(500); await page.fill('#m-amount', String(G.target / 200));
   await page.evaluate(() => { window.__gw = []; const o = Element.prototype.animate; Element.prototype.animate = function (k, opt) { window.__gw.push([this.className && this.className.baseVal !== undefined ? this.className.baseVal : this.className, JSON.stringify(k[0]).slice(0, 40)]); return o.call(this, k, opt); }; });
   k = await knob(); await page.mouse.move(k.x, k.y); await page.mouse.down();

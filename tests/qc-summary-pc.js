@@ -95,7 +95,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [!!(S.user.dashOrder || {})['co-pc'], !(S.user.dashOrder || {})['home-pc']]), [true, true], 'its order is its own');
   await page.evaluate(() => { A.close(); A.space({ v: 'personal' }); });
   // ---------- the light theme ----------
-  await page.evaluate(() => { S.settings.theme = 'light'; document.documentElement.classList.add('app-light'); render(); }); await page.waitForTimeout(200);
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'light'; document.documentElement.classList.add('app-light'); render(); }); await page.waitForTimeout(200);
   eq(await page.evaluate(() => { const ks = document.querySelectorAll('.kpis .kpi'); return [getComputedStyle(ks[0]).backgroundColor === getComputedStyle(ks[1]).backgroundColor, getComputedStyle(ks[0].querySelector('.value')).color]; }), [true, 'rgb(22, 51, 0)'], 'light theme: the same tile, its amount in the deep green');
   eq(errors, [], 'no error in the console'); await browser.close();
 

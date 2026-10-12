@@ -15,7 +15,7 @@ document.addEventListener('click', e => {
     save(); return;
   }
   const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
-  const fn = A[el.dataset.a]; if (fn) { fn(el.dataset, el); stepsMaybe(); cheerMaybe(); save(); }      // cheerMaybe: a mark passed or a goal reached just now (features/ahead/curios.view.js)
+  const fn = A[el.dataset.a]; if (fn) { const gl = glideBefore(el); fn(el.dataset, el); glideAfter(gl); stepsMaybe(); cheerMaybe(); save(); }      // glide: a switch's pill slides to the new choice (ui/glide.js); cheerMaybe: a mark passed or a goal reached just now (features/ahead/curios.view.js)
 });
 // Anything that can change the data ends in a save: the account is sent to the server shortly after (server/sync.js).
 ['change', 'keyup'].forEach(type => document.addEventListener(type, save));

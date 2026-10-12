@@ -63,4 +63,6 @@ addTexts([
   ["Automatic", "Automático", "Automático"],
   ["Automatic: as your device", "Automático: como tu dispositivo", "Automático: como o seu dispositivo"],
   ["Light, dark, or automatic: as your device is set, and changing when it does.", "Claro, oscuro o automático: como esté tu dispositivo, y cambia cuando él cambia.", "Claro, escuro ou automático: como estiver o seu dispositivo, e muda quando ele muda."],
+  ["Only on the phone: your computer keeps its own.", "Solo en el teléfono: tu computador tiene la suya.", "Só no celular: seu computador tem a dele."],
+  ["Only on the computer: your phone keeps its own.", "Solo en el computador: tu teléfono tiene la suya.", "Só no computador: seu celular tem a dele."],
 ]);

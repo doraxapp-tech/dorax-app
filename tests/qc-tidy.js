@@ -88,7 +88,7 @@ const fs = require('fs'), path = require('path');
   eq(await page.evaluate(() => { const pay = [...document.querySelectorAll('.drawer .rem [data-a="line-pay-now"]')], rest = [...document.querySelectorAll('.drawer .btn.primary:not(.now)')]; return [pay.length > 0, pay.every(x => x.classList.contains('now') && getComputedStyle(x).backgroundColor === 'rgb(159, 209, 130)'), rest.every(x => getComputedStyle(x).backgroundColor === 'rgb(159, 209, 130)')]; }), [true, true, true], 'the bell: a bill to mark as paid is bright, because the bell only holds what is due; any other filled button there is deep green');
   await page.evaluate(() => { A.close(); A.space({ v: 'business' }); navigate('plan'); });
   eq(await page.evaluate(() => getComputedStyle(document.querySelector('.topbar .btn.primary')).backgroundColor), DEEP, 'on the company’s side the main button stays the brand’s deep green');
-  await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'light'; render(); navigate('plan'); });
+  await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = S.settings.themePhone = 'light'; render(); navigate('plan'); });
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.topbar .btn.primary')).backgroundColor, [...document.querySelectorAll('#paylist .btn.primary.now')].map(b => getComputedStyle(b).backgroundColor)]), [DEEP, [DEEP]], 'in the light look both are the deep green: on white the bright one is too faint to be a button');
   eq(errors, [], 'the year and the buttons: no error in the console'); await browser.close();
 

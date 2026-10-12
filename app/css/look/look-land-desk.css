@@ -142,6 +142,33 @@
   :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #B5C2BE; font-weight: 500; }
   :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { color: #FFFFFF; background: rgba(255, 255, 255, .06); }
   :root.land .bq-dacts .d-order-btn svg { color: #B5C2BE; }
+  /* v202: the accounts' round logos at the right of the row, beside "Reorder" (each opens its panel; its name under the pointer) */
+  :root.land .bq-daccs { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 0 auto; padding: 0; }
+  :root.land #view .bq-dacts .bq-daccs + .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { margin-left: 6px; }
+  :root.land .bq-daccs .bq-acc { width: auto; gap: 0; border-radius: 50%; }
+  :root.land .bq-daccs .bq-mark { width: 44px; height: 44px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); transition: box-shadow 160ms ease-out, transform 120ms ease-out; }
+  :root.land .bq-daccs .bq-mark .inst, :root.land .bq-daccs .bq-mark .inst img { width: 32px; height: 32px; min-width: 32px; }
+  :root.land .bq-daccs .bq-mark .inst svg { width: 18px; height: 18px; }
+  :root.land .bq-daccs .bq-acc-n { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  :root.land .bq-daccs .bq-acc:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .bq-daccs .bq-acc:hover .bq-mark { box-shadow: inset 0 0 0 2px #B6DD62; } }
+  /* what there is to pay (the phone's cards) and the goals (one card each): rows of cards across the page */
+  :root.land #view .bq-sec { gap: 10px; }
+  :root.land #view :is(.bq-bills, .bq-dgoals) { list-style: none; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); align-items: stretch; gap: 14px; margin: 2px 0 0; padding: 0; overflow: visible; }      /* as many to a row as fit, the rows even (bosque-desk.js: bqCols) */
+  :root.land #view :is(.bq-bills, .bq-dgoals) > li { display: flex; min-width: 0; }
+  :root.land #view .bq-bill { width: 100%; height: auto; }
+  :root.land .bq-dgoal { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); }
+  :root.land .bq-dgoal .bq-ico { width: 40px; height: 40px; }
+  :root.land .bq-dgoal .bq-ico svg { width: 19px; height: 19px; }
+  :root.land .bq-dgoal.done .bq-ico { background: #B6DD62; color: #112622; }
+  :root.land .bq-dgoal-n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; font-size: 15px; font-weight: 600; line-height: 1.25; }
+  :root.land .bq-dgoal-v { color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .bq-dgoal-v b { color: var(--bq-ink); font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .bq-dgoal-s { margin-top: auto; color: var(--bq-ink-2); font-size: 13px; line-height: 1.35; }
+  :root.land .bq-dgoal:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
+  :root.land #view :is(.bq-bill, .bq-dgoal) { transition: box-shadow 160ms ease-out, transform 120ms ease-out; }
+  :root.land #view :is(.bq-bill, .bq-dgoal):active { transform: scale(.98); }
+  @media (hover: hover) and (pointer: fine) { :root.land #view :is(.bq-bill, .bq-dgoal):hover { box-shadow: inset 0 0 0 1px var(--bq-line-2), 0 10px 24px -16px rgba(14, 15, 12, .35); } }
   /* the parts under it: the computer's own, in the page's language (cards white with a hairline, 24 px corners, pills) */
   :root.land #view > .dash-more { width: auto; }      /* "Also for the summary" on the page's column, not over its right margin */
   @media (min-width: 1241px) {      /* three to a row; a last row of two shares the width, a last one alone with the one before it (2 + 2) */

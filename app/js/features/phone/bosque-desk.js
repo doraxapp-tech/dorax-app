@@ -9,12 +9,17 @@
        where the money went, the trend, the latest movements;
      - Transactions: a forest header with the switch (expenses, income, all), the month's figure, how it compares and the month, and the month's chart
        wide at its right; under it the computer's table, with its search and filters, its columns and its pages.
+   v202 (owner: "trae de vuelta las tarjetas de por pagar como el celular… y los bancos en círculos al lado izquierdo de ordenar resumen; las metas
+   cada una en una tarjeta independiente"): the accounts' round logos in the header's row, what there is to pay as the phone's cards and each goal a
+   card, both across the page.
    The phone keeps its own (features/phone/bosque.js, bosque-moves.js). Styles: css/look/look-land-desk.css. */
 
 /** How wide a part of a computer's page is: its area `work` px wide, less the page's margins (css/look/look-land-desk.css, --bq-gut, with the 1400
     px page of base/shell.css), shared between columns: `share` of what is left after `gap` px between them. The charts are drawn that wide. */
 const bqDeskW = (work, share, gap) => { const gut = Math.max(32, (work - 1400) / 2 + 32); return Math.max(320, Math.round((work - 2 * gut - gap) * share)); };
 const bqWorkW = () => ((document.querySelector('.work') || {}).clientWidth) || innerWidth;
+/** A row of n cards at least `min` px wide across the page: as many to a row as fit, the rows as even as they can be (7 is 4 and 3, not 6 and 1). */
+const bqCols = (n, min, gap) => { const work = bqWorkW(), w = work - 2 * Math.max(32, (work - 1400) / 2 + 32), fit = Math.max(1, Math.floor((w + gap) / (min + gap))); return Math.max(1, Math.ceil(n / Math.ceil(n / fit))); };
 // a window made wider or narrower: the page is drawn again for its new widths (once the resizing stops)
 let bqDeskT = 0, bqDeskLast = 0;
 addEventListener('resize', () => { clearTimeout(bqDeskT); bqDeskT = setTimeout(() => { const w = bqWorkW(); if (typeof landOn === 'function' && landOn() && !isPhone() && (UI.route === 'dashboard' || UI.route === 'transactions') && !UI.drawer && !UI.sheet && Math.abs(w - bqDeskLast) > 24) { bqDeskLast = w; render(); } }, 160); });
@@ -25,7 +30,31 @@ const BQ_SWAP = '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-
 function bqDeskActs() {
   const by = Object.fromEntries(quickItems().map(x => [x[0], x]));
   const one = (v, d, label, main) => by[v] ? `<button class="bq-dact${main ? ' main' : ''}" data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}">${bqSvg(d)}<span>${label}</span></button>` : '';
-  return `<div class="bq-dacts">${one('expense', BQ_OUT, quickShort('expense'), true)}${one('income', BQ_IN, t('Inflow'))}${one('transfer', BQ_SWAP, t('Move money'))}<button class="bq-dact" data-a="quick-more" aria-haspopup="dialog">${icon('more')}<span>${t('More')}</span></button>${dashOrderBtn()}</div>`;
+  return `<div class="bq-dacts">${one('expense', BQ_OUT, quickShort('expense'), true)}${one('income', BQ_IN, t('Inflow'))}${one('transfer', BQ_SWAP, t('Move money'))}<button class="bq-dact" data-a="quick-more" aria-haspopup="dialog">${icon('more')}<span>${t('More')}</span></button>${bqDeskAccs()}${dashOrderBtn()}</div>`;
+}
+/** The accounts as the phone's round logos, at the right of the buttons, beside "Reorder" (v202, owner: "los bancos en círculos también ponlos al
+    lado izquierdo de ordenar resumen"); each opens its panel, its name shows under the pointer. */
+const bqDeskAccs = () => personal().length ? `<ul class="bq-daccs" aria-label="${esc(t('Your accounts'))}">${bqAccItems()}</ul>` : '';
+
+/** What there is to pay: the phone's cards, in even rows across the page. */
+const bqDeskTodo = () => { const h = bqTodo(), n = (h.match(/<li>/g) || []).length; return n ? h.replace('<ul class="bq-bills bq-row">', `<ul class="bq-bills bq-row" style="--cols:${bqCols(n, 176, 14)}">`) : h; };
+/** The goals, each one a card (v202, owner: "las metas ponlas cada una en una tarjeta independiente"): its name, what is set aside (of its target),
+    its bar, what is still to go and when it gets there at the planned pace; a fund, what it keeps and where. Each opens the goal. The yearly costs
+    stay on Goals. */
+function bqDeskGoals() {
+  const bk = B(), cur = BCUR(), live = bk.goals.filter(g => g.status === 'active' && !isYearly(g)), m = v => fmt.money(v, cur, { trim: true });
+  const total = sum(bk.goals.map(g => goalSaved(bk, g.id))), head = bqHead(t('Goals'), bqLink('#goals', t('Open goals')), live.length ? `${fmt.money(total, cur)} ${t('set aside in goals and funds')}` : '');
+  if (!live.length) return `<section class="bq-sec bq-dgoals-sec" id="goals-card">${head}<div class="bq-empty"><span>${t('No goals yet')}</span><button class="btn" data-a="goal-new">${icon('plus')}${t('Start a goal')}</button></div></section>`;
+  const one = g => {
+    const st = goalStatus(bk, g, bk.today), fund = !st.target, a = fund ? null : goalArrival(bk, g, bk.today), where = g.accountId && acct(g.accountId);
+    const when = st.state === 'reached' ? t('Reached') : a ? t('by {month}', { month: fmt.month(a.ym, true) }) : st.saved <= 0 ? t('Not started') : '';
+    const sub = fund ? (where ? where.name : t('No account linked')) : [st.remaining > 0 ? t('{amount} to go', { amount: m(st.remaining) }) : '', when].filter(Boolean).join(' · ');
+    return `<li><button class="bq-dgoal${st.state === 'reached' ? ' done' : ''}" data-a="goal-open" data-id="${g.id}" aria-haspopup="dialog">
+      <span class="bq-bill-t"><span class="bq-ico" aria-hidden="true">${icon(fund ? 'wallet' : 'flag')}</span><span class="bq-due">${fund ? t('Fund') : fmt.pct(Math.floor(st.pct))}</span></span>
+      <span class="bq-dgoal-n">${esc(g.name)}</span><span class="bq-dgoal-v num"><b>${m(st.saved)}</b>${fund ? '' : `<small> / ${m(st.target)}</small>`}</span>
+      ${fund ? '' : `<span class="bq-bar" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, st.pct))}%"></i></span>`}<span class="bq-dgoal-s">${esc(sub)}</span></button></li>`;
+  };
+  return `<section class="bq-sec bq-dgoals-sec" id="goals-card">${head}<ul class="bq-dgoals" style="--cols:${bqCols(live.length, 200, 14)}">${live.map(one).join('')}</ul></section>`;
 }
 /** The header on the forest: greeting, net balance, the month's four figures, "You can spend", the buttons. */
 function bqDeskHero(d) {
@@ -41,8 +70,10 @@ function bqDeskHero(d) {
 function bqHomeDesk(d) {
   const { ym, inProgress, fresh } = d; bqDeskLast = bqWorkW();
   // the computer's parts, in the order the person chose (pcParts: features/phone/phone.summary.js); "You can spend" and the figures are in the header
-  const body = pcParts({ accounts: inProgress && walletOn() ? walletStack() : '', free: '', runway: inProgress ? runwayCard() : '', insight: inProgress ? insightCard() : '', todo: inProgress ? todoCard(true, 4) : '',
-    goals: inProgress ? goalsDashCard() : '', planned: fresh ? plannedMonthCard(ym) : '', categories: fresh ? '' : d.catCard, trend: fresh ? '' : d.trendCard, fii: fresh ? '' : d.fii, recent: fresh ? '' : d.recentCard });
+  // v202 (owner: "trae de vuelta las tarjetas de por pagar como el celular"): what there is to pay as the phone's cards, and the goals one card each,
+  // each a row across the page; the rest three to a row
+  const body = pcParts({ accounts: inProgress && walletOn() ? walletStack() : '', free: '', runway: inProgress ? runwayCard() : '', insight: inProgress ? insightCard() : '', todo: inProgress ? bqDeskTodo() : '',
+    goals: inProgress ? bqDeskGoals() : '', planned: fresh ? plannedMonthCard(ym) : '', categories: fresh ? '' : d.catCard, trend: fresh ? '' : d.trendCard, fii: fresh ? '' : d.fii, recent: fresh ? '' : d.recentCard }, ['todo', 'goals']);
   return `${bqDeskHero(d)}${firstSteps()}${inProgress ? monthCloseCard() : ''}${inProgress ? '' : d.pastNote}${companyAsk()}${d.openNote}${body}`;
 }
 

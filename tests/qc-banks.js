@@ -30,7 +30,7 @@ const PICTURE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><re
   const tag = TARGET + ': ';
   for (const [lang, viewport, theme] of [['pt', { width: 1440, height: 900 }, 'dark'], ['en', { width: 390, height: 800 }, 'light']]) {
     const o = await open({ lang, account: 'example', plan: true, viewport, mobile: viewport.width < 500, touch: viewport.width < 500 }), p = o.page, where = `${tag}${lang} ${viewport.width} ${theme}: `;
-    await p.evaluate(theme => { if (theme === 'light') { S.settings.theme = 'light'; applyTheme && applyTheme(); }
+    await p.evaluate(theme => { if (theme === 'light') { S.settings.theme = S.settings.themePhone = 'light'; applyTheme && applyTheme(); }
       S.accounts.push({ id: 'qa-c6', name: 'Conta C6', institution: 'C6 Bank', type: 'checking', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 }, { id: 'qa-other', name: 'Cooperativa', institution: 'Sicoob <b>', type: 'savings', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 }, { id: 'qa-none', name: 'Carteira', institution: '', type: 'cash', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 });
       window.__logos = { ...BANK_LOGOS }; for (const k of Object.keys(BANK_LOGOS)) delete BANK_LOGOS[k];        // first without any logo file: what every bank looks like until its file is added
       navigate('accounts'); }, theme).catch(async () => { await p.evaluate(() => { for (const k of Object.keys(BANK_LOGOS)) delete BANK_LOGOS[k]; navigate('accounts'); }); });

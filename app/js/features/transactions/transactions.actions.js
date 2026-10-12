@@ -109,7 +109,7 @@ const TRANSACTIONS_ACTIONS = {
   /** A transfer's account: which of the card's money it is (transaction-form.view.js, txPockets). */
   'tx-pocket'(ds) { const x = UI.drawer.draft; x.accountId = ds.id; delete x.viaCard; txTouched('accountId'); renderOverlayKeepFocus(); const el = document.querySelector(`.tx-pocket [data-id="${ds.id}"]`); if (el) el.focus({ preventScroll: true }); },
   'tx-cats-all'() { UI.drawer.allCats = true; renderOverlayKeepFocus(); const el = $('d-cat'); if (el) el.focus({ preventScroll: true }); },
-  'tx-more'() { const d = UI.drawer, open = document.querySelector('.tx-more').getAttribute('aria-expanded') === 'true'; d.more = !open; renderOverlayKeepFocus(); const el = document.querySelector('.tx-more'); if (el) el.focus({ preventScroll: true }); },
+  'tx-more'(ds, b) { const d = UI.drawer, btn = b || document.querySelector('.tx-more'); if (btn._fold) return; const open = btn.getAttribute('aria-expanded') === 'true'; d.more = !open; foldGo(btn, open, () => { renderOverlayKeepFocus(); const el = document.querySelector('.tx-more'); if (el) el.focus({ preventScroll: true }); }); },      // it slides (ui/glide.js)
   'split-on'() { const x = UI.drawer.draft; x.splits = [{ catKey: x.catKey, amountText: x.amountText }, { catKey: '|', amountText: '0.00' }]; renderOverlay(); },
   'split-off'() { const x = UI.drawer.draft; x.catKey = x.splits[0].catKey; x.splits = null; renderOverlay(); },
   'split-add'() { UI.drawer.draft.splits.push({ catKey: '|', amountText: '0.00' }); renderOverlay(); },

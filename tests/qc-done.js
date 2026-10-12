@@ -14,7 +14,7 @@ const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   const phone = { lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true };
   let { browser, page, errors } = await open(phone);
-  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = 'light'; navigate('dashboard'); render(); });
+  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); render(); });
   const unpaid = () => page.evaluate(() => planProgress(B(), B().month, BCUR(), B().today).filter(p => p.pay === 'fixed' && !p.spent && p.planned && lineAcct(p)).map(p => ({ id: p.id, name: p.name, cat: p.categoryId, planned: p.planned })));
   const receipt = () => page.evaluate(() => { const s = document.querySelector('#overlay .pd-sheet'); if (!s) return null; const q = c => (s.querySelector(c) || {}).textContent;
     return { sheet: UI.sheet, h: q('#pd-h'), amt: q('.pd-amt'), meta: q('.pd-meta'), month: q('.pd-month-t b'), left: q('.pd-left'), focus: document.activeElement.dataset.a, undo: !!s.querySelector('[data-a="pd-undo"]'), toast: document.getElementById('toast-root').innerText.trim() }; });

@@ -38,7 +38,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [!!document.querySelector('.navbar .bar-name'), !document.querySelector('.navbar .bar-who'), document.querySelector('.pagehead h1').getBoundingClientRect().width <= 1, Math.round(document.querySelector('.pagehead').getBoundingClientRect().height)]), [true, true, true, 16], 'a screen with no month: its name in the panel (owner, 2026-10-10), no large title under it, only 16 px of air before the first card');
   await page.evaluate(() => navigate('dashboard'));
   await page.evaluate(() => navigate('dashboard'));
-  await page.evaluate(() => { S.settings.theme = 'dark'; navigate('dashboard'); });
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; navigate('dashboard'); });
   // ---------- 3. Savings & goals ----------
   const g = await page.evaluate(() => { const c = document.querySelector('#goals-card'), rows = [...c.querySelectorAll('button.budget[data-a="goal-open"]')], want = B().goals.filter(x => x.status === 'active' && x.kind === 'goal').slice(0, 3);
     return [rows.map(r => r.dataset.id).join() === want.map(x => x.id).join(), rows.every(r => !!r.querySelector('svg') && r.getBoundingClientRect().height >= 44), !!c.querySelector('button.budget.funds[data-a="goal-list"]'), c.querySelectorAll('div.budget').length]; });
@@ -94,7 +94,7 @@ const { open, ok, eq, done } = require('./pw.js');
     [null, false, false, true], 'with nothing to measure yet, the card keeps its own button to start, and no What if…? or Adjust in its title');
   eq(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0, 'no sideways scroll');
   // the new look, in the light theme (v175 and after; tests/qc-summary-phone.js has the rest of it)
-  await page.evaluate(() => { window.DORAX_OLD_LOOK = false; S.settings.theme = 'light'; render(); });
+  await page.evaluate(() => { window.DORAX_OLD_LOOK = false; S.settings.theme = S.settings.themePhone = 'light'; render(); });
   eq(await page.evaluate(() => { const m = document.querySelector('.pagehead .month'); return [document.documentElement.classList.contains('app-light'), getComputedStyle(m).backgroundColor !== 'rgb(0, 0, 0)', getComputedStyle(m.querySelector('.m-slide.on')).color]; }), [true, true, 'rgb(255, 255, 255)'],
     'the light theme: on the summary the month is white on its forest block (v175, "Bosque"), not the dark theme\'s black button');
   ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bq-acts .bq-ico:not(.on)')).backgroundColor !== 'rgb(14, 14, 14)'), 'and light circles');

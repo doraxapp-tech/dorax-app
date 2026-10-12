@@ -77,7 +77,7 @@ const dashOrderRow = (n, off) => n > 1 ? `<div class="dash-order"><button class=
     card with no other beside it (its neighbour is a wide one, or the last) takes the whole width too, so no row has a hole. A row that starts with
     To do gives it the wider column, as before. */
 const DASH_WIDE = ['accounts', 'recent'];
-function pcParts(parts) { return pcGlance(parts); }      // three to a row, the hidden ones left out (features/dashboard/dash-glance.view.js)
+function pcParts(parts, wide) { return pcGlance(parts, wide); }      // three to a row, the hidden ones left out, the wide ones across the page (features/dashboard/dash-glance.view.js)
 /** The computer's way to the order, beside the greeting (or the company's name): drawn once the parts are known, and only with two or more. */
 const dashOrderBtn = () => (UI.dashShown || []).length > 1 ? `<button class="btn sm d-order-btn" id="dash-order-btn" data-a="dash-order" aria-haspopup="dialog">${icon('sort')}${t('Reorder the dashboard')}</button>` : '';
 /** The parts on the page with their place and two arrows (a sheet on a phone, a side panel on a computer). The page changes at each press. */

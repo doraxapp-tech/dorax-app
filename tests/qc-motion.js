@@ -70,7 +70,7 @@ const spy = () => { window.__an = []; const orig = Element.prototype.animate; El
   // ---------- v197: the summary "Bosque" on a phone (owner, 2026-10-12: "asegúrate que las transiciones al abrir menús sean smooth… los menús que
   // abren de los botones de acceso rápido no abren de manera fluida"; and "el teclado numérico sigue visible… necesito esconderlo") ----------
   ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
-  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = 'light'; navigate('dashboard'); render(); }); await page.waitForTimeout(500);
+  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); render(); }); await page.waitForTimeout(500);
   // each panel's entrance, read on the frame after the tap: the panel and the dimmed page behind it are moving in
   const entrance = () => page.evaluate(() => new Promise(res => requestAnimationFrame(() => { const root = document.getElementById('overlay'), on = el => el ? el.getAnimations().filter(a => a.playState === 'running').map(a => a.animationName).join() : '';
     res([root.classList.contains('in'), on(root.querySelector('.drawer, .sheet')), on(root.querySelector('.scrim'))]); })));

@@ -80,10 +80,18 @@ function navLinks(list) {
     oscuro o claro desde el primer inicio, basado en la configuración de su dispositivo"): the person's choice, light or dark, or, with "Automatic"
     (a new account's, and any account that never chose), the device's own; when the device changes (at nightfall, from its settings) the app follows. */
 const THEME_MQ = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
-/** What the person chose: 'light', 'dark' or 'system' (Automatic). */
-const themeChoice = () => S.settings.theme === 'light' || S.settings.theme === 'dark' ? S.settings.theme : 'system';
-const themeNow = () => S.settings.theme === 'light' || S.settings.theme === 'dark' ? S.settings.theme : THEME_MQ && THEME_MQ.matches ? 'dark' : 'light';
-if (THEME_MQ && THEME_MQ.addEventListener) THEME_MQ.addEventListener('change', () => { if (UI.session && S.settings.theme !== 'light' && S.settings.theme !== 'dark') render(); });
+/** The computer and the phone each keep their own (v202, owner, 2026-10-12: "desenlaza la PC del móvil en cuanto a light/dark theme, quiero tener
+    las versiones que quiera y que una no afecte a la otra"): S.settings.theme is the computer's, S.settings.themePhone the phone's (the phone's
+    layout, up to 920 px). An account from before has only the first: both start from it, and the first change on either side keeps the other as
+    it was. */
+const themeKey = () => isPhone() ? 'themePhone' : 'theme';
+/** What the person chose on this side: 'light', 'dark' or 'system' (Automatic). */
+const themeChoice = () => { const k = themeKey(), v = S.settings[k] === undefined ? S.settings.theme : S.settings[k]; return v === 'light' || v === 'dark' ? v : 'system'; };
+const themeNow = () => { const v = themeChoice(); return v !== 'system' ? v : THEME_MQ && THEME_MQ.matches ? 'dark' : 'light'; };
+/** A choice made on this side, and only for it. */
+function themeSet(v) { if (S.settings.themePhone === undefined) S.settings.themePhone = themeOf(S.settings.theme); S.settings[themeKey()] = themeOf(v); }
+const themeOf = v => v === 'light' || v === 'dark' ? v : 'system';
+if (THEME_MQ && THEME_MQ.addEventListener) THEME_MQ.addEventListener('change', () => { if (UI.session && themeChoice() === 'system') render(); });
 /** The phone's look before the summary "Bosque" (v175–v194), for the suites that test the parts it still shares with the company's side and a
     computer (tests/pw.js: oldLook). The household on a phone always has the new one. */
 const lookOld = () => window.DORAX_OLD_LOOK === true;

@@ -7,7 +7,7 @@ const SHELL_ACTIONS = {
   // the menu beside the person's name (features/profile/profile.view.js): language, appearance, help, log out
   'user-menu'() { UI.menu = !UI.menu; renderShell(); const el = UI.menu ? document.querySelector('#user-menu a') : $('user-menu-btn'); if (el) el.focus(); },
   // Help: features/help/help.actions.js (the questions people ask, 2026-10-10)
-  'theme-set'(ds) { S.settings.theme = ds.v === 'light' || ds.v === 'dark' ? ds.v : 'system'; render(); const el = document.querySelector(`#user-menu [data-a="theme-set"][data-v="${S.settings.theme}"]`); if (el) el.focus(); },
+  'theme-set'(ds) { themeSet(ds.v); render(); const el = document.querySelector(`#user-menu [data-a="theme-set"][data-v="${themeChoice()}"]`); if (el) el.focus(); },      // this side only (app/shell.js: themeSet)
   'modal-cancel'() { const m = UI.modal; if (!m) return; UI.modal = null; renderModal(); if (m.onCancel) return m.onCancel(); const el = m.back && document.querySelector(m.back); if (el) el.focus(); },      // onCancel: a dialog whose other answer does something too
   'modal-confirm'() { const m = UI.modal; if (!m || !modalReady()) return; UI.modal = null; renderModal(); inBook(m.book, () => m.run()); },
   sheet() { UI.sheet = true; renderOverlay(); },
@@ -34,7 +34,7 @@ const SHELL_ACTIONS = {
   'rail-toggle'() { UI.railShut = !railShut(); try { localStorage.setItem('dorax-rail', UI.railShut ? 'shut' : 'open'); } catch (e) { /* private window: kept for this visit only */ } railShape(); if (typeof hideTip === 'function') hideTip(); },
   month(ds) { monthGo(addMonths(S.month, +ds.d)); },
   'set-month'(ds) { monthGo(ds.ym); },
-  'form-more'() { const d = UI.drawer; if (!d) return; d.more = !d.more; renderOverlayKeepFocus(); const el = document.querySelector('#overlay .form-more'); if (el) el.focus({ preventScroll: true }); },
+  'form-more'(ds, b) { const d = UI.drawer; if (!d || (b && b._fold)) return; const was = !!d.more; d.more = !was; foldGo(b || document.querySelector('#overlay .form-more'), was, () => { renderOverlayKeepFocus(); const el = document.querySelector('#overlay .form-more'); if (el) el.focus({ preventScroll: true }); }); },      // it slides (ui/glide.js)
   // a phone's Reports: General, Income or Expenses (features/reports/reports.view.js); the finger stays on the view chosen
   'rep-view'(ds) { UI.repView = ds.v; renderNow(); const el = document.querySelector(`.rep-view [data-v="${ds.v}"]`); if (el) el.focus({ preventScroll: true }); },
   // a phone, far back: to the present month in one tap (features/phone/phone.month.js); the focus goes to the month, the button is leaving

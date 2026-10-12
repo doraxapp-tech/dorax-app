@@ -24,8 +24,8 @@ const { open, ok, eq, done } = require('./pw.js');
     eq([await val('lang-m'), await val('theme-m')], [lang === 'es' ? 'Español' : 'Português', lang === 'es' ? 'Oscuro' : 'Escuro'], where + 'the language and the appearance show their value');
     eq(await page.evaluate(() => { const s = document.querySelector('#theme-m'), r = s.getBoundingClientRect(), row = s.closest('.mr-pick').getBoundingClientRect(); return [getComputedStyle(s).opacity, Math.abs(r.width - row.width) < 2 && Math.abs(r.height - row.height) < 2, !!document.querySelector('label[for="theme-m"]')]; }), ['0', true, true], where + 'the whole row is the system’s picker, with its label');
     await page.selectOption('#theme-m', 'light'); await page.waitForTimeout(150);
-    eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['light', true], where + 'choosing the appearance changes it');
-    await page.evaluate(() => { S.settings.theme = 'dark'; render(); A.sheet(); });
+    eq(await page.evaluate(() => [themeChoice(), document.documentElement.classList.contains('app-light')]), ['light', true], where + 'choosing the appearance changes it');
+    await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; render(); A.sheet(); });
     // the account's buttons
     eq(await page.evaluate(() => { const b = [...document.querySelectorAll('.mr-acts button')], probe = document.createElement('i'); probe.style.color = 'var(--neg)'; document.body.appendChild(probe); const neg = getComputedStyle(probe).color; probe.remove(); return [b.map(x => x.dataset.a), getComputedStyle(b[b.length - 1]).color === neg]; }), [['logout'], true], where + 'with a company, Log out is the only button, in red');
     await page.evaluate(() => { S.user.company = false; renderOverlay(); });

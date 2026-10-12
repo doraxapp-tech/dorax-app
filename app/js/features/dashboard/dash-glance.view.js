@@ -7,12 +7,14 @@
    "Reorder the dashboard", one click away, each with its eye (features/phone/phone.summary.js: DASH_HIDDEN); a line at the foot names them.
    The accounts' cards and the latest transactions, when shown, take the whole width. Styles: css/screens/dash-glance.css. */
 const DASH_FULL = ['accounts', 'recent'];
-function pcGlance(parts) {
-  const ids = dashOrder().filter(id => parts[id]), hid = dashHidden(), on = ids.filter(id => !hid.includes(id)), off = ids.filter(id => hid.includes(id));
+function pcGlance(parts, wide) {
+  const full = [...DASH_FULL, ...(wide || [])], ids = dashOrder().filter(id => parts[id]), hid = dashHidden(), on = ids.filter(id => !hid.includes(id)), off = ids.filter(id => hid.includes(id));
   UI.dashShown = ids;      // what the list offers: every part with something to show, hidden or not
   const out = []; let row = [];
   const flush = () => { if (row.length) out.push(`<div class="dash-grid" data-n="${row.length}">${row.join('')}</div>`); row = []; };
-  for (const id of on) { if (DASH_FULL.includes(id)) { flush(); out.push(parts[id]); } else row.push(parts[id]); }
+  // with wide parts of its own (v202, the summary's look on a computer: what there is to pay and the goals, rows of cards across the page), a wide
+  // part does not cut a row short: the parts around it fill their rows of three, so no card is left alone between two wide ones
+  for (const id of on) { if (full.includes(id)) { if (!wide) flush(); out.push(parts[id]); } else { row.push(parts[id]); if (wide && row.length === 3) flush(); } }
   flush();
   return out.join('') + (off.length ? `<button class="dash-more" data-a="dash-order" aria-haspopup="dialog">${icon('plus')}<span>${t('Also for the summary: {list}', { list: esc(off.map(partName).join(', ')) })}</span></button>` : '');
 }

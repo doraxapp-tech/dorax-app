@@ -102,12 +102,12 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     await p.focus('#rail-find .findbtn'); await p.keyboard.press('Enter'); await p.waitForSelector('#find-q'); await p.click('#find-root .scrim', { position: { x: 20, y: 600 } });
     eq(await p.evaluate(() => [UI.find, document.activeElement.className]), [null, 'findbtn'], tag + 'a click outside closes it and the focus goes back to the field it was opened from');
     // both themes, three languages: it reads well and fits
-    for (const theme of ['dark', 'light']) for (const lang of ['en', 'es', 'pt']) eq(await p.evaluate(([th, l]) => { S.settings.theme = th; S.settings.lang = l; render(); A.find(); const q = document.querySelector('#find-q'); q.value = 'a'; C['find-q'](q);
+    for (const theme of ['dark', 'light']) for (const lang of ['en', 'es', 'pt']) eq(await p.evaluate(([th, l]) => { S.settings.theme = S.settings.themePhone = th; S.settings.lang = l; render(); A.find(); const q = document.querySelector('#find-q'); q.value = 'a'; C['find-q'](q);
       const lum = c => { const [r, g, b] = c.match(/[\d.]+/g).map(Number).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; }, d = document.querySelector('.find'), bg = getComputedStyle(d).backgroundColor, sel = getComputedStyle(document.querySelector('.find-o[aria-selected="true"]')).backgroundColor;
       const ratio = (el, back) => { const a = lum(getComputedStyle(el).color), b = lum(back); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); };
       const r = [[...d.querySelectorAll('.find-o:not([aria-selected="true"]) b, .find-o:not([aria-selected="true"]) small, .find-foot span')].every(el => ratio(el, bg) >= 4.5), [...d.querySelectorAll('.find-o[aria-selected="true"] b, .find-o[aria-selected="true"] small')].every(el => ratio(el, sel) >= 4.5), ratio(q, bg) >= 4.5, [...d.querySelectorAll('.find-o')].every(o => o.getBoundingClientRect().height >= 44 && o.scrollWidth <= o.clientWidth), q.placeholder.length > 10 && q.placeholder === t('Search pages, accounts, bills, transactions'), document.documentElement.scrollWidth - innerWidth <= 0, document.querySelector('#rail-find .findbtn span').innerText.trim() === t('Search')];
       A['find-close'](); return r; }, [theme, lang]), [true, true, true, true, true, true, true], tag + `${theme} ${lang}: names, descriptions and hints have a contrast of 4.5 or more, also on the row the arrows are on; rows are 44px or taller and nothing is cut`);
-    await p.evaluate(() => { S.settings.theme = 'dark'; S.settings.lang = 'en'; render(); });
+    await p.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; S.settings.lang = 'en'; render(); });
     eq(o.errors, [], tag + 'no errors'); await o.browser.close();
   }
   // ---------------------------------------------------------------- 5. a phone

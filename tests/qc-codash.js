@@ -112,7 +112,7 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
   // ---------------------------------------------------------------- 7. languages, a phone, the light theme
   for (const lang of ['es', 'pt']) {
     const o = await open({ lang, account: 'example', plan: true, viewport: { width: 390, height: 844 }, mobile: true, touch: true }), p = o.page, where = tag + lang + ', phone: ';
-    await p.evaluate(() => { navigate('dashboard'); S.month = '2026-09'; if (document.documentElement.lang === 'pt') S.settings.theme = 'light'; render(); document.querySelector('[data-a="space"][data-v="business"]').click(); });
+    await p.evaluate(() => { navigate('dashboard'); S.month = '2026-09'; if (document.documentElement.lang === 'pt') S.settings.theme = S.settings.themePhone = 'light'; render(); document.querySelector('[data-a="space"][data-v="business"]').click(); });
     // a phone's charts are in Reports, Costs (2026-10-08): the category card is read there (a ring since 2026-10-09, tests/qc-report-rings.js)
     eq(await p.evaluate(() => { const en = ['Received', 'Costs', 'Result', 'Transfers out'], labels = [...document.querySelectorAll('.kpis .kpi .label span')]; return [labels.length === 0, labels.map(l => l.innerText.trim()).some(x => en.includes(x) && x !== 'Total'), labels.every(l => l.scrollWidth <= l.clientWidth), document.documentElement.scrollWidth <= innerWidth,
       (UI.repView = 'out', navigate('reports'), document.querySelector('#rep-ring-cat h2').innerText.trim() === t('Costs by group, in detail')), [...document.querySelectorAll('#rep-ring-cat .rg-row .rg-name')].some(n => n.textContent.trim() === t('Not filed yet')), [...document.querySelectorAll('#view .card')].every(c => c.getBoundingClientRect().right <= innerWidth + 1)]; }),

@@ -10,7 +10,8 @@
 //   4. Transactions: a forest header (the switch, the figure, the month, the chart wide at their right) and the computer's table under it, whose
 //      search the header follows as it is typed;
 //   5. the panels wear the phone's colours (an account's panel on the forest); a contribution is slid into its goal and answered by its screen;
-//   6. both themes: every text readable (4.5 to 1, 3 to 1 when large); nothing wider than the window at 1440 and 1024 px; the folded side bar; no error.
+//   6. both themes: every text readable (4.5 to 1, 3 to 1 when large); nothing wider than the window at 1440 and 1024 px; the folded side bar; no error;
+//   7. the computer's light or dark and the phone's are two choices: changing one leaves the other (v202).
 const { open, ok, eq, done } = require('./pw.js');
 const CONTRAST = () => {
   const parse = c => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
@@ -32,7 +33,7 @@ const CONTRAST = () => {
 (async () => {
   const pc = { lang: 'en', account: 'example', plan: true, viewport: { width: 1440, height: 900 } };
   let { browser, page, errors } = await open(pc);
-  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = 'light'; navigate('dashboard'); render(); }); await page.waitForTimeout(300);
+  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = S.settings.themePhone = 'light'; navigate('dashboard'); render(); }); await page.waitForTimeout(300);
   const bg = sel => page.evaluate(s => getComputedStyle(document.querySelector(s)).backgroundColor, sel);
 
   // ---------- 1. the frame ----------
@@ -53,9 +54,22 @@ const CONTRAST = () => {
     const figs = [...hero.querySelectorAll('.bq-dkpis > .bq-dk')], tops = figs.map(f => Math.round(r(f).top)), grid = v.querySelector('.dash-grid'), cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 0;
     const bal = r(hero.querySelector('.bq-dbal')), free = r(hero.querySelector('.bq-dh-r'));
     return [!!hero.querySelector('.hello h2'), !!hero.querySelector('.bq-dbal .bb-link b'), !!hero.querySelector('.bq-dh-r #free-card #free-open'), free.left > bal.right, figs.map(f => f.dataset.k).join(), new Set(tops).size,
-      [...hero.querySelectorAll('.bq-dacts .bq-dact')].map(b => b.dataset.v || b.dataset.a).join(), !!hero.querySelector('.bq-dacts #dash-order-btn'), cols, !!v.querySelector('.dash-grid #todo'), !v.querySelector('#quick-acts, #ac-card, .bq-dgrid, #bq-moves-card')]; });
+      [...hero.querySelectorAll('.bq-dacts .bq-dact')].map(b => b.dataset.v || b.dataset.a).join(), !!hero.querySelector('.bq-dacts #dash-order-btn'), cols, !!v.querySelector('.dash-grid #runway-card'), !v.querySelector('#quick-acts, #ac-card, .bq-dgrid, #bq-moves-card')]; });
   eq(sum, [true, true, true, true, 'income,spending,left,unpaid', 1, 'expense,income,transfer,quick-more', true, 6, true, true],
     'the summary: a dashboard’s header on the forest (the greeting and the net balance, “You can spend” at its right, the month’s four figures side by side, a row of buttons with “Reorder”), the computer’s parts three to a row under it; none of the phone’s parts');
+  // v202 (owner: "trae de vuelta las tarjetas de por pagar como el celular… los bancos en círculos al lado izquierdo de ordenar resumen… las metas cada una en una tarjeta independiente")
+  eq(await page.evaluate(() => { const v = document.getElementById('view'), r = el => el.getBoundingClientRect(), logos = [...v.querySelectorAll('.bq-dacts .bq-daccs .bq-acc')], order = r(v.querySelector('#dash-order-btn'));
+    const bills = [...v.querySelectorAll('#todo .bq-bills .bq-bill')], rows = [...new Set(bills.map(b => Math.round(r(b).top)))], per = rows.map(y => bills.filter(b => Math.round(r(b).top) === y).length);
+    const goals = [...v.querySelectorAll('#goals-card .bq-dgoal')], live = B().goals.filter(g => g.status === 'active' && !isYearly(g));
+    return [logos.length === cardsOf(personal()).length, logos.every(l => r(l).right <= order.left && Math.abs((r(l).top + r(l).bottom) / 2 - (order.top + order.bottom) / 2) < 3), bills.length > 3, Math.max(...per) - Math.min(...per) <= 1,
+      !v.querySelector('.dash-grid #todo, .dash-grid #goals-card'), goals.map(g => g.dataset.id).join() === live.map(g => g.id).join(), goals.every(g => !!g.querySelector('.bq-dgoal-n') && !!g.querySelector('.bq-dgoal-v b')), r(v.querySelector('#todo')).top < r(v.querySelector('#goals-card')).top]; }),
+    [true, true, true, true, true, true, true, true], 'v202: the accounts’ round logos left of “Reorder”, on its line; what there is to pay as the phone’s cards in even rows across the page; each goal and fund its own card, in their order; both before the rest');
+  await page.click('#goals-card .bq-dgoal'); await page.waitForTimeout(250);
+  eq(await page.evaluate(() => UI.drawer && UI.drawer.kind), 'goal-view', 'a goal’s card opens the goal');
+  await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+  await page.click('.bq-daccs .bq-acc'); await page.waitForTimeout(250);
+  eq(await page.evaluate(() => UI.drawer && UI.drawer.kind), 'card-view', 'a bank’s logo opens its panel');
+  await page.evaluate(() => A.close()); await page.waitForTimeout(250);
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#insight-card')).backgroundColor, getComputedStyle(document.querySelector('#insight-card .grow b')).color]), ['rgb(17, 38, 34)', 'rgb(255, 255, 255)'], 'the insight of the day on the forest, its fact white');
   eq(await page.evaluate(() => { const v = document.getElementById('view'), more = v.querySelector(':scope > .dash-more'), last = [...v.querySelectorAll('.dash-grid > *')].pop(); const gr = Math.round(v.querySelector('.dash-grid').getBoundingClientRect().right); return [!more || Math.abs(Math.round(more.getBoundingClientRect().right) - gr) <= 1, Math.abs(Math.round(last.getBoundingClientRect().right) - gr) <= 1]; }), [true, true],
     'no hole at the end of the parts (a last row of two shares the width); “Also for the summary” on the page’s column');
@@ -117,7 +131,7 @@ const CONTRAST = () => {
   // ---------- 6. both themes, the width, the folded side bar ----------
   for (const theme of ['light', 'dark']) {
     const bad = [];
-    await page.evaluate(th => { S.settings.theme = th; render(); }, theme);
+    await page.evaluate(th => { S.settings.theme = S.settings.themePhone = th; render(); }, theme);
     for (const r of ['dashboard', 'transactions', 'plan', 'goals', 'reports', 'accounts', 'investments', 'settings']) { await page.evaluate(r => navigate(r), r); await page.waitForTimeout(450); for (const f of await page.evaluate(CONTRAST)) bad.push(`${r}: ${f}`); }
     eq(bad, [], `${theme}: every text of the frame and the screens readable (4.5 to 1; 3 to 1 when large)`);
   }
@@ -130,6 +144,17 @@ const CONTRAST = () => {
   }
   await page.evaluate(() => navigate('dashboard')); await page.click('#rail-toggle'); await page.waitForTimeout(350);
   eq(await page.evaluate(() => [document.querySelector('.app').classList.contains('rail-shut'), Math.round(document.querySelector('.rail').getBoundingClientRect().width), getComputedStyle(document.querySelector('.rail .nav a[aria-current="page"]')).backgroundColor]), [true, 68, 'rgb(182, 221, 98)'], 'the side bar folded: 68 px, the screen in use still lime');
+  // ---------- 7. the computer's theme and the phone's apart (v202, owner: "desenlaza la PC del móvil en cuanto a light/dark theme") ----------
+  await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(300);
+  await page.evaluate(() => { S.settings.theme = 'light'; delete S.settings.themePhone; render(); });      // an account from before: one choice for both
+  await page.evaluate(() => A['theme-set']({ v: 'dark' })); await page.waitForTimeout(150);
+  eq(await page.evaluate(() => [S.settings.theme, S.settings.themePhone, document.documentElement.classList.contains('app-light')]), ['dark', 'light', false], 'the computer turned dark: the phone keeps the light it had');
+  await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(400);
+  eq(await page.evaluate(() => [themeChoice(), document.documentElement.classList.contains('app-light')]), ['light', true], 'the phone’s layout: its own choice, light');
+  await page.evaluate(() => A['theme-set']({ v: 'dark' })); await page.waitForTimeout(150);
+  await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(400);
+  await page.evaluate(() => A['theme-set']({ v: 'light' })); await page.waitForTimeout(150);
+  eq(await page.evaluate(() => [S.settings.theme, S.settings.themePhone, themeChoice(), document.documentElement.classList.contains('app-light')]), ['light', 'dark', 'light', true], 'each side changes only its own: the computer light, the phone dark');
   eq(errors, [], 'no error in the console'); await browser.close();
 
   // ---------- the previous look ----------

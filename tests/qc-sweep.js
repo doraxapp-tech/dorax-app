@@ -8,7 +8,7 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
     const { browser, page, errors } = await open({ lang, plan: true, account: 'example', viewport: { width: w, height: h }, mobile, touch: mobile });
     const routes = await page.evaluate(() => ROUTES.map(r => r[0]));
     for (const theme of ['dark', 'light']) {
-      await page.evaluate(th => { S.settings.theme = th; render(); }, theme);
+      await page.evaluate(th => { S.settings.theme = S.settings.themePhone = th; render(); }, theme);
       for (const r of routes) {
         await page.evaluate(r => navigate(r), r);
         const m = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - window.innerWidth, text: document.querySelector('#view').innerText, top: document.querySelector('#topbar').innerText,

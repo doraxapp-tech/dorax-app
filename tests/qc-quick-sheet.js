@@ -37,10 +37,10 @@ const { open, ok, eq, done } = require('./pw.js');
   // what rises from the foot of a phone is round only at the top, in both themes (owner, 2026-10-11: "the menus that come up have a radius at the
   // bottom and it looks odd"; the light theme had given them four round corners in v164)
   for (const theme of ['light', 'dark']) {
-    eq(await page.evaluate(th => { S.settings.theme = th; render(); const r = []; for (const open of [() => A.quick(), () => A.sheet(), () => A['new-tx']()]) { A.close(); open(); const el = document.querySelector('#overlay .sheet, #overlay .drawer'), cs = getComputedStyle(el); r.push([cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomLeftRadius, cs.borderBottomRightRadius, Math.round(el.getBoundingClientRect().bottom) === innerHeight]); } A.close(); return r; }, theme),
+    eq(await page.evaluate(th => { S.settings.theme = S.settings.themePhone = th; render(); const r = []; for (const open of [() => A.quick(), () => A.sheet(), () => A['new-tx']()]) { A.close(); open(); const el = document.querySelector('#overlay .sheet, #overlay .drawer'), cs = getComputedStyle(el); r.push([cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomLeftRadius, cs.borderBottomRightRadius, Math.round(el.getBoundingClientRect().bottom) === innerHeight]); } A.close(); return r; }, theme),
       [['24px', '24px', '0px', '0px', true], ['24px', '24px', '0px', '0px', true], ['24px', '24px', '0px', '0px', true]], `${theme}: the + list, More and a panel rise from the foot round only at the top`);
   }
-  await page.evaluate(() => { S.settings.theme = 'dark'; render(); });
+  await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; render(); });
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- 4. Spanish, 320 px ----------
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 320, height: 640 }, touch: true, mobile: true }));

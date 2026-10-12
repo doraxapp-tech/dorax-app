@@ -61,4 +61,8 @@
 #view.from-next { animation: from-next 180ms var(--ease) both; }
 #view.from-prev { animation: from-prev 180ms var(--ease) both; }
 .banner { animation: fade-in var(--t2) ease-out both; }
-
+/* a switch's pressed pill sliding to the new choice (ui/glide.js, v202): the pill under the words, the pressed button's own pill hidden while it moves */
+.glide-thumb { position: absolute; z-index: 0; box-sizing: border-box; pointer-events: none; }
+.glide-on > [aria-pressed] { position: relative; z-index: 1; }
+.glide-still > [aria-pressed] { transition: none !important; }
+.glide-on > [aria-pressed="true"] { background: transparent !important; background-image: none !important; box-shadow: none !important; border-color: transparent !important; }

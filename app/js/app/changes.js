@@ -85,7 +85,7 @@ const C = {
   'conv-file'(el) { if (el.files && el.files[0]) takeFile(el.files[0]); },
   'conv-reprofile'(el) { UI.conv.profileId = el.value; generateForConv(); render(); },
   // a language picked by hand is remembered on this device: the next visit opens in it, not in the browser's (ui/language.js)
-  setting(el) { S.settings[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; if (el.dataset.k === 'lang') rememberLang(el.value); render(); },
+  setting(el) { if (el.dataset.k === 'theme') themeSet(el.value); else S.settings[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; if (el.dataset.k === 'lang') rememberLang(el.value); render(); },      // the theme: this side only (app/shell.js: themeSet)
   /** A backup file is checked before anything is touched, then replaces the account only after the typed confirmation. */
   'backup-file'(el) {
     const f = el.files && el.files[0]; if (!f) return; UI.backupError = null;
