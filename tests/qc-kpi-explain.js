@@ -32,7 +32,8 @@ const { open, ok, eq, done } = require('./pw.js');
   eq([c.big === await tile('unpaid'), c.rows.filter(r => !r[2]).length, await page.evaluate(() => dashParts().unpaid.length), c.go], [true, c.rows.filter(r => !r[2]).length, c.rows.filter(r => !r[2]).length, ['plan']], 'still to pay: each bill without a payment, by date; the Plan further');
   await page.click('#overlay [data-a="kpi-go"][data-v="plan"]'); await page.waitForTimeout(200);
   eq(await page.evaluate(() => [UI.route, UI.drawer]), ['plan', null], 'its way further opens the Plan');
-  await page.click('#back-pc button'); await page.waitForTimeout(250);
+  await page.evaluate(() => { const b = document.createElement('button'); b.dataset.a = 'back'; document.body.appendChild(b); b.click(); b.remove(); });      // v202: the way back is no longer a button on top: a press of it, as the button made it
+  await page.waitForTimeout(250);
   eq(await page.evaluate(() => [UI.route, UI.drawer && UI.drawer.kind, UI.drawer && UI.drawer.k]), ['dashboard', 'kpi', 'unpaid'], 'and back: the summary with that card open again');
   await page.click('#overlay footer [data-a="close"]'); await page.waitForTimeout(200);
   // ---------- 3. spending: by category, each opening its transactions; Reports further ----------

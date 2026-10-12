@@ -80,6 +80,31 @@ select.lang { width: auto; min-height: 34px; padding: 4px 26px 4px 12px; font-fa
 .rail-flip { color: var(--ink-3); } .rail-flip:hover { color: var(--ink-strong); } .rail-flip svg { width: 17px; height: 17px; }
 .brand .logo-mark { display: none; flex: none; width: 15px; height: 22px; }
 .brand .logo-mark .ac { stroke: var(--brand); }
+.rail-toggle { position: fixed; z-index: 40; top: 30px; left: calc(var(--rail) - 12px); width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink-3); cursor: pointer; transition: left 240ms var(--ease), color var(--t1) ease-out, border-color var(--t1) ease-out; }
+.rail-toggle svg { width: 14px; height: 14px; }
+.rail-toggle:hover { color: var(--ink-strong); border-color: var(--hover-line); }
+.rail-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.app { transition: grid-template-columns 240ms var(--ease); }
+.app.rail-shut { --rail: 68px; }
+.app.rail-shut .rail-toggle { left: calc(68px - 12px); }
+.app.rail-shut .rail { padding: 22px 10px 16px; align-items: center; overflow: visible; z-index: 20; }
+.app.rail-shut .brand { flex-direction: column; gap: 12px; padding: 2px 0 14px; }
+.app.rail-shut .brand .logo, .app.rail-shut .side-tag { display: none; }
+.app.rail-shut .brand .logo-mark { display: block; }
+.app.rail-shut .rail-tools { margin: 0; flex-direction: column; gap: 4px; }
+.app.rail-shut .rail-find { padding: 0 0 12px; }
+.app.rail-shut .findbtn { width: 44px; justify-content: center; padding: 0; }
+.app.rail-shut .findbtn span, .app.rail-shut .findbtn kbd { display: none; }
+.app.rail-shut .nav { align-items: center; }
+.app.rail-shut .nav a { position: relative; width: 44px; justify-content: center; padding: 9px 0; gap: 0; }
+.app.rail-shut .nav a > span:not(.count) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.app.rail-shut .nav .count { position: absolute; top: 3px; right: 4px; min-width: 0; width: 8px; height: 8px; padding: 0; font-size: 0; }
+.app.rail-shut .nav-rule { width: 32px; margin: 10px auto; }
+.app.rail-shut .rail-foot { border: 0; background: none; padding: 0; }
+.app.rail-shut .who { flex: none; padding: 4px; } .app.rail-shut .who-t, .app.rail-shut .who-more { display: none; }
+.app.rail-shut .umenu { left: 0; right: auto; width: 240px; }
+@media (max-width: 920px) { .rail-toggle { display: none; } }
+@media (prefers-reduced-motion: reduce) { .app, .rail-toggle { transition: none; } }
 
 /* the way back (app/back.js): on a computer, "‹ Reports" before the screen's title; a panel opened from a panel, ‹ before its title */
 .back-slot, .dr-back-slot { display: contents; }

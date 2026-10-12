@@ -10,7 +10,7 @@
 //   4. Transactions: a forest header (the switch, the figure, the month, the chart wide at their right) and the computer's table under it, whose
 //      search the header follows as it is typed;
 //   5. the panels wear the phone's colours (an account's panel on the forest); a contribution is slid into its goal and answered by its screen;
-//   6. both themes: every text readable (4.5 to 1, 3 to 1 when large); nothing wider than the window at 1440 and 1024 px; no button to fold the side bar; no error;
+//   6. both themes: every text readable (4.5 to 1, 3 to 1 when large); nothing wider than the window at 1440 and 1024 px; the folded side bar; no way back beside the title; no error;
 //   7. the computer's light or dark and the phone's are two choices: changing one leaves the other (v202).
 const { open, ok, eq, done } = require('./pw.js');
 const CONTRAST = () => {
@@ -149,7 +149,9 @@ const CONTRAST = () => {
     eq(wide, [], `${w} px: nothing wider than the window`);
   }
   await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(250);
-  eq(await page.evaluate(() => [!!document.querySelector('#rail-toggle, [data-a="rail-toggle"]'), Math.round(document.querySelector('.rail').getBoundingClientRect().width), getComputedStyle(document.querySelector('.rail .nav a[aria-current="page"]')).backgroundColor]), [false, 248, 'rgb(182, 221, 98)'], 'v202: no round button beside the screen’s name (it read as a way back); the side bar whole, the screen in use lime');
+  ok(await page.evaluate(() => !document.querySelector('#back-pc, .topbar [data-a="back"]')), 'v202: no way back beside the screen’s name (owner: “el botón de dar atrás es el de la foto”)');
+  await page.click('#rail-toggle'); await page.waitForTimeout(350);
+  eq(await page.evaluate(() => [document.querySelector('.app').classList.contains('rail-shut'), Math.round(document.querySelector('.rail').getBoundingClientRect().width), getComputedStyle(document.querySelector('.rail .nav a[aria-current="page"]')).backgroundColor]), [true, 68, 'rgb(182, 221, 98)'], 'the side bar folded: 68 px, the screen in use still lime');
   // ---------- 7. the computer's theme and the phone's apart (v202, owner: "desenlaza la PC del móvil en cuanto a light/dark theme") ----------
   await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(300);
   await page.evaluate(() => { S.settings.theme = 'light'; delete S.settings.themePhone; render(); });      // an account from before: one choice for both

@@ -6,7 +6,8 @@
    showing (the month, the side, the transactions' filters, the report's view and the category opened in it, how far down it was read) and the
    panel open on it, so going back lands exactly there: a category pressed in Reports opens Transactions; back is Reports, on the same month,
    with the same category open in its ring.
-     - On a computer, "‹ Reports" (the name of where it goes) sits before the screen's title.
+     - On a computer, no button on top either (owner, 2026-10-12: "quita el botón que estás colocando al lado del nombre del tab, como para ir
+       atrás, no es necesario"; it was "‹ Reports", the name of where it goes, before the screen's title): the browser's Back is the way back.
      - On a phone, no button on top (owner, 2026-10-10: "remove the back button on the phone that shows beside the profile photo"): the phone's own
        back is the way back there.
      - A panel opened from another panel has ‹ at the left of its title: back is the panel it came from.

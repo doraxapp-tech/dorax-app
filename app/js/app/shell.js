@@ -49,12 +49,12 @@ function railFlip() {
   const co = UI.space === 'business', say = co ? t('Switch to Household') : t('Switch to Company');
   return `<button class="iconbtn rail-flip" data-a="space" data-v="${co ? 'personal' : 'business'}" aria-label="${say}" data-tip="${say}">${icon('swap')}</button>`;
 }
-/** The menu at the side is always open (v202, owner, 2026-10-12: "quita el botón que estás colocando al lado del nombre del tab, como para ir
-    atrás, no es necesario"). From 2026-10-08 to then a round button on its edge, beside the screen's name, closed it to a column of icons; it read
-    as a way back. A device that had it closed finds it open. */
-const railShut = () => false;
+/** The menu at the side opens and closes (owner, 2026-10-08: "add a button to open and close the sidebar"). Closed, it is a narrow column of icons
+    (each one's name in a tip), so every screen is still one click away. Kept on this device (a computer's own preference). */
+const railShut = () => { if (UI.railShut === undefined) { try { UI.railShut = localStorage.getItem('dorax-rail') === 'shut'; } catch (e) { UI.railShut = false; } } return UI.railShut; };
 function railShape() {
-  const shut = railShut(), app = document.querySelector('.app'); if (app) app.classList.toggle('rail-shut', shut);
+  const shut = railShut(), app = document.querySelector('.app'), b = $('rail-toggle'); if (app) app.classList.toggle('rail-shut', shut);
+  if (b) { const say = shut ? t('Open the menu') : t('Close the menu'); b.setAttribute('aria-expanded', String(!shut)); b.setAttribute('aria-label', say); b.dataset.tip = say; b.innerHTML = icon(shut ? 'right' : 'left'); }
   // closed, each icon says what it is when pointed at; open, the words are there and no tip is needed
   document.querySelectorAll('#rail .nav a, #rail .findbtn, #rail .who').forEach(e => { if (shut) e.dataset.tip = e.classList.contains('who') ? (S.user.name || S.user.email || '') : e.classList.contains('findbtn') ? t('Search') + ' (F)' : e.querySelector('span').textContent; else delete e.dataset.tip; });
 }
@@ -165,7 +165,7 @@ function renderShell() {
       <div class="bar-tools">${bqFrame ? bqPageTools() : `${sideFlip()}${bellButton()}<button class="more-btn" data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog" aria-label="${t('More')}">${icon('more')}</button>`}
         ${main ? `<button class="btn primary" data-a="${main[0]}" ${main[1]}>${icon('plus')}<span class="lbl">${main[2]}</span></button>` : ''}</div></div>
     ${UI.route === 'dashboard' ? `<div class="bar-bal${UI.space === 'business' ? ' co' : ''}">${barBalance()}</div>` : ''}
-    <div class="pagehead${monthHere ? ' has-month' : ''}${!monthHere && !spaceSwitch() ? ' bare' : ''}"><span class="back-slot pc" id="back-pc">${backButton()}</span><h1>${short === full ? full : `<span class="h-full">${full}</span><span class="h-short" aria-hidden="true">${short}</span>`}</h1>
+    <div class="pagehead${monthHere ? ' has-month' : ''}${!monthHere && !spaceSwitch() ? ' bare' : ''}"><h1>${short === full ? full : `<span class="h-full">${full}</span><span class="h-short" aria-hidden="true">${short}</span>`}</h1>
       ${monthHere && isPhone() ? monthPhone(ym) : monthHere ? `${monthFar(ym) ? `<button class="btn m-now" data-a="month-now">${t('Back to present')}</button>` : ''}<div class="month" role="group" aria-label="${t('Month')}"><button data-a="month" data-d="-1" aria-label="${t('Previous month')}" ${ym <= minMonth() ? 'disabled' : ''}>${icon('left')}</button><span>${fmt.month(ym, true)}</span><button data-a="month" data-d="1" aria-label="${t('Next month')}" ${ym >= ymOf(S.today) ? 'disabled' : ''}>${icon('right')}</button></div>` : ''}${UI.route === 'dashboard' ? journeyButton(arrived) : ''}${coBalRow() ? '' : spaceSwitch()}</div>`;      // the Journey out of debt, at the right of the month (owner, 2026-10-10)
   fitCoBal();      // a phone, the company's summary: its balance whole beside the currency (features/phone/phone.view.js)
   monthPlace();      // the month: on a phone the strip on its month; on both, the way back to the present (features/phone/phone.month.js)
