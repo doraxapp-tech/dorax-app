@@ -7,7 +7,7 @@ const SHELL_ACTIONS = {
   // the menu beside the person's name (features/profile/profile.view.js): language, appearance, help, log out
   'user-menu'() { UI.menu = !UI.menu; renderShell(); const el = UI.menu ? document.querySelector('#user-menu a') : $('user-menu-btn'); if (el) el.focus(); },
   // Help: features/help/help.actions.js (the questions people ask, 2026-10-10)
-  'theme-set'(ds) { S.settings.theme = ds.v === 'light' ? 'light' : 'dark'; render(); const el = document.querySelector(`#user-menu [data-a="theme-set"][data-v="${S.settings.theme}"]`); if (el) el.focus(); },
+  'theme-set'(ds) { S.settings.theme = ds.v === 'light' || ds.v === 'dark' ? ds.v : 'system'; render(); const el = document.querySelector(`#user-menu [data-a="theme-set"][data-v="${S.settings.theme}"]`); if (el) el.focus(); },
   'modal-cancel'() { const m = UI.modal; if (!m) return; UI.modal = null; renderModal(); if (m.onCancel) return m.onCancel(); const el = m.back && document.querySelector(m.back); if (el) el.focus(); },      // onCancel: a dialog whose other answer does something too
   'modal-confirm'() { const m = UI.modal; if (!m || !modalReady()) return; UI.modal = null; renderModal(); inBook(m.book, () => m.run()); },
   sheet() { UI.sheet = true; renderOverlay(); },

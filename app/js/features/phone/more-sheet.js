@@ -14,10 +14,10 @@ function sheetNav() {
   const can = sideRoutes(ROUTES.filter(r => !tabsNow().includes(r[0]) && !deskOnly(r[0]) && r[0] !== 'profile')), known = MORE_GROUPS.flat();
   const groups = MORE_GROUPS.map(g => g.map(id => can.find(r => r[0] === id)).filter(Boolean));
   groups[0] = groups[0].concat(can.filter(r => !known.includes(r[0])));      // a screen no group names goes with the money
-  const light = S.settings.theme === 'light', lang = (LANGS.find(l => l[0] === S.settings.lang) || LANGS[0])[1];
+  const light = themeNow() === 'light', lang = (LANGS.find(l => l[0] === S.settings.lang) || LANGS[0])[1];
   // a choice in a row: the row says the name and the value, and the whole row is the system's own picker, laid over it unseen
   const pick = (id, ic, label, value, opts, cur) => `<div class="mr-pick"><span class="mr-ic">${icon(ic)}</span><label for="${id}">${label}</label><span class="mr-val" aria-hidden="true">${value}</span>${moreChev()}<select id="${id}" data-c="setting" data-k="${id === 'lang-m' ? 'lang' : 'theme'}"${id === 'lang-m' ? ' class="lang"' : ''}>${options(opts, cur)}</select></div>`;
-  const prefs = pick('lang-m', 'globe', t('Language'), lang, LANGS, S.settings.lang) + pick('theme-m', light ? 'sun' : 'moon', t('Appearance'), light ? t('Light') : t('Dark'), [['dark', t('Dark')], ['light', t('Light')]], light ? 'light' : 'dark');
+  const prefs = pick('lang-m', 'globe', t('Language'), lang, LANGS, S.settings.lang) + pick('theme-m', themeChoice() === 'system' ? 'auto' : light ? 'sun' : 'moon', t('Appearance'), { system: t('Automatic'), light: t('Light'), dark: t('Dark') }[themeChoice()], [['system', t('Automatic')], ['light', t('Light')], ['dark', t('Dark')]], themeChoice());
   return groups.map((g, i) => i === 2 || g.length ? `<div class="nav-group mr-group"><h3 class="mr-h">${MORE_TITLES()[i]}</h3>${navLinks(g).replace(/<\/a>/g, moreChev() + '</a>')}${i === 0 ? sheetDesk() : ''}${i === 2 ? prefs : ''}</div>` : '').join('');
 }
 function moreSheet() {

@@ -76,11 +76,19 @@ function navLinks(list) {
 /** Light or dark, for the app only (owner, v35). The public pages (home, login, first-time setup, legal) are always dark: the choice is applied as a class on the
     page's root only while the app itself is on screen, and taken off the moment a public page is. Dark is the default; the choice is kept with the account.
     A class of the app's own is used, not a data-theme attribute, so that a host page which stamps its own theme on the root cannot turn the public pages light. */
+/** The theme on screen (v196, owner, 2026-10-12: "agrega en el modo light/dark la opción de copiar al dispositivo del usuario, y muestra el lado
+    oscuro o claro desde el primer inicio, basado en la configuración de su dispositivo"): the person's choice, light or dark, or, with "Automatic"
+    (a new account's, and any account that never chose), the device's own; when the device changes (at nightfall, from its settings) the app follows. */
+const THEME_MQ = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+/** What the person chose: 'light', 'dark' or 'system' (Automatic). */
+const themeChoice = () => S.settings.theme === 'light' || S.settings.theme === 'dark' ? S.settings.theme : 'system';
+const themeNow = () => S.settings.theme === 'light' || S.settings.theme === 'dark' ? S.settings.theme : THEME_MQ && THEME_MQ.matches ? 'dark' : 'light';
+if (THEME_MQ && THEME_MQ.addEventListener) THEME_MQ.addEventListener('change', () => { if (UI.session && S.settings.theme !== 'light' && S.settings.theme !== 'dark') render(); });
 /** The phone's look before the summary "Bosque" (v175–v194), for the suites that test the parts it still shares with the company's side and a
     computer (tests/pw.js: oldLook). The household on a phone always has the new one. */
 const lookOld = () => window.DORAX_OLD_LOOK === true;
 function applyTheme(pub) {
-  const light = !pub && S.settings.theme === 'light', root = document.documentElement;
+  const light = !pub && themeNow() === 'light', root = document.documentElement;
   root.classList.toggle('app-light', light);
   root.classList.toggle('side-co', !pub && UI.space === 'business');      // the company's side wears blue (css/screens/company.css)
   root.classList.toggle('in-app', !pub);      // the app itself is on screen: the room for the page's scroll bar is kept (css/base/tokens.css)

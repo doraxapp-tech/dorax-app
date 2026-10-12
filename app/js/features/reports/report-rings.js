@@ -31,7 +31,7 @@ function ringOrder(parts, shades) {
 }
 /** The shades of one colour, the largest part first: the one that stands out most from the card, then fainter (dark theme) or lighter (light theme). */
 function ringShade(col, i) {
-  const light = S.settings.theme === 'light';
+  const light = themeNow() === 'light';
   const steps = light ? [['#000000', 65], ['#000000', 82], [null, 100], ['#FFFFFF', 70]] : [['#FFFFFF', 50], ['#FFFFFF', 80], [null, 100], ['var(--surface)', 65]];
   const [to, p] = steps[Math.min(i, steps.length - 1)];
   return to ? `color-mix(in srgb, ${col} ${p}%, ${to})` : col;

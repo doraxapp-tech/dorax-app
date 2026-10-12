@@ -17,12 +17,12 @@ function userCard() {
     ordinary controls, not a "menu" of items: Tab walks through it, Escape or a click anywhere else closes it (app/events.js).
     A phone has no side bar: the same four things are in the More sheet (app/overlay.js). */
 function userMenu() {
-  const light = S.settings.theme === 'light';
+  const light = themeNow() === 'light';
   return `<div class="umenu" id="user-menu" role="group" aria-label="${t('More options')}">
       <a class="umenu-item" id="umenu-profile" href="#profile" ${UI.route === 'profile' ? 'aria-current="page"' : ''}>${icon('user')}<span>${t('Profile')}</span></a>
       ${hasCompany() ? '' : `<button class="umenu-item" id="umenu-co" data-a="co-open">${icon('briefcase')}<span>${t('Open a company account')}</span></button>`}
       <div class="umenu-row"><label for="lang">${icon('globe')}${t('Language')}</label><select id="lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>
-      <div class="umenu-row"><span class="umenu-l" id="umenu-theme">${icon(light ? 'sun' : 'moon')}${t('Appearance')}</span><div class="seg" role="group" aria-labelledby="umenu-theme">${[['dark', 'moon', t('Dark')], ['light', 'sun', t('Light')]].map(([v, ic, l]) => `<button data-a="theme-set" data-v="${v}" aria-pressed="${light === (v === 'light')}" aria-label="${l}" data-tip="${l}">${icon(ic)}</button>`).join('')}</div></div>
+      <div class="umenu-row"><span class="umenu-l" id="umenu-theme">${icon(light ? 'sun' : 'moon')}${t('Appearance')}</span><div class="seg" role="group" aria-labelledby="umenu-theme">${[['system', 'auto', t('Automatic')], ['dark', 'moon', t('Dark')], ['light', 'sun', t('Light')]].map(([v, ic, l]) => `<button data-a="theme-set" data-v="${v}" aria-pressed="${themeChoice() === v}" aria-label="${l}" data-tip="${v === 'system' ? t('Automatic: as your device') : l}">${icon(ic)}</button>`).join('')}</div></div>
       <button class="umenu-item" data-a="help">${icon('help')}<span>${t('Help')}</span></button>
       <button class="umenu-item out" data-a="logout">${icon('logout')}<span>${t('Log out')}</span></button></div>`;
 }

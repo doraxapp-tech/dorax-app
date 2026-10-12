@@ -24,5 +24,5 @@
   /* two places of the frame keep the frame's height, where a 50 px switch would crowd them: the top bar (its month, Journey and main button are 36 to 38 px;
      the company's BRL | USD) and the person's menu (rows of 40 px; Appearance, two icons) */
   .topbar .seg button { min-height: 32px; padding: 0 14px; }      /* 38 px with its track, as the main button beside it: the bar keeps its height on both sides */
-  .umenu .seg button { min-height: 0; width: 36px; height: 26px; padding: 0; }
+  .umenu .seg button { min-height: 0; width: 26px; height: 26px; padding: 0; }
 }

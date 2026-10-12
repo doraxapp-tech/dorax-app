@@ -31,7 +31,14 @@ const T = '2026-10-02';
   // ---------- 2. the side is chosen in the menu ----------
   let { browser, page, errors } = await open({ lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } });
   await signup(page, 'Ana');
-  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['light', true], 'a new account starts in the light theme (owner, 2026-10-11, with the second look)');
+  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['system', true], 'a new account follows its device (v196, owner: "muestra el lado oscuro o claro desde el primer inicio basado en la configuración de su dispositivo"): this one is light');
+  await page.emulateMedia({ colorScheme: 'dark' }); await page.waitForTimeout(150);
+  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light'), themeNow()]), ['system', false, 'dark'], 'the device turns dark: the app follows, with no choice made');
+  await page.click('#user-menu-btn'); await page.waitForTimeout(100);
+  eq(await page.evaluate(() => [...document.querySelectorAll('#user-menu [data-a="theme-set"]')].map(b => b.dataset.v + ':' + b.getAttribute('aria-pressed')).join()), 'system:true,dark:false,light:false', 'the menu offers Automatic, Dark and Light, Automatic chosen');
+  await page.click('#user-menu [data-a="theme-set"][data-v="light"]');
+  eq(await page.evaluate(() => [S.settings.theme, document.documentElement.classList.contains('app-light')]), ['light', true], 'Light chosen: light, whatever the device says');
+  await page.emulateMedia({ colorScheme: 'light' }); await page.evaluate(() => { UI.menu = false; renderShell(); });
   await page.evaluate(() => { S.settings.theme = 'dark'; render(); });      // the colours checked below are the dark theme's
   eq(await page.evaluate(() => [document.querySelector('#rail-side').innerHTML, getComputedStyle(document.querySelector('#rail-side')).display, !!document.querySelector('#co-ask'), hasCompany()]), ['', 'none', true, false], 'a new account has no Household | Company choice: the app is the household’s alone and the dashboard asks first (owner: "by default the switch is not shown until they answer")');
   await page.evaluate(() => { S.user.company = true; render(); });      // the answer was yes; the setup is followed below from the menu's choice
