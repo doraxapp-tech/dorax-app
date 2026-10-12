@@ -136,7 +136,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
         bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
         whole: bal.scrollWidth <= bal.clientWidth + 1, wide: document.documentElement.scrollWidth - innerWidth };
     });
-    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(35, 74, 62)', true, 'rgb(182, 221, 98)', 'free-view', true],
+    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(0, 65, 52)', true, 'rgb(182, 221, 98)', 'free-view', true],
       acts: 'expense,income,transfer,quick-more', actsTall: true, accounts: true, logos: true, bills: true, firstDue: 'en 3 días', pair: 'runway-card,goals-card',
       bar: ['rgb(17, 38, 34)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed`);
     if (w === 390) {

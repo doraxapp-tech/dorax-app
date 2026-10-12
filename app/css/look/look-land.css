@@ -3,8 +3,8 @@
    ("commit el estilo landing solo en resumen para verlo live"), which kept the page's parts and only changed their colours.
    app/shell.js (applyTheme) puts .land on the page's root on a phone, in the light theme, on the household's summary; the markup of the parts is
    features/phone/bosque.js. The other pages, the dark theme, the company's side and a computer keep their look.
-   Colours (owner, 2026-10-12: "usa este verde por favor", with the reference's statistics and exchange screens; measured on them): its deep green
-   #112622 for the block, the card's lighter green #234A3E, its lime #B6DD62, a pale lime #E8F3D2 for the goals, its cool grey page #E9EDEC with white
+   Colours (owner, 2026-10-12: "usa este verde por favor", with the reference's statistics and exchange screens; measured on them; then the same
+   morning "#004134 is for the spending per day", the card): the deep green #112622 for the block, the card #004134, its lime #B6DD62, a pale lime #E8F3D2 for the goals, its cool grey page #E9EDEC with white
    cards and #DDE3E1 hairlines; on the deep green the words are white, #B5C2BE when quieter. (Before, the brand's forest #163300 and lime #9FD182.)
    Only this page wears them for now. */
 @media (max-width: 920px) {
@@ -44,7 +44,7 @@
   /* the net balance: large and white, its cents quieter */
   :root.land .bar-bal .bb-link small { color: #B5C2BE; font-size: 14px; font-weight: 500; }
   :root.land .bar-bal .bb-link b { color: #FFFFFF; font-weight: 600; letter-spacing: -.045em; }
-  :root.land .bar-bal .bb-link b:not(.long) { font-size: clamp(32px, 11.8vw, 46px); line-height: 1.05; }      /* whole on a 320 px phone too */
+  :root.land .bar-bal .bb-link b:not(.long) { font-size: clamp(30px, 9.6vw, 36px); line-height: 1.1; }      /* smaller (owner, 2026-10-12: "son muy grandes"; it was up to 46 px); whole on a 320 px phone too */
   :root.land .bar-bal .bb-link b .cents { color: #B5C2BE; opacity: 1; font-size: .5em; letter-spacing: 0; }
   :root.land .bar-bal .bb-link b.neg { color: #FF8A80; }
   :root.land .bar-bal .bb-eye { color: #B5C2BE; }
@@ -65,14 +65,12 @@
 
   /* ---------- "You can spend": the card half on the block ---------- */
   :root.land #view .bq-free { position: relative; z-index: 2; overflow: hidden; display: flex; flex-direction: column; border-radius: 28px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); color: #FFFFFF;
-    /* the brand's rings behind the figure, hairline tracks and one lime quarter (the logo book's "Rings"), cut by the card's corner; a background,
-       so nothing reaches past the screen's edge */
-    background: #234A3E url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='230' height='230' viewBox='0 0 230 230'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.07)' stroke-width='1.5'%3E%3Ccircle cx='115' cy='115' r='104'/%3E%3Ccircle cx='115' cy='115' r='80'/%3E%3Ccircle cx='115' cy='115' r='56'/%3E%3C/g%3E%3Cpath d='M115 35A80 80 0 0 1 195 115' fill='none' stroke='%23B6DD62' stroke-width='10' stroke-linecap='round' transform='rotate(90 115 115)'/%3E%3Cpath d='M115 11A104 104 0 0 1 207 66' fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='7' stroke-linecap='round' transform='rotate(170 115 115)'/%3E%3C/svg%3E") no-repeat right -58px top -64px / 230px 230px; }
+    background: #004134; }      /* its own green (owner, 2026-10-12: "el color que mandé es para gasto por día", #004134; it was #234A3E), no rings behind the figure (same morning: "quita el círculo del fondo") */
   :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 20px 18px; }
   :root.land .bq-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 13px 0 11px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #B6DD62; font-size: 13px; font-weight: 600; }
   :root.land .bq-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #B6DD62; }
-  :root.land .bq-free .fu-big { color: #B5C2BE; font-size: 18px; font-weight: 500; line-height: 1; }
-  :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 56px; font-weight: 600; letter-spacing: -.05em; line-height: 1; margin-right: 4px; }
+  :root.land .bq-free .fu-big { color: #B5C2BE; font-size: 16px; font-weight: 500; line-height: 1; }
+  :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1; margin-right: 4px; }      /* smaller (owner, 2026-10-12: "son muy grandes"; it was 56 px) */
   :root.land .bq-free-foot { all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 10px 12px 10px 20px; background: #B6DD62; color: #112622; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   :root.land .bq-free-foot:active { background: #A6CE52; }
   :root.land .bq-free-foot:focus-visible { outline: 2px solid #112622; outline-offset: -4px; }

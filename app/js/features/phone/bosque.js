@@ -13,7 +13,7 @@
    It is always laid out as designed (owner, 2026-10-12: "no se ve igual, no está organizado tal como el ejemplo" about his own phone, where the
    order and the eyes saved for the summary before had moved the parts around): the order and the hidden parts of "Reorder the dashboard" are for the
    dark theme and the computer; the notices about the data come after the design's parts. Colours (same day: "usa este verde por favor", with the
-   reference's statistics and exchange screens): the reference's deep green #112622 and its lime #B6DD62 (css/look/look-land.css).
+   reference's statistics and exchange screens): the reference's deep green #112622 (the card of the day's figure #004134) and its lime #B6DD62 (css/look/look-land.css).
    The dark theme, the company's side, the other pages and a computer keep what they had. Every figure comes from the same places as before. */
 
 /** This look is on: a phone, the light theme, the household's side, the summary (the same test app/shell.js uses to mark the page with .land). */
