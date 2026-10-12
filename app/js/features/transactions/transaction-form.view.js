@@ -169,7 +169,7 @@ function txFormBody(d) {
     : x.type === 'transfer' ? '' : fld('d-status', t('Status'), `<select id="d-status" data-c="draft" data-k="status" data-rerender="1">${options(STATUSES(), x.status)}</select>`);
   return `
     <div class="seg tx-kind" role="group" aria-label="${t('Type')}">${kinds.map(([v, l]) => `<button type="button" data-a="tx-type" data-v="${v}" aria-pressed="${x.type === v}">${l}</button>`).join('')}</div>
-    <div class="tx-amount"><label for="d-amount">${t('Amount')} (${a.currency})${reqMark()}</label><span class="tx-sym" aria-hidden="true">${TX_SYM(a.currency)}</span>${inp('d-amount', 'amountText', x.amountText, (d.pad ? 'inputmode="none" readonly' : 'inputmode="decimal"') + ' class="num" placeholder="0,00" autocomplete="off" enterkeyhint="done" data-rerender="1" aria-required="true"')}</div>
+    <div class="tx-amount"><label for="d-amount">${t('Amount')} (${a.currency})${reqMark()}</label><span class="tx-sym" aria-hidden="true">${TX_SYM(a.currency)}</span>${inp('d-amount', 'amountText', x.amountText, (d.pad ? 'inputmode="none" readonly data-a="tx-pad"' : 'inputmode="decimal"') + ' class="num" placeholder="0,00" autocomplete="off" enterkeyhint="done" data-rerender="1" aria-required="true"')}${d.pad ? bqPadBtn(d) : ''}</div>
     <div class="form-grid tx-grid">
       ${fld('d-merchant', x.type === 'income' ? t('Where it came from') : x.type === 'transfer' ? t('Description') : t('What it was'), inp('d-merchant', 'merchant', x.merchant, 'autocomplete="off" enterkeyhint="done"'), 'full')}
       ${catField}
@@ -194,6 +194,7 @@ function txFormBody(d) {
 function txDrawer(d) {
   const x = d.draft;
   d.pad = !!d.isNew && typeof landOn === 'function' && landOn();      // a new one from the summary "Bosque" or its Transactions: its own keypad (features/phone/bosque-tx.js)
+  if (d.pad && d.padOff && d.invalid === 'd-amount') { d.padOff = false; d.padAt = performance.now(); }      // saved with no amount: its keys come back up (v197)
   return `<div class="body tx-body${d.pad ? ' bq-tx' : ''}">
     ${d.error ? errBanner(d.error) : ''}
     ${d.isNew && !d.pad ? `<div class="tx-say"><span class="tx-say-h"><label for="d-say">${t('Write it in a sentence')}</label>${info(t('The amount and what it was. If you like, also the day and the account. Your keyboard’s microphone works here too.'))}</span>

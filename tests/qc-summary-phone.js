@@ -150,6 +150,11 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       eq(await page.evaluate(() => { const dr = document.querySelector('#overlay .drawer'), acts = [...document.querySelectorAll('#overlay .cv-acts button')], cs = el => getComputedStyle(el), ops = document.querySelector('#overlay .cv-ops'), r = el => el.getBoundingClientRect();
         return [!!(UI.drawer && UI.drawer.kind === 'card-view' && dr), cs(dr).backgroundColor, acts.map(b => b.dataset.v).join(), cs(acts[0]).backgroundColor, Math.abs(r(acts[0]).top - r(acts[1]).top) < 1, acts.every(b => r(b).height >= 44), cs(ops).backgroundColor, cs(ops).borderTopLeftRadius, cs(document.querySelector('#overlay .op-card')).backgroundColor, cs(dr.querySelector('header h2')).color]; }),
         [true, 'rgb(17, 38, 34)', 'expense,income', 'rgb(182, 221, 98)', true, true, 'rgb(233, 237, 236)', '30px', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)'], 'an account’s logo opens its panel (v191, as Transactions): the card and what is above the list on forest, two pills side by side (an expense lime, an income; no “Edit account”), the transactions light in the grey sheet over it, the days in a white card');
+      // v197: its income pill opens an income (it had opened an expense: the line that made it one had slipped into a comment)
+      await page.click('#overlay .cv-acts [data-v="income"]'); await page.waitForTimeout(250);
+      eq(await page.evaluate(() => [UI.drawer && UI.drawer.kind, UI.drawer && UI.drawer.draft.type, UI.drawer && UI.drawer.draft.dir, document.querySelector('#overlay .tx-kind [aria-pressed="true"]').dataset.v]), ['tx', 'income', 'in', 'income'], 'v197: an account’s “Record an income” opens an income in that account');
+      await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+      await page.click('#ac-card .bq-acc'); await page.waitForTimeout(200);
       await page.evaluate(() => A.close());
       ok(await page.evaluate(() => document.activeElement && document.activeElement.matches('#ac-card .bq-acc')), 'closing it, the focus is back on the logo');
       await page.click('#todo .bq-bill.first'); await page.waitForTimeout(200);
@@ -198,10 +203,24 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       for (const k of ['9', '2', 'sep', '5', '0', '0', 'del', '0']) await page.click(`#overlay .bq-key[data-v="${k}"]`);
       eq(await page.evaluate(() => [UI.drawer.draft.amountText, document.getElementById('d-amount').value, document.getElementById('bq-save-amt').textContent, getComputedStyle(document.querySelector('#overlay .bq-save')).backgroundColor, getComputedStyle(document.querySelector('#overlay .bq-save-ico')).backgroundColor]),
         ['92,50', '92,50', 'R$ 92,50', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)'], 'typed on the keys: one decimal mark, two decimals at most, erase; the deep green bar says the amount, its check lime');
+      // v197 (owner, 2026-10-12: "el teclado numérico sigue visible en agregar transacción, necesito esconderlo para poder ver mejor los otros fields")
+      const padNow = () => page.evaluate(() => { const f = document.querySelector('#overlay .bq-tx-foot'), w = f.querySelector('.bq-pad-wrap'), b = document.getElementById('bq-pad-btn'), h = Math.round(w.getBoundingClientRect().height), acc = document.getElementById('d-account');
+        return [f.classList.contains('off'), h > 150 ? 'up' : h === 0 ? 'down' : h, getComputedStyle(w).visibility, b.getAttribute('aria-expanded'), b.getAttribute('aria-label') === t(f.classList.contains('off') ? 'Show keypad' : 'Hide keypad'), Math.round(b.getBoundingClientRect().width), getComputedStyle(document.querySelector('#overlay .bq-save')).display, acc.getBoundingClientRect().bottom <= f.getBoundingClientRect().top]; });
+      eq(await padNow(), [false, 'up', 'visible', 'true', true, 44, 'flex', false], 'v197: the keypad is up when the panel opens, the round button on the amount offers to put it away; the account is under it');
+      await page.click('#bq-pad-btn');
+      eq(await padNow(), [true, 'down', 'hidden', 'false', true, 44, 'flex', true], 'v197: the round button puts the keypad away: “Save” alone at the foot, the rest of the form (the account) in sight, the button now brings it back');
+      await page.click('#d-amount');
+      eq(await padNow(), [false, 'up', 'visible', 'true', true, 44, 'flex', false], 'v197: touching the amount brings the keys back');
+      await page.click('#overlay .tx-pick');
+      eq((await padNow()).slice(0, 2), [true, 'down'], 'v197: touching another field (a group) puts them away');
+      await page.evaluate(() => { UI.drawer.draft.amountText = ''; document.getElementById('d-amount').value = ''; }); await page.click('#overlay .bq-save'); await page.waitForTimeout(250);
+      eq(await page.evaluate(() => [UI.drawer.invalid, document.querySelector('#overlay .bq-tx-foot').classList.contains('off')]), ['d-amount', false], 'v197: saved with no amount, its keys come back up');
+      for (const k of ['9', '2', 'sep', '5', '0']) await page.click(`#overlay .bq-key[data-v="${k}"]`);
+      eq(await page.evaluate(() => [UI.drawer.draft.amountText, UI.drawer.invalid, document.getElementById('d-amount').getAttribute('aria-invalid')]), ['92,50', null, null], 'v197: typed again on the keys, the amount is no longer marked');
       eq(await page.evaluate(() => [...new Set([...document.querySelectorAll('#overlay .bq-key, #quick-acts button, .bq-acc, .bq-bill')].map(k => getComputedStyle(k).touchAction + ' ' + getComputedStyle(k).userSelect))]), ['manipulation none'], 'v190: the keys and the summary’s buttons keep the quick tap (two taps never zoom the page) and select no digit');
       await page.fill('#d-merchant', 'Cena QC');
       eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#overlay .bq-pad')).display, getComputedStyle(document.querySelector('#overlay .bq-save')).display]), ['none', 'flex'], 'v190: while a word is typed the keypad steps aside, “Save” stays'); await page.evaluate(() => document.getElementById('d-merchant').dispatchEvent(new Event('change', { bubbles: true })));
-      await page.click('#overlay .tx-pick'); await page.click('#overlay .bq-save'); await page.waitForTimeout(250);
+      await page.click('#overlay .bq-save'); await page.waitForTimeout(250);      // its group was chosen above (v197)
       ok(await page.evaluate(() => !UI.drawer && S.transactions.some(x => x.merchant === 'Cena QC' && x.amount === -9250)), 'saved: an expense of R$ 92,50');
       // v192 ("¿este es el nuevo diseño?", with the notifications, More, "You can spend", the days of freedom and a fixed cost): each as Transactions
       const split = () => page.evaluate(() => { const box = document.querySelector('#overlay .drawer, #overlay .sheet'), sh = box && box.querySelector('.bq-sheet'), cs = el => getComputedStyle(el);

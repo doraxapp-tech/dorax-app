@@ -11,11 +11,9 @@ const PHONE_ACTIONS = {
     if (v === 'main') { const m = routeMain(UI.route); renderOverlay(); if (m) { const d = {}; m[1].replace(/data-(\w+)="([^"]*)"/g, (_, k, val) => { d[k] = val; }); A[m[0]](d); } return; }
     if (v === 'expense' || v === 'income' || v === 'transfer') {
       if (co && !S.accounts.some(k => k.scope === 'business')) { renderOverlay(); return needAccount(); }      // the company's money moves in a company account
-      renderOverlay(); A['new-tx'](); if (!UI.drawer || UI.drawer.kind !== 'tx') return;
-      const x = UI.drawer.draft, acc = co ? mainOf('business') || S.accounts.find(k => k.scope === 'business') : null; if (acc) x.accountId = acc.id;
-      if (v === 'income') { x.type = 'income'; x.dir = 'in'; }
-      if (v === 'transfer') x.type = 'transfer';
-      txKind(x); renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus(); return;
+      if (UI.overlayOpen) renderOverlay();
+      const acc = co ? mainOf('business') || S.accounts.find(k => k.scope === 'business') : null;
+      return A['new-tx']({}, x => { if (acc) x.accountId = acc.id; if (v === 'income') { x.type = 'income'; x.dir = 'in'; } if (v === 'transfer') x.type = 'transfer'; });      // set before it is drawn: one drawing, its entrance whole (v197)
     }
     if (v === 'account') { renderOverlay(); return ACCOUNTS_ACTIONS['account-add'](); }
     if (v === 'pay') return navigate('plan');

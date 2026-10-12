@@ -76,12 +76,14 @@ const TRANSACTIONS_ACTIONS = {
   // 2026-10-09 (owner: "I went into the PJ side, added an income and it was recorded in the household account"): a new transaction starts in an
   // account of the side on screen, never the other's. Before, it always started in the household's main account, and the form then listed only
   // the household's accounts. The account filtered in Transactions comes first when it is on this side.
-  'new-tx'() {
+  /** set: how a quick button starts it (its kind, its account), applied before it is drawn, so it is drawn once and comes in smoothly (v197). */
+  'new-tx'(ds, set) {
     const side = UI.space === 'business' ? 'business' : 'personal', mine = sideAccounts(side), f = acct(UI.tx.account);
     if (!mine.length) return needAccount();
     const start = f && mine.includes(f) ? f : mainOf(side, side === 'business' ? BCUR() : BASE_CURRENCY) || mainOf(side) || mine[0];
     UI.drawer = { kind: 'tx', title: t('Add transaction'), isNew: true, draft: { id: null, accountId: start.id, date: S.today, description: '', merchant: '', amountText: '', dir: 'out', type: 'expense', catKey: '|', status: 'confirmed', transferAccountId: null, recurring: false, notes: '', source: 'manual', sourceTxnId: null, confidence: null, splits: null } };
-    renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus();      // with the keypad (features/phone/bosque-tx.js) the panel's close button, not the amount: on an iPhone that only drew the field's tools
+    if (typeof set === 'function') { set(UI.drawer.draft); txKind(UI.drawer.draft); }
+    renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus({ preventScroll: true });      // with the keypad (features/phone/bosque-tx.js) the panel's close button, not the amount: on an iPhone that only drew the field's tools
   },
   /** The kind, from its three buttons. An expense goes out and an income comes in; a group that belongs to the other kind is let go. */
   'tx-type'(ds) { const d = UI.drawer, x = d.draft; x.type = ds.v; txTouched('type'); txKind(x); renderOverlayKeepFocus(); const el = document.querySelector(`.tx-kind [data-v="${ds.v}"]`); if (el) el.focus({ preventScroll: true }); },

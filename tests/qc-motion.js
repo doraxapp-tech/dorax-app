@@ -67,6 +67,37 @@ const spy = () => { window.__an = []; const orig = Element.prototype.animate; El
   await page.evaluate(() => A.close());
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 
+  // ---------- v197: the summary "Bosque" on a phone (owner, 2026-10-12: "asegúrate que las transiciones al abrir menús sean smooth… los menús que
+  // abren de los botones de acceso rápido no abren de manera fluida"; and "el teclado numérico sigue visible… necesito esconderlo") ----------
+  ({ browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, motion: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  await page.evaluate(() => { S.user.greeted = true; S.settings.theme = 'light'; navigate('dashboard'); render(); }); await page.waitForTimeout(500);
+  // each panel's entrance, read on the frame after the tap: the panel and the dimmed page behind it are moving in
+  const entrance = () => page.evaluate(() => new Promise(res => requestAnimationFrame(() => { const root = document.getElementById('overlay'), on = el => el ? el.getAnimations().filter(a => a.playState === 'running').map(a => a.animationName).join() : '';
+    res([root.classList.contains('in'), on(root.querySelector('.drawer, .sheet')), on(root.querySelector('.scrim'))]); })));
+  for (const [sel, name, kind] of [['#quick-acts [data-v="expense"]', 'an expense', 'expense'], ['#quick-acts [data-v="income"]', 'an income', 'income'], ['#quick-acts [data-v="transfer"]', 'a transfer', 'transfer'], ['#quick-acts [data-a="quick-more"]', 'More', null]]) {
+    await page.tap(sel);
+    eq(await entrance(), [true, 'sheet-in', 'fade-in'], `the summary’s quick button for ${name}: its panel slides up whole, the page behind dims (it used to appear at once)`);
+    if (kind) eq(await page.evaluate(() => UI.drawer.draft.type), kind, `and it is set as ${name} from its first drawing`);
+    await page.waitForTimeout(450); await page.evaluate(() => A.close()); await page.waitForTimeout(300);
+  }
+    await page.tap('#quick-acts [data-v="expense"]'); await page.waitForTimeout(500);
+  eq(await page.evaluate(() => getComputedStyle(document.querySelector('#overlay .scrim')).backdropFilter), 'none', 'on a phone the page behind a panel is dimmed, not blurred: the blur of the whole screen while a panel slid in cost frames');
+  // drawn again while it comes in, it goes on from where it was: the second drawing of a panel does not start its entrance over
+  await page.evaluate(() => A.close()); await page.waitForTimeout(300);
+  eq(await page.evaluate(() => new Promise(res => { A['new-tx'](); setTimeout(() => { renderOverlay(); const d = document.querySelector('#overlay .drawer'), a = d.getAnimations()[0];
+    res([document.getElementById('overlay').classList.contains('in'), !!a && a.animationName, !!a && a.effect.getComputedTiming().progress >= .2]); }, 150); })), [true, 'sheet-in', true], 'a panel drawn again 150 ms into its entrance goes on from there, it does not jump back to the start');
+  await page.waitForTimeout(450);
+  // the keypad folds away and back
+  const folds = () => page.evaluate(() => new Promise(res => requestAnimationFrame(() => { const w = document.querySelector('#overlay .bq-pad-wrap'); res(w.getAnimations().map(a => a.animationName).join()); })));
+  await page.tap('#bq-pad-btn');
+  const padOut = await folds(); await page.waitForTimeout(400);
+  const down = await page.evaluate(() => Math.round(document.querySelector('#overlay .bq-pad-wrap').getBoundingClientRect().height));
+  await page.tap('#d-amount');
+  const padIn = await folds(); await page.waitForTimeout(450);
+  eq([padOut, down, padIn, await page.evaluate(() => Math.round(document.querySelector('#overlay .bq-pad-wrap').getBoundingClientRect().height) > 150)], ['bq-pad-out', 0, 'bq-pad-in', true], 'the keypad folds away (to nothing) and unfolds again, each a short slide');
+  await page.evaluate(() => A.close());
+  eq(errors, [], 'the summary on a phone: no error in the console'); await browser.close();
+
   // ---------- a computer ----------
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, motion: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(spy); await page.waitForTimeout(300);

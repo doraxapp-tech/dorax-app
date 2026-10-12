@@ -22,14 +22,23 @@ function renderOverlay() {
   if (!open && was && root.firstChild && !reducedMotion() && !UI.skipExit) {       // leave: quicker than the entrance, and it never blocks the page underneath
     root.classList.remove('in'); root.classList.add('out');
     renderOverlay.t = setTimeout(() => { root.innerHTML = ''; root.classList.remove('out'); setInert(); }, window.innerWidth <= 920 ? 230 : 170);   // a sheet has further to travel than a side panel
-  } else { root.classList.remove('out'); root.classList.toggle('in', open && !was && !reducedMotion()); root.innerHTML = h; centsSmall(root); }
+  } else {
+    // v197 (owner, 2026-10-12: "los menús que abren de los botones de acceso rápido no abren de manera fluida"): a panel drawn again while it is
+    // still coming in (the quick buttons set the new transaction's kind right after opening it) goes on coming in from where it was; before, the
+    // second drawing took its entrance away and it appeared at once
+    const now = performance.now(), entering = open && !was && !reducedMotion(), age = open && was && root.classList.contains('in') ? now - (renderOverlay.inAt || 0) : Infinity;
+    if (entering) renderOverlay.inAt = now;
+    root.classList.remove('out'); root.classList.toggle('in', entering || age < 440);
+    if (age < 440) root.style.setProperty('--in-at', `-${Math.round(age)}ms`); else root.style.removeProperty('--in-at');
+    root.innerHTML = h; centsSmall(root);
+  }
   UI.overlayOpen = open; UI.skipExit = false; setInert();
   // the field a refusal pointed at (fail, below): red, and the reason right under it, where the cursor and the eyes are; on a phone the top of a
   // long panel is out of sight. A refusal with no field keeps its reason at the top.
   if (d && d.invalid && !UI.sheet) { const bad = $(d.invalid); if (bad) { bad.setAttribute('aria-invalid', 'true'); const f = bad.closest('.field'), msg = d.error && document.querySelector('#overlay .drawer .body > .banner.crit:first-child');
     if (f && msg) { msg.id = 'fail-msg'; msg.setAttribute('role', 'alert'); msg.classList.add('at-field'); f.after(msg); if (!/fail-msg/.test(bad.getAttribute('aria-describedby') || '')) bad.setAttribute('aria-describedby', ((bad.getAttribute('aria-describedby') || '') + ' fail-msg').trim()); } } }
   if (step) panelStep(step);
-  if (open && !was) { const el = document.querySelector('#overlay .drawer header button, #overlay .sheet a'); if (el) el.focus(); }
+  if (open && !was) { const el = document.querySelector('#overlay .drawer header button, #overlay .sheet a'); if (el) el.focus({ preventScroll: true }); }      // the panel is still below the screen: focusing it must not move the page (v197)
 }
 /** While a dialog is open, only the dialog can be reached: the page, the tab bar and any panel underneath are inert. */
 function setInert() {

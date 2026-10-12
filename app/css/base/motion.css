@@ -37,6 +37,9 @@
 #overlay.in .scrim { animation: fade-in var(--t2) ease-out both; }
 #overlay.in .drawer { animation: drawer-in 280ms var(--ease) both; }
 #overlay.in .sheet { animation: sheet-in 420ms var(--ease-ios) both; }
+/* a panel drawn again while it is still coming in goes on from where it was (app/overlay.js, v197); while it moves, the browser keeps it on its own layer */
+:root #overlay.in :is(.scrim, .drawer, .sheet) { animation-delay: var(--in-at, 0ms); }
+#overlay.in :is(.drawer, .sheet) { will-change: transform, opacity; }
 #overlay.out { pointer-events: none; }
 #overlay.out .scrim { animation: fade-out 160ms var(--ease-in) both; }
 #overlay.out .drawer { animation: drawer-out 160ms var(--ease-in) both; }

@@ -280,9 +280,9 @@ const WALLET_ACTIONS = {
     if (ds.v === 'edit') return A['edit-account']({ id: a.id });
     renderOverlay();
     if (ds.v === 'view') return A['view-account']({ id: acct(ds.id) ? ds.id : a.id });      // the list in view: the account, its credit or its balance to spend
-    A['new-tx'](); if (!UI.drawer || UI.drawer.kind !== 'tx') return;
-    const x = UI.drawer.draft, cr = cardCredit(a); x.accountId = ds.v === 'expense' && cr ? cr.id : ds.v === 'expense' ? cardRoute(a.id) : debitTarget(a).id;      // money received goes where it is spent from if (ds.v === 'income') { x.type = 'income'; x.dir = 'in'; }
-    txKind(x); renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus();      // with the keypad, not the amount (v190)
+    // set before it is drawn: one drawing, its entrance whole (v197). Money received goes where it is spent from, and is an income: the line that
+    // made it one had ended up inside the comment above it, so "Record an income" opened an expense (found in v197)
+    A['new-tx']({}, x => { const cr = cardCredit(a); x.accountId = ds.v === 'expense' && cr ? cr.id : ds.v === 'expense' ? cardRoute(a.id) : debitTarget(a).id; if (ds.v === 'income') { x.type = 'income'; x.dir = 'in'; } });
   },
   'card-view'(ds) { const a = cardMain(acct(ds.id)); if (!a) return; UI.drawer = { kind: 'card-view', id: a.id, from: ds.id, title: a.name, book: bookKey(), ...(ds.fn === 'credit' && cardCredit(a) ? { fn: 'credit' } : {}) }; renderOverlay(); },      // a credit card's row on a phone's Accounts opens on its credit; closed, the focus goes back to the row that opened it (from)
   /** Debit | Credit over a card's transactions: which of its two functions is listed. */

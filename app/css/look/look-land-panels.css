@@ -43,7 +43,14 @@
   :root.land #overlay .bq-tx .tx-amount label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   :root.land #overlay .bq-tx .tx-sym { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #112622; color: #B6DD62; font-size: 15px; font-weight: 700; }
   :root.land #overlay .bq-tx .tx-amount input[type=text] { min-height: 52px; border: 0; background: none; box-shadow: none; color: var(--bq-ink); font-size: 40px; font-weight: 600; letter-spacing: -.04em; caret-color: #B6DD62; }
-  :root.land #overlay .bq-tx .tx-amount:focus-within { box-shadow: inset 0 0 0 2px var(--bq-accent); }
+  :root.land #overlay .bq-tx .tx-amount:has(#d-amount:focus) { box-shadow: inset 0 0 0 2px var(--bq-accent); }
+  /* on its right, the round button that puts the keypad away and brings it back (v197) */
+  :root.land #overlay .bq-tx .tx-amount:has(.bq-pad-btn) { grid-template-columns: 48px minmax(0, 1fr) 44px; }
+  :root.land #overlay .bq-pad-btn { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-ink); transition: transform 120ms var(--ease); }
+  :root.land #overlay .bq-pad-btn svg { width: 20px; height: 20px; stroke-width: 2.2; }
+  :root.land #overlay .bq-pad-btn:active { transform: scale(.92); }
+  :root.land #overlay .bq-pad-btn:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land #overlay .bq-pad-btn:hover { background: var(--bq-circle-2); } }
   /* the fields' names quiet, the categories as white pills, the chosen one deep green */
   :root.land #overlay .bq-tx .field > label, :root.land #overlay .bq-tx .tx-cats > span, :root.land #overlay .bq-tx .tx-pay > span { color: var(--bq-ink-2); font-size: 13px; font-weight: 600; }
   :root.land #overlay .bq-tx .tx-pick { min-height: 44px; padding: 0 15px 0 10px; border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); color: var(--bq-ink); font-size: 14px; }
@@ -52,13 +59,20 @@
   :root.land #overlay .bq-tx #d-merchant { min-height: 52px; padding-inline: 18px; border-radius: 999px; }
   :root.land #overlay .bq-tx .tx-more { color: var(--bq-accent); font-weight: 600; }
   /* its foot: the keypad, always in sight, and the bar that saves */
-  :root.land #overlay .bq-tx-foot { flex-direction: column; flex-wrap: nowrap; gap: 10px; padding: 10px 16px calc(14px + var(--safe-b)); background: var(--bq-page); }
-  :root.land #overlay .bq-pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  :root.land #overlay .bq-tx-foot { flex-direction: column; flex-wrap: nowrap; gap: 0; padding: 10px 16px calc(14px + var(--safe-b)); background: var(--bq-page); }
+  /* the keys in a box that folds to nothing (v197): its one row goes from all of their height to none, and what is in it is clipped; the 10 px
+     down to "Save" are inside it, so that folded nothing is left above "Save"; a key's focus ring is drawn inside the key */
+  :root.land #overlay .bq-pad-wrap { display: grid; grid-template-rows: 1fr; }
+  :root.land #overlay .bq-pad-in { min-height: 0; overflow: hidden; }
+  :root.land #overlay .bq-pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-bottom: 10px; }
+  :root.land #overlay .bq-tx-foot.off .bq-pad-wrap { grid-template-rows: 0fr; opacity: 0; visibility: hidden; }
+  :root.land #overlay .bq-tx-foot.off.moving .bq-pad-wrap { animation: bq-pad-out 260ms var(--ease-ios) var(--pad-at, 0ms) both; }
+  :root.land #overlay .bq-tx-foot.moving:not(.off) .bq-pad-wrap { animation: bq-pad-in 320ms var(--ease-ios) var(--pad-at, 0ms) both; }
   :root.land #overlay .bq-key { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: grid; place-items: center; min-height: 50px; border-radius: 18px; background: var(--bq-card); color: var(--bq-ink); font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; transition: transform 120ms ease-out, background 120ms ease-out; }
   :root.land #overlay .bq-key.soft { background: transparent; }
   :root.land #overlay .bq-key svg { width: 24px; height: 24px; }
   :root.land #overlay .bq-key:active { transform: scale(.94); background: var(--bq-circle-2); }
-  :root.land #overlay .bq-key:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
+  :root.land #overlay .bq-key:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: -2px; }
   @media (hover: hover) and (pointer: fine) { :root.land #overlay .bq-key:hover { background: var(--bq-card-2); } :root.land #overlay .bq-key.soft:hover { background: var(--bq-circle-2); } }
   :root.land #overlay .btn.primary.bq-save { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 6px 22px 6px 6px; border: 0; border-radius: 999px; background: #112622; color: #FFFFFF; font-size: 16px; font-weight: 600; text-align: left; }
   :root.land #overlay .btn.primary.bq-save:hover { background: #112622; }
@@ -76,3 +90,6 @@
   /* a short phone: the keys a little lower, so the form keeps room */
   @media (max-height: 740px) { :root.land #overlay .bq-key { min-height: 44px; font-size: 21px; } :root.land #overlay .bq-save { min-height: 56px; } :root.land #overlay .bq-save-ico { width: 44px; height: 44px; } }
 }
+/* the keypad folding away and coming back (features/phone/bosque-tx.js: bqPadSet, v197) */
+@keyframes bq-pad-out { from { grid-template-rows: 1fr; opacity: 1; visibility: visible; } to { grid-template-rows: 0fr; opacity: 0; visibility: hidden; } }
+@keyframes bq-pad-in { from { grid-template-rows: 0fr; opacity: 0; visibility: hidden; } to { grid-template-rows: 1fr; opacity: 1; visibility: visible; } }
