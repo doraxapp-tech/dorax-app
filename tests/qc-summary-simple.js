@@ -42,7 +42,7 @@ const { open, ok, eq, done } = require('./pw.js');
     'the light theme: on the summary the month is white on its forest block (v175, "Bosque"), not the dark theme\'s black button');
   ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bq-acts .bq-ico:not(.on)')).backgroundColor !== 'rgb(14, 14, 14)'), 'and light circles');
   await page.evaluate(() => navigate('plan'));
-  eq(await page.evaluate(() => getComputedStyle(document.querySelector('.pagehead .month .m-slide.on')).color), 'rgb(22, 51, 0)', 'on the other pages the light theme keeps the month in the deep green');
+  eq(await page.evaluate(() => getComputedStyle(document.querySelector('.pagehead .month .m-slide.on')).color), 'rgb(255, 255, 255)', 'v193: on the other pages too the light theme has the month white on the forest bar');
   await page.evaluate(() => navigate('dashboard'));
   await page.evaluate(() => { S.settings.theme = 'dark'; navigate('dashboard'); });
   // ---------- 3. Savings & goals ----------

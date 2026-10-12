@@ -38,3 +38,6 @@
 /* a fixed cost's details (features/plan/plan.view.js: lineViewDrawer): its payments under a hairline (their inline style until 2026-10-12, v192) */
 .lv-pays { border-top: 1px solid var(--line); padding-top: 12px; }
 .lv-pays-h { font-weight: 500; }
+/* a goal's details (features/goals/goals.view.js: goalViewDrawer): its movements under a hairline (their inline style until v193) */
+.gv-moves { border-top: 1px solid var(--line); padding-top: 12px; }
+.gv-moves-h { font-weight: 500; }

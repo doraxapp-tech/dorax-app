@@ -14,8 +14,9 @@
 
 /** This look on Transactions: a phone, the light theme, the household's side (the summary's test, bosque.js, on this page). */
 const bqTxOn = () => !!UI.session && S.settings.theme === 'light' && UI.space !== 'business' && UI.route === 'transactions' && isPhone();
-/** The summary or Transactions in this look: their panels wear it, and a new transaction has its keypad (features/transactions/transaction-form.view.js). */
-const landOn = () => bosqueOn() || bqTxOn();
+/** Any screen of the household in this look (a phone, the light theme; since v193 every screen, features/phone/bosque-frame.js): its panels wear
+    it, and a new transaction has its keypad (features/transactions/transaction-form.view.js). */
+const landOn = () => !!UI.session && S.settings.theme === 'light' && UI.space !== 'business' && isPhone();
 const BQ_TX_STEP = 40;      // rows drawn at a time; "Show more" adds as many
 const BQ_LOCALE = { en: 'en-US', es: 'es-ES', pt: 'pt-BR' };
 

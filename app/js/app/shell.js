@@ -85,7 +85,7 @@ function applyTheme(pub) {
   const phone = !pub && window.matchMedia && matchMedia('(max-width: 920px)').matches;
   // a phone's summary, light, on the household's side: the summary "Bosque", its forest block at the top (owner, 2026-10-11: "lleva esa a cabo en
   // resumen, exactamente lo que me muestras"; features/phone/bosque.js, css/look/look-land.css), and the browser's bar the same forest
-  const land = light && phone && UI.space !== 'business' && (UI.route === 'dashboard' || UI.route === 'transactions'); root.classList.toggle('land', land);      // and Transactions, "Movimientos · Bosque" (owner, 2026-10-12; features/phone/bosque-moves.js)
+  const land = light && phone && UI.space !== 'business'; root.classList.toggle('land', land); root.classList.toggle('land-page', land && UI.route !== 'dashboard' && UI.route !== 'transactions');      // every screen since v193 ("sigue con el resto de la webapp", features/phone/bosque-frame.js); the summary and Transactions have their own top      // and Transactions, "Movimientos · Bosque" (owner, 2026-10-12; features/phone/bosque-moves.js)
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#112622' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the
@@ -130,12 +130,14 @@ function renderShell() {
   // their place"). So no screen repeats its name in a large title under the panel (before: the screens of the bar at the foot had none, the others
   // had one, owner 2026-10-08). The title stays for screen readers; a screen with no month keeps no empty row. The profile is in More.
   const named = UI.route !== 'dashboard';
+  // a phone in the summary's look: the switch, the bell and More are the summary's; the other screens keep their own tools (features/phone/bosque-frame.js)
+  const bqFrame = named && typeof landOn === 'function' && landOn();
   // the side's net balance, with its eye, belongs to the summary (owner, 2026-10-09: "the household's net balance shows on every screen on the phone;
   // it belongs to Resumen"): the other screens start right under the top row
   $('topbar').innerHTML = `${installBanner()}<div class="navbar">
-      <span class="bar-left">${named ? `<span class="bar-name" aria-hidden="true">${esc(short)}</span>` : barWho()}${saveBadge()}</span>
+      <span class="bar-left">${named ? `${bqFrame ? bqBack() : ''}<span class="bar-name" aria-hidden="true">${esc(short)}</span>` : barWho()}${saveBadge()}</span>
       <span class="bar-title" aria-hidden="true">${routeLabel(UI.route)}</span>
-      <div class="bar-tools">${typeof bqTxOn === 'function' && bqTxOn() ? bqTxTools() : sideFlip() + bellButton()}<button class="more-btn" data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog" aria-label="${t('More')}">${icon('more')}</button>
+      <div class="bar-tools">${bqFrame ? bqPageTools() : `${sideFlip()}${bellButton()}<button class="more-btn" data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog" aria-label="${t('More')}">${icon('more')}</button>`}
         ${main ? `<button class="btn primary" data-a="${main[0]}" ${main[1]}>${icon('plus')}<span class="lbl">${main[2]}</span></button>` : ''}</div></div>
     ${UI.route === 'dashboard' ? `<div class="bar-bal${UI.space === 'business' ? ' co' : ''}">${barBalance()}</div>` : ''}
     <div class="pagehead${MONTH_ROUTES.includes(UI.route) ? ' has-month' : ''}${!MONTH_ROUTES.includes(UI.route) && !spaceSwitch() ? ' bare' : ''}"><span class="back-slot pc" id="back-pc">${backButton()}</span><h1>${short === full ? full : `<span class="h-full">${full}</span><span class="h-short" aria-hidden="true">${short}</span>`}</h1>

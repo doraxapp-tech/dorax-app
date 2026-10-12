@@ -176,11 +176,11 @@ function goalViewDrawer(d) {
       ${st.target !== null ? `<div style="margin-top:8px">${meter(st.pct, 'go')}<div class="note" style="margin-top:4px">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, BCUR()) }) : ''}</div></div>` : ''}</div>
     <div class="row g-do">${lead}${st.saved > 0 ? `<button class="btn" data-a="goal-move" data-id="${g.id}" data-dir="out" data-back="1">${t('Withdraw')}</button>` : ''}</div>
     <dl class="kv"><dt>${t('Planned to date')}</dt><dd class="num">${fmt.money(st.plannedToDate, BCUR())}</dd><dt>${t('Plan this month')}</dt><dd class="num">${fmt.money(st.thisMonth, BCUR())}</dd>${g.note ? `<dt>${t('Notes')}</dt><dd>${esc(g.note)}</dd>` : ''}</dl>
-    ${facts.length || whatif ? `<div>${facts.map(f => `<div class="obs">${esc(f)}</div>`).join('')}${whatif ? `<button type="button" class="linkbtn g-whatif" data-a="whatif" data-id="${g.id}">${t('What if…?')}</button>` : ''}</div>` : ''}
+    ${bqSheet(`${facts.length || whatif ? `<div class="gv-facts">${facts.map(f => `<div class="obs">${esc(f)}</div>`).join('')}${whatif ? `<button type="button" class="linkbtn g-whatif" data-a="whatif" data-id="${g.id}">${t('What if…?')}</button>` : ''}</div>` : ''}
     ${live ? '' : `<p class="note">${t('Not receiving money from the plan.')}</p>`}
-    <div style="border-top:1px solid var(--line);padding-top:12px"><b style="font-weight:500">${t('Movements')}</b>
+    <div class="gv-moves"><b class="gv-moves-h">${t('Movements')}</b>
       ${moves.length ? `<ul class="mv-list">${moves.map(m => `<li class="mv"><span class="mv-date num">${fmt.date(m.date, true)}</span><div class="mv-row"><span class="grow">${m.amount < 0 ? t('Withdrawal') : t('Contribution')}${m.note ? ` <span class="muted">· ${esc(m.note)}</span>` : ''}${m.accountId && acct(m.accountId) ? ` <span class="muted">· ${goalAcctName(acct(m.accountId))}</span>` : ''}</span><span class="num mv-amt ${m.amount < 0 ? '' : 'pos'}">${fmt.money(m.amount, BCUR(), { sign: true })}</span><button class="iconbtn" data-a="move-delete" data-id="${m.id}" aria-label="${t('Delete')} ${fmt.date(m.date, true)}">${icon('x')}</button></div></li>`).join('')}</ul>`
-        : `<div class="empty" style="padding:18px 0"><b>${t('No movements yet')}</b>${t('If you already have money set aside for this, enter it in Edit, under “Already saved”.')}</div>`}</div>
+        : `<div class="empty" style="padding:18px 0"><b>${t('No movements yet')}</b>${t('If you already have money set aside for this, enter it in Edit, under “Already saved”.')}</div>`}</div>`)}
   </div>
   <footer><button class="btn sm" data-a="goal-edit" data-id="${g.id}">${t('Edit')}</button>
     <div class="gmenu-wrap spacer"><button class="btn sm ghost" id="goal-menu-btn" data-a="goal-menu" aria-expanded="${!!UI.goalMenu}" aria-controls="goal-menu">${icon('more')}${t('More')}</button>

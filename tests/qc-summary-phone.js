@@ -202,8 +202,8 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
         eq(await split(), ['rgb(17, 38, 34)', 'rgb(233, 237, 236)', '30px', true], `${name}, opened from it: forest at the top, the rest in the grey sheet that rises over it, edge to edge`);
         await page.evaluate(() => A.close()); await page.waitForTimeout(250);
       }
-      await page.evaluate(() => navigate('plan')); await page.click('.navbar .bell'); await page.waitForTimeout(250);
-      ok(await page.evaluate(() => !document.querySelector('#overlay .bq-sheet')), 'from Plan, the notifications as they were');
+      await page.evaluate(() => { navigate('plan'); A.reminders(); }); await page.waitForTimeout(250);
+      ok(await page.evaluate(() => !document.querySelector('.navbar .bell') && !!document.querySelector('#overlay .bq-sheet')), 'v193: the bell is the summary’s (Plan has none in its bar); its panel, wherever it opens, as the others');
       await page.evaluate(() => { A.close(); navigate('dashboard'); }); await page.waitForTimeout(250);
       // ---------- 7. Transactions, "Movimientos · Bosque" (v188) ----------
       await page.click('.tabbar a[href="#transactions"]'); await page.waitForTimeout(300);
@@ -215,7 +215,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
           sheet: [cs(sheet).backgroundColor, cs(sheet).borderTopLeftRadius, r(sheet).top < r(top).bottom], rows: document.querySelectorAll('#tx-list .bq-op').length === Math.min(40, filteredTx().length), tall: [...document.querySelectorAll('#tx-list .bq-op')].every(b => r(b).height >= 44),
           bar: [getComputedStyle(document.querySelector('.tabbar .fab')).display, document.querySelectorAll('.tabbar a').length], wide: document.documentElement.scrollWidth - innerWidth };
       });
-      eq(await moves(), { on: true, meta: '#112622', top: 'rgb(17, 38, 34)', flush: true, kind: 'expense:true,income:false,:false', tools: 'bq-find-btn,tx-filters-btn,sheet', label: 'Gastaste en octubre', figure: true, chart: true,
+      eq(await moves(), { on: true, meta: '#112622', top: 'rgb(17, 38, 34)', flush: true, kind: 'expense:true,income:false,:false', tools: 'bq-find-btn,tx-filters-btn', label: 'Gastaste en octubre', figure: true, chart: true,
         sheet: ['rgb(233, 237, 236)', '30px', true], rows: true, tall: true, bar: ['none', 4], wide: 0 }, 'Transactions as the canvas: the forest block on from the top bar, search and filters as round buttons, Expenses first, the month’s spending large, its chart; the list by day in a grey sheet over the block; the floating bar');
       await page.click('.bq-kind [data-v="income"]');
       eq(await page.evaluate(() => [UI.tx.type, document.activeElement.dataset.v, document.querySelector('.bq-sum-k').textContent, filteredTx().every(x => x.type === 'income')]), ['income', 'income', 'Recibiste en octubre', true], 'Income: the list, the figure and its words follow; the finger stays on the switch');
@@ -242,7 +242,20 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
       // the other pages, the company's side, the dark theme: as they were
       await page.evaluate(() => navigate('plan'));
-      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor, getComputedStyle(document.documentElement).backgroundColor, getComputedStyle(document.querySelector('.tabbar')).borderRadius]), [false, 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', '0px'], 'Plan keeps its white page (behind the clock too) and its bar on the edge');
+      // ---------- 8. the other screens in the same look (v193: "sigue con el resto de la webapp"; "no repitas los botones de cambio de cuenta, campana,
+      // tres puntos; usa los que tengan sentido") ----------
+      const screen = () => page.evaluate(() => { const cs = el => el ? getComputedStyle(el) : {}, hero = document.querySelector('#view > .bq-hero'), r = el => el.getBoundingClientRect();
+        return { land: ['land', 'land-page'].map(c => document.documentElement.classList.contains(c)).join(), page: cs(document.querySelector('.work')).backgroundColor, bar: cs(document.querySelector('.tabbar')).backgroundColor,
+          tools: [...document.querySelectorAll('.navbar .bar-tools > *, .navbar .bar-left .bq-back')].filter(b => b.getClientRects().length).map(b => b.className.split(' ').filter(c => /^bq-|more-btn|bell|side-flip/.test(c)).join('.')).join(),
+          hero: hero ? [cs(hero).backgroundColor, Math.round(r(hero).width) === innerWidth, getComputedStyle(hero, '::after').backgroundColor] : null, wide: document.documentElement.scrollWidth - innerWidth }; });
+      for (const [route, tools, hero] of [['plan', 'bq-tool.bq-new', true], ['goals', 'bq-tool.bq-new', true], ['accounts', 'bq-tool.bq-back,bq-tool.bq-new', false], ['investments', 'bq-tool.bq-back,bq-tool.bq-new', false], ['recurring', 'bq-tool.bq-back', false], ['settings', 'bq-tool.bq-back', false], ['profile', 'bq-tool.bq-back', false]]) {
+        await page.evaluate(r => navigate(r), route); await page.waitForTimeout(150);
+        eq(await screen(), { land: 'true,true', page: 'rgb(233, 237, 236)', bar: 'rgba(255, 255, 255, 0.72)', tools, hero: hero ? ['rgb(17, 38, 34)', true, 'rgb(233, 237, 236)'] : null, wide: 0 }, `${route}: the forest bar with only its own tools (${tools || 'none'}), ${hero ? 'its top on the forest and ' : ''}the page as the grey sheet, the glass bar`);
+      }
+      await page.evaluate(() => navigate('goals'));
+      ok(await page.evaluate(() => !document.querySelector('#view .g-acts [data-a="goal-new"]') && !!document.querySelector('.navbar .bq-new[data-a="goal-new"]')), 'Goals: “Create” is the lime + in the bar, not a third button on the forest');
+      await page.click('.navbar .bq-new'); await page.waitForTimeout(200);
+      ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'goal-form')), 'and it opens a new goal'); await page.evaluate(() => A.close());
       await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
       eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'the company’s summary keeps its look');
       await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });

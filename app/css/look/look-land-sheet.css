@@ -79,4 +79,9 @@
   :root.land #overlay .bq-sheet .lv-pays .li .when { grid-area: w; width: auto !important; color: #5F625D; font-size: 13px; }
   :root.land #overlay .bq-sheet .lv-pays .li .num { grid-area: n; color: #0E0F0C; font-size: 15px; font-weight: 600; }
   :root.land #overlay .bq-sheet .lv-pays .li .iconbtn { grid-area: b; }
+
+  /* ---------- a goal: its figure, its buttons and its plan on the forest; what is known about it and its movements in white cards ---------- */
+  :root.land #overlay .bq-sheet .gv-facts { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land #overlay .bq-sheet .gv-moves { padding: 4px 14px 8px; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land #overlay .bq-sheet .gv-moves-h { display: block; margin: 12px 0 2px; color: #0E0F0C; font-size: 17px; font-weight: 600; }
 }
