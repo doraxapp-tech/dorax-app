@@ -117,7 +117,8 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       `${lang} at ${w} px: no title on top (the bar says it), the month on the left and the Journey right beside it (v167), the list fits, no sideways scroll`);
     eq(errors, [], `${lang}: no error in the console`); await browser.close();
   }
-  // ---------- 5. the summary "Bosque" (owner, 2026-10-11: "lleva esa a cabo en resumen, exactamente lo que me muestras") ----------
+  // ---------- 5. the summary "Bosque" (owner, 2026-10-11: "lleva esa a cabo en resumen, exactamente lo que me muestras"; 2026-10-12: "no se ve igual,
+  // no está organizado tal como el ejemplo… usa este verde por favor": always in the design's order, in the reference's deep green and lime) ----------
   // a phone, light, the household: the forest block at the top, "You can spend" half on it with its lime strip, four round buttons, the accounts as
   // round logos, what there is to pay as cards, the days of freedom and the goals side by side, the bar at the foot floating; nowhere else
   for (const w of [390, 320]) {
@@ -135,9 +136,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
         bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
         whole: bal.scrollWidth <= bal.clientWidth + 1, wide: document.documentElement.scrollWidth - innerWidth };
     });
-    eq(await look(), { on: true, meta: '#163300', page: 'rgb(242, 244, 238)', block: ['rgb(22, 51, 0)', 'rgb(22, 51, 0)'], card: [true, 'rgb(44, 82, 25)', true, 'rgb(159, 209, 130)', 'free-view', true],
+    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(35, 74, 62)', true, 'rgb(182, 221, 98)', 'free-view', true],
       acts: 'expense,income,transfer,quick-more', actsTall: true, accounts: true, logos: true, bills: true, firstDue: 'en 3 días', pair: 'runway-card,goals-card',
-      bar: ['rgb(22, 51, 0)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed`);
+      bar: ['rgb(17, 38, 34)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed`);
     if (w === 390) {
       // More: the other things to do, in a list; a bill opens its details; "You can spend" opens how it was worked out
       await page.click('#quick-acts [data-a="quick-more"]');
@@ -149,11 +150,13 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.click('#free-open'); await page.waitForTimeout(200);
       ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'free-view')), '"You can spend" opens how it was worked out');
       await page.evaluate(() => A.close());
-      // the order: the design's by default, without "You can spend" (it stays at the top); a part moved moves on the page; the original order comes back
-      eq(await page.evaluate(() => dashOrder()), ['quick', 'accounts', 'todo', 'runway', 'goals', 'insight', 'planned', 'fii', 'recent'], 'the design’s order by default');
-      await page.click('#dash-order-btn'); await page.click('.d-order .ord-btn[data-id="todo"][data-d="-1"]');
-      eq(await page.evaluate(() => [...document.querySelectorAll('#view > [id]')].map(x => x.id).slice(0, 5)), ['free-card', 'mc-ask', 'quick-acts', 'todo', 'ac-card'], 'a part moved up moves on the page; You can spend stays first');
-      await page.click('.d-order [data-a="dash-order-reset"]'); await page.evaluate(() => A.close());
+      // always the design's order, whatever order or eyes were saved for the summary before; the notices after it; no "Reorder the dashboard"
+      const order = () => page.evaluate(() => [...document.querySelectorAll('#view > *')].map(x => x.id || x.className));
+      const want = ['free-card', 'quick-acts', 'ac-card', 'todo', 'bq-pair', 'insight-card', 'mc-ask'];
+      eq(await order(), want, 'the design’s order, the notice after it');
+      await page.evaluate(() => { S.user.dashOrder = { home: ['recent', 'goals', 'insight', 'runway', 'accounts', 'todo', 'quick', 'free'] }; S.user.dashHidden = { home: ['accounts', 'todo', 'quick'] }; render(); });
+      eq([await order(), await page.evaluate(() => !!document.querySelector('#dash-order-btn'))], [want, false], 'an order and hidden parts saved before do not move it');
+      await page.evaluate(() => { delete S.user.dashOrder; delete S.user.dashHidden; render(); });
       // a month already over: no card on the block, which ends under the month
       await page.evaluate(() => A.month({ d: '-1' }));
       eq(await page.evaluate(() => [!!document.querySelector('.bq-free'), Math.round(parseFloat(getComputedStyle(document.querySelector('.topbar > .pagehead')).paddingBottom))]), [false, 24], 'a month already over: no card, the block ends under the month');

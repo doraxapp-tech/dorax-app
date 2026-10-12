@@ -86,7 +86,7 @@ function applyTheme(pub) {
   // a phone's summary, light, on the household's side: the summary "Bosque", its forest block at the top (owner, 2026-10-11: "lleva esa a cabo en
   // resumen, exactamente lo que me muestras"; features/phone/bosque.js, css/look/look-land.css), and the browser's bar the same forest
   const land = light && phone && UI.space !== 'business' && UI.route === 'dashboard'; root.classList.toggle('land', land);
-  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#163300' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#112622' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }
 /** Top bar: a warning while the last changes have not reached the server. While everything is saved, nothing is shown (the owner found the
     bar cluttered); where the data lives is said in Settings, under Your data. It never claims a save that did not happen. */
