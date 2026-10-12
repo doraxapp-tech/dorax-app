@@ -123,7 +123,7 @@ const TRANSACTIONS_ACTIONS = {
 
   'ignore-tx'() { const x = S.transactions.find(k => k.id === UI.drawer.draft.id), pair = linkedRow(x); x.status = x.status === 'ignored' ? 'confirmed' : 'ignored'; if (pair) pair.status = x.status; UI.drawer = null; toast(x.status === 'ignored' ? t('Transaction ignored. It no longer counts in totals.') : t('Transaction restored.')); render(); },
   'save-tx'() {
-    const d = UI.drawer, x = d.draft;
+    const d = UI.drawer, x = d.draft; if (d.saving) return;      // its button is saying it was saved (features/transactions/tx-done.js)
     if (x.type === 'expense') x.accountId = cardRoute(x.accountId);      // a savings account whose card has credit only: on its invoice
     const homeAcct = toHome(x) ? acct(x.transferAccountId) : null; if (homeAcct) x.dir = 'out';      // paying yourself: always out of the company
     const abs = typedAmount(x.amountText), biz = isBiz(x.accountId);
@@ -155,6 +155,7 @@ const TRANSACTIONS_ACTIONS = {
     if (homeSide && next.type === 'income') next.transferAccountId = prev.transferAccountId;
     if (prev && prev.linkId && !homeAcct && isBiz(prev.accountId)) S.transactions = S.transactions.filter(k => k === prev || k.linkId !== prev.linkId);      // no longer paying yourself: the household's row goes
     const parts = d.isNew ? instCount(x) : 1;      // in installments on a card: one row on each coming invoice (features/installments)
+    const iwPre = tdOn() && d.isNew && x.type === 'income' && !biz && !homeAcct && parts === 1 ? iwBefore() : null;      // money in, on the summary's look: what it changes (features/transactions/tx-done.js)
     if (prev) Object.assign(prev, next); else S.transactions.push(...instRows(next, parts, newId));
     if (homeAcct) homeRowSync(prev || next, homeAcct, homeAmt, x.homeKey || homeKeyDefault());
     if (prev && prev.goalMoveId) goalTxEdited(prev, was);      // a goal's transfer: the other row and the movement follow it
@@ -168,6 +169,9 @@ const TRANSACTIONS_ACTIONS = {
         UI.rulePrompt = { merchant: next.merchant, pattern, categoryId: next.categoryId, subcategoryId: next.subcategoryId, count, label: catName(next.subcategoryId || next.categoryId) };
       }
     }
+    // the summary's look (v200): money in has its own screen; anything else is said by the panel's own button, not by a strip at the top
+    if (iwPre) { flash(next.id); return iwShow(next, iwPre); }
+    if (tdOn() && parts === 1) { flash(next.id); return tdSaved(prev ? t('Changes saved') : t('Recorded'), () => { UI.drawer = null; if (UI.rulePrompt && UI.route !== 'transactions') go('transactions'); else render(); }); }
     UI.drawer = null; flash(next.id); toast(prev ? t('Transaction saved.') : parts > 1 ? t('{n} installments of {amount} added, one on each invoice.', { n: parts, amount: fmt.money(instSplit(total, parts)[parts - 1], next.currency) }) : t('Transaction added.'));      // its row washes where it landed (2026-10-08)
     if (UI.rulePrompt && UI.route !== 'transactions') go('transactions'); else render();
   },

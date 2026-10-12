@@ -45,7 +45,9 @@ const { open, ok, eq, done } = require('./pw.js');
   const before = await page.evaluate(c => planProgress(B(), B().month, BCUR(), B().today).filter(p => p.categoryId === c && p.pay === 'fixed' && !p.spent && p.planned).length, cat);
   await page.click(`#paylist [data-a="group-pay-now"][data-cat="${cat}"]`);
   eq(await page.evaluate(c => planProgress(B(), B().month, BCUR(), B().today).filter(p => p.categoryId === c && p.pay === 'fixed' && !p.spent && p.planned).length, cat), 0, `the bulk button records all ${before} at once`);
-  await page.evaluate(() => A['undo-pay']());
+  // v200: answered by its receipt (features/plan/pay-done.js), which carries "Undo"
+  eq(await page.evaluate(n => [UI.sheet, document.querySelector('#pd-h').textContent, !!document.querySelector('#overlay [data-a="pd-undo"]')], before), ['paid', `${before} bills paid`, true], 'v200: the bulk payment answered by its receipt, with Undo');
+  await page.click('#overlay [data-a="pd-undo"]'); await page.waitForTimeout(300);
   // ---------- 3. the details ----------
   const fixed = await page.evaluate(() => planProgress(B(), B().month, BCUR(), B().today).find(p => p.pay === 'fixed' && p.bill && !p.spent && p.planned).id);
   await page.click(`.pl-row[data-id="${fixed}"]`);
@@ -53,7 +55,8 @@ const { open, ok, eq, done } = require('./pw.js');
     ['line-view', ['line-pay-now', 'line-pay', 'line-edit'], true, true, true], 'a tap opens the details: “Mark as paid” first, then “Record payment” and “Edit”, with what marking records and the account');
   const planned = await page.evaluate(id => planProgress(B(), B().month, BCUR(), B().today).find(p => p.id === id).planned, fixed);
   await page.click('.drawer [data-a="line-pay-now"]');
-  eq(await page.evaluate(id => { const p = planProgress(B(), B().month, BCUR(), B().today).find(x => x.id === id); return [p.spent, !!UI.drawer, document.querySelector(`.pl-row[data-id="${id}"]`).classList.contains('done'), /Undo/.test(document.querySelector('#toast').innerText)]; }, fixed), [planned, false, true, true], 'marking it records the planned amount, closes the details, the row says it is paid, and the message offers Undo');
+  eq(await page.evaluate(id => { const p = planProgress(B(), B().month, BCUR(), B().today).find(x => x.id === id); return [p.spent, !!UI.drawer, document.querySelector(`.pl-row[data-id="${id}"]`).classList.contains('done'), !!document.querySelector('#overlay .pd-sheet [data-a="pd-undo"]')]; }, fixed), [planned, false, true, true], 'marking it records the planned amount, closes the details, the row says it is paid, and its receipt offers Undo (v200)');
+  await page.click('#overlay .pd-sheet [data-a="pd-done"]'); await page.waitForTimeout(300);
   const budget = await page.evaluate(() => { const p = planProgress(B(), B().month, BCUR(), B().today).find(x => x.pay === 'budget'); return p && p.id; });
   if (budget) { eq(await page.evaluate(id => [!document.querySelector(`.pl-row[data-id="${id}"]`), !!document.querySelector('#limits-card .lim-list [data-a="limit-open"]')], budget), [true, true], 'a cost spent during the month is a limit now: not among the payments, in the limits card (v146)'); }
   // the group's line is only its name and its bulk button; the three small figures each on one line, the row sliding sideways (owner, 2026-10-08)
@@ -90,8 +93,9 @@ const { open, ok, eq, done } = require('./pw.js');
   const pick = await page.evaluate(() => document.querySelector('.sheet.s-list .g-pick-list button').dataset.id);
   const want = await page.evaluate(id => planProgress(B(), B().month, BCUR(), B().today).find(p => p.id === id).planned, pick);
   await page.click('.sheet.s-list .g-pick-list button'); await page.waitForTimeout(300);
-  eq(await page.evaluate(id => [planProgress(B(), B().month, BCUR(), B().today).find(p => p.id === id).spent, !!document.querySelector('.sheet'), !!UI.sheet, document.querySelector(`.pl-row[data-id="${id}"]`).classList.contains('done'), /Undo/.test(document.querySelector('#toast').innerText)], pick),
-    [want, false, false, true, true], 'a tap on one: its planned amount is recorded, the list closes, its row says it is paid, and the message offers Undo');
+  eq(await page.evaluate(id => [planProgress(B(), B().month, BCUR(), B().today).find(p => p.id === id).spent, !!document.querySelector('.sheet.s-list'), UI.sheet, document.querySelector(`.pl-row[data-id="${id}"]`).classList.contains('done'), !!document.querySelector('#overlay .pd-sheet [data-a="pd-undo"]')], pick),
+    [want, false, 'paid', true, true], 'a tap on one: its planned amount is recorded, the list closes, its row says it is paid, and its receipt offers Undo (v200)');
+  await page.click('#overlay .pd-sheet [data-a="pd-done"]'); await page.waitForTimeout(300);
   await page.click('#view [data-a="pay-pick"][data-v="record"]'); await page.waitForSelector('.sheet.s-list');
   const rec = await page.evaluate(() => [...document.querySelectorAll('.sheet.s-list .g-pick-list button')].map(b => b.dataset.id));
   eq(await page.evaluate(n => [document.querySelector('.sheet.s-list h2').innerText.trim(), n === planProgress(B(), B().month, BCUR(), B().today).filter(p => p.planned > 0 && !(p.pay === 'fixed' && p.spent)).length], rec.length), ['Record a payment for which one?', true], 'Record payment: which one, from every cost of the month still open (a paid bill is not there)');

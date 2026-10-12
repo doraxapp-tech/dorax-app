@@ -56,8 +56,9 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   await page.evaluate(() => navigate('plan'));
   await page.click('#paylist [data-a="line-pay-now"]');
   eq(await page.evaluate(() => accountBalance(S, S.accounts[0].id)), 250000 - 180000, 'bill paid: taken from the account');
-  ok(await page.locator('#toast-root [data-a="undo-pay"]').count() === 1, 'bill paid: Undo is offered');
-  await page.click('#toast-root [data-a="undo-pay"]');
+  // v200: on the summary's look a bill paid is answered by its receipt, which carries "Undo" (features/plan/pay-done.js)
+  ok(await page.locator('#overlay .pd-sheet [data-a="pd-undo"]').count() === 1, 'bill paid: its receipt, with Undo');
+  await page.click('#overlay .pd-sheet [data-a="pd-undo"]');
   eq(await page.evaluate(() => [accountBalance(S, S.accounts[0].id), S.transactions.length]), [250000, 0], 'undo: the payment is gone and the balance is back');
   // typed amounts that used to be misread are refused in the forms
   await page.click('#topbar [data-a="line-new"]');

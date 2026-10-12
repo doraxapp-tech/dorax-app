@@ -57,8 +57,11 @@ const REMIND_ACTIONS = {
     if (m.date > S.today) return fail(t('The date cannot be in the future.'), 'cp-date');
     if (!from || from.id === a.id) return fail(t('Choose the account the payment comes from.'), 'cp-from');
     const side = (accountId, other, amount, merchant) => { const x = { id: newId('t'), accountId, date: m.date, description: merchant, merchant, amount, currency: acct(accountId).currency, type: 'transfer', categoryId: null, subcategoryId: null, status: 'confirmed', transferAccountId: other, recurring: false, notes: '', source: 'manual', sourceTxnId: null, confidence: null, splits: null }; x.fingerprint = fingerprint(accountId, m.date, merchant, amount); S.transactions.push(x); };
+    const before = pdOn() ? pdBills(ymOf(m.date)) : null, n0 = S.transactions.length;
     side(from.id, a.id, -amt, t('Card payment: {name}', { name: a.name })); side(a.id, from.id, amt, t('Payment received from {name}', { name: from.name }));
+    const made = S.transactions.slice(n0).map(x => x.id);      // its two rows, for "Undo" on the receipt
     S.transactions.sort((x, y) => x.date < y.date ? 1 : x.date > y.date ? -1 : 0);
+    if (before) { UI.undo = made; return pdShow({ title: t('{name} invoice paid', { name: a.name }), amount: amt, from: from.name, date: m.date, ym: ymOf(m.date), before, undo: true, next: d.back === 'journey' ? jOpen() : d.back ? { kind: 'reminders', title: t('Notifications'), tab: 'rem' } : null }); }      // the summary's look: its receipt (features/plan/pay-done.js, v200)
     toast(t('Card payment recorded.')); UI.drawer = d.back === 'journey' ? jOpen() : d.back ? { kind: 'reminders', title: t('Notifications'), tab: 'rem' } : null; render();      // from the Journey: back to it
   },
   'due-days'(ds) {

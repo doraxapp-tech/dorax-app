@@ -14,7 +14,7 @@ const A = {
   ...AUTH_ACTIONS,
   ...PROFILE_ACTIONS, ...PHOTO_ACTIONS,
   ...PLAN_ACTIONS,
-  ...GOALS_ACTIONS, ...GOAL_WIN_ACTIONS,      // a contribution slid into its goal, and its success screen (features/goals/goal-win.js)
+  ...GOALS_ACTIONS, ...GOAL_WIN_ACTIONS, ...PAY_DONE_ACTIONS, ...TX_DONE_ACTIONS,      // a bill's receipt, money in and a transaction saved (features/plan/pay-done.js, features/transactions/tx-done.js)      // a contribution slid into its goal, and its success screen (features/goals/goal-win.js)
   ...JOURNEY_ACTIONS,      // the way out of debt (features/journey)
   ...TOUR_ACTIONS,      // the first visit to each main screen (features/tours)
   ...FREE_ACTIONS,      // what is free to spend until pay day (features/dashboard/free-until.view.js)

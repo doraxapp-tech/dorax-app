@@ -111,7 +111,7 @@ const GOALS_ACTIONS = {
   'goal-move'(ds) {
     UI.goalMenu = false; const g = goalById(ds.id);
     UI.drawer = { kind: 'goal-move', title: ds.dir === 'out' ? t('Withdraw from {name}', { name: g.name }) : t('Contribute to {name}', { name: g.name }), back: !!ds.back,
-      draft: { goalId: g.id, dir: ds.dir, amountText: '', date: B().today, accountId: g.accountId || '', fromId: '', note: ds.initial ? t('Starting balance') : '', start: !!ds.initial } };
+      draft: { goalId: g.id, dir: ds.dir, amountText: ds.amt ? plain(+ds.amt) : '', date: B().today, accountId: g.accountId || '', fromId: '', note: ds.initial ? t('Starting balance') : '', start: !!ds.initial } };
     renderOverlay(); const el = $('m-amount'); if (el) el.focus();
   },
   'move-save'() {

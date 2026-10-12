@@ -60,14 +60,18 @@ const PLAN_ACTIONS = {
     const l = lineById(ds.id), ym = ds.ym || B().month, a = lineAcct(l), v = planValue(B(), l, ym);
     if (!a) return needAccount();
     if (!v) return;
-    UI.undo = [recordPayment(l, v, defaultPayDate(l, ym), a.id, '').id]; flash(l.id);
+    const before = pdOn() ? pdBills(ym) : null, back = ds.close ? null : UI.drawer, date = defaultPayDate(l, ym);
+    UI.undo = [recordPayment(l, v, date, a.id, '').id]; flash(l.id);
+    if (before) return pdShow({ title: t('{name} paid', { name: l.name }), amount: v, from: a.name, date, ym, before, undo: true, next: back });      // the summary's look: its receipt (features/plan/pay-done.js, v200)
     if (ds.close) { UI.drawer = null; renderOverlay(); }      // from the details: done, back to the list, where the row now says it is paid
     toast(t('{name} paid: {amount} from {account}.', { name: l.name, amount: fmt.money(v, BCUR()), account: a.name }), { a: 'undo-pay', label: t('Undo') }); render();
   },
   'group-pay-now'(ds) {
     const rows = planProgress(B(), ds.ym, BCUR(), B().today).filter(p => p.categoryId === ds.cat && p.pay === 'fixed' && !p.spent && p.planned && lineAcct(p));
     if (!rows.length) return;
+    const before = pdOn() ? pdBills(ds.ym) : null, back = UI.drawer, froms = [...new Set(rows.map(p => lineAcct(p).name))];
     UI.undo = rows.map(p => recordPayment(lineById(p.id), p.planned, defaultPayDate(p, ds.ym), lineAcct(p).id, '').id); flash(...rows.map(p => p.id));
+    if (before) return pdShow({ title: tn(rows.length, '{n} bill paid', '{n} bills paid'), amount: sum(rows.map(p => p.planned)), from: froms.length === 1 ? froms[0] : tn(froms.length, '{n} account', '{n} accounts'), date: B().today, ym: ds.ym, before, undo: true, next: back });
     toast(tn(rows.length, '{n} payment recorded: {amount}.', '{n} payments recorded: {amount}.', { amount: fmt.money(sum(rows.map(p => p.planned)), BCUR()) }), { a: 'undo-pay', label: t('Undo') }); render();
   },
   'pay-save'() {
@@ -77,7 +81,8 @@ const PLAN_ACTIONS = {
     if (m.date > B().today) return fail(t('The date cannot be in the future.'), 'py-date');
     if (!acct(m.accountId)) return fail(t('Add an account first.'), 'py-acct');
     m.accountId = cardRoute(m.accountId);      // a savings account whose card has credit only: on its invoice
-    recordPayment(l, amt, m.date, m.accountId, (m.note || '').trim()); flash(l.id);
+    const before = pdOn() ? pdBills(ymOf(m.date)) : null, rec = recordPayment(l, amt, m.date, m.accountId, (m.note || '').trim()); flash(l.id);
+    if (before) { UI.undo = [rec.id]; return pdShow({ title: l.pay === 'budget' ? t('Expense in {name}', { name: l.name }) : t('{name} paid', { name: l.name }), amount: amt, from: acct(m.accountId).name, date: m.date, ym: ymOf(m.date), before, undo: true, next: d.back ? { kind: 'line-view', title: l.name, id: l.id, ym: ymOf(m.date) } : null }); }
     toast(l.pay === 'budget' ? t('Expense recorded.') : t('Payment recorded.')); UI.drawer = d.back ? { kind: 'line-view', title: l.name, id: l.id, ym: ymOf(m.date) } : null; render();
   },
   'pay-delete'(ds) {
