@@ -43,7 +43,12 @@
   :root.land #overlay .bq-tx .tx-amount label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   :root.land #overlay .bq-tx .tx-sym { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #112622; color: #B6DD62; font-size: 15px; font-weight: 700; }
   :root.land #overlay .bq-tx .tx-amount input[type=text] { min-height: 52px; border: 0; background: none; box-shadow: none; color: var(--bq-ink); font-size: 40px; font-weight: 600; letter-spacing: -.04em; caret-color: #B6DD62; }
-  :root.land #overlay .bq-tx .tx-amount:has(#d-amount:focus) { box-shadow: inset 0 0 0 2px var(--bq-accent); }
+  :root.land #overlay .bq-tx .tx-amount:has(input#d-amount:focus), :root.land #overlay .bq-tx .tx-amount:has(.bq-amt:focus-visible) { box-shadow: inset 0 0 0 2px var(--bq-accent); }
+  /* with the keypad, the amount is a button that shows what the keys typed (v202, bosque-tx.js: bqAmt), with a lime line after it while the keypad is up */
+  :root.land #overlay .bq-tx .bq-amt { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; cursor: pointer; display: flex; align-items: center; min-width: 0; min-height: 52px; overflow: hidden; color: var(--bq-ink); font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1.1; white-space: nowrap; }
+  :root.land #overlay .bq-tx .bq-amt .bq-amt-ph { color: var(--bq-ink-3); }
+  :root.land #overlay .bq-tx .tx-amount.typing .bq-amt::after { content: ""; flex: none; width: 3px; height: 38px; margin-left: 3px; border-radius: 2px; background: #B6DD62; }
+  :root.land #overlay .bq-tx .tx-amount:has(.bq-amt[aria-invalid="true"]) { box-shadow: inset 0 0 0 2px var(--bq-crit); }
   /* on its right, the round button that puts the keypad away and brings it back (v197) */
   :root.land #overlay .bq-tx .tx-amount:has(.bq-pad-btn) { grid-template-columns: 48px minmax(0, 1fr) 44px; }
   :root.land #overlay .bq-pad-btn { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-ink); transition: transform 120ms var(--ease); }

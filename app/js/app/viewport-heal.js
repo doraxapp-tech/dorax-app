@@ -32,7 +32,8 @@
   }
   function settle() {
     if (writes(document.activeElement)) return;      // another field took the focus: the keyboard stays up
-    if (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }
+    const vv = window.visualViewport;      // v202: the screen's view can stay moved down with the page itself at its top: back too
+    if (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || (vv && vv.offsetTop > 1)) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }
     remeasure();
   }
   note();
