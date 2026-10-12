@@ -32,7 +32,10 @@ const { open, ok, eq, done } = require('./pw.js');
     [['oct:R$ 600', 'nov:R$ 600', 'dec:R$ 600', 'jan:You pay'], 'Set aside R$ 600'], 'its details: the months one by one, the one it is paid in; “Set aside R$ 600”');
   await page.click('[data-a="yearly-put"]');
   eq(await page.evaluate(() => [UI.drawer.kind, $('m-amount').value.replace(/[.,]00$/, '')]), ['goal-move', '600'], 'a contribution of this month’s share');
-  await page.click('[data-a="move-save"]');
+  // v198: on the summary's look a contribution is slid into its goal and answered by its success screen (features/goals/goal-win.js); Done goes back
+  await page.focus('#gw-knob'); await page.keyboard.press('Enter'); await page.waitForSelector('#overlay .gw-win');
+  eq(await page.evaluate(() => [!!document.querySelector('#overlay [data-a="gw-done"]'), !document.querySelector('#overlay [data-a="gw-see"]')]), [true, true], 'v198: its success screen; a yearly expense has no “See goal”: Done goes back to its details');
+  await page.click('#overlay [data-a="gw-done"]'); await page.waitForTimeout(300);
   eq(await page.evaluate(id => [UI.drawer.kind, goalSaved(B(), id), document.querySelector('.yr-strip li.cur').classList.contains('done'), !document.querySelector('[data-a="yearly-put"]'), S.transactions.filter(x => x.goalMoveId && B().goalMoves.find(m => m.id === x.goalMoveId && m.goalId === id)).length], g.id),
     ['yearly-view', 60000, true, true, 2], 'saved: back to its details, October marked, nothing more to set aside this month; the money moved (one transfer row in each account)');
   // ---------- 4. due this month; paid; late ----------

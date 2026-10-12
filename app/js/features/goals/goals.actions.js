@@ -35,6 +35,16 @@ const goalStartDraft = g => { const was = sum(B().goalMoves.filter(m => m.goalId
 /** Whether saving the goal's form changes its monthly plan: a new goal always; an edited one when the amount for the month chosen is not what the plan
     has for it (owner, 2026-10-10). Saved with the same amount, the plan stays as it is, with any single months edited in the grid. */
 const goalReplan = (d, monthly) => d.isNew || monthly !== goalPlan(goalById(d.draft.id), d.draft.from);
+/** Why a contribution or withdrawal cannot be recorded yet: [reason, field] for fail(), or null. Shared by its button and the slide that records a
+    contribution (features/goals/goal-win.js), which asks before the coin moves. */
+function moveCheck(d) {
+  const m = d.draft, amt = typedAmount(m.amountText || ''), g = goalById(m.goalId);
+  if (amt === null || amt <= 0) return [t('Enter an amount greater than zero, for example 185,42.'), 'm-amount'];
+  if (!parseDate(m.date)) return [t('Enter a valid date.'), 'm-date'];
+  if (m.date > B().today) return [t('The date cannot be in the future.'), 'm-date'];
+  if (m.dir === 'out' && amt > goalSaved(B(), g.id)) return [t('You cannot withdraw more than is saved ({amount}).', { amount: fmt.money(goalSaved(B(), g.id), BCUR()) })];
+  return null;
+}
 const GOALS_ACTIONS = {
   'goal-year'(ds) { if (ds.v) UI.goalYear = +ds.v; render(); },
   'goal-mode'(ds) { UI.goalMode = ds.v; render(); },
@@ -105,15 +115,16 @@ const GOALS_ACTIONS = {
     renderOverlay(); const el = $('m-amount'); if (el) el.focus();
   },
   'move-save'() {
-    const d = UI.drawer, m = d.draft, amt = typedAmount(m.amountText || ''), g = goalById(m.goalId);
-    if (amt === null || amt <= 0) return fail(t('Enter an amount greater than zero, for example 185,42.'), 'm-amount');
-    if (!parseDate(m.date)) return fail(t('Enter a valid date.'), 'm-date');
-    if (m.date > B().today) return fail(t('The date cannot be in the future.'), 'm-date');
-    if (m.dir === 'out' && amt > goalSaved(B(), g.id)) return fail(t('You cannot withdraw more than is saved ({amount}).', { amount: fmt.money(goalSaved(B(), g.id), BCUR()) }));
+    const d = UI.drawer, m = d.draft, amt = typedAmount(m.amountText || ''), g = goalById(m.goalId), bad = moveCheck(d);
+    if (bad) return fail(...bad);
+    const before = goalStatus(B(), g, B().today), win = gwOn(d);      // a contribution on the summary's look ends on its success screen (features/goals/goal-win.js, v198)
     const mv = { id: newId('gm'), goalId: g.id, date: m.date, amount: m.dir === 'out' ? -amt : amt, accountId: g.accountId || null, note: (m.note || '').trim(), ...(m.start && m.dir !== 'out' ? { start: true } : {}) };
     B().goalMoves.push(mv); goalTransfer(mv, goalMoveFrom(m), g.name);
-    flash(g.id); toast(m.dir === 'out' ? t('Withdrawal recorded.') : t('Contribution recorded.'));
-    UI.drawer = d.after || (d.back ? { kind: 'goal-view', title: g.name, id: g.id } : null); UI.dist = null; render();      // d.after: where it was opened from (a yearly expense, features/yearly)
+    const next = d.after || (d.back ? { kind: 'goal-view', title: g.name, id: g.id } : null);      // d.after: where it was opened from (a yearly expense, features/yearly)
+    flash(g.id); UI.dist = null;
+    if (win) return gwWin(g, amt, before, next, m.date);
+    toast(m.dir === 'out' ? t('Withdrawal recorded.') : t('Contribution recorded.'));
+    UI.drawer = next; render();
   },
   'move-delete'(ds) {
     const m = B().goalMoves.find(x => x.id === ds.id); if (!m) return;

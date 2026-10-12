@@ -204,7 +204,8 @@ function goalMoveDrawer(d) {
       ${from ? fld('m-from', out ? t('Goes to') : t('Comes out of'), `<select id="m-from" data-c="draft" data-k="fromId" data-rerender="1">${acctOptions(from.id, '', pay)}</select>`, 'full') : ''}
       ${fld('m-note', t('Note (optional)'), inp('m-note', 'note', m.note), 'full')}</div>
     <p class="note" id="m-say">${say}</p></div>
-  <footer><button class="btn primary" data-a="move-save">${out ? t('Record withdrawal') : t('Record contribution')}</button><button class="btn ghost spacer" data-a="${d.back ? 'goal-open' : 'close'}" data-id="${g.id}">${t('Cancel')}</button></footer>`;
+  ${gwOn(d) ? `<footer class="gw-foot">${gwSlide(d)}</footer>`      /* a contribution on the summary's look: slid into the goal (features/goals/goal-win.js) */
+    : `<footer><button class="btn primary" data-a="move-save">${out ? t('Record withdrawal') : t('Record contribution')}</button><button class="btn ghost spacer" data-a="${d.back ? 'goal-open' : 'close'}" data-id="${g.id}">${t('Cancel')}</button></footer>`}`;
 }
 
 // ---------- dashboard card ----------
