@@ -52,8 +52,8 @@ const BQ_SHORT = { 'Banco do Brasil': 'BB', 'Mercado Pago': 'M. Pago', 'C6 Bank'
 const BQ_PLAIN = /^(cuenta|conta|account|cuenta corriente|conta corrente|corriente|corrente|checking)$/i;
 function bqShort(a) {
   const inst = String(a.institution || ''); if (!BANK_MARKS[inst]) return a.name;
-  const rest = acctRest(a.name, inst);
-  return !rest || BQ_PLAIN.test(rest) ? (BQ_SHORT[inst] || inst) : rest;
+  const rest = acctRest(a.name, inst).replace(/^\((.+)\)$/, '$1');      // "Santander (débito)" is "Débito", not "(débito)"
+  return !rest || BQ_PLAIN.test(rest) ? (BQ_SHORT[inst] || inst) : rest.charAt(0).toUpperCase() + rest.slice(1);
 }
 const bqHead = (title, link, sub) => `<div class="bq-h"><span class="bq-t"><h2>${title}</h2>${sub ? `<span class="bq-sub">${sub}</span>` : ''}</span>${link || ''}</div>`;
 const bqLink = (href, label) => `<a class="bq-more" href="${href}">${label}${icon('right')}</a>`;

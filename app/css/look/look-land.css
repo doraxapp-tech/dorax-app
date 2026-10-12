@@ -9,7 +9,10 @@
    Only this page wears them for now. */
 @media (max-width: 920px) {
   /* ---------- the page: sage, as the home page ---------- */
-  html.app-light.in-app.land, html.app-light.in-app.land body { background: #E9EDEC; }
+  /* the page itself (behind the app's column, which paints its own grey) is the block's green: Safari on an iPhone paints the strip behind the clock
+     and the battery with the page's own colour, not with the theme-color of app/shell.js, so with the grey there it was a grey band over the green
+     block (owner, 2026-10-12, with a screenshot: "¿por qué se ve así el borde superior?") */
+  html.app-light.in-app.land, html.app-light.in-app.land body { background: #112622; }
   :root.land .work { --bg: #E9EDEC; --glass: rgba(233, 237, 236, .92); background: #E9EDEC; }
 
   /* ---------- the forest block at the top: the panel, the balance and the month's row (on a phone the top bar lays its rows out on the page,

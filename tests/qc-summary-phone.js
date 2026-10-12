@@ -127,7 +127,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
     const look = () => page.evaluate(() => { const root = document.documentElement, cs = el => el ? getComputedStyle(el) : {}, r = el => el.getBoundingClientRect();
       const f = document.querySelector('#view > .bq-free'), head = document.querySelector('.topbar > .pagehead'), foot = f && f.querySelector('.bq-free-foot'), bal = document.querySelector('.bar-bal .bb-link b');
       const acts = [...document.querySelectorAll('#quick-acts button')], tab = document.querySelector('.tabbar');
-      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
+      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, behind: [cs(root).backgroundColor, cs(document.body).backgroundColor], block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
         card: f ? [f === document.querySelector('#view').firstElementChild, cs(f).backgroundColor, r(f).top < r(head).bottom && r(f).bottom > r(head).bottom, cs(foot).backgroundColor, foot.dataset.a, Math.round(r(foot).height) >= 44] : null,
         acts: acts.map(b => b.dataset.v || b.dataset.a).join(), actsTall: acts.every(b => r(b).height >= 44),
         accounts: document.querySelectorAll('#ac-card .bq-acc').length === personal().length, logos: !!document.querySelector('#ac-card .bq-acc .inst img'),
@@ -136,7 +136,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
         bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
         whole: bal.scrollWidth <= bal.clientWidth + 1, wide: document.documentElement.scrollWidth - innerWidth };
     });
-    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(35, 74, 62)', true, 'rgb(182, 221, 98)', 'free-view', true],
+    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(35, 74, 62)', true, 'rgb(182, 221, 98)', 'free-view', true],
       acts: 'expense,income,transfer,quick-more', actsTall: true, accounts: true, logos: true, bills: true, firstDue: 'en 3 días', pair: 'runway-card,goals-card',
       bar: ['rgb(17, 38, 34)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed`);
     if (w === 390) {
@@ -163,7 +163,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => A.month({ d: '1' }));
       // the other pages, the company's side, the dark theme: as they were
       await page.evaluate(() => navigate('plan'));
-      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor, getComputedStyle(document.querySelector('.tabbar')).borderRadius]), [false, 'rgb(255, 255, 255)', '0px'], 'Plan keeps its white page and its bar on the edge');
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor, getComputedStyle(document.documentElement).backgroundColor, getComputedStyle(document.querySelector('.tabbar')).borderRadius]), [false, 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', '0px'], 'Plan keeps its white page (behind the clock too) and its bar on the edge');
       await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
       eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'the company’s summary keeps its look');
       await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });
