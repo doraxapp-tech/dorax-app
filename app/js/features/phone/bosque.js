@@ -66,14 +66,14 @@ function bqAccounts() {
   const list = personal(), bal = a => accountBalance(S, a.id, S.today);
   if (!list.length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty"><b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
   // one logo per card, its functions together (owner, 2026-10-12: "no es necesario tener Santander de ahorro y otro de débito, son lo mismo pero
-  // diferentes funciones; condensa las cuentas"): a savings account and its balance to spend by debit are one amount, a credit card linked to its
-  // account sits under that account's amount in red (what is owed); a credit card with no account of its own is a logo of its own (cardsOf, wallet.js)
-  const money = a => sum(cardParts(a).filter(k => k.type !== 'credit').map(bal)), owed = a => { const cr = a.type === 'credit' ? null : cardCredit(a); return cr ? bal(cr) : 0; };
+  // diferentes funciones; condensa las cuentas"): a savings account and its balance to spend by debit are one logo, a credit card linked to its
+  // account is inside that account's logo; a credit card with no account of its own is a logo of its own (cardsOf, wallet.js). The most money first.
+  const money = a => sum(cardParts(a).filter(k => k.type !== 'credit').map(bal));
   const cards = cardsOf(list), rows = [...cards.filter(a => a.type !== 'credit').sort((x, y) => money(y) - money(x)), ...cards.filter(a => a.type === 'credit')];
   const mark = a => a.institution ? bankMark(a.institution) : `<span class="inst" aria-hidden="true">${icon('wallet')}</span>`;
-  const one = a => { const v = money(a), o = owed(a);
+  const one = a => {
     // a tap opens the card's panel, its functions in it (debit, credit, saved), as on Accounts (owner, same day: "cuando hago tap no me abre el menú de cuenta")
-    return `<li><button class="bq-acc" data-a="card-view" data-id="${a.id}"${a.type === 'credit' ? ' data-fn="credit"' : ''} aria-haspopup="dialog" aria-label="${esc(cardSay(a))}"><span class="bq-mark" aria-hidden="true">${mark(a)}</span><span class="bq-acc-n" aria-hidden="true">${esc(bqShort(a))}</span><span class="bq-acc-v num${v < 0 ? ' neg' : ''}" aria-hidden="true">${fmt.money(v, a.currency, { round: true })}</span>${o < 0 ? `<span class="bq-acc-v num neg" aria-hidden="true">${fmt.money(o, a.currency, { round: true })}</span>` : ''}</button></li>`; };
+    return `<li><button class="bq-acc" data-a="card-view" data-id="${a.id}"${a.type === 'credit' ? ' data-fn="credit"' : ''} aria-haspopup="dialog" aria-label="${esc(cardSay(a))}"><span class="bq-mark" aria-hidden="true">${mark(a)}</span><span class="bq-acc-n" aria-hidden="true">${esc(bqShort(a))}</span></button></li>`; };      // the logo and its name only (owner, 2026-10-12: "quita los montos debajo de los bancos"); the amounts are read aloud and are in its panel
   return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'), bqLink('#accounts', t('View all')))}<ul class="bq-accs bq-row">${rows.map(one).join('')}</ul></section>`;
 }
 

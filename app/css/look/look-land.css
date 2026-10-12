@@ -45,6 +45,7 @@
   :root.land .bar-who:focus-visible, :root.land .navbar .bell:focus-visible, :root.land .more-btn:focus-visible, :root.land .navbar .side-flip:focus-visible, :root.land .bar-bal .bb-link:focus-visible, :root.land .bar-bal .bb-eye:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
 
   /* the net balance: large and white, its cents quieter */
+  :root.land .topbar > .bar-bal { padding-top: 24px; }      /* more room above the net balance (owner, 2026-10-12: "agrega más espacio entre el saldo neto y los elementos de encima"; it was 8 px) */
   :root.land .bar-bal .bb-link small { color: #B5C2BE; font-size: 14px; font-weight: 500; }
   :root.land .bar-bal .bb-link b { color: #FFFFFF; font-weight: 600; letter-spacing: -.045em; }
   :root.land .bar-bal .bb-link b:not(.long) { font-size: clamp(30px, 9.6vw, 36px); line-height: 1.1; }      /* smaller (owner, 2026-10-12: "son muy grandes"; it was up to 46 px); whole on a 320 px phone too */
@@ -117,8 +118,6 @@
   :root.land .bq-mark .inst img { width: 40px; height: 40px; border-radius: 50%; }
   :root.land .bq-mark .inst svg { width: 20px; height: 20px; }
   :root.land .bq-acc-n { max-width: 100%; overflow: hidden; color: #0E0F0C; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .bq-acc-v { margin-top: -4px; color: #454745; font-size: 12px; white-space: nowrap; }
-  :root.land .bq-acc-v.neg { color: #B42318; }
 
   /* ---------- what there is to pay: small cards ---------- */
   :root.land .bq-bills { gap: 10px; margin-top: 4px; align-items: flex-start; }      /* each card as tall as what it says */
@@ -184,10 +183,10 @@
      names stay for a screen reader); scrolling up, or near the top, it is whole again (features/phone/bosque.js puts .bar-small on the page's root).
      Under a pointer each screen lights a soft pill behind its icon; a press sinks a little. ---------- */
   :root.land .content { padding-bottom: calc(112px + var(--safe-b)); }
-  :root.land .tabbar { left: 12px; right: 12px; bottom: calc(14px + var(--safe-b)); grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; height: 72px; padding: 0 6px; border: 0; border-radius: 999px; background: #112622; box-shadow: 0 14px 30px -14px rgba(17, 38, 34, .55);
-    transition: height 280ms var(--ease), left 280ms var(--ease), right 280ms var(--ease), bottom 280ms var(--ease); }
+  :root.land .tabbar { left: 0; right: 0; width: max-content; max-width: calc(100% - 24px); margin-inline: auto; bottom: calc(14px + var(--safe-b)); display: flex; justify-content: center; gap: 2px; align-items: center; height: 72px; padding: 0 8px; border: 0; border-radius: 999px; background: #112622; box-shadow: 0 14px 30px -14px rgba(17, 38, 34, .55);
+    transition: height 280ms var(--ease), bottom 280ms var(--ease), padding 280ms var(--ease); }
   :root.land .tabbar .fab { display: none; }
-  :root.land .tabbar a { position: relative; min-height: 60px; color: #B5C2BE; transition: color 160ms ease-out, transform 160ms ease-out, font-size 200ms var(--ease), gap 200ms var(--ease); }
+  :root.land .tabbar a { position: relative; box-sizing: border-box; min-width: 56px; min-height: 60px; padding: 2px 8px; color: #B5C2BE; transition: color 160ms ease-out, transform 160ms ease-out, font-size 200ms var(--ease), gap 200ms var(--ease), min-width 200ms var(--ease); }      /* as wide as its name, close together (owner, 2026-10-12: "reduce el espacio horizontal entre los elementos del menú") */
   :root.land .tabbar a svg { position: relative; z-index: 1; color: inherit; transition: color 160ms ease-out; }
   :root.land .tabbar a::before { content: ""; position: absolute; top: 50%; left: 50%; width: 46px; height: 30px; border-radius: 999px; background: transparent; transform: translate(-50%, calc(-50% - 8px)) scale(.6); opacity: 0; transition: transform 220ms var(--ease), opacity 160ms ease-out, background 160ms ease-out; }
   :root.land .tabbar a[aria-current="page"] { color: #FFFFFF; font-weight: 600; }
@@ -201,8 +200,8 @@
   :root.land .tabbar a:active { transform: scale(.94); }
   :root.land .tabbar :focus-visible { outline: 2px solid #B6DD62; outline-offset: -2px; }
   /* smaller while the page goes down */
-  :root.land.bar-small .tabbar { left: 64px; right: 64px; bottom: calc(10px + var(--safe-b)); height: 54px; }
-  :root.land.bar-small .tabbar a { min-height: 46px; gap: 0; font-size: 0; }
+  :root.land.bar-small .tabbar { bottom: calc(10px + var(--safe-b)); height: 54px; padding: 0 6px; }
+  :root.land.bar-small .tabbar a { min-width: 50px; min-height: 46px; gap: 0; font-size: 0; }
   :root.land.bar-small .tabbar a::before, :root.land.bar-small .tabbar a[aria-current="page"]::before { transform: translate(-50%, -50%); }
   :root.land.bar-small .tabbar a:not([aria-current]):active::before { transform: translate(-50%, -50%) scale(.94); }
   @media (hover: hover) and (pointer: fine) { :root.land.bar-small .tabbar a:not([aria-current]):hover::before { transform: translate(-50%, -50%); } }
@@ -213,7 +212,7 @@
   @media (max-width: 374px) {
     :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { width: 40px; height: 40px; }
     :root.land .bar-who .avatar { width: 40px; height: 40px; }
-    :root.land .tabbar { left: 8px; right: 8px; padding: 0 4px; }
-    :root.land.bar-small .tabbar { left: 40px; right: 40px; }
+    :root.land .tabbar { max-width: calc(100% - 12px); padding: 0 4px; gap: 0; }
+    :root.land .tabbar a { padding-inline: 6px; }
   }
 }
