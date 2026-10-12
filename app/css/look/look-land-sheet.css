@@ -1,0 +1,82 @@
+/* Dorax Finance — a panel opened from the summary "Bosque" with its light sheet (features/phone/bosque-sheet.js: bqSheet), as Transactions and the
+   account's panel (owner, 2026-10-12: "me gustó esa combinación, úsala más seguido"): the panel is forest from its top down to where its sheet starts,
+   its name and the round close button light on it, its words white (#B5C2BE when quieter), its switches lime when chosen, its main button lime and
+   the others light on the forest; the sheet is the summary's grey with a handle, rounded at the top, its lists in white cards; the buttons at the
+   foot on the same grey. The notifications, More, "You can spend", the days of freedom and a fixed cost's details. */
+@media (max-width: 920px) {
+  /* ---------- the forest part ---------- */
+  :root.land #overlay .drawer:has(.bq-sheet), :root.land #overlay .sheet:has(.bq-sheet) {
+    --ink: #F1F4EE; --ink-strong: #FFFFFF; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
+    --surface: rgba(255, 255, 255, .06); --surface-2: rgba(255, 255, 255, .08); --surface-3: rgba(255, 255, 255, .12); --well: rgba(255, 255, 255, .06); --badge: rgba(255, 255, 255, .1);
+    --track: rgba(255, 255, 255, .14); --switch-on: #B6DD62; --switch-off: rgba(255, 255, 255, .16); --field: rgba(255, 255, 255, .22); --knob: #FFFFFF; --hover-line: rgba(255, 255, 255, .45);
+    --pos: #B6DD62; --good: #B6DD62; --crit: #FF8A80; --warn: #F5C04A; --brand: #B6DD62; --brand-deep: #B6DD62; --link: #B6DD62; --focus: #B6DD62; --select: rgba(182, 221, 98, .16); --select-ink: #B6DD62;
+    border: 0; background: #112622; color: #FFFFFF;
+  }
+  :root.land #overlay .drawer:has(.bq-sheet) > header h2 { color: #FFFFFF; }
+  :root.land #overlay .drawer:has(.bq-sheet) > header [data-a="close"] { background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #FFFFFF; }
+  :root.land #overlay .drawer:has(.bq-sheet) > header [data-a="close"]:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land #overlay :is(.drawer, .sheet):has(.bq-sheet) > .grab::before { background: rgba(255, 255, 255, .35); opacity: 1; }
+  /* on the forest: the buttons that are not the main one light pills, a switch's choice lime, a field translucent */
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn),
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .1); color: #FFFFFF; }
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .12); }
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button { color: #B5C2BE; }
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button[aria-pressed="true"],
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button[aria-pressed="true"]:hover { background: #B6DD62; color: #112622; }
+
+  /* ---------- the sheet ---------- */
+  :root.land #overlay .bq-sheet {
+    --ink: #0E0F0C; --ink-strong: #0E0F0C; --ink-2: #454745; --ink-3: #5F625D; --line: #DDE3E1; --line-strong: #C9D2CF;
+    --surface: #FFFFFF; --surface-2: #F3F6F5; --surface-3: #E3E9E7; --well: #FFFFFF; --badge: #E3E9E7; --track: #E3E8DD;
+    --switch-on: #112622; --switch-off: #C3C9BD; --field: #C9D2CF; --knob: #FFFFFF; --hover-line: #8FA19C;
+    --pos: #2F5711; --good: #2F5711; --crit: #D03238; --warn: #B87A00; --brand: #112622; --brand-deep: #112622; --link: #112622; --focus: #112622; --select: #E8F3D2; --select-ink: #112622;
+    position: relative; display: flex; flex-direction: column; gap: 16px; flex: 1 0 auto; margin: 6px -16px -16px; padding: 10px 16px 24px;
+    border-radius: 30px 30px 0 0; background: #E9EDEC; color: #0E0F0C;
+  }
+  :root.land #overlay .sheet .bq-sheet { margin: 10px -12px calc(-18px - var(--safe-b)); padding: 10px 12px calc(18px + var(--safe-b)); }
+  :root.land #overlay .bq-sheet > .bq-grab { align-self: center; flex: none; width: 40px; height: 5px; margin-bottom: -4px; border-radius: 999px; background: #C3C9BD; }
+  /* the buttons at the foot of a panel with a sheet: on the sheet's grey */
+  :root.land #overlay .drawer:has(.bq-sheet) > footer {
+    --ink: #0E0F0C; --ink-strong: #0E0F0C; --ink-2: #454745; --ink-3: #5F625D; --line: #DDE3E1; --brand: #112622; --link: #112622; --focus: #112622; --crit: #D03238;
+    background: #E9EDEC; color: #0E0F0C;
+  }
+
+  /* ---------- the notifications: their switch on the forest; each group a white card in the sheet ---------- */
+  :root.land #overlay .bq-sheet .rem-group { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land #overlay .bq-sheet .rem-group > h3 { margin: 12px 0 2px; }
+  :root.land #overlay .bq-sheet .rem-group .list { border: 0; }
+  :root.land #overlay .bq-sheet > .empty, :root.land #overlay .bq-sheet > .banner { margin: 0; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+
+  /* ---------- More: the person and the search on the forest; the places in white cards in the sheet ---------- */
+  :root.land #overlay .sheet:has(.bq-sheet) .mr-me .mr-who small { color: #B5C2BE; }
+  :root.land #overlay .sheet:has(.bq-sheet) .sheet-find { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); box-shadow: none; color: #B5C2BE; }
+  :root.land #overlay .bq-sheet .mr-nav { display: flex; flex-direction: column; gap: 12px; }
+  :root.land #overlay .bq-sheet .mr-group { padding: 4px 4px 6px; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land #overlay .bq-sheet .mr-group + .mr-group, :root.land #overlay .bq-sheet .mr-nav + .mr-help { margin-top: 0; padding-top: 4px; border-top: 0; }
+  :root.land #overlay .bq-sheet .mr-nav > .mr-group:first-child .mr-h, :root.land #overlay .bq-sheet .mr-h { margin-top: 10px; }
+  :root.land #overlay .bq-sheet .mr-help { padding: 4px; }
+  :root.land #overlay .bq-sheet .mr-acts { margin-top: 2px; }
+
+  /* ---------- "You can spend": the figure and the bar on the forest; how it is worked out in the sheet, in a white card ---------- */
+  :root.land #overlay .fu-view > .fu-big, :root.land #overlay .fu-view > .fu-say { color: #FFFFFF; }
+  :root.land #overlay .fu-view > .fu-say { color: #B5C2BE; }
+  :root.land #overlay .bq-sheet .fu-h { margin: 6px 0 -6px; }
+  :root.land #overlay .bq-sheet .fu-steps { padding: 4px 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+
+  /* ---------- the days of freedom: the figure, the sentence and the track on the forest; how it is worked out in the sheet ---------- */
+  :root.land #overlay .rw-view .rw-in, :root.land #overlay .rw-view .card-b { background: none; border: 0; padding: 0; }
+  :root.land #overlay .rw-view .rw-say b, :root.land #overlay .rw-view .rw-cheer { color: #FFFFFF; }
+  :root.land #overlay .bq-sheet > .note { margin: 0; padding: 16px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #454745; line-height: 1.5; }
+
+  /* ---------- a fixed cost: what it is, this month, the year and its buttons on the forest; its payments in the sheet ---------- */
+  :root.land #overlay .bq-sheet .lv-pays { padding: 4px 14px 8px; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land #overlay .bq-sheet .lv-pays-h { display: block; margin: 12px 0 2px; color: #0E0F0C; font-size: 17px; font-weight: 600; }
+  :root.land #overlay .bq-sheet .lv-pays .list { border: 0; }
+  /* each payment: the account and what it was on top, the date under it, the amount and its button on the right */
+  :root.land #overlay .bq-sheet .lv-pays .li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "g n b" "w n b"; align-items: center; column-gap: 10px; row-gap: 2px; min-height: 60px; padding: 8px 0; }
+  :root.land #overlay .bq-sheet .lv-pays .li .grow { grid-area: g; overflow: hidden; color: #0E0F0C; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land #overlay .bq-sheet .lv-pays .li .grow .muted { font-weight: 400; }
+  :root.land #overlay .bq-sheet .lv-pays .li .when { grid-area: w; width: auto !important; color: #5F625D; font-size: 13px; }
+  :root.land #overlay .bq-sheet .lv-pays .li .num { grid-area: n; color: #0E0F0C; font-size: 15px; font-weight: 600; }
+  :root.land #overlay .bq-sheet .lv-pays .li .iconbtn { grid-area: b; }
+}

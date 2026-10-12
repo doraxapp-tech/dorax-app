@@ -79,7 +79,7 @@ function remindItemIn(r) {
 function remindersDrawer(d) {
   const tab = d.tab === 'news' ? 'news' : 'rem', fresh = d.fresh || new Set(), rems = activeReminders().length;
   const tabs = `<div class="bell-tabs">${seg('bell-tab', [['rem', t('Reminders') + (rems ? ` · ${rems}` : '')], ['news', t('Updates') + (fresh.size ? ` · ${fresh.size}` : '')]], tab, t('Notifications'))}</div>`;
-  if (tab === 'news') return `<div class="body">${tabs}${inboxPart(fresh)}</div>
+  if (tab === 'news') return `<div class="body">${tabs}${bqSheet(inboxPart(fresh))}</div>
   <footer><a class="btn sm ghost spacer" href="#profile" data-a="remind-go" data-route="profile">${t('Reminder settings')}</a></footer>`;
   return remindersBody(d, tabs);
 }
@@ -87,14 +87,14 @@ function remindersBody(d, tabs) {
   const all = bellItems().filter(remindOnSide), on = all.filter(r => !snoozedNow(r)), off = all.length - on.length, n = S.user.notify, lead = remindCfg().lead, other = otherSideReminders();
   const part = (title, rows) => rows.length ? `<div class="rem-group"><h3>${title}</h3>${rows.map(remindItem).join('')}</div>` : '';
   const next = nextOnSide(lead, 4), quiet = !n.bills && !n.close && !n.summary && n.goals === false && n.pay === false && n.journey === false && n.budgets === false, timed = r => r.kind === 'bill' || r.kind === 'card' || r.kind === 'debt';
-  return `<div class="body">${tabs}
+  return `<div class="body">${tabs}${bqSheet(`
     ${quiet ? banner('warn', `<b>${t('Reminders are switched off.')}</b> ${t('Turn on what you want to hear about in your profile.')}`) : ''}
     ${on.length ? '' : `<div class="empty" style="padding:22px 0"><b>${t('Nothing to chase today')}</b>${t('Bills show up here as their due day gets close, when they are due and when they are late.')}</div>`}
     ${part(t('To fix'), on.filter(r => r.kind === 'issue'))}${part(t('Late'), on.filter(r => timed(r) && r.when === 'late'))}${part(t('Pay day'), on.filter(r => r.kind === 'pay'))}${part(t('Due today'), on.filter(r => timed(r) && r.when === 'today'))}${part(t('Coming up'), on.filter(r => timed(r) && r.when === 'soon'))}
     ${part(t('Spending limits'), on.filter(r => r.kind === 'budget'))}${part(t('Journey'), on.filter(r => r.kind === 'jmark' || r.kind === 'sprint'))}${part(t('Last month'), on.filter(r => r.kind === 'past'))}${part(t('Savings'), on.filter(r => r.kind === 'handout'))}${part(t('Statements to send'), on.filter(r => r.kind === 'close'))}${part(t('Month closed'), on.filter(r => r.kind === 'summary'))}${part(t('To set up'), on.filter(r => r.kind === 'nodue'))}
     ${off ? `<div class="row"><span class="note">${tn(off, '{n} reminder put off until tomorrow.', '{n} reminders put off until tomorrow.')}</span><button class="btn sm ghost" data-a="remind-unsnooze">${t('Show again')}</button></div>` : ''}
     ${other ? `<div class="row rem-other"><span class="note">${UI.space === 'business' ? tn(other, 'The household has {n} reminder of its own.', 'The household has {n} reminders of its own.') : tn(other, 'The company has {n} reminder of its own.', 'The company has {n} reminders of its own.')}</span><button class="btn sm ghost" data-a="space" data-v="${UI.space === 'business' ? 'personal' : 'business'}">${UI.space === 'business' ? t('Switch to Household') : t('Switch to Company')}</button></div>` : ''}
-    ${next.length ? `<div class="rem-group"><h3>${t('Next reminders')}</h3><div class="list">${next.map(x => `<div class="li"><span class="when">${fmt.date(x.sendDate)}</span><span class="grow">${esc(x.name)} <span class="muted">· ${t('due {date}', { date: fmt.date(x.date) })}</span></span><span class="num">${fmt.money(x.amount, x.cur || CUR)}</span></div>`).join('')}</div></div>` : ''}
+    ${next.length ? `<div class="rem-group"><h3>${t('Next reminders')}</h3><div class="list">${next.map(x => `<div class="li"><span class="when">${fmt.date(x.sendDate)}</span><span class="grow">${esc(x.name)} <span class="muted">· ${t('due {date}', { date: fmt.date(x.date) })}</span></span><span class="num">${fmt.money(x.amount, x.cur || CUR)}</span></div>`).join('')}</div></div>` : ''}`)}
   </div>
   <footer><button class="btn sm" data-a="due-days" data-back="1" data-book="${pageBookKey()}">${icon('calendar')}${t('Due days')}</button><button class="btn sm ghost" data-a="calendar-file">${icon('download')}${t('Calendar file')}</button><a class="btn sm ghost spacer" href="#profile" data-a="remind-go" data-route="profile">${t('Reminder settings')}</a></footer>`;
 }

@@ -194,9 +194,17 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#overlay .bq-pad')).display, getComputedStyle(document.querySelector('#overlay .bq-save')).display]), ['none', 'flex'], 'v190: while a word is typed the keypad steps aside, “Save” stays'); await page.evaluate(() => document.getElementById('d-merchant').dispatchEvent(new Event('change', { bubbles: true })));
       await page.click('#overlay .tx-pick'); await page.click('#overlay .bq-save'); await page.waitForTimeout(250);
       ok(await page.evaluate(() => !UI.drawer && S.transactions.some(x => x.merchant === 'Cena QC' && x.amount === -9250)), 'saved: an expense of R$ 92,50');
-      await page.click('.navbar .bell'); await page.waitForTimeout(200);
-      eq(await page.evaluate(() => { const dr = document.querySelector('#overlay .drawer'), p = dr.querySelector('.btn.primary'); return [getComputedStyle(dr).backgroundColor, p ? getComputedStyle(p).backgroundColor : 'rgb(182, 221, 98)']; }), ['rgb(233, 237, 236)', 'rgb(182, 221, 98)'], 'the notifications, opened from it, in its look: the grey sheet, the main button lime');
-      await page.evaluate(() => A.close());
+      // v192 ("¿este es el nuevo diseño?", with the notifications, More, "You can spend", the days of freedom and a fixed cost): each as Transactions
+      const split = () => page.evaluate(() => { const box = document.querySelector('#overlay .drawer, #overlay .sheet'), sh = box && box.querySelector('.bq-sheet'), cs = el => getComputedStyle(el);
+        return box && sh ? [cs(box).backgroundColor, cs(sh).backgroundColor, cs(sh).borderTopLeftRadius, sh.getBoundingClientRect().left <= box.getBoundingClientRect().left + 1] : null; });
+      for (const [sel, name] of [['.navbar .bell', 'the notifications'], ['.navbar .more-btn', 'More'], ['#free-open', '"You can spend"'], ['#runway-open', 'the days of freedom'], ['#todo .bq-bill.first', 'a fixed cost']]) {
+        await page.click(sel); await page.waitForTimeout(250);
+        eq(await split(), ['rgb(17, 38, 34)', 'rgb(233, 237, 236)', '30px', true], `${name}, opened from it: forest at the top, the rest in the grey sheet that rises over it, edge to edge`);
+        await page.evaluate(() => A.close()); await page.waitForTimeout(250);
+      }
+      await page.evaluate(() => navigate('plan')); await page.click('.navbar .bell'); await page.waitForTimeout(250);
+      ok(await page.evaluate(() => !document.querySelector('#overlay .bq-sheet')), 'from Plan, the notifications as they were');
+      await page.evaluate(() => { A.close(); navigate('dashboard'); }); await page.waitForTimeout(250);
       // ---------- 7. Transactions, "Movimientos · Bosque" (v188) ----------
       await page.click('.tabbar a[href="#transactions"]'); await page.waitForTimeout(300);
       const moves = () => page.evaluate(() => { const cs = el => el ? getComputedStyle(el) : {}, r = el => el.getBoundingClientRect(), top = document.querySelector('.bq-txtop'), sheet = document.querySelector('.bq-txsheet');

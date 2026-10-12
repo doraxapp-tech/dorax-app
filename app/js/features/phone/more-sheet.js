@@ -24,8 +24,8 @@ function moreSheet() {
   const me = `<a class="mr-me" href="#profile"${UI.route === 'profile' ? ' aria-current="page"' : ''}>${avatar()}<span class="mr-who"><b>${esc(S.user.name || t('Profile'))}</b><small>${esc(S.user.email || '')}</small></span>${moreChev()}</a>`;
   return `<div class="scrim" data-a="close"></div><div class="sheet more" role="dialog" aria-label="${t('More')}"><div class="grab" aria-hidden="true"></div>${me}
     <button class="sheet-find" data-a="find">${icon('search')}<span>${t('Search')}</span></button>
-    <nav class="nav mr-nav">${sheetNav()}</nav>
+    ${bqSheet(`<nav class="nav mr-nav">${sheetNav()}</nav>
     <div class="nav-group mr-group mr-help"><button class="mr-row" data-a="help"><span class="mr-ic">${icon('help')}</span><span>${t('Help')}</span>${moreChev()}</button></div>
     <div class="mr-acts">${hasCompany() ? '' : `<button class="mr-btn sheet-co" data-a="co-open">${t('Open a company account')}</button>`}<button class="mr-btn out" data-a="logout">${t('Log out')}</button></div>
-    <p class="mr-legal"><button class="linkbtn" data-a="legal" data-v="terms">${t('Terms of use')}</button> · <button class="linkbtn" data-a="legal" data-v="privacy">${t('Privacy policy')}</button></p></div>`;
+    <p class="mr-legal"><button class="linkbtn" data-a="legal" data-v="terms">${t('Terms of use')}</button> · <button class="linkbtn" data-a="legal" data-v="privacy">${t('Privacy policy')}</button></p>`)}</div>`;
 }

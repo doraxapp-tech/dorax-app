@@ -175,6 +175,6 @@ function runwayPhone(r, co) {
 /** Its details: the whole card as a computer shows it, the explanation, and What if…? and Adjust. */
 function runwayViewDrawer() {
   const r = runway(B(), B().today, BCUR());
-  return `<div class="body rw-view">${runwayCard(true)}<p class="note">${runwayTip(inCompany())}</p></div>
+  return `<div class="body rw-view">${runwayCard(true)}${bqSheet(`<p class="note">${runwayTip(inCompany())}</p>`)}</div>
   <footer>${r.days !== null ? `<button class="btn primary" data-a="whatif">${t('What if…?')}</button>` : ''}<button class="btn${r.days === null ? ' primary' : ''}" data-a="runway-edit">${t('Adjust')}</button></footer>`;
 }
