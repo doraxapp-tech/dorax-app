@@ -21,23 +21,23 @@ const { open, ok, eq, done } = require('./pw.js');
     const mid = await page.evaluate(() => { const g = document.querySelector('#overlay .tx-kind'), th = g.querySelector('.glide-thumb'), to = g.querySelector('[data-v="transfer"]'), r = el => el.getBoundingClientRect();
       return th ? [getComputedStyle(th).backgroundColor, r(th).left < r(to).left - 4, getComputedStyle(to).backgroundColor, g.classList.contains('glide-on')] : null; });
     eq(mid, [want, true, 'rgba(0, 0, 0, 0)', true], `${name}: the pressed pill slides toward the new choice (its colour, on its way), the new button’s own pill hidden while it moves`);
-    await page.waitForTimeout(1800);
+    await page.waitForTimeout(2600);
     eq(await page.evaluate(() => { const g = document.querySelector('#overlay .tx-kind'); return [!!g.querySelector('.glide-thumb'), g.classList.contains('glide-on'), getComputedStyle(g.querySelector('[aria-pressed="true"]')).backgroundColor, UI.drawer.draft.type]; }),
       [false, false, want, 'transfer'], `${name}: then the switch is as before, the new choice pressed`);
     ok(await page.evaluate(() => document.querySelector('#overlay .tx-amount').getAnimations().length === 0), `${name}: the fade of what follows is over`);
     await page.click('#overlay .tx-kind [data-v="expense"]'); await page.waitForTimeout(40);
     ok(await page.evaluate(() => [...document.querySelectorAll('#overlay .tx-amount, #overlay .tx-grid')].some(el => el.getAnimations().length > 0)), `${name}: what the switch shows after it fades in`);
-    await page.waitForTimeout(1800);
+    await page.waitForTimeout(2600);
 
     // ---------- 3. More options ----------
     await page.click('#overlay .tx-more'); await page.waitForTimeout(120);
     const opening = await page.evaluate(() => { const b = document.getElementById('tx-more-box'); return [b.hidden, Math.round(b.getBoundingClientRect().height)]; });
-    await page.waitForTimeout(1800);
+    await page.waitForTimeout(2600);
     const open1 = await page.evaluate(() => { const b = document.getElementById('tx-more-box'); return [b.hidden, Math.round(b.getBoundingClientRect().height), b.style.overflow, document.activeElement.classList.contains('tx-more'), document.querySelector('.tx-more').getAttribute('aria-expanded')]; });
     ok(!opening[0] && opening[1] < open1[1], `${name}: “More options” slides open (${opening[1]} px on its way to ${open1[1]})`);
     eq(open1.slice(2), ['', true, 'true'], `${name}: open, the focus stays on it`);
     await page.click('#overlay .tx-more'); await page.waitForTimeout(60);
-    await page.click('#overlay .tx-more', { force: true }); await page.waitForTimeout(1800);
+    await page.click('#overlay .tx-more', { force: true }); await page.waitForTimeout(2600);
     eq(await page.evaluate(() => [document.getElementById('tx-more-box').hidden, UI.drawer.more, document.querySelector('.tx-more').getAttribute('aria-expanded')]), [true, false, 'false'], `${name}: it slides shut; a second click while it moves is let go`);
     await page.evaluate(() => A.close()); await page.waitForTimeout(1500);
 
@@ -45,7 +45,7 @@ const { open, ok, eq, done } = require('./pw.js');
     await page.evaluate(() => navigate('transactions')); await page.waitForTimeout(1500);
     await page.click('.bq-kind [data-v="income"]'); await page.waitForTimeout(60);
     ok(await page.evaluate(() => !!document.querySelector('.bq-kind .glide-thumb')), `${name}: Transactions’ switch glides too`);
-    await page.waitForTimeout(1800);
+    await page.waitForTimeout(2600);
     eq(await page.evaluate(() => [UI.tx.type, !document.querySelector('.glide-thumb')]), ['income', true], `${name}: and lands on its choice`);
     eq(errors, [], `${name}: no error in the console`); await browser.close();
   }

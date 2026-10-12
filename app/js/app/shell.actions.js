@@ -31,7 +31,6 @@ const SHELL_ACTIONS = {
     if (was !== UI.space) sideShift(el, UI.space);      // another room, not a switch flipped (app/motion.js)
   },
   'space-cur'(ds) { if (companyCurrencies(S).includes(ds.v)) setPageBook(bookKeyOf(ds.v)); UI.drawer = null; render(); },
-  'rail-toggle'() { UI.railShut = !railShut(); try { localStorage.setItem('dorax-rail', UI.railShut ? 'shut' : 'open'); } catch (e) { /* private window: kept for this visit only */ } railShape(); if (typeof hideTip === 'function') hideTip(); },
   month(ds) { monthGo(addMonths(S.month, +ds.d)); },
   'set-month'(ds) { monthGo(ds.ym); },
   'form-more'(ds, b) { const d = UI.drawer; if (!d || (b && b._fold)) return; const was = !!d.more; d.more = !was; foldGo(b || document.querySelector('#overlay .form-more'), was, () => { renderOverlayKeepFocus(); const el = document.querySelector('#overlay .form-more'); if (el) el.focus({ preventScroll: true }); }); },      // it slides (ui/glide.js)

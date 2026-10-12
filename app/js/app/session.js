@@ -36,18 +36,22 @@ async function openAccount() {
   }
   if (!accountShape(r.row.data)) { WHO = null; return showGate('offline', { error: t('This account could not be opened: what the server keeps for it cannot be read by this version of the app. Nothing was changed. Write to us through the contact form.'), fixed: true }); }
   adoptState(r.row.data, r.row.rev); rememberLang(S.settings.lang);
-  startSession(S.user.name ? t('Good to see you again, {name}.', { name: firstName(S.user.name) }) : t('Good to see you again.'));
+  startSession(S.user.name ? t('Good to see you again, {name}.', { name: firstName(S.user.name) }) : t('Good to see you again.'), true);      // true: on the computer's summary, the greeting of the hour says it
 }
 /** What an account has to have for the screens to draw it. The same check a backup file goes through before it is restored. */
 const accountShape = st => !!(st && Array.isArray(st.accounts) && Array.isArray(st.transactions) && st.plan && Array.isArray(st.plan.lines) && st.pay && Array.isArray(st.goals) && Array.isArray(st.goalMoves) && st.settings && st.user && st.fii && Array.isArray(st.categories));
 /** The account in S goes on screen. A new account (the first-time setup just ended) is written to the server here for the first time. */
-function startSession(message) {
+function startSession(message, hour) {
   const u = SERVER.user; if (!u) return leaveSession();
   WHO = u.id; S.user.email = u.email;
   UI.session = { id: u.id, email: u.email, since: localDay(u.last_sign_in_at) || S.today };
   S.month = ymOf(S.today); resetUi(); UI.pub = freshPub();      // an account opens on the current month: that is where what needs doing is
   let h = ''; try { h = location.hash.slice(1); } catch (e) { /* a sandboxed frame has no address to read */ }
-  navigate(h); toast(message); cheerBaseline(); saveNow();
+  // the computer's summary greets the person over the balance, once (features/phone/bosque-desk.js: bqHello): coming back, the greeting of the hour;
+  // the first time (the setup just ended), its own words; anywhere else the strip says it
+  clearTimeout(UI.helloT); UI.helloT = 0; UI.hello = !isPhone() && UI.space !== 'business' && !lookOld() ? (hour ? true : message || true) : false;
+  navigate(h); if (UI.route !== 'dashboard' || !document.getElementById('bq-hello')) UI.hello = false;
+  if (!UI.hello) toast(message); cheerBaseline(); saveNow();
   LOCK.touch = Date.now(); guardSeen(true); if (LOCK.on) renderLock();      // this device was used just now (features/lock); a closed screen now knows the name
 }
 /** The day of a moment the server gives (in universal time), as it was on this device. */

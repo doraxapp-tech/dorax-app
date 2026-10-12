@@ -2,7 +2,7 @@
    de ordenador", "Todo, como el teléfono", the side bar "Verde bosque"; then v201, the same day: "lo que hiciste fue usar el mismo layout del celular…
    claramente se ve que es una versión agrandada de celular, no una versión web").
    So a computer keeps the phone's colours and shapes but its own layout, made for a wide screen and a pointer:
-     - the summary's forest top is a dashboard's header: the greeting and the household's net balance, the month's four figures side by side under it
+     - the summary's forest top is a dashboard's header: the household's net balance (the greeting only as the person comes in, v202), the month's four figures side by side under it
        (income against the plan, spending against the month before, what is left over, what is still to pay; each opens how it is worked out), "You can
        spend" at the right, and a row of buttons (expense, income, transfer, more, the order of the parts). Under it, on the grey, the computer's parts
        in the order the person chose ("Reorder the dashboard"): the cards, the days of freedom, the insight, what is due with its buttons, the goals,
@@ -64,15 +64,30 @@ function bqDeskHero(d) {
     + stat('spending', t('Spending'), fmt.money(m.expenses, CUR), versus(m.expenses, p.expenses, vsLabel, false))
     + stat('left', t('Left over'), m.income ? fmt.money(m.saved, CUR) : '—', m.income ? (m.rate === null ? t('Income minus spending') : t('{pct} of income', { pct: fmt.pct(m.rate) })) : t('No income recorded yet'), m.income && m.saved < 0 ? 'neg' : '')
     + stat('unpaid', t('Still to pay'), unpaid.length ? fmt.money(sum(unpaid.map(x => x.toPay)), CUR) : '—', unpaid.length ? tn(unpaid.length, '{n} bill', '{n} bills') + (nextDue ? ' · ' + t('next on {date}', { date: fmt.date(nextDue.dueDate) }) : '') : prog.some(x => x.bill && x.planned) ? t('Every bill of the month is paid') : '');
-  return `<section class="bq-dhero"><div class="bq-dh-l">${greeting()}<div class="bq-dbal">${barBalance()}</div></div>${inProgress ? `<div class="bq-dh-r">${bqFree()}</div>` : ''}
+  return `<section class="bq-dhero"><div class="bq-dh-l">${UI.hello ? bqHello() : ''}<div class="bq-dbal">${barBalance()}</div></div>${inProgress ? `<div class="bq-dh-r">${bqFree()}</div>` : ''}
     <div class="bq-dkpis" role="group" aria-label="${esc(fmt.month(ym))}">${figs}</div>${inProgress ? bqDeskActs() : dashOrderBtn() ? `<div class="bq-dacts">${dashOrderBtn()}</div>` : ''}</section>`;
+}
+/** The greeting, once (v202, owner, 2026-10-12: "el saludo en ordenador quítalo y muéstralo una sola vez cuando el usuario entra a la webapp;
+    dejarlo fijo no cumple ningún objetivo"): over the balance the moment the person comes in (app/session.js: startSession, in place of the strip
+    that said "Good to see you again"); a few seconds later it folds away and the balance takes its place. Not again until they next come in. */
+function bqHello() {
+  const own = typeof UI.hello === 'string';      // the first time in (the setup just ended): its own words, a little longer
+  if (!UI.helloT) UI.helloT = setTimeout(bqHelloGo, own ? 7000 : 4500);
+  return own ? `<header class="hello bq-hello" id="bq-hello"><h2>${esc(UI.hello)}</h2></header>` : greeting().replace('<header class="hello">', '<header class="hello bq-hello" id="bq-hello">');
+}
+function bqHelloGo() {
+  UI.helloT = 0; UI.hello = false; const el = $('bq-hello'); if (!el) return;
+  if (reducedMotion() || !el.animate) return el.remove();
+  const cs = getComputedStyle(el); el.style.overflow = 'hidden';
+  el.animate([{ opacity: 1, height: el.offsetHeight + 'px', marginBottom: cs.marginBottom }, { opacity: 0, height: '0px', marginBottom: '0px' }], { duration: 420, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'forwards' }).onfinish = () => el.remove();
 }
 function bqHomeDesk(d) {
   const { ym, inProgress, fresh } = d; bqDeskLast = bqWorkW();
   // the computer's parts, in the order the person chose (pcParts: features/phone/phone.summary.js); "You can spend" and the figures are in the header
   // v202 (owner: "trae de vuelta las tarjetas de por pagar como el celular"): what there is to pay as the phone's cards, and the goals one card each,
-  // each a row across the page; the rest three to a row
-  const body = pcParts({ accounts: inProgress && walletOn() ? walletStack() : '', free: '', runway: inProgress ? runwayCard() : '', insight: inProgress ? insightCard() : '', todo: inProgress ? bqDeskTodo() : '',
+  // each a row across the page; the rest three to a row. No accounts' cards (owner, same day: "quita esta sección también de resumen"): the
+  // accounts are the round logos in the header
+  const body = pcParts({ accounts: '', free: '', runway: inProgress ? runwayCard() : '', insight: inProgress ? insightCard() : '', todo: inProgress ? bqDeskTodo() : '',
     goals: inProgress ? bqDeskGoals() : '', planned: fresh ? plannedMonthCard(ym) : '', categories: fresh ? '' : d.catCard, trend: fresh ? '' : d.trendCard, fii: fresh ? '' : d.fii, recent: fresh ? '' : d.recentCard }, ['todo', 'goals']);
   return `${bqDeskHero(d)}${firstSteps()}${inProgress ? monthCloseCard() : ''}${inProgress ? '' : d.pastNote}${companyAsk()}${d.openNote}${body}`;
 }

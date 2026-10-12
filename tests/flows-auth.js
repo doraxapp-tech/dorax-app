@@ -15,6 +15,7 @@ let LIVE = null;
   const go = async v => { await page.evaluate(v => A['pub-go']({ v }), v); };
   const errOf = id => page.evaluate(id => { const e = document.getElementById(id + '-err'); return e ? e.innerText : null; }, id);
   const toastText = () => page.evaluate(() => document.getElementById('toast-root').innerText);
+  const greetText = () => page.evaluate(() => document.getElementById('toast-root').innerText + ' ' + ((document.getElementById('bq-hello') || {}).textContent || ''));      // welcome back: the strip, or on the computer's summary the greeting over the balance (v202)
   const idle = () => page.waitForFunction(() => !(UI.pub && UI.pub.busy) && !SYNC.busy && !SYNC.timer);
   const inApp = () => page.waitForFunction(() => typeof UI !== 'undefined' && !!UI.session);
   const saved = async () => { await page.evaluate(() => saveNow()); await idle(); };
@@ -138,7 +139,7 @@ let LIVE = null;
   await page.fill('#au-email', 'nobody@example.org'); await page.fill('#au-pass', 'Whatever123'); await page.click('[data-a="auth-login"]'); await idle();
   eq(await txt('.banner.crit'), wrong, 'unknown email gets the same answer as a wrong password');
   await page.fill('#au-email', 'marta@example.org'); await page.fill('#au-pass', 'NovaSenha77'); await page.keyboard.press('Enter'); await inApp();
-  ok(/Good to see you again, Marta\./.test(await toastText()), 'login with the new password (Enter): welcome back, by first name (the profile holds "Marta Lima")');
+  ok(/(Good to see you again|Good (morning|afternoon|evening)), Marta\./.test(await greetText()), 'login with the new password (Enter): welcome back, by first name (the profile holds "Marta Lima")');
   eq(await page.evaluate(() => S.user.name), 'Marta Lima', 'the account comes back as it was left');
 
   // the same email cannot sign up twice
@@ -264,7 +265,7 @@ let LIVE = null;
   await page.fill('#pf-pw-new', 'AnaSenha2026'); await page.click('[data-a="pw-save"]'); await page.waitForFunction(() => !UI.pw);
   ok(/Email and password/.test(await txt('#view')), 'now both ways in'); ok(/Password saved/.test(await toastText()), 'password added');
   await logout(); await login('ana.g@example.org', 'AnaSenha2026'); await inApp(); ok(true, 'a Google account logs in with the password it added');
-  await logout(); await go('login'); await page.click('[data-a="auth-google"]'); await inApp(); ok(/Good to see you again, Ana\./.test(await toastText()), 'Google again: straight into the same account, greeted by first name');
+  await logout(); await go('login'); await page.click('[data-a="auth-google"]'); await inApp(); ok(/(Good to see you again|Good (morning|afternoon|evening)), Ana\./.test(await greetText()), 'Google again: straight into the same account, greeted by first name');
   await logout();
   // Google meets an email that already has a password account: one account, two ways in
   await page.evaluate(() => DORAX_PREVIEW.set({ google: { email: 'marta.lima@example.org', name: 'Marta via Google' } }));

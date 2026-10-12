@@ -55,9 +55,6 @@
     border-color: var(--bq-line); border-radius: 22px; background: var(--bq-card); color: var(--bq-ink);
   }
   :root.land .rail .umenu .seg button[aria-pressed="true"] { background: var(--bq-pick-bg); color: var(--bq-pick-ink); }
-  :root.land .rail-toggle { border-color: rgba(255, 255, 255, .2); background: #112622; color: #B5C2BE; }
-  :root.land .rail-toggle:hover { border-color: rgba(255, 255, 255, .45); color: #FFFFFF; }
-  :root.land .rail-toggle:focus-visible { outline-color: #B6DD62; }
 
   /* ---------- the top bar: one forest row, the page's grey rising under it ---------- */
   :root.land .topbar {

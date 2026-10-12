@@ -28,6 +28,7 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-ways');
   eq(await page.locator('.ob-way').count(), 3, 'setup: three ways on (plan the month, fixed costs, a spreadsheet)');
   await page.click('.ob-foot [data-a="ob-finish"]'); await page.waitForFunction(() => !!UI.session);
+  const welcomed = await page.evaluate(() => [(document.getElementById('bq-hello') || {}).innerText || '', document.getElementById('toast-root').innerText]);      // v202: on the computer's summary the welcome is over the balance, once
   await page.click('#co-ask [data-a="co-answer"][data-v="no"]');      // the company is asked about on the dashboard now
   // the account and the first fixed cost are added in the app now, the way the dashboard's first steps offer them
   await page.click('#first-steps [data-a="edit-account"]'); await page.fill('#a-name', 'Conta principal'); await page.fill('#a-open', '2.500,00'); await page.click('[data-a="save-account"]');
@@ -45,7 +46,7 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   eq(st.goals, [['Viagem', 600000, 100000, 50000]], 'setup: goal with target, already saved and monthly amount');
   eq(st.moves, [[100000, true]], 'setup: what was already saved is a starting balance, not a contribution of this month');
   ok(st.goalStatus[0] !== 'ahead' && st.goalStatus[0] !== 'behind', 'setup: a goal with money already saved reads neither ahead nor behind on day one', st.goalStatus);
-  ok(await page.locator('.hello').isVisible() && /Bia/.test(await page.locator('.hello').innerText()), 'setup: dashboard greets by name');
+  ok(/Welcome, Bia\. /.test(welcomed[0]) && !/Welcome/.test(welcomed[1]), 'setup: the summary welcomes by name, over the balance (its own words, not a strip)', welcomed);
   const dash = await page.locator('#view').innerText();
   ok(/Aluguel/.test(dash) && /Viagem/.test(dash), 'setup: the dashboard opens with the person’s own bill and goal', dash.slice(0, 200));
   ok(!/NaN|undefined/.test(dash), 'setup: no broken value on the first dashboard');

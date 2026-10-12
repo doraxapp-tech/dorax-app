@@ -122,6 +122,7 @@ async function project(route) {
   await page.addInitScript(() => { window.DORAX_LANG = 'en'; document.addEventListener('securitypolicyviolation', e => console.error('Refused to: ' + e.violatedDirective + ' ' + e.blockedURI)); });
   const txt = sel => page.locator(sel).first().innerText();
   const toastText = () => page.evaluate(() => document.getElementById('toast-root').innerText);
+  const greetText = () => page.evaluate(() => document.getElementById('toast-root').innerText + ' ' + ((document.getElementById('bq-hello') || {}).textContent || ''));      // welcome back: the strip, or on the computer's summary the greeting over the balance (v202)
   const idle = () => page.waitForFunction(() => typeof UI !== 'undefined' && !(UI.pub && UI.pub.busy) && !SYNC.busy && !SYNC.timer);
   const inApp = () => page.waitForFunction(() => typeof UI !== 'undefined' && !!UI.session);
   const saved = async () => { await page.evaluate(() => saveNow()); await idle(); };
@@ -185,7 +186,7 @@ async function project(route) {
   eq(await page.evaluate(() => Object.keys(localStorage).filter(k => /auth-token/.test(k)).length), 0, 'and this browser forgets the login');
   await login('rui@example.org', 'RuiSenha2026'); ok(/Email or password is not right/.test(await txt('.banner.crit')), 'the old password: "invalid credentials" is read');
   M.next = { status: 429, code: 'over_request_rate_limit', message: 'Request rate limit reached' }; await login('rui@example.org', 'RuiNova2026'); ok(/Too many tries/.test(await txt('.banner.crit')), 'too many tries: the server’s limit is said in words');
-  await login('rui@example.org', 'RuiNova2026'); await inApp(); ok(/Good to see you again, Rui\./.test(await toastText()), 'login: the account opens, greeted by first name');
+  await login('rui@example.org', 'RuiNova2026'); await inApp(); ok(/(Good to see you again|Good (morning|afternoon|evening)), Rui\./.test(await greetText()), 'login: the account opens, greeted by first name');
   q = last('POST', '/auth/v1/token'); eq([q.query.grant_type, q.body.email, q.apikey], ['password', 'rui@example.org', KEY], 'login sends the email and password with the public key');
 
   // 5. forgotten password

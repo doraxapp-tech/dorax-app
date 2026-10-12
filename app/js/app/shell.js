@@ -49,12 +49,12 @@ function railFlip() {
   const co = UI.space === 'business', say = co ? t('Switch to Household') : t('Switch to Company');
   return `<button class="iconbtn rail-flip" data-a="space" data-v="${co ? 'personal' : 'business'}" aria-label="${say}" data-tip="${say}">${icon('swap')}</button>`;
 }
-/** The menu at the side opens and closes (owner, 2026-10-08: "add a button to open and close the sidebar"). Closed, it is a narrow column of icons
-    (each one's name in a tip), so every screen is still one click away. Kept on this device (a computer's own preference). */
-const railShut = () => { if (UI.railShut === undefined) { try { UI.railShut = localStorage.getItem('dorax-rail') === 'shut'; } catch (e) { UI.railShut = false; } } return UI.railShut; };
+/** The menu at the side is always open (v202, owner, 2026-10-12: "quita el botón que estás colocando al lado del nombre del tab, como para ir
+    atrás, no es necesario"). From 2026-10-08 to then a round button on its edge, beside the screen's name, closed it to a column of icons; it read
+    as a way back. A device that had it closed finds it open. */
+const railShut = () => false;
 function railShape() {
-  const shut = railShut(), app = document.querySelector('.app'), b = $('rail-toggle'); if (app) app.classList.toggle('rail-shut', shut);
-  if (b) { const say = shut ? t('Open the menu') : t('Close the menu'); b.setAttribute('aria-expanded', String(!shut)); b.setAttribute('aria-label', say); b.dataset.tip = say; b.innerHTML = icon(shut ? 'right' : 'left'); }
+  const shut = railShut(), app = document.querySelector('.app'); if (app) app.classList.toggle('rail-shut', shut);
   // closed, each icon says what it is when pointed at; open, the words are there and no tip is needed
   document.querySelectorAll('#rail .nav a, #rail .findbtn, #rail .who').forEach(e => { if (shut) e.dataset.tip = e.classList.contains('who') ? (S.user.name || S.user.email || '') : e.classList.contains('findbtn') ? t('Search') + ' (F)' : e.querySelector('span').textContent; else delete e.dataset.tip; });
 }
