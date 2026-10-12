@@ -1,0 +1,45 @@
+/* Dorax Finance — an account's panel, opened from the summary "Bosque" (owner, 2026-10-12: "y actualiza el menú de cuenta al estilo nuevo", after
+   asking that a tap on an account's logo open it). The same panel as on Accounts (features/accounts/wallet.js: cardViewDrawer), in the summary's look
+   while it is open over it (a phone, the light theme, the household's side: :root.land, app/shell.js):
+     - the sheet is the summary's cool grey; its name and the round close button as the summary's headings and buttons;
+     - the account's details (its kind, the main account switch, the limit used, how many transactions) in one white card with a hairline;
+     - what can be done with it as the summary's round buttons in one white bar: record an expense (lime), an income, edit the account;
+     - its latest transactions in a white sheet, Debit | Credit as the summary's switch (the chosen one deep green with lime words).
+   Colours as the summary: deep green #112622, lime #B6DD62, grey #E9EDEC, light circles #EDF1F0, hairlines #DDE3E1. */
+@media (max-width: 920px) {
+  :root.land .drawer:has(.cv) { --brand: #112622; --brand-deep: #112622; --focus: #112622; background: #E9EDEC; }
+  :root.land .drawer:has(.cv) > header h2 { color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .drawer:has(.cv) > header [data-a="close"] { width: 44px; height: 44px; min-height: 44px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; }
+
+  /* the details: one white card */
+  :root.land .cv .cc-meta { padding: 14px 16px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land .cv .cc-meta:not(:has(*)) { display: none; }
+  :root.land .cv .cv-main { padding-top: 0; border-top: 0; }
+  :root.land .cv .cc-meta .note { color: #454745; }
+  :root.land .cv .cc-meta .meter { background: #DFE6E4; }
+  :root.land .cv .cc-meta .meter i { background: #112622; }
+  :root.land .cv .cc-meta .meter.warn i { background: #B42318; }
+
+  /* what can be done: round buttons in one white bar, as the summary's four */
+  :root.land .cv .cv-acts.quick-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; gap: 4px; margin-top: 0; padding: 14px 8px 12px; border-radius: 28px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land .cv .cv-acts.quick-grid button { all: unset; box-sizing: border-box; cursor: pointer; grid-column: auto; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.25; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .cv .cv-acts.quick-grid button:active { transform: scale(.94); }
+  :root.land .cv .cv-acts.quick-grid button:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
+  :root.land .cv .cv-acts.quick-grid .fl-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 50%; background: #EDF1F0; color: #112622; }
+  :root.land .cv .cv-acts.quick-grid .fl-ico svg { width: 21px; height: 21px; stroke-width: 2; }
+  :root.land .cv .cv-acts.quick-grid button:first-child .fl-ico { background: #B6DD62; }
+
+  /* its latest transactions: a white sheet; Debit | Credit as the summary's switch */
+  :root.land .cv .cv-ops { background: #FFFFFF; border-radius: 28px 28px 0 0; box-shadow: 0 -1px 0 #DDE3E1; }
+  :root.land .cv .op-head h3 { color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .cv .op-head .linkbtn { color: #112622; font-weight: 600; }
+  :root.land .cv .op-fn { background: #EDF1F0; border: 0; border-radius: 999px; }
+  :root.land .cv .op-fn button { border-radius: 999px; color: #454745; font-weight: 500; }
+  :root.land .cv .op-fn button[aria-pressed="true"], :root.land .cv .op-fn button[aria-pressed="true"]:hover { background: #112622; color: #B6DD62; font-weight: 600; box-shadow: none; }
+  :root.land .cv .op-day { color: #5F625D; letter-spacing: .04em; }
+  :root.land .cv .op-list li + li .op-row { border-top: 1px solid #EDF1F0; }
+  :root.land .cv .op-ico:not(.cat) { background: #EDF1F0; color: #112622; }
+  :root.land .cv .op-ico:not(.cat) svg { color: #112622; }
+  :root.land .cv .op-amt { color: #0E0F0C; font-weight: 600; }
+  :root.land .cv .op-amt.in { color: #2F6B1C; }      /* money in, green as before */
+}

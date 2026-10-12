@@ -130,7 +130,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, behind: [cs(root).backgroundColor, cs(document.body).backgroundColor], block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
         card: f ? [f === document.querySelector('#view').firstElementChild, cs(f.querySelector('.bq-free-top')).backgroundColor, Math.abs(r(f).top - r(head).bottom) <= 1 && Math.abs(r(foot).top - r(f.querySelector('.bq-free-top')).bottom) <= 1, cs(foot).backgroundColor, foot.dataset.a, Math.round(r(foot).height) >= 44, parseFloat(cs(f.querySelector('.fu-n')).fontSize) < parseFloat(cs(bal).fontSize), parseFloat(cs(head).borderBottomLeftRadius)] : null,
         acts: acts.map(b => b.dataset.v || b.dataset.a).join(), actsTall: acts.every(b => r(b).height >= 44),
-        accounts: document.querySelectorAll('#ac-card .bq-acc').length === personal().length, logos: !!document.querySelector('#ac-card .bq-acc .inst img'),
+        accounts: document.querySelectorAll('#ac-card .bq-acc').length === cardsOf(personal()).length && cardsOf(personal()).length < personal().length, logos: !!document.querySelector('#ac-card .bq-acc .inst img'),
         bills: document.querySelectorAll('#todo .bq-bill').length > 0, firstDue: (document.querySelector('#todo .bq-bill.first .bq-due') || {}).textContent,
         pair: [...document.querySelectorAll('#view > .bq-pair > [id]')].map(x => x.id).join(),
         bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
@@ -144,6 +144,13 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.click('#quick-acts [data-a="quick-more"]');
       eq(await page.evaluate(() => { const vs = [...document.querySelectorAll('.bq-more-sheet [data-a="quick-go"]')].map(b => b.dataset.v); return [vs.length > 3, vs.some(v => ['expense', 'income', 'transfer'].includes(v)), document.activeElement === document.querySelector('.bq-more-sheet [data-a="quick-go"]')]; }), [true, false, true], 'More lists the other things to do, the focus on the first');
       await page.evaluate(() => A.close());
+      // one logo per card, its functions together (v181: "condensa las cuentas"); a tap opens its panel ("cuando hago tap no me abre el menú de cuenta")
+      await page.click('#ac-card .bq-acc'); await page.waitForTimeout(200);
+      eq(await page.evaluate(() => { const dr = document.querySelector('#overlay .drawer'), acts = [...document.querySelectorAll('#overlay .cv-acts button')];
+        return [!!(UI.drawer && UI.drawer.kind === 'card-view' && dr), getComputedStyle(dr).backgroundColor, getComputedStyle(acts[0].querySelector('.fl-ico')).backgroundColor, acts.every(b => b.getBoundingClientRect().height >= 44)]; }),
+        [true, 'rgb(233, 237, 236)', 'rgb(182, 221, 98)', true], 'an account’s logo opens its panel, in the summary’s look (v182)');
+      await page.evaluate(() => A.close());
+      ok(await page.evaluate(() => document.activeElement && document.activeElement.matches('#ac-card .bq-acc')), 'closing it, the focus is back on the logo');
       await page.click('#todo .bq-bill.first'); await page.waitForTimeout(200);
       ok(await page.evaluate(() => !!(UI.drawer && document.querySelector('#overlay .drawer'))), 'a bill opens its details');
       await page.evaluate(() => A.close());

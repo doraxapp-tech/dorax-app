@@ -65,10 +65,15 @@ const bqLink = (href, label) => `<a class="bq-more" href="${href}">${label}${ico
 function bqAccounts() {
   const list = personal(), bal = a => accountBalance(S, a.id, S.today);
   if (!list.length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty"><b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
-  // the money there is first, the most first; the cards after it, with what is owed on them in red
-  const rows = [...list.filter(a => a.type !== 'credit').map(a => [a, bal(a)]).sort((x, y) => y[1] - x[1]), ...list.filter(a => a.type === 'credit').map(a => [a, bal(a)])];
+  // one logo per card, its functions together (owner, 2026-10-12: "no es necesario tener Santander de ahorro y otro de débito, son lo mismo pero
+  // diferentes funciones; condensa las cuentas"): a savings account and its balance to spend by debit are one amount, a credit card linked to its
+  // account sits under that account's amount in red (what is owed); a credit card with no account of its own is a logo of its own (cardsOf, wallet.js)
+  const money = a => sum(cardParts(a).filter(k => k.type !== 'credit').map(bal)), owed = a => { const cr = a.type === 'credit' ? null : cardCredit(a); return cr ? bal(cr) : 0; };
+  const cards = cardsOf(list), rows = [...cards.filter(a => a.type !== 'credit').sort((x, y) => money(y) - money(x)), ...cards.filter(a => a.type === 'credit')];
   const mark = a => a.institution ? bankMark(a.institution) : `<span class="inst" aria-hidden="true">${icon('wallet')}</span>`;
-  const one = ([a, v]) => `<li><button class="bq-acc" data-a="view-account" data-id="${a.id}" aria-label="${esc(a.name)}: ${esc(fmt.money(v, a.currency))}"><span class="bq-mark" aria-hidden="true">${mark(a)}</span><span class="bq-acc-n" aria-hidden="true">${esc(bqShort(a))}</span><span class="bq-acc-v num${v < 0 ? ' neg' : ''}" aria-hidden="true">${fmt.money(v, a.currency, { round: true })}</span></button></li>`;
+  const one = a => { const v = money(a), o = owed(a);
+    // a tap opens the card's panel, its functions in it (debit, credit, saved), as on Accounts (owner, same day: "cuando hago tap no me abre el menú de cuenta")
+    return `<li><button class="bq-acc" data-a="card-view" data-id="${a.id}"${a.type === 'credit' ? ' data-fn="credit"' : ''} aria-haspopup="dialog" aria-label="${esc(cardSay(a))}"><span class="bq-mark" aria-hidden="true">${mark(a)}</span><span class="bq-acc-n" aria-hidden="true">${esc(bqShort(a))}</span><span class="bq-acc-v num${v < 0 ? ' neg' : ''}" aria-hidden="true">${fmt.money(v, a.currency, { round: true })}</span>${o < 0 ? `<span class="bq-acc-v num neg" aria-hidden="true">${fmt.money(o, a.currency, { round: true })}</span>` : ''}</button></li>`; };
   return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'), bqLink('#accounts', t('View all')))}<ul class="bq-accs bq-row">${rows.map(one).join('')}</ul></section>`;
 }
 
