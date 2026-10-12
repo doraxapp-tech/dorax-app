@@ -2,7 +2,7 @@
 // transición fluida, ni en computadora ni en la versión móvil; también el botón de más opciones"; app/js/ui/glide.js).
 //   1. a switch: the pressed pill slides from the old choice to the new one (a pill of the pressed colour under the words), then the switch is as
 //      before (no pill left over, the pressed button with its own colour again); on a phone and a computer, in a panel and on a page;
-//   2. what the switch shows after it fades in; a choice for one row or the theme only moves its pill;
+//   2. what the switch shows goes from its old look to the new one, each part on its own (View Transitions), the bars still; nothing left behind;
 //   3. "More options" slides open and shut, a click while it moves is let go; the focus stays on it;
 //   4. with less motion asked for, nothing moves; no error.
 const { open, ok, eq, done } = require('./pw.js');
@@ -17,7 +17,7 @@ const { open, ok, eq, done } = require('./pw.js');
     // ---------- 1. the panel's switch ----------
     await page.evaluate(() => A['new-tx']({})); await page.waitForTimeout(2600);
     const want = await page.evaluate(() => getComputedStyle(document.querySelector('#overlay .tx-kind [aria-pressed="true"]')).backgroundColor);
-    await page.click('#overlay .tx-kind [data-v="transfer"]'); await page.waitForTimeout(70);
+    await page.click('#overlay .tx-kind [data-v="transfer"]'); await page.waitForFunction(() => !!document.querySelector('.glide-thumb'), null, { timeout: 3000 }).catch(() => { });      // the change starts a frame or two later (the page before is kept to cross-fade from)
     const mid = await page.evaluate(() => { const g = document.querySelector('#overlay .tx-kind'), th = g.querySelector('.glide-thumb'), to = g.querySelector('[data-v="transfer"]'), r = el => el.getBoundingClientRect();
       return th ? [getComputedStyle(th).backgroundColor, r(th).left < r(to).left - 4, getComputedStyle(to).backgroundColor, g.classList.contains('glide-on')] : null; });
     eq(mid, [want, true, 'rgba(0, 0, 0, 0)', true], `${name}: the pressed pill slides toward the new choice (its colour, on its way), the new button’s own pill hidden while it moves`);
@@ -25,8 +25,10 @@ const { open, ok, eq, done } = require('./pw.js');
     eq(await page.evaluate(() => { const g = document.querySelector('#overlay .tx-kind'); return [!!g.querySelector('.glide-thumb'), g.classList.contains('glide-on'), getComputedStyle(g.querySelector('[aria-pressed="true"]')).backgroundColor, UI.drawer.draft.type]; }),
       [false, false, want, 'transfer'], `${name}: then the switch is as before, the new choice pressed`);
     ok(await page.evaluate(() => document.querySelector('#overlay .tx-amount').getAnimations().length === 0), `${name}: the fade of what follows is over`);
-    await page.click('#overlay .tx-kind [data-v="expense"]'); await page.waitForTimeout(40);
-    ok(await page.evaluate(() => [...document.querySelectorAll('#overlay .tx-amount, #overlay .tx-grid')].some(el => el.getAnimations().length > 0)), `${name}: what the switch shows after it fades in`);
+    await page.click('#overlay .tx-kind [data-v="expense"]'); await page.waitForFunction(() => !!document.querySelector('.glide-thumb'), null, { timeout: 3000 }).catch(() => { });
+    eq(await page.evaluate(() => { const vt = document.getAnimations().map(a => a.effect.pseudoElement || '').filter(p => /^::view-transition-(old|new)\(glide-/.test(p));
+      return [vt.some(p => /tx-amount/.test(p)), vt.some(p => /form-grid/.test(p)), vt.some(p => /glide-seg/.test(p)), !vt.some(p => /\(root\)/.test(p))]; }), [true, true, false, true],
+      `${name}: what the switch shows goes from its old look to the new one, each part on its own (no part pops in from nothing); the switch drawn live; the bars still (v202: "hace un brinco raro como un glitch")`);
     await page.waitForTimeout(2600);
 
     // ---------- 3. More options ----------
@@ -43,10 +45,10 @@ const { open, ok, eq, done } = require('./pw.js');
 
     // ---------- 1. a page's switch ----------
     await page.evaluate(() => navigate('transactions')); await page.waitForTimeout(1500);
-    await page.click('.bq-kind [data-v="income"]'); await page.waitForTimeout(60);
+    await page.click('.bq-kind [data-v="income"]'); await page.waitForFunction(() => !!document.querySelector('.glide-thumb'), null, { timeout: 3000 }).catch(() => { });
     ok(await page.evaluate(() => !!document.querySelector('.bq-kind .glide-thumb')), `${name}: Transactions’ switch glides too`);
     await page.waitForTimeout(2600);
-    eq(await page.evaluate(() => [UI.tx.type, !document.querySelector('.glide-thumb')]), ['income', true], `${name}: and lands on its choice`);
+    eq(await page.evaluate(() => [UI.tx.type, !document.querySelector('.glide-thumb'), document.documentElement.classList.contains('glide-vt'), document.querySelectorAll('[style*="view-transition"]').length]), ['income', true, false, 0], `${name}: and lands on its choice, nothing of the change left behind`);
     eq(errors, [], `${name}: no error in the console`); await browser.close();
   }
 

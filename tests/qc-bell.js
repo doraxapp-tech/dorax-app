@@ -14,7 +14,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => A.reminders()); await page.waitForSelector('.drawer .bell-tabs');
   eq(await page.evaluate(() => [UI.drawer.title, document.querySelector('.drawer header h2').textContent, [...document.querySelectorAll('.bell-tabs button')].map(b => [b.dataset.v, b.getAttribute('aria-pressed')]), /Reminders · \d+/.test(document.querySelector('.bell-tabs [data-v="rem"]').textContent) || activeReminders().length === 0]),
     ['Notifications', 'Notifications', [['rem', 'true'], ['news', 'false']], true], 'the bell’s panel: “Notifications”, Reminders and Updates at the top, Reminders first while something is due');
-  await page.click('.bell-tabs [data-v="news"]');
+  await page.click('.bell-tabs [data-v="news"]'); await page.waitForFunction(() => !glideWait);      // with motion a switch's change starts a frame or two later (ui/glide.js)
   ok(await page.evaluate(() => /No updates yet/.test(document.querySelector('.drawer .body').innerText) && !document.querySelector('.drawer .rem')), 'Updates, with nothing yet: says what will be there');
   await page.evaluate(() => A.close());
   // ---------- 2. updates ----------
@@ -25,8 +25,8 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [[...document.querySelectorAll('.nt-group h3')].map(h => h.textContent), [...document.querySelectorAll('.nt-row')].map(r => r.querySelector('.nt-h b').textContent), document.querySelectorAll('.nt-row.new .nt-dot').length, /Source: FGC/.test(document.querySelector('.nt-group:last-child').innerText), inboxUnread()]),
     [['Milestones', 'Curiosities'], ['You passed 3 months of freedom!', 'Did you know?', 'Did you know?'], 3, true, 0], 'Updates: milestones, then curiosities, each under its heading, new ones with a dot; the curiosity with its source; now seen');
   ok(await page.evaluate(() => +((document.querySelector('#topbar .bell .count') || {}).textContent || 0) === activeReminders().length), 'seen: the bell counts only what is due');
-  await page.click('.bell-tabs [data-v="rem"]'); await page.click('.bell-tabs [data-v="news"]');
-  eq(await page.evaluate(() => document.querySelectorAll('.nt-row.new').length), 3, 'the dots stay while the panel is open');
+  await page.click('.bell-tabs [data-v="rem"]'); await page.click('.bell-tabs [data-v="news"]', { force: true }); await page.waitForFunction(() => !glideWait); await page.waitForTimeout(50);      // two quick clicks run in their order
+  eq(await page.evaluate(() => [UI.drawer.tab, document.querySelectorAll('.nt-row.new').length]), ['news', 3], 'the dots stay while the panel is open');
   await page.evaluate(() => { A.close(); A.reminders(); });
   eq(await page.evaluate(() => [UI.drawer.tab === 'rem' || !activeReminders().length, document.querySelectorAll('.nt-row.new').length]), [true, 0], 'opened again: nothing new');
   await page.evaluate(() => { A.close(); S.user.remind.snoozed = {}; for (const r of bellItems()) S.user.remind.snoozed[r.id] = S.today; inboxAdd({ kind: 'curio', id: 'thirteenth' }); A.reminders(); });

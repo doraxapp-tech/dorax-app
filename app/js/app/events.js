@@ -1,21 +1,22 @@
 /* Dorax Finance — the page listens once: clicks, keys, fields, drag and drop, hints, pulling a sheet down. */
 // ---------- events ----------
 document.addEventListener('click', e => {
-  const q = e.target.closest('.l2-faq summary, .lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
+  const tg = glideTarget(e);      // while a switch's change is being set up the browser gives a click to the page's root: it goes to what is under the pointer (ui/glide.js)
+  const q = tg.closest('.l2-faq summary, .lp-faq summary');      // a question on the home page: opened and closed with a slide (app/motion.js)
   if (q && q.parentElement.animate && !reducedMotion()) { e.preventDefault(); faqToggle(q.parentElement); return; }
-  if (UI.menu && !e.target.closest('#rail-foot')) { UI.menu = false; renderShell(); }      // a click anywhere else closes the menu beside the name; the click itself still counts
-  if (UI.goalMenu && !e.target.closest('.gmenu-wrap')) { UI.goalMenu = false; renderOverlay(); }      // and the goal's menu (features/goals)
-  if (UI.rvMore && !e.target.closest('#rv-more-btn')) { UI.rvMore = false; if (!e.target.closest('[data-a]')) render(); }      // and an import review's "More" (a choice in it redraws by itself)
-  const pg = e.target.closest('a[data-a="pub-go"]');      // a link to a page before login (ui/pages.js): a plain click changes the page here; with Ctrl, Shift or ⌘ the browser opens its address
+  if (UI.menu && !tg.closest('#rail-foot')) { UI.menu = false; renderShell(); }      // a click anywhere else closes the menu beside the name; the click itself still counts
+  if (UI.goalMenu && !tg.closest('.gmenu-wrap')) { UI.goalMenu = false; renderOverlay(); }      // and the goal's menu (features/goals)
+  if (UI.rvMore && !tg.closest('#rv-more-btn')) { UI.rvMore = false; if (!tg.closest('[data-a]')) render(); }      // and an import review's "More" (a choice in it redraws by itself)
+  const pg = tg.closest('a[data-a="pub-go"]');      // a link to a page before login (ui/pages.js): a plain click changes the page here; with Ctrl, Shift or ⌘ the browser opens its address
   if (pg && !pg.getAttribute('href').startsWith('#')) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); }
-  const link = e.target.closest('a[href^="#"]');
+  const link = tg.closest('a[href^="#"]');
   if (link) {
     e.preventDefault();
     if (link.dataset.a && A[link.dataset.a]) A[link.dataset.a](link.dataset, link); else navigate(link.getAttribute('href').slice(1));
     save(); return;
   }
-  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
-  const fn = A[el.dataset.a]; if (fn) { const gl = glideBefore(el); fn(el.dataset, el); glideAfter(gl); stepsMaybe(); cheerMaybe(); save(); }      // glide: a switch's pill slides to the new choice (ui/glide.js); cheerMaybe: a mark passed or a goal reached just now (features/ahead/curios.view.js)
+  const el = tg.closest('[data-a]'); if (!el || el.disabled) return;
+  const fn = A[el.dataset.a]; if (fn) glideRun(el, () => { fn(el.dataset, el); stepsMaybe(); cheerMaybe(); save(); });      // glideRun: a switch's change cross-fades, its pill sliding (ui/glide.js); anything else runs at once; cheerMaybe: a mark passed or a goal reached just now (features/ahead/curios.view.js)
 });
 // Anything that can change the data ends in a save: the account is sent to the server shortly after (server/sync.js).
 ['change', 'keyup'].forEach(type => document.addEventListener(type, save));

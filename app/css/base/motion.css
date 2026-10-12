@@ -60,9 +60,21 @@
 @keyframes from-prev { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
 #view.from-next { animation: from-next 180ms var(--ease) both; }
 #view.from-prev { animation: from-prev 180ms var(--ease) both; }
-.banner { animation: fade-in var(--t2) ease-out both; }
+#view.enter .banner, #overlay.in .banner { animation: fade-in var(--t2) ease-out both; }      /* as a screen or a panel comes in, not at every drawing (v202: a switch made the banner blink) */
 /* a switch's pressed pill sliding to the new choice (ui/glide.js, v202): the pill under the words, the pressed button's own pill hidden while it moves */
 .glide-thumb { position: absolute; z-index: 0; box-sizing: border-box; pointer-events: none; }
 .glide-on > [aria-pressed] { position: relative; z-index: 1; }
 .glide-still > [aria-pressed] { transition: none !important; }
 .glide-on > [aria-pressed="true"] { background: transparent !important; background-image: none !important; box-shadow: none !important; border-color: transparent !important; }
+/* a switch's change (ui/glide.js: glideRun, v202, owner: "el contenido no aparece de manera fluida, hace un brinco raro como un glitch"): each part
+   on screen moves to its new place while its old look cross-fades into the new (240 ms, an even curve); the bars and the menu still; the switch live;
+   the theme's switch cross-fades the whole page */
+:root.glide-vt::view-transition { pointer-events: none; }      /* a click while it changes reaches the page under it, not the picture of the change */
+:root.glide-vt-area::view-transition-old(root) { display: none; }
+:root.glide-vt-area::view-transition-new(root) { animation: none; }
+:root.glide-vt-area::view-transition-group(*) { animation-duration: 240ms; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
+:root.glide-vt-area::view-transition-old(*), :root.glide-vt-area::view-transition-new(*) { animation-duration: 240ms; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
+:root.glide-vt::view-transition-group(glide-seg) { animation: none; }
+:root.glide-vt::view-transition-old(glide-seg) { display: none; }
+:root.glide-vt::view-transition-new(glide-seg) { animation: none; }
+:root.glide-vt-page::view-transition-old(root), :root.glide-vt-page::view-transition-new(root) { animation-duration: 240ms; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
