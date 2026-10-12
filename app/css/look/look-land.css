@@ -4,7 +4,8 @@
    app/shell.js (applyTheme) puts .land on the page's root on a phone, in the light theme, on the household's summary; the markup of the parts is
    features/phone/bosque.js. The other pages, the dark theme, the company's side and a computer keep their look.
    Colours (owner, 2026-10-12: "usa este verde por favor", with the reference's statistics and exchange screens; measured on them; then the same
-   morning "#004134 is for the spending per day", the card): the deep green #112622 for the block, the card #004134, its lime #B6DD62, a pale lime #E8F3D2 for the goals, its cool grey page #E9EDEC with white
+   morning the day's card was #004134 for an hour, then "el background de gastar hoy igual que el de la barra superior, que se mezclen"): the deep green
+   #112622 for the block and the day's figure in it, its lime #B6DD62, a pale lime #E8F3D2 for the goals, its cool grey page #E9EDEC with white
    cards and #DDE3E1 hairlines; on the deep green the words are white, #B5C2BE when quieter. (Before, the brand's forest #163300 and lime #9FD182.)
    Only this page wears them for now. */
 @media (max-width: 920px) {
@@ -25,12 +26,14 @@
   }
   :root.land .topbar > .navbar, :root.land .topbar > .bar-bal, :root.land .topbar > .pagehead { background: #112622; }
   :root.land .topbar > .navbar { border-bottom: 0; box-shadow: 0 -60vh 0 0 #112622; }      /* pulled down past the top, the same forest shows above it */
-  :root.land.scrolled .topbar > .navbar { border-radius: 0 0 24px 24px; box-shadow: 0 -60vh 0 0 #112622, 0 8px 20px -12px rgba(14, 15, 12, .45); }
-  :root.land .topbar > .pagehead { margin: 0 0 16px; padding-bottom: 24px; border-radius: 0 0 32px 32px; }
+  :root.land.scrolled .topbar > .navbar { border-radius: 0; box-shadow: 0 -60vh 0 0 #112622, 0 8px 20px -12px rgba(14, 15, 12, .45); }
+  :root.land .topbar > .pagehead { margin: 0 0 16px; padding-bottom: 24px; border-radius: 0; }      /* square at its foot (owner, 2026-10-12: "quita los bordes de abajo de la barra superior") */
   :root.land .topbar > .pagehead.bare { height: 24px; padding: 0; }
-  /* with "You can spend" first, the block goes on under it, so the card sits half on the forest and half on the page */
-  :root.land .work:has(#view > .bq-free:first-child) .topbar > .pagehead { margin-bottom: 0; padding-bottom: 108px; }
-  :root.land #view > .bq-free:first-child { margin-top: -96px; }
+  /* with "You can spend" first, the block goes straight on into it: the day's figure is in the block, on the block's own green, and the lime strip
+     hangs from the block's foot, flush with it (owner, 2026-10-12: "que la lista lima encaje perfecta con la de arriba"; "el background de gastar hoy
+     igual que el de la barra superior, que se mezclen") */
+  :root.land .work:has(#view > .bq-free:first-child) .topbar > .pagehead { margin-bottom: 0; padding-bottom: 0; }
+  :root.land #view > .bq-free:first-child { margin-top: -4px; }      /* the page's 4 px above its first part (base/responsive.css) */
 
   /* who is using it: the photo or the first letter on lime; the round buttons light on the forest */
   :root.land .bar-who .bw-t small { color: #B5C2BE; }
@@ -64,14 +67,13 @@
   :root.land .topbar .m-back .btn.primary { background: #B6DD62; border-color: #B6DD62; color: #112622; }
 
   /* ---------- "You can spend": the card half on the block ---------- */
-  :root.land #view .bq-free { position: relative; z-index: 2; overflow: hidden; display: flex; flex-direction: column; border-radius: 28px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); color: #FFFFFF;
-    background: #004134; }      /* its own green (owner, 2026-10-12: "el color que mandé es para gasto por día", #004134; it was #234A3E), no rings behind the figure (same morning: "quita el círculo del fondo") */
-  :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 20px 18px; }
-  :root.land .bq-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 13px 0 11px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #B6DD62; font-size: 13px; font-weight: 600; }
-  :root.land .bq-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #B6DD62; }
-  :root.land .bq-free .fu-big { color: #B5C2BE; font-size: 16px; font-weight: 500; line-height: 1; }
-  :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1; margin-right: 4px; }      /* smaller (owner, 2026-10-12: "son muy grandes"; it was 56 px) */
-  :root.land .bq-free-foot { all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 10px 12px 10px 20px; background: #B6DD62; color: #112622; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  :root.land #view .bq-free { position: relative; z-index: 2; display: flex; flex-direction: column; margin-left: -16px; margin-right: -16px; color: #FFFFFF; }      /* the block's whole width */
+  :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px 18px; background: #112622; }
+  :root.land .bq-chip { display: inline-flex; align-items: center; gap: 7px; color: #B5C2BE; font-size: 13px; font-weight: 500; line-height: 1.2; }      /* no pill: the words and the green dot, as the net balance's label (owner, 2026-10-12: "no lo hagas un pill, quítale los bordes, deja solo la letra con el punto verde") */
+  :root.land .bq-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #B6DD62; }
+  :root.land .bq-free .fu-big { color: #B5C2BE; font-size: 14px; font-weight: 500; line-height: 1; }
+  :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 28px; font-weight: 600; letter-spacing: -.03em; line-height: 1; margin-right: 3px; }      /* under the net balance's size, so the two do not compete (owner, 2026-10-12; it was 56, then 40 px) */
+  :root.land .bq-free-foot { all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; margin: 0 16px; padding: 10px 10px 10px 18px; border-radius: 0 0 24px 24px; background: #B6DD62; color: #112622; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   :root.land .bq-free-foot:active { background: #A6CE52; }
   :root.land .bq-free-foot:focus-visible { outline: 2px solid #112622; outline-offset: -4px; }
   :root.land .bq-say { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; }

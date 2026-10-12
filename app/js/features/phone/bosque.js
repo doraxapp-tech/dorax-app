@@ -33,7 +33,7 @@ function bqFree() {
   const r = freeUntil(S, S.today, CUR); if (!r) return '';
   const ok = fuOk(r), big = ok ? fuBig(r) : `<span class="fu-big">${t('{amount} a day', { amount: `<span class="fu-n num">${fuMoney(0)}</span>` })}</span>`;
   const say = ok ? fuSay(r).replace('. ', '.<br>') : t('{amount} short to pay everything {when}.', { amount: `<b>${fuMoney(-r.free)}</b>`, when: fuWhen(r) });
-  return `<section class="bq-free${ok ? '' : ' short'}" id="free-card" aria-label="${esc(t('You can spend today'))}"><div class="bq-free-top"><span class="bq-chip">${t('You can spend today')}</span>${big}</div>
+  return `<section class="bq-free${ok ? '' : ' short'}" id="free-card" aria-label="${esc(t('You can spend'))}"><div class="bq-free-top"><span class="bq-chip">${t('You can spend')}</span>${big}</div>
     <button class="bq-free-foot" id="free-open" data-a="free-view" aria-haspopup="dialog"><span class="bq-say">${say}</span><span class="bq-go" aria-hidden="true">${bqSvg(BQ_OUT)}</span></button></section>`;
 }
 

@@ -75,7 +75,6 @@ addTexts([
   ["Move money", "Transferir", "Transferir"],
   ["Tomorrow", "Mañana", "Amanhã"],
   ["months", "meses", "meses"],
-  ["You can spend today", "Puedes gastar hoy", "Você pode gastar hoje"],
   ["Inflow", "Ingreso", "Entrada"],
   ["{name} invoice", "Factura {name}", "Fatura {name}"],
 ]);

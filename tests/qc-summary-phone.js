@@ -128,7 +128,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       const f = document.querySelector('#view > .bq-free'), head = document.querySelector('.topbar > .pagehead'), foot = f && f.querySelector('.bq-free-foot'), bal = document.querySelector('.bar-bal .bb-link b');
       const acts = [...document.querySelectorAll('#quick-acts button')], tab = document.querySelector('.tabbar');
       return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, behind: [cs(root).backgroundColor, cs(document.body).backgroundColor], block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
-        card: f ? [f === document.querySelector('#view').firstElementChild, cs(f).backgroundColor, r(f).top < r(head).bottom && r(f).bottom > r(head).bottom, cs(foot).backgroundColor, foot.dataset.a, Math.round(r(foot).height) >= 44] : null,
+        card: f ? [f === document.querySelector('#view').firstElementChild, cs(f.querySelector('.bq-free-top')).backgroundColor, Math.abs(r(f).top - r(head).bottom) <= 1 && Math.abs(r(foot).top - r(f.querySelector('.bq-free-top')).bottom) <= 1, cs(foot).backgroundColor, foot.dataset.a, Math.round(r(foot).height) >= 44, parseFloat(cs(f.querySelector('.fu-n')).fontSize) < parseFloat(cs(bal).fontSize), parseFloat(cs(head).borderBottomLeftRadius)] : null,
         acts: acts.map(b => b.dataset.v || b.dataset.a).join(), actsTall: acts.every(b => r(b).height >= 44),
         accounts: document.querySelectorAll('#ac-card .bq-acc').length === personal().length, logos: !!document.querySelector('#ac-card .bq-acc .inst img'),
         bills: document.querySelectorAll('#todo .bq-bill').length > 0, firstDue: (document.querySelector('#todo .bq-bill.first .bq-due') || {}).textContent,
@@ -136,9 +136,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
         bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
         whole: bal.scrollWidth <= bal.clientWidth + 1, wide: document.documentElement.scrollWidth - innerWidth };
     });
-    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(0, 65, 52)', true, 'rgb(182, 221, 98)', 'free-view', true],
+    eq(await look(), { on: true, meta: '#112622', page: 'rgb(233, 237, 236)', behind: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], block: ['rgb(17, 38, 34)', 'rgb(17, 38, 34)'], card: [true, 'rgb(17, 38, 34)', true, 'rgb(182, 221, 98)', 'free-view', true, true, 0],
       acts: 'expense,income,transfer,quick-more', actsTall: true, accounts: true, logos: true, bills: true, firstDue: 'en 3 días', pair: 'runway-card,goals-card',
-      bar: ['rgb(17, 38, 34)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed`);
+      bar: ['rgb(17, 38, 34)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed (v180: the day's figure on the block's own green, flush with it, the lime strip right under it, smaller than the net balance; the block square at its foot)`);
     if (w === 390) {
       // More: the other things to do, in a list; a bill opens its details; "You can spend" opens how it was worked out
       await page.click('#quick-acts [data-a="quick-more"]');
@@ -159,7 +159,7 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { delete S.user.dashOrder; delete S.user.dashHidden; render(); });
       // short of money the card stays (owner, 2026-10-12: "quiero que pongas que puedes gastar hoy como en el screenshot"): R$ 0 a day, the strip says how much is missing
       await page.evaluate(() => { window.__fu = freeUntil; window.freeUntil = (...a) => { const r = window.__fu(...a); return r && Object.assign({}, r, { free: -487536, perDay: 0 }); }; render(); });
-      eq(await page.evaluate(() => { const f = document.querySelector('#view > .bq-free'); return f && [f.classList.contains('short'), f.querySelector('.fu-n').textContent.trim(), /4\.875/.test(f.querySelector('.bq-say').textContent), f.querySelector('.bq-chip').textContent.trim()]; }), [true, 'R$ 0', true, 'Puedes gastar hoy'], 'short of money: the card stays, R$ 0 a day and how much is missing');
+      eq(await page.evaluate(() => { const f = document.querySelector('#view > .bq-free'); return f && [f.classList.contains('short'), f.querySelector('.fu-n').textContent.trim(), /4\.875/.test(f.querySelector('.bq-say').textContent), f.querySelector('.bq-chip').textContent.trim()]; }), [true, 'R$ 0', true, 'Puedes gastar'], 'short of money: the card stays, R$ 0 a day and how much is missing');
       await page.evaluate(() => { window.freeUntil = window.__fu; render(); });
       // a month already over: no card on the block, which ends under the month
       await page.evaluate(() => A.month({ d: '-1' }));
