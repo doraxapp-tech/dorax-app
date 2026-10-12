@@ -177,6 +177,9 @@ function cardActions(a) {
   // a computer (owner, 2026-10-09: "there is room to put them side by side, make them smaller; they all weigh the same, I can't tell the main
   // action"): one row of buttons. Recording an expense is the main one; an income comes second; editing the account is apart, quieter, on the right
   // the panel's title already names the account, so its edit says only "Edit"; all three fit on one line in the three languages
+  // the summary's look (owner, 2026-10-12: "el menú de cuenta, quita el botón editar cuenta, deja los otros dos y sepáralos en dos botones"): two pills
+  // on the panel's forest, the expense lime, the income light; their full names read aloud. The account is edited from Accounts & savings.
+  if (typeof landOn === 'function' && landOn()) return `<div class="cv-acts bq-cv-acts">${xs.filter(([v]) => v !== 'edit').map(([v, ic, l]) => `<button class="btn${v === 'expense' ? ' primary' : ''}" data-a="card-do" data-v="${v}" data-id="${a.id}" aria-label="${esc(l)}">${icon('plus')}<span aria-hidden="true">${v === 'expense' ? t('Expense') : t('Income@kind')}</span></button>`).join('')}</div>`;
   if (!isPhone()) return `<div class="cv-acts pc">${xs.map(([v, ic, l]) => `<button class="btn sm${v === 'expense' ? ' primary' : v === 'edit' ? ' ghost cv-edit' : ''}" data-a="card-do" data-v="${v}" data-id="${a.id}"${v === 'edit' ? ` aria-label="${esc(l)}"` : ''}>${icon(ic)}<span>${v === 'edit' ? t('Edit') : l}</span></button>`).join('')}</div>`;
   return `<div class="quick-grid cv-acts">${xs.map(([v, ic, l], i) => `<button data-a="card-do" data-v="${v}" data-id="${a.id}"${i === xs.length - 1 && xs.length % 2 ? ' class="wide"' : ''} style="--i:${i}"><span class="fl-ico">${icon(ic)}</span><span>${l}</span></button>`).join('')}</div>`;
 }
@@ -204,7 +207,7 @@ function cardOps(a) {
   const sub = x => [x.type === 'transfer' ? t('Transfer') : catName(x.subcategoryId || x.categoryId), x.status === 'pending' ? t('Pending') : x.status === 'ignored' ? t('Ignored') : ''].filter(Boolean).join(' · ');
   const amt = x => x.amount > 0 ? `<b class="num op-amt in">+ ${fmt.money(x.amount, x.currency)}</b>` : `<b class="num op-amt">${fmt.money(-x.amount, x.currency)}</b>`;
   const days = [...new Set(shown.map(x => x.date))];
-  const list = shown.length ? days.map(d => `<h4 class="op-day">${day(d)}</h4><ul class="op-list">${shown.filter(x => x.date === d).map(x => `<li><button class="op-row${x.status === 'ignored' ? ' ignored' : ''}" data-a="open-tx" data-id="${x.id}" aria-label="${esc(`${x.merchant}, ${sub(x)}, ${x.amount > 0 ? '+ ' : ''}${fmt.money(Math.abs(x.amount), x.currency)}, ${day(d)}`)}">${mark(x)}<span class="op-t"><b>${esc(x.merchant)}${instTag(x)}</b><small>${esc(sub(x))}</small></span>${amt(x)}</button></li>`).join('')}</ul>`).join('')
+  const list = shown.length ? `<div class="op-card">` + days.map(d => `<h4 class="op-day">${day(d)}</h4><ul class="op-list">${shown.filter(x => x.date === d).map(x => `<li><button class="op-row${x.status === 'ignored' ? ' ignored' : ''}" data-a="open-tx" data-id="${x.id}" aria-label="${esc(`${x.merchant}, ${sub(x)}, ${x.amount > 0 ? '+ ' : ''}${fmt.money(Math.abs(x.amount), x.currency)}, ${day(d)}`)}">${mark(x)}<span class="op-t"><b>${esc(x.merchant)}${instTag(x)}</b><small>${esc(sub(x))}</small></span>${amt(x)}</button></li>`).join('')}</ul>`).join('') + '</div>'      // one card for the days (the summary's look makes it white, as Transactions)
     : `<div class="op-empty"><p>${fn === 'credit' ? t('Nothing on the card’s credit yet.') : t('No transactions in this account yet.')}</p>${isPhone() ? `<button class="btn sm" data-a="card-do" data-v="expense" data-id="${a.id}">${a.scope === 'business' ? t('Record a cost') : t('Record an expense')}</button>` : ''}</div>`      // a computer has the button just above;
   return `<section class="cv-ops" aria-labelledby="cv-ops-h"><span class="op-grab" aria-hidden="true"></span>
     <div class="op-head"><h3 id="cv-ops-h">${t('Transactions')}</h3>${xs.length ? `<button class="linkbtn" data-a="card-do" data-v="view" data-id="${on.id}">${xs.length > CARD_OPS ? t('View all {n}', { n: xs.length }) : t('View all')}</button>` : ''}</div>${fns}${list}</section>`;
@@ -278,7 +281,7 @@ const WALLET_ACTIONS = {
     if (ds.v === 'view') return A['view-account']({ id: acct(ds.id) ? ds.id : a.id });      // the list in view: the account, its credit or its balance to spend
     A['new-tx'](); if (!UI.drawer || UI.drawer.kind !== 'tx') return;
     const x = UI.drawer.draft, cr = cardCredit(a); x.accountId = ds.v === 'expense' && cr ? cr.id : ds.v === 'expense' ? cardRoute(a.id) : debitTarget(a).id;      // money received goes where it is spent from if (ds.v === 'income') { x.type = 'income'; x.dir = 'in'; }
-    txKind(x); renderOverlay(); const el = $('d-say') || $('d-amount'); if (el) el.focus();
+    txKind(x); renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus();      // with the keypad, not the amount (v190)
   },
   'card-view'(ds) { const a = cardMain(acct(ds.id)); if (!a) return; UI.drawer = { kind: 'card-view', id: a.id, from: ds.id, title: a.name, book: bookKey(), ...(ds.fn === 'credit' && cardCredit(a) ? { fn: 'credit' } : {}) }; renderOverlay(); },      // a credit card's row on a phone's Accounts opens on its credit; closed, the focus goes back to the row that opened it (from)
   /** Debit | Credit over a card's transactions: which of its two functions is listed. */

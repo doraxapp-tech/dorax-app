@@ -146,9 +146,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => A.close());
       // one logo per card, its functions together (v181: "condensa las cuentas"); a tap opens its panel ("cuando hago tap no me abre el menú de cuenta")
       await page.click('#ac-card .bq-acc'); await page.waitForTimeout(200);
-      eq(await page.evaluate(() => { const dr = document.querySelector('#overlay .drawer'), acts = [...document.querySelectorAll('#overlay .cv-acts button')];
-        return [!!(UI.drawer && UI.drawer.kind === 'card-view' && dr), getComputedStyle(dr).backgroundColor, getComputedStyle(acts[0].querySelector('.fl-ico')).backgroundColor, acts.every(b => b.getBoundingClientRect().height >= 44)]; }),
-        [true, 'rgb(233, 237, 236)', 'rgb(182, 221, 98)', true], 'an account’s logo opens its panel, in the summary’s look (v182)');
+      eq(await page.evaluate(() => { const dr = document.querySelector('#overlay .drawer'), acts = [...document.querySelectorAll('#overlay .cv-acts button')], cs = el => getComputedStyle(el), ops = document.querySelector('#overlay .cv-ops'), r = el => el.getBoundingClientRect();
+        return [!!(UI.drawer && UI.drawer.kind === 'card-view' && dr), cs(dr).backgroundColor, acts.map(b => b.dataset.v).join(), cs(acts[0]).backgroundColor, Math.abs(r(acts[0]).top - r(acts[1]).top) < 1, acts.every(b => r(b).height >= 44), cs(ops).backgroundColor, cs(ops).borderTopLeftRadius, cs(document.querySelector('#overlay .op-card')).backgroundColor, cs(dr.querySelector('header h2')).color]; }),
+        [true, 'rgb(17, 38, 34)', 'expense,income', 'rgb(182, 221, 98)', true, true, 'rgb(233, 237, 236)', '30px', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)'], 'an account’s logo opens its panel (v191, as Transactions): the card and what is above the list on forest, two pills side by side (an expense lime, an income; no “Edit account”), the transactions light in the grey sheet over it, the days in a white card');
       await page.evaluate(() => A.close());
       ok(await page.evaluate(() => document.activeElement && document.activeElement.matches('#ac-card .bq-acc')), 'closing it, the focus is back on the logo');
       await page.click('#todo .bq-bill.first'); await page.waitForTimeout(200);
