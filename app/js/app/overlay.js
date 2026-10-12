@@ -9,6 +9,7 @@ function renderOverlay() {
   else if (UI.sheet === 'dash-order') h = dashOrderSheet();      // the order of the summary's parts (features/phone/phone.summary.js)
   else if (UI.sheet === 'fixed-list') h = fixedListSheet();      // the month's fixed costs and their details, from the summary (same file)
   else if (UI.sheet === 'goal-list') h = goalListSheet();
+  else if (UI.sheet === 'quick-more') h = bqMoreSheet();      // More, from the summary's four buttons in the light theme (features/phone/bosque.js)
   else if (UI.sheet === 'pay-pick') h = payPickSheet();      // which cost to mark as paid or to pay (features/phone/phone.plan.js)      // the goals and funds and their details, from the summary (same file)
   else if (UI.sheet) h = moreSheet();
   else if (d) h = inBook(d.book = d.book || bookKey(), () => `<div class="scrim" data-a="close"></div><aside class="drawer${d.pop ? ' pop' : ''}${d.full ? ' full' : ''}${d.wide ? ' wide' : ''}${d.mid ? ' mid' : ''}" role="dialog" aria-modal="true" aria-label="${esc(d.title)}"><div class="grab" aria-hidden="true"></div><header><span class="dr-back-slot">${backPanelButton()}</span><h2>${esc(d.title)}</h2><button class="btn ghost sm" data-a="close" aria-label="${t('Close')}">${icon('x')}</button></header>${({ tx: txDrawer, account: accountDrawer, profile: profileDrawer, 'goal-form': goalFormDrawer, 'goal-view': goalViewDrawer, 'goal-move': goalMoveDrawer,

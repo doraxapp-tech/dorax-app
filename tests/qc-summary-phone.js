@@ -117,35 +117,60 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       `${lang} at ${w} px: no title on top (the bar says it), the month on the left and the Journey right beside it (v167), the list fits, no sideways scroll`);
     eq(errors, [], `${lang}: no error in the console`); await browser.close();
   }
-  // ---------- 5. the home page's language on the summary (owner, 2026-10-11: "commit el estilo landing solo en resumen para verlo live") ----------
-  // a phone, light, the household: the sage page, the forest "You can spend" with its name on top and its lime "See" at the foot, white tiles; nowhere else
+  // ---------- 5. the summary "Bosque" (owner, 2026-10-11: "lleva esa a cabo en resumen, exactamente lo que me muestras") ----------
+  // a phone, light, the household: the forest block at the top, "You can spend" half on it with its lime strip, four round buttons, the accounts as
+  // round logos, what there is to pay as cards, the days of freedom and the goals side by side, the bar at the foot floating; nowhere else
   for (const w of [390, 320]) {
     ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: w, height: 844 }, touch: true, mobile: true }));
     await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
-    const land = () => page.evaluate(() => { const root = document.documentElement, f = document.querySelector('#free-card'), cs = el => el ? getComputedStyle(el) : {};
-      const chip = f && f.querySelector('h2.sec'), fig = f && f.querySelector('.fu-n'), see = f && f.querySelector('.part-h .btn.go'), tile = document.querySelector('.quick-row button');
-      const r = el => el.getBoundingClientRect();
-      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor,
-        free: f ? [cs(f).backgroundColor, cs(chip).color, cs(fig).color, cs(see).backgroundColor, r(chip).bottom <= r(fig).top && r(fig).bottom <= r(see).top, Math.round(r(see).height) >= 44, r(see).left - r(f).left < 40] : null,
-        tile: tile ? [cs(tile).backgroundColor, cs(tile).borderTopColor, Math.round(r(tile).height) >= 92, parseFloat(cs(tile).fontSize) >= 12] : null,
-        wide: document.documentElement.scrollWidth - innerWidth };
+    const look = () => page.evaluate(() => { const root = document.documentElement, cs = el => el ? getComputedStyle(el) : {}, r = el => el.getBoundingClientRect();
+      const f = document.querySelector('#view > .bq-free'), head = document.querySelector('.topbar > .pagehead'), foot = f && f.querySelector('.bq-free-foot'), bal = document.querySelector('.bar-bal .bb-link b');
+      const acts = [...document.querySelectorAll('#quick-acts button')], tab = document.querySelector('.tabbar');
+      return { on: root.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, page: cs(document.querySelector('.work')).backgroundColor, block: [cs(document.querySelector('.topbar > .navbar')).backgroundColor, cs(head).backgroundColor],
+        card: f ? [f === document.querySelector('#view').firstElementChild, cs(f).backgroundColor, r(f).top < r(head).bottom && r(f).bottom > r(head).bottom, cs(foot).backgroundColor, foot.dataset.a, Math.round(r(foot).height) >= 44] : null,
+        acts: acts.map(b => b.dataset.v || b.dataset.a).join(), actsTall: acts.every(b => r(b).height >= 44),
+        accounts: document.querySelectorAll('#ac-card .bq-acc').length === personal().length, logos: !!document.querySelector('#ac-card .bq-acc .inst img'),
+        bills: document.querySelectorAll('#todo .bq-bill').length > 0, firstDue: (document.querySelector('#todo .bq-bill.first .bq-due') || {}).textContent,
+        pair: [...document.querySelectorAll('#view > .bq-pair > [id]')].map(x => x.id).join(),
+        bar: [cs(tab).backgroundColor, r(tab).left >= 6, r(tab).bottom < innerHeight],
+        whole: bal.scrollWidth <= bal.clientWidth + 1, wide: document.documentElement.scrollWidth - innerWidth };
     });
-    eq(await land(), { on: true, meta: '#F2F4EE', page: 'rgb(242, 244, 238)', free: ['rgb(22, 51, 0)', 'rgb(159, 209, 130)', 'rgb(255, 255, 255)', 'rgb(159, 209, 130)', true, true, true],
-      tile: ['rgb(255, 255, 255)', 'rgb(225, 229, 220)', true, true], wide: 0 }, `${w} px: the summary in the home page's language (sage page, forest card with its name on top and its lime See at the foot, white tiles)`);
+    eq(await look(), { on: true, meta: '#163300', page: 'rgb(242, 244, 238)', block: ['rgb(22, 51, 0)', 'rgb(22, 51, 0)'], card: [true, 'rgb(44, 82, 25)', true, 'rgb(159, 209, 130)', 'free-view', true],
+      acts: 'expense,income,transfer,quick-more', actsTall: true, accounts: true, logos: true, bills: true, firstDue: 'en 3 días', pair: 'runway-card,goals-card',
+      bar: ['rgb(22, 51, 0)', true, true], whole: true, wide: 0 }, `${w} px: the summary "Bosque" as designed`);
     if (w === 390) {
+      // More: the other things to do, in a list; a bill opens its details; "You can spend" opens how it was worked out
+      await page.click('#quick-acts [data-a="quick-more"]');
+      eq(await page.evaluate(() => { const vs = [...document.querySelectorAll('.bq-more-sheet [data-a="quick-go"]')].map(b => b.dataset.v); return [vs.length > 3, vs.some(v => ['expense', 'income', 'transfer'].includes(v)), document.activeElement === document.querySelector('.bq-more-sheet [data-a="quick-go"]')]; }), [true, false, true], 'More lists the other things to do, the focus on the first');
+      await page.evaluate(() => A.close());
+      await page.click('#todo .bq-bill.first'); await page.waitForTimeout(200);
+      ok(await page.evaluate(() => !!(UI.drawer && document.querySelector('#overlay .drawer'))), 'a bill opens its details');
+      await page.evaluate(() => A.close());
+      await page.click('#free-open'); await page.waitForTimeout(200);
+      ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'free-view')), '"You can spend" opens how it was worked out');
+      await page.evaluate(() => A.close());
+      // the order: the design's by default, without "You can spend" (it stays at the top); a part moved moves on the page; the original order comes back
+      eq(await page.evaluate(() => dashOrder()), ['quick', 'accounts', 'todo', 'runway', 'goals', 'insight', 'planned', 'fii', 'recent'], 'the design’s order by default');
+      await page.click('#dash-order-btn'); await page.click('.d-order .ord-btn[data-id="todo"][data-d="-1"]');
+      eq(await page.evaluate(() => [...document.querySelectorAll('#view > [id]')].map(x => x.id).slice(0, 5)), ['free-card', 'mc-ask', 'quick-acts', 'todo', 'ac-card'], 'a part moved up moves on the page; You can spend stays first');
+      await page.click('.d-order [data-a="dash-order-reset"]'); await page.evaluate(() => A.close());
+      // a month already over: no card on the block, which ends under the month
+      await page.evaluate(() => A.month({ d: '-1' }));
+      eq(await page.evaluate(() => [!!document.querySelector('.bq-free'), Math.round(parseFloat(getComputedStyle(document.querySelector('.topbar > .pagehead')).paddingBottom))]), [false, 24], 'a month already over: no card, the block ends under the month');
+      await page.evaluate(() => A.month({ d: '1' }));
       // the other pages, the company's side, the dark theme: as they were
       await page.evaluate(() => navigate('plan'));
-      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor]), [false, 'rgb(255, 255, 255)'], 'Plan keeps its white page');
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor, getComputedStyle(document.querySelector('.tabbar')).borderRadius]), [false, 'rgb(255, 255, 255)', '0px'], 'Plan keeps its white page and its bar on the edge');
       await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); });
-      eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'the company’s summary keeps its look');
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'the company’s summary keeps its look');
       await page.evaluate(() => { A.space({ v: 'personal' }); S.settings.theme = 'dark'; navigate('dashboard'); });
-      eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'the dark theme keeps its look');
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.quick-row'), !!document.querySelector('.bq-acts')]), [false, true, false], 'the dark theme keeps its summary');
     }
-    eq(errors, [], `${w} px, the landing look: no error in the console`); await browser.close();
+    eq(errors, [], `${w} px, Bosque: no error in the console`); await browser.close();
   }
   ({ browser, page, errors } = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 900 } }));
   await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
-  eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'a computer keeps its summary');
-  eq(errors, [], 'computer, the landing look: no error in the console'); await browser.close();
+  eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('.bq-free, .bq-acts')]), [false, false], 'a computer keeps its summary');
+  eq(errors, [], 'computer, Bosque: no error in the console'); await browser.close();
   done('qc-summary-phone');
 })();

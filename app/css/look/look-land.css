@@ -1,67 +1,192 @@
-/* Dorax Finance — the phone's summary in the home page's language (owner, 2026-10-11: "commit el estilo landing solo en resumen para verlo live",
-   after the design "Dorax móvil estilo landing"; before it he asked why the light theme was all white, with almost no contrast).
-   Only there for now: a phone, the light theme, the household's side, the summary. app/shell.js (applyTheme) puts .land on the page's root then;
-   the other pages, the dark theme and the company's side keep their look.
-   What changes on this page:
-     - the page is the home page's sage (#F2F4EE) and its cards stay white with their hairline, so every block stands out on its own, no shadow;
-     - the round buttons at the top, the month and Journey are white on the sage, with a hairline;
-     - "You can spend" is the page's one forest card: its name a chip with lime words, the figure large and white, a lime ring at its corner, and
-       its lime "See" at the foot, as the home page's forest cards (the ring hangs from the top corner, above the figure's row, so a long
-       amount never runs into it, down to 320 px);
-     - the quick things to do are white tiles, each with its circle (the first lime, the others mint), to swipe as before;
-     - the way from a part to its page ("Open plan", "Open goals") is a forest link, not a framed button.
-   Nothing moves and nothing goes: the parts, their order and what each tap does are the same. */
+/* Dorax Finance — the household's summary on a phone in the light theme, "Bosque" (owner, 2026-10-11: "lleva esa a cabo en resumen, exactamente lo
+   que me muestras"; the design is the second row of the canvas "Dorax móvil estilo landing"). It replaces, on that page, the landing look of v174
+   ("commit el estilo landing solo en resumen para verlo live"), which kept the page's parts and only changed their colours.
+   app/shell.js (applyTheme) puts .land on the page's root on a phone, in the light theme, on the household's summary; the markup of the parts is
+   features/phone/bosque.js. The other pages, the dark theme, the company's side and a computer keep their look.
+   Colours: the brand's forest #163300 and a lighter forest #2C5219 for the card on it, lime #9FD182, mint #E2F6D5, the sage page #F2F4EE with white
+   cards and #E1E5DC hairlines; on the forest the words are white, #C9D2C0 when quieter. */
 @media (max-width: 920px) {
   /* ---------- the page: sage, as the home page ---------- */
   html.app-light.in-app.land, html.app-light.in-app.land body { background: #F2F4EE; }
   :root.land .work { --bg: #F2F4EE; --glass: rgba(242, 244, 238, .92); background: #F2F4EE; }
-  :root.land .navbar { background: rgba(242, 244, 238, .92); }
 
-  /* ---------- the round buttons at the top: white on the sage ---------- */
-  :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { background: #FFFFFF; border-color: #E1E5DC; color: #0E0F0C; }
-  :root.land .navbar .bell .count { background: #9FD182; color: #163300; box-shadow: 0 0 0 2px #F2F4EE; }
+  /* ---------- the forest block at the top: the panel, the balance and the month's row (on a phone the top bar lays its rows out on the page,
+     base/responsive.css: display: contents, so each row paints the block). Inside it the theme's words and lines are light on dark. ---------- */
+  :root.land .topbar {
+    --bg: #163300; --glass: #163300; --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .08);
+    --ink-strong: #FFFFFF; --ink: #F1F4EE; --ink-2: #C9D2C0; --ink-3: #A9B3A0;
+    --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24); --hover-line: rgba(255, 255, 255, .4);
+    --brand: #9FD182; --brand-deep: #9FD182; --focus: #9FD182; --on-dark: #FFFFFF; color: #FFFFFF;
+  }
+  :root.land .topbar > .navbar, :root.land .topbar > .bar-bal, :root.land .topbar > .pagehead { background: #163300; }
+  :root.land .topbar > .navbar { border-bottom: 0; box-shadow: 0 -60vh 0 0 #163300; }      /* pulled down past the top, the same forest shows above it */
+  :root.land.scrolled .topbar > .navbar { border-radius: 0 0 24px 24px; box-shadow: 0 -60vh 0 0 #163300, 0 8px 20px -12px rgba(14, 15, 12, .45); }
+  :root.land .topbar > .pagehead { margin: 0 0 16px; padding-bottom: 24px; border-radius: 0 0 32px 32px; }
+  :root.land .topbar > .pagehead.bare { height: 24px; padding: 0; }
+  /* with "You can spend" first, the block goes on under it, so the card sits half on the forest and half on the page */
+  :root.land .work:has(#view > .bq-free:first-child) .topbar > .pagehead { margin-bottom: 0; padding-bottom: 108px; }
+  :root.land #view > .bq-free:first-child { margin-top: -96px; }
 
-  /* ---------- the net balance ---------- */
-  :root.land .bar-bal .bb-link small { color: #454745; font-weight: 500; }
-  :root.land .bar-bal .bb-link b { font-weight: 600; letter-spacing: -.045em; }
+  /* who is using it: the photo or the first letter on lime; the round buttons light on the forest */
+  :root.land .bar-who .bw-t small { color: #C9D2C0; }
+  :root.land .bar-who .bw-t b { color: #FFFFFF; }
+  :root.land .bar-who .avatar { width: 44px; height: 44px; box-shadow: none; }
+  :root.land .bar-who .avatar.bq-init { display: grid; place-items: center; border-radius: 50%; background: #9FD182; color: #163300; font-size: 17px; font-weight: 700; line-height: 1; }
+  :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { width: 44px; height: 44px; border-color: rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); color: #FFFFFF; }
+  :root.land .navbar .bell .count { background: #9FD182; color: #163300; box-shadow: 0 0 0 2px #163300; }
+  :root.land .bar-who:focus-visible, :root.land .navbar .bell:focus-visible, :root.land .more-btn:focus-visible, :root.land .navbar .side-flip:focus-visible, :root.land .bar-bal .bb-link:focus-visible, :root.land .bar-bal .bb-eye:focus-visible { outline: 2px solid #9FD182; outline-offset: 2px; }
 
-  /* ---------- the month and Journey: white pills ---------- */
-  :root.land .pagehead .month.m-ph { background: #FFFFFF; border-color: #E1E5DC; }
-  :root.land .jr-btn { background: #FFFFFF; border-color: #E1E5DC; }
-  :root.land .jr-btn svg { color: #163300; }
+  /* the net balance: large and white, its cents quieter */
+  :root.land .bar-bal .bb-link small { color: #C9D2C0; font-size: 14px; font-weight: 500; }
+  :root.land .bar-bal .bb-link b { color: #FFFFFF; font-weight: 600; letter-spacing: -.045em; }
+  :root.land .bar-bal .bb-link b:not(.long) { font-size: clamp(32px, 11.8vw, 46px); line-height: 1.05; }      /* whole on a 320 px phone too */
+  :root.land .bar-bal .bb-link b .cents { color: #C9D2C0; opacity: 1; font-size: .5em; letter-spacing: 0; }
+  :root.land .bar-bal .bb-link b.neg { color: #FF8A80; }
+  :root.land .bar-bal .bb-eye { color: #C9D2C0; }
 
-  /* ---------- a part's way to its page: a forest link ---------- */
+  /* the month and Journey: light pills on the forest */
+  :root.land .pagehead .month.m-ph { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); }
+  :root.land .pagehead .m-ph button { color: #C9D2C0; }
+  :root.land .pagehead .m-ph button:disabled { color: rgba(255, 255, 255, .3); }
+  :root.land .pagehead .m-ph button:active:not(:disabled) { background: rgba(255, 255, 255, .14); color: #FFFFFF; }
+  @media (hover: hover) and (pointer: fine) { :root.land .pagehead .m-ph button:hover:not(:disabled) { background: rgba(255, 255, 255, .14); color: #FFFFFF; } }
+  :root.land .pagehead .m-ph .m-slide { color: rgba(255, 255, 255, .6); }
+  :root.land .pagehead .m-ph .m-slide.mid { color: #FFFFFF; font-weight: 600; }
+  :root.land .jr-btn { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); color: #FFFFFF; font-weight: 600; }
+  :root.land .jr-btn svg { color: #9FD182; }
+  :root.land .jr-btn b { background: rgba(159, 209, 130, .2); color: #9FD182; }
+  @media (hover: hover) and (pointer: fine) { :root.land .jr-btn:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .3); color: #FFFFFF; } }
+  :root.land .topbar .m-back .btn.primary { background: #9FD182; border-color: #9FD182; color: #163300; }
+
+  /* ---------- "You can spend": the card half on the block ---------- */
+  :root.land #view .bq-free { position: relative; z-index: 2; overflow: hidden; display: flex; flex-direction: column; border-radius: 28px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); color: #FFFFFF;
+    /* the brand's rings behind the figure, hairline tracks and one lime quarter (the logo book's "Rings"), cut by the card's corner; a background,
+       so nothing reaches past the screen's edge */
+    background: #2C5219 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='230' height='230' viewBox='0 0 230 230'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.07)' stroke-width='1.5'%3E%3Ccircle cx='115' cy='115' r='104'/%3E%3Ccircle cx='115' cy='115' r='80'/%3E%3Ccircle cx='115' cy='115' r='56'/%3E%3C/g%3E%3Cpath d='M115 35A80 80 0 0 1 195 115' fill='none' stroke='%239FD182' stroke-width='10' stroke-linecap='round' transform='rotate(90 115 115)'/%3E%3Cpath d='M115 11A104 104 0 0 1 207 66' fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='7' stroke-linecap='round' transform='rotate(170 115 115)'/%3E%3C/svg%3E") no-repeat right -58px top -64px / 230px 230px; }
+  :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 20px 18px; }
+  :root.land .bq-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 13px 0 11px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #9FD182; font-size: 13px; font-weight: 600; }
+  :root.land .bq-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #9FD182; }
+  :root.land .bq-free .fu-big { color: #C9D2C0; font-size: 18px; font-weight: 500; line-height: 1; }
+  :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 56px; font-weight: 600; letter-spacing: -.05em; line-height: 1; margin-right: 4px; }
+  :root.land .bq-free-foot { all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 10px 12px 10px 20px; background: #9FD182; color: #163300; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-free-foot:active { background: #93C576; }
+  :root.land .bq-free-foot:focus-visible { outline: 2px solid #163300; outline-offset: -4px; }
+  :root.land .bq-say { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; }
+  :root.land .bq-say::first-letter { text-transform: uppercase; }
+  :root.land .bq-go { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #163300; color: #9FD182; }
+  :root.land .bq-go svg { width: 18px; height: 18px; stroke-width: 2.4; }
+
+  /* ---------- four round buttons in one white bar ---------- */
+  :root.land .bq-acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 14px 8px 12px; border-radius: 28px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E1E5DC; }
+  :root.land .bq-acts button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-acts button:active { transform: scale(.94); }
+  :root.land .bq-acts button:focus-visible { outline: 2px solid #163300; outline-offset: 2px; }
+  :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
+  :root.land .bq-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #EEF1EA; color: #163300; }
+  :root.land .bq-ico svg { width: 21px; height: 21px; }
+  :root.land .bq-ico.on { background: #9FD182; }
+
+  /* ---------- a section's heading: the name, and the way to its page ---------- */
+  :root.land .bq-sec { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  :root.land .bq-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; }      /* with the page's 24 px, 26 px above a heading, as designed */
+  :root.land .bq-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  :root.land .bq-h h2 { margin: 0; color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  :root.land .bq-sub { color: #454745; font-size: 13px; }
+  :root.land .bq-more { display: inline-flex; align-items: center; gap: 2px; flex: none; min-height: 44px; color: #163300; font-size: 14px; font-weight: 600; text-decoration: none; }
+  :root.land .bq-more svg { width: 16px; height: 16px; stroke-width: 2.2; }
+  :root.land .bq-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 16px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E1E5DC; }
+  /* a row to swipe sideways, from edge to edge of the screen */
+  :root.land .bq-row { list-style: none; display: flex; margin: 0 -16px; padding: 2px 16px 4px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  :root.land .bq-row::-webkit-scrollbar { display: none; }
+  :root.land .bq-row > li { flex: none; scroll-snap-align: start; }
+
+  /* ---------- the accounts: round logos ---------- */
+  :root.land .bq-accs { gap: 8px; }
+  :root.land .bq-acc { all: unset; box-sizing: border-box; cursor: pointer; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 2px; text-align: center; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-acc:focus-visible { outline: 2px solid #163300; outline-offset: 2px; border-radius: 14px; }
+  :root.land .bq-acc:active .bq-mark { transform: scale(.94); }
+  :root.land .bq-mark { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E1E5DC; transition: transform var(--t1) ease-out; }
+  :root.land .bq-mark .inst { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; font-size: 13px; }
+  :root.land .bq-mark .inst img { width: 40px; height: 40px; border-radius: 50%; }
+  :root.land .bq-mark .inst svg { width: 20px; height: 20px; }
+  :root.land .bq-acc-n { max-width: 100%; overflow: hidden; color: #0E0F0C; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .bq-acc-v { margin-top: -4px; color: #454745; font-size: 12px; white-space: nowrap; }
+  :root.land .bq-acc-v.neg { color: #B42318; }
+
+  /* ---------- what there is to pay: small cards ---------- */
+  :root.land .bq-bills { gap: 10px; margin-top: 4px; }
+  :root.land .bq-bill { all: unset; box-sizing: border-box; cursor: pointer; width: 156px; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E1E5DC; color: #0E0F0C; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-bill:active { transform: scale(.97); }
+  :root.land .bq-bill:focus-visible { outline: 2px solid #163300; outline-offset: 2px; }
+  :root.land .bq-bill-t { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  :root.land .bq-bill .bq-ico { width: 40px; height: 40px; }
+  :root.land .bq-bill .bq-ico svg { width: 19px; height: 19px; }
+  :root.land .bq-bill .bq-ico .inst { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; font-size: 13px; }
+  :root.land .bq-bill .bq-ico .inst img { width: 40px; height: 40px; border-radius: 50%; }
+  :root.land .bq-bill.first .bq-ico { background: #163300; color: #9FD182; }
+  :root.land .bq-due { flex: 0 1 auto; min-width: 0; overflow: hidden; padding: 4px 9px; border-radius: 999px; background: #EEF1EA; color: #163300; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .bq-bill.first .bq-due { background: #9FD182; font-weight: 700; }
+  :root.land .bq-due.late, :root.land .bq-bill.first .bq-due.late { background: #FDE7E4; color: #B42318; }
+  :root.land .bq-bill-n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; font-weight: 600; line-height: 1.25; }
+  :root.land .bq-bill-v { color: #454745; font-size: 13px; line-height: 1.3; }
+
+  /* ---------- the days of freedom as a ring, the goals on mint, side by side ---------- */
+  :root.land .bq-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 2px; }
+  :root.land .bq-run, :root.land .bq-goals { min-width: 0; }
+  :root.land .bq-tile { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; padding: 16px; border-radius: 26px; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-tile:active { transform: scale(.98); }
+  :root.land .bq-tile:focus-visible { outline: 2px solid #163300; outline-offset: 2px; }
+  :root.land .bq-tile-h { font-size: 14px; font-weight: 600; }
+  :root.land .bq-run .bq-tile { background: #FFFFFF; box-shadow: inset 0 0 0 1px #E1E5DC; color: #0E0F0C; }
+  :root.land .bq-ring { position: relative; align-self: center; display: grid; place-items: center; width: 104px; height: 104px; }
+  :root.land .bq-ring svg { position: absolute; inset: 0; width: 104px; height: 104px; }
+  :root.land .bq-ring-n { position: relative; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  :root.land .bq-ring-n b { font-size: 28px; font-weight: 600; letter-spacing: -.03em; }
+  :root.land .bq-ring-n small { margin-top: 3px; color: #454745; font-size: 12px; }
+  :root.land .bq-tile-s { color: #454745; font-size: 12px; line-height: 1.4; }
+  :root.land .bq-goals .bq-tile { gap: 12px; background: #E2F6D5; color: #163300; }
+  :root.land .bq-goals-v { display: flex; flex-direction: column; gap: 2px; }
+  :root.land .bq-goals-v b { color: #0E0F0C; font-size: 26px; font-weight: 600; letter-spacing: -.04em; line-height: 1.05; }
+  :root.land .bq-goals-v b .cents { font-size: .55em; }
+  :root.land .bq-goals-v small { color: #2F4A1C; font-size: 12px; text-transform: lowercase; }
+  :root.land .bq-g { display: flex; flex-direction: column; gap: 6px; }
+  :root.land .bq-g-t { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 600; }
+  :root.land .bq-g-t span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .bq-bar { display: block; height: 8px; overflow: hidden; border-radius: 999px; background: rgba(22, 51, 0, .12); }
+  :root.land .bq-bar i { display: block; height: 100%; border-radius: 999px; background: #163300; }
+  /* alone (the other is hidden or not this month), each takes the whole row */
+  :root.land #view > .bq-run .bq-tile, :root.land #view > .bq-goals .bq-tile { align-items: stretch; }
+
+  /* ---------- the day's fact: one quiet line with the lime dot ---------- */
+  :root.land .ins-strip .ins-say { color: #454745; }
+  :root.land .ins-strip .ins-say::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: #9FD182; box-shadow: 0 0 0 3px rgba(159, 209, 130, .3); vertical-align: 1px; }
+  :root.land .ins-strip .ins-m, :root.land .ins-strip .ins-ar { color: #163300; }
+
+  /* ---------- the other parts (the month as planned, the latest transactions…): the same headings, their cards white ---------- */
+  :root.land #view .card.part-out > .part-h h2.sec { min-height: 0; padding: 0; border-radius: 0; background: none; box-shadow: none; color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land #view .card.part-out > .part-h h2.sec::before { display: none; }
   :root.land #view .card.part-out > .part-h .btn.sm.go { min-height: 44px; padding: 0 2px 0 8px; border: 0; border-radius: 999px; background: none; box-shadow: none; color: #163300; font-size: 14px; font-weight: 600; }
   :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: #163300; }
-
-  /* ---------- the notice about the month that closed: round as the cards ---------- */
   :root.land #view .mc-ask { border-radius: 24px; }
 
-  /* ---------- "You can spend": the forest card ---------- */
-  :root.land #view #free-card.part-out {
-    position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px 22px 22px; border-radius: 28px; color: #FFFFFF;
-    background: #163300 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Ccircle cx='110' cy='110' r='90' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='2'/%3E%3Ccircle cx='110' cy='110' r='70' fill='none' stroke='%239FD182' stroke-width='10' stroke-linecap='round' stroke-dasharray='300 440' transform='rotate(-20 110 110)'/%3E%3C/svg%3E") no-repeat right -78px top -112px / 220px 220px;
-  }
-  /* its name on top, the figure, and its "See" at the foot: the head's two halves join the card's own column */
-  :root.land #view #free-card.part-out > .part-h { display: contents; }
-  :root.land #view #free-card .part-h .part-t { order: 0; }
-  :root.land #view #free-card.part-out > .part-box { order: 1; align-self: stretch; background: none; border: 0; border-radius: 0; }
-  :root.land #view #free-card .part-h .right { order: 2; margin: 0; }
-  :root.land #view #free-card h2.sec { background: rgba(255, 255, 255, .06); box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); color: #9FD182; }
-  :root.land #view #free-card .rw-tap { width: calc(100% + 12px); margin: -6px; padding: 6px; gap: 12px; border-radius: 16px; color: #FFFFFF; }
-  :root.land #view #free-card .rw-tap:active { background: rgba(255, 255, 255, .06); }
-  :root.land #view #free-card .rw-tap:focus-visible { outline-color: #9FD182; }
-  :root.land #view #free-card .fu-big { color: #C9D2C0; font-size: 18px; }
-  :root.land #view #free-card .fu-n { color: #FFFFFF; font-size: 52px; letter-spacing: -.045em; }
-  :root.land #view #free-card .fu-say { max-width: 290px; color: #C9D2C0; }
-  :root.land #view #free-card .part-h .btn.sm.go { min-height: 44px; padding: 0 16px 0 20px; border: 0; border-radius: 999px; background: #9FD182; color: #163300; font-size: 14px; font-weight: 600; }
-  :root.land #view #free-card .part-h .btn.sm.go svg { color: #163300; }
-  :root.land #view #free-card .part-h .btn.sm.go:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+  /* ---------- the bar at the foot floats: forest, the screen in use a lime pill, the + lime ---------- */
+  :root.land .content { padding-bottom: calc(112px + var(--safe-b)); }
+  :root.land .tabbar { left: 12px; right: 12px; bottom: calc(14px + var(--safe-b)); align-items: center; height: 72px; padding: 0 6px; border: 0; border-radius: 999px; background: #163300; box-shadow: 0 14px 30px -14px rgba(22, 51, 0, .55); }
+  :root.land .tabbar a { min-height: 60px; color: #C9D2C0; }
+  :root.land .tabbar a svg { position: relative; z-index: 1; color: inherit; }
+  :root.land .tabbar a[aria-current="page"] { color: #FFFFFF; font-weight: 600; }
+  :root.land .tabbar a[aria-current="page"]::before { top: 50%; left: 50%; right: auto; width: 46px; height: 30px; border-radius: 999px; background: #9FD182; transform: translate(-50%, calc(-50% - 8px)); }
+  :root.land .tabbar a[aria-current="page"] svg { color: #163300; }
+  :root.land .tabbar :focus-visible { outline-color: #9FD182; }
+  :root.land .tabbar .fab { transform: none; background: #9FD182; color: #163300; box-shadow: none; }
+  :root.land .tabbar .fab:active { transform: scale(.92); }
 
-  /* ---------- the quick things to do: white tiles, to swipe ---------- */
-  :root.land .quick-row { gap: 10px; padding: 2px 16px 4px; }
-  :root.land .quick-row button { flex: 0 0 calc((100% - 30px) / 3.3); justify-content: flex-start; gap: 8px; min-height: 104px; padding: 14px 8px 12px; border: 1px solid #E1E5DC; border-radius: 22px; background: #FFFFFF; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.25; }
-  :root.land .quick-row .fl-ico { width: 40px; height: 40px; border-color: #E2F6D5; background: #E2F6D5; color: #163300; }
-  :root.land .quick-row button:first-child .fl-ico { border-color: #9FD182; background: #9FD182; }
-  :root.land .quick-row .fl-ico svg { width: 19px; height: 19px; }
+  /* ---------- narrow phones: the round buttons at the top a little smaller, so the greeting keeps one line; the bar at the foot wider, so
+     "Transacciones" fits its column as on the bar that sits on the edge (screens/phone.css) ---------- */
+  @media (max-width: 374px) {
+    :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { width: 40px; height: 40px; }
+    :root.land .bar-who .avatar { width: 40px; height: 40px; }
+    :root.land .tabbar { left: 6px; right: 6px; padding: 0 4px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 60px minmax(0, 1fr) minmax(0, 1fr); }
+    :root.land .tabbar .fab { width: 52px; height: 52px; }
+  }
 }

@@ -191,12 +191,19 @@ function linePayDrawer(d) {
 // with soonOnly, the card is drawn only when something that has a date is late, due today or due within TODO_SOON days. What has no date
 // (savings to hand out, a bill without a due day) does not bring the card up by itself; once it is up, everything is listed as before.
 const TODO_SOON = 7;
-function todoCard(soonOnly, max) {      // max: how many bills are listed (a computer's summary: 4, 2026-10-11)
+/** What waits in the next 30 days, read by the To do card and by the phone's summary in the light theme (features/phone/bosque.js): the bills and
+    the card invoices in date order with their total, how many bills have no due day, last month's bills with no payment, and the month's savings
+    still to hand out. */
+function todoData() {
   const today = B().today, nowYm = ymOf(today), prevYm = addMonths(nowYm, -1);
   const bills = upcomingBills(B(), today, BCUR(), 30).filter(p => p.dueDate || !onCard(B(), p)), noDay = bills.filter(p => !p.dueDate).length;
   const inv = cardInvoices(B(), today, BCUR()).filter(c => !c.paid && c.amount > 0 && c.days <= 30).map(c => ({ card: true, id: c.accountId, name: t('{name}: invoice', { name: c.name }), dueDate: c.date, days: c.days, planned: c.amount, pay: c.estimate ? 'variable' : 'fixed', status: c.days < 0 ? 'late' : '' }));
   const rows = [...bills, ...inv].sort((x, y) => (x.dueDate || '9') < (y.dueDate || '9') ? -1 : (x.dueDate || '9') > (y.dueDate || '9') ? 1 : y.planned - x.planned);
-  const total = sum(rows.map(p => p.planned)), shown = rows.slice(0, max || 6);
+  const d = distribution(B(), nowYm), past = reminders(B(), today, BCUR(), { bills: true, lead: 0, askDue: false }).find(r => r.kind === 'past');
+  return { today, nowYm, prevYm, rows, total: sum(rows.map(p => p.planned)), noDay, d, past };
+}
+function todoCard(soonOnly, max) {      // max: how many bills are listed (a computer's summary: 4, 2026-10-11)
+  const { today, nowYm, prevYm, rows, total, noDay, d, past } = todoData(), shown = rows.slice(0, max || 6);
   // a late one keeps its date in the column, in the warning colour, and says "Late" at the start of its line: the word as a chip did not fit the
   // column and ran over the name on a phone (owner, 2026-10-08: "the To do card looks broken on mobile")
   const late = p => p.status === 'late' || p.days < 0;
@@ -210,7 +217,7 @@ function todoCard(soonOnly, max) {      // max: how many bills are listed (a com
         : btn('plus', t('Record payment'), `data-a="line-pay" data-id="${p.id}" data-ym="${p.ym}"`, soon(p));
   const bill = p => { const a = p.card ? null : lineAcct(p); return `<div class="li todo${p.dueDate ? '' : ' nod'}"><span class="when">${when(p)}</span><span class="grow"><b>${esc(p.name)}</b><small>${p.dueDate && late(p) ? `<span class="late-word">${t('Late')}</span> · ` : ''}${p.pay === 'variable' ? '≈ ' : ''}${fmt.money(p.planned, BCUR())}${a ? ' · ' + acctTag(a) : ''}</small></span>${act(p)}</div>`; };
   // the other things that wait: each is one row with the place where it is done
-  const d = distribution(B(), nowYm), c = closeInfo(prevYm), past = reminders(B(), today, BCUR(), { bills: true, lead: 0, askDue: false }).find(r => r.kind === 'past'), other = [];
+  const c = closeInfo(prevYm), other = [];
   if (past) other.push(`<div class="li todo"><span class="when"><span class="chip warn"><i></i>${fmt.month(past.ym, 'bare')}</span></span><span class="grow"><b>${tn(past.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(past.ym) })}</b><small>${fmt.money(past.amount, BCUR())} · ${esc(past.lines.slice(0, 3).map(x => x.name).join(', '))}</small></span>${btn('right', t('Open {month}', { month: fmt.month(past.ym, 'bare') }), `data-a="remind-month" data-ym="${past.ym}" data-route="plan"`)}</div>`);
   if (d.pending > 0) other.push(`<div class="li todo"><span class="when">${icon('flag')}</span><span class="grow"><b>${t('Savings for {month}', { month: fmt.month(nowYm) })}</b><small>${t('{amount} still to hand out', { amount: fmt.money(d.pending, BCUR()) })} · ${tn(d.rows.filter(r => r.pending > 0).length, '{n} goal', '{n} goals')}</small></span>${btn('right', t('Hand it out'), `data-a="remind-month" data-ym="${nowYm}" data-route="goals"`)}</div>`);
   // the statements for the accountant are the company's to-do (owner, 2026-10-09: the accounts do not mix): never on the household's side

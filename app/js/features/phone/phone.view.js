@@ -17,7 +17,7 @@ if (PHONE_MQ) { const again = () => { if (typeof UI !== 'undefined' && UI.sessio
     who has a company, the same Household | Company choice as the menu's (sideSwitch, app/shell.js) right under it. The name leads to the profile. */
 function barWho() {
   const h = new Date().getHours(), name = esc(firstName(S.user.name) || S.user.email || t('Profile'));
-  return `<a class="bar-who" href="#profile" aria-label="${t('Profile')}: ${name}">${avatar()}<span class="bw-t"><small>${h < 12 ? t('Good morning') : h < 19 ? t('Good afternoon') : t('Good evening')}</small><b>${name}</b></span></a>`;
+  return `<a class="bar-who" href="#profile" aria-label="${t('Profile')}: ${name}">${bosqueOn() ? bqAvatar() : avatar()}<span class="bw-t"><small>${h < 12 ? t('Good morning') : h < 19 ? t('Good afternoon') : t('Good evening')}</small><b>${name}</b></span></a>`;
 }
 
 /** Household | Company on a phone is a button beside the bell, two arrows going opposite ways (owner, 2026-10-08: "take the switch out of the top

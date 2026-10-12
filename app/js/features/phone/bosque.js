@@ -1,0 +1,134 @@
+/* Dorax Finance — the household's summary on a phone in the light theme, "Bosque" (owner, 2026-10-11: "lleva esa a cabo en resumen, exactamente lo
+   que me muestras", the second direction of the design canvas "Dorax móvil estilo landing", drawn after "siento que aún le falta personalidad" with
+   four banking apps for reference). It takes the place of the landing look of v174 on this one page. What it is, from the top:
+     - the top of the page is a forest block with rounded lower corners: the greeting, the net balance large in white, the month and Journey
+       (app/shell.js draws them; css/look/look-land.css colours them);
+     - "You can spend" is a card of its own that sits half on the block and half on the page: the figure for the day, and a lime strip at its foot
+       with until when, which opens how it was worked out;
+     - four round buttons in one white bar: expense, income, transfer and More (the other things the summary used to list in its row of circles);
+     - the accounts as round bank logos with their names and balances, to swipe;
+     - what there is to pay as small cards to swipe, each with its icon and when it is due ("in 3 days", the nearest one in lime);
+     - the days of freedom as a ring and the goals on a mint card, side by side;
+     - the day's fact as one quiet line; and the bar at the foot floats, forest, the screen in use a lime pill.
+   The parts keep their order and their eye in "Reorder the dashboard" (features/phone/phone.summary.js): this look has its own default order (the
+   design's), "You can spend" stays in the block at the top, and the days of freedom and the goals share a row when one follows the other.
+   The dark theme, the company's side, the other pages and a computer keep what they had. Every figure comes from the same places as before. */
+
+/** This look is on: a phone, the light theme, the household's side, the summary (the same test app/shell.js uses to mark the page with .land). */
+const bosqueOn = () => !!UI.session && S.settings.theme === 'light' && UI.space !== 'business' && UI.route === 'dashboard' && isPhone();
+
+/** The parts that draw their own heading in this look; the others take theirs out of their card as before (summary-heads.js). */
+const BQ_OWN = ['quick', 'accounts', 'todo', 'runway', 'goals', 'insight'];
+const bqSvg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const BQ_OUT = '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>', BQ_IN = '<path d="M17 7 7 17"/><path d="M16 17H7V8"/>';
+
+/** In the block at the top, the person's photo or the first letter of their name on a lime circle. */
+const bqAvatar = () => photoHas() ? avatar() : `<span class="avatar bq-init" aria-hidden="true">${esc(String(firstName(S.user.name) || S.user.email || '?').trim().charAt(0).toUpperCase())}</span>`;
+
+// ---------- "You can spend": the card half on the block ----------
+function bqFree() {
+  const r = freeUntil(S, S.today, CUR); if (!r || !fuOk(r)) return '';      // short of money it says so in the bell, as before (free-until.view.js)
+  return `<section class="bq-free" id="free-card" aria-label="${esc(fuTitle(r))}"><div class="bq-free-top"><span class="bq-chip">${fuTitle(r)}</span>${fuBig(r)}</div>
+    <button class="bq-free-foot" id="free-open" data-a="free-view" aria-haspopup="dialog"><span class="bq-say">${fuSay(r)}</span><span class="bq-go" aria-hidden="true">${bqSvg(BQ_OUT)}</span></button></section>`;
+}
+
+// ---------- four round buttons ----------
+function bqActions() {
+  const by = Object.fromEntries(quickItems().map(x => [x[0], x]));
+  const one = (v, d, on, label) => by[v] ? `<button data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}"><span class="bq-ico${on ? ' on' : ''}">${bqSvg(d)}</span><span>${label}</span></button>` : '';
+  return `<nav class="bq-acts" id="quick-acts" aria-label="${t('Add')}">${one('expense', BQ_OUT, true, quickShort('expense'))}${one('income', BQ_IN, false, quickShort('income'))}${one('transfer', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', false, t('Move money'))}<button data-a="quick-more" aria-haspopup="dialog"><span class="bq-ico">${icon('more')}</span><span>${t('More')}</span></button></nav>`;
+}
+/** More: every other thing the summary's row of circles offered, in a short list. */
+function bqMoreSheet() {
+  const rest = quickList().filter(x => x[0] !== 'main' && !QUICK_BASE.includes(x[0]));
+  return `<div class="scrim" data-a="close"></div><div class="sheet g-pick bq-more-sheet" role="dialog" aria-label="${t('What do you want to do?')}"><div class="grab" aria-hidden="true"></div><h2>${t('What do you want to do?')}</h2>
+    <div class="g-pick-list">${rest.map(([v, ic, l]) => `<button data-a="quick-go" data-v="${v}"><span class="fl-ico">${icon(ic)}</span><span class="grow"><b>${esc(l)}</b></span>${icon('right')}</button>`).join('')}</div></div>`;
+}
+
+// ---------- the accounts, as round logos ----------
+// the name under a logo: what is left of the account's name once the bank's is taken out ("Tarjeta Nubank" is "Tarjeta"), or the bank's short name
+// when nothing else is left or only a word like "Cuenta" ("Cuenta Nubank" is "Nubank", "Banco do Brasil" is "BB"); the full name is read aloud
+const BQ_SHORT = { 'Banco do Brasil': 'BB', 'Mercado Pago': 'M. Pago', 'C6 Bank': 'C6', 'BTG Pactual': 'BTG', 'Banco BV': 'BV' };
+const BQ_PLAIN = /^(cuenta|conta|account|cuenta corriente|conta corrente|corriente|corrente|checking)$/i;
+function bqShort(a) {
+  const inst = String(a.institution || ''); if (!BANK_MARKS[inst]) return a.name;
+  const rest = acctRest(a.name, inst);
+  return !rest || BQ_PLAIN.test(rest) ? (BQ_SHORT[inst] || inst) : rest;
+}
+const bqHead = (title, link, sub) => `<div class="bq-h"><span class="bq-t"><h2>${title}</h2>${sub ? `<span class="bq-sub">${sub}</span>` : ''}</span>${link || ''}</div>`;
+const bqLink = (href, label) => `<a class="bq-more" href="${href}">${label}${icon('right')}</a>`;
+function bqAccounts() {
+  const list = personal(), bal = a => accountBalance(S, a.id, S.today);
+  if (!list.length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty"><b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
+  // the money there is first, the most first; the cards after it, with what is owed on them in red
+  const rows = [...list.filter(a => a.type !== 'credit').map(a => [a, bal(a)]).sort((x, y) => y[1] - x[1]), ...list.filter(a => a.type === 'credit').map(a => [a, bal(a)])];
+  const mark = a => a.institution ? bankMark(a.institution) : `<span class="inst" aria-hidden="true">${icon('wallet')}</span>`;
+  const one = ([a, v]) => `<li><button class="bq-acc" data-a="view-account" data-id="${a.id}" aria-label="${esc(a.name)}: ${esc(fmt.money(v, a.currency))}"><span class="bq-mark" aria-hidden="true">${mark(a)}</span><span class="bq-acc-n" aria-hidden="true">${esc(bqShort(a))}</span><span class="bq-acc-v num${v < 0 ? ' neg' : ''}" aria-hidden="true">${fmt.money(v, a.currency, { round: true })}</span></button></li>`;
+  return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'), bqLink('#accounts', t('View all')))}<ul class="bq-accs bq-row">${rows.map(one).join('')}</ul></section>`;
+}
+
+// ---------- what there is to pay, as small cards ----------
+const bqDay = iso => { const d = +iso.slice(8, 10), m = mon(+iso.slice(5, 7) - 1); return S.settings.lang === 'en' ? `${m} ${d}` : `${d} ${m.toLowerCase()}`; };
+function bqTodo() {
+  const { nowYm, rows, total, d, past } = todoData();
+  // as the To do card on a phone: shown while something is due within the week, or last month has a bill with no payment
+  if (!(rows.some(p => p.dueDate && p.days <= TODO_SOON) || past)) return '';
+  const late = p => p.status === 'late' || p.days < 0;
+  const due = p => !p.dueDate ? [t('No day'), ''] : late(p) ? [t('Late'), ' late'] : p.days === 0 ? [t('Today'), ''] : p.days === 1 ? [t('Tomorrow'), ''] : p.days <= TODO_SOON ? [t('in {n} days', { n: p.days }), ''] : [bqDay(p.dueDate), ''];
+  const glyph = p => {
+    if (p.card) { const a = acct(p.id); return a && a.institution ? bankMark(a.institution) : icon('wallet'); }
+    const f = catOf(p.categoryId), k = catGuess({ name: p.name, id: '' });
+    return catIconSvg(k && k !== 'more' ? k : catIconKey(f && f.cat, f && f.sub));
+  };
+  const card = (p, i) => { const [when, cls] = due(p), amount = (p.pay === 'variable' ? '≈ ' : '') + fmt.money(p.planned, BCUR()), attrs = p.card ? `data-a="card-view" data-id="${p.id}"` : `data-a="line-open" data-id="${p.id}" data-ym="${p.ym}"`;
+    return `<li><button class="bq-bill${i ? '' : ' first'}" ${attrs} aria-label="${esc(`${p.name}, ${amount}, ${when}`)}"><span class="bq-bill-t" aria-hidden="true"><span class="bq-ico">${glyph(p)}</span><span class="bq-due${cls}">${esc(when)}</span></span><span class="bq-bill-n" aria-hidden="true">${esc(p.name)}</span><span class="bq-bill-v num" aria-hidden="true">${amount}</span></button></li>`; };
+  // the other things that wait, each one more card: last month's bills with no payment, and the savings still to hand out
+  const other = [];
+  if (past) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${past.ym}" data-route="plan"><span class="bq-bill-t"><span class="bq-ico">${icon('calendar')}</span><span class="bq-due late">${esc(fmt.month(past.ym, 'bare'))}</span></span><span class="bq-bill-n">${tn(past.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(past.ym) })}</span><span class="bq-bill-v num">${fmt.money(past.amount, BCUR())}</span></button></li>`);
+  if (d.pending > 0) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${nowYm}" data-route="goals"><span class="bq-bill-t"><span class="bq-ico">${icon('flag')}</span><span class="bq-due">${t('Hand it out')}</span></span><span class="bq-bill-n">${t('Savings for {month}', { month: fmt.month(nowYm) })}</span><span class="bq-bill-v num">${t('{amount} still to hand out', { amount: fmt.money(d.pending, BCUR()) })}</span></button></li>`);
+  return `<section class="bq-sec" id="todo">${bqHead(t('To pay'), bqLink('#plan', t('Open plan')), rows.length ? t('{amount} in the next 30 days', { amount: fmt.money(total, BCUR()) }) : '')}<ul class="bq-bills bq-row">${rows.slice(0, 8).map(card).join('')}${other.join('')}</ul></section>`;
+}
+
+// ---------- the days of freedom as a ring, the goals on mint ----------
+function bqRunway() {
+  const r = runway(B(), B().today, BCUR()); if (!r || r.days === null) return runwayCard();      // not worked out yet: its own card, with the way to set it up
+  const days = r.days, next = RUNWAY_MARKS.find(m => m > days), share = next ? Math.min(1, days / next) : 1, C = 2 * Math.PI * 44;
+  const months = days >= 60, n = months ? fmt.num(runwayMonths(days)) : fmt.num(days), unit = months ? t('months') : t('days');
+  const say = next ? t('Next goal: {mark}.', { mark: rwMark(next) }) : t('Past every goal: more than a year.');
+  return `<section class="bq-run" id="runway-card"><button class="bq-tile" id="runway-open" data-a="runway-view" aria-haspopup="dialog" aria-label="${esc(`${t('Days of freedom')}: ${rwFigure(days, false).span}. ${say}`)}">
+    <span class="bq-tile-h" aria-hidden="true">${t('Days of freedom')}</span>
+    <span class="bq-ring" aria-hidden="true"><svg viewBox="0 0 104 104" focusable="false"><circle cx="52" cy="52" r="44" fill="none" stroke="#E3E8DD" stroke-width="10"/>${share > 0 ? `<circle cx="52" cy="52" r="44" fill="none" stroke="#163300" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(share * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 52 52)"/>` : ''}</svg><span class="bq-ring-n"><b data-count="${months ? runwayMonths(days) : days}">${n}</b><small>${unit}</small></span></span>
+    <span class="bq-tile-s" aria-hidden="true">${say}</span></button></section>`;
+}
+function bqGoals() {
+  if (!B().goals.length) return '';
+  const total = sum(B().goals.map(g => goalSaved(B(), g.id)));
+  const top = B().goals.filter(g => g.status === 'active' && g.kind === 'goal' && !isYearly(g)).map(g => [g, goalStatus(B(), g, B().today)]).filter(([, st]) => st.target).slice(0, 2);
+  const bar = ([g, st]) => `<span class="bq-g"><span class="bq-g-t"><span>${esc(g.name)}</span><span class="num">${fmt.pct(Math.round(st.pct))}</span></span><span class="bq-bar"><i style="width:${Math.max(0, Math.min(100, st.pct))}%"></i></span></span>`;
+  return `<section class="bq-goals" id="goals-card"><a class="bq-tile" href="#goals" aria-label="${esc(`${t('Goals')}: ${fmt.money(total, BCUR())} ${t('set aside in goals and funds')}`)}">
+    <span class="bq-tile-h" aria-hidden="true">${t('Goals')}</span><span class="bq-goals-v" aria-hidden="true"><b class="num">${fmt.money(total, BCUR(), { trim: true })}</b><small>${t('Set aside')}</small></span>${top.map(bar).join('')}</a></section>`;
+}
+
+// ---------- the page ----------
+/** The parts in the order chosen; the days of freedom and the goals side by side when one follows the other. */
+function bqParts(parts) {
+  const ids = dashOrder().filter(id => parts[id]), hid = dashHidden(), on = ids.filter(id => !hid.includes(id)), out = [];
+  UI.dashShown = ids;
+  for (let i = 0; i < on.length; i++) {
+    const a = on[i], b = on[i + 1], tile = id => /class="bq-(run|goals)"/.test(parts[id]);
+    if (b && [a, b].sort().join() === 'goals,runway' && tile(a) && tile(b)) { out.push(`<div class="bq-pair">${parts[a]}${parts[b]}</div>`); i++; continue; }
+    out.push(BQ_OWN.includes(a) && !/^\s*<section class="card/.test(parts[a]) ? parts[a] : partOut(parts[a]));      // a part drawn as before (the days of freedom not worked out yet) takes its name out, as the others
+  }
+  return out.join('') + dashOrderRow(ids.length, ids.length - on.length);
+}
+/** The household's summary in this look (phone.home.js hands it over while bosqueOn()). The notices about the data come right under the card. */
+function bqHome(d) {
+  const { ym, inProgress, fresh } = d;
+  return `${inProgress ? bqFree() : ''}${firstSteps()}${inProgress ? monthCloseCard() : ''}${inProgress ? '' : d.pastNote}${companyAsk()}${d.openNote}` + bqParts({
+    quick: inProgress ? bqActions() : '', accounts: bqAccounts(), todo: inProgress ? bqTodo() : '', runway: inProgress ? bqRunway() : '', goals: inProgress ? bqGoals() : '',
+    insight: inProgress ? phoneInsight() : '', planned: fresh ? plannedMonthCard(ym) : '', categories: fresh ? '' : d.catCard, trend: fresh ? '' : d.trendCard, fii: fresh ? '' : d.fii, recent: fresh ? '' : d.recentCard });
+}
+
+const BOSQUE_ACTIONS = {
+  'quick-more'() { UI.sheet = 'quick-more'; renderOverlay(); const el = document.querySelector('.bq-more-sheet .g-pick-list button'); if (el) el.focus({ preventScroll: true }); },
+};

@@ -44,7 +44,12 @@ const DASH_PARTS = {
   // (features/dashboard/dash-glance.view.js). Before: two to a row, everything shown, the accounts' cards first.
   'home-pc': ['free', 'todo', 'runway', 'goals', 'categories', 'insight', 'planned', 'accounts', 'trend', 'fii', 'recent'],
   'co-pc': ['todo', 'runway', 'insight', 'goals', 'categories', 'planned', 'accounts', 'plan', 'received', 'trend', 'recent'],
+  // 2026-10-11 ("lleva esa a cabo en resumen, exactamente lo que me muestras"): the household's phone summary in the light theme (features/phone/bosque.js)
+  // has the design's order; "You can spend" is in the block at the top there, so it is not in the list
+  'home-bq': ['quick', 'accounts', 'todo', 'runway', 'goals', 'insight', 'planned', 'fii', 'recent'],
 };
+/** A side's default order: the household's phone summary in the light theme has its own (bosque.js). */
+const dashDefault = side => side === 'home' && typeof bosqueOn === 'function' && bosqueOn() ? DASH_PARTS['home-bq'] : DASH_PARTS[side];
 const dashSide = () => (inCompany() ? 'co' : 'home') + (isPhone() ? '' : '-pc');
 // 2026-10-08 (usability QC: the summary was almost five screens long): a phone shows six parts to start with; the others wait in the list of
 // "Reorder the dashboard", each with an eye to show it. The person's choice is kept per side (S.user.dashHidden); a computer shows them all.
@@ -60,17 +65,19 @@ function partName(id) {
 /** The side's order: the one saved, with any part added to the app since then placed after the part it follows by default. */
 function dashOrder(side) {
   side = side || dashSide();
-  const def = DASH_PARTS[side], saved = ((S.user.dashOrder || {})[side] || []).filter((id, i, xs) => def.includes(id) && xs.indexOf(id) === i), out = [...saved];
+  const def = dashDefault(side), saved = ((S.user.dashOrder || {})[side] || []).filter((id, i, xs) => def.includes(id) && xs.indexOf(id) === i), out = [...saved];
   def.forEach((id, i) => { if (out.includes(id)) return; const prev = def.slice(0, i).reverse().find(x => out.includes(x)); out.splice(prev ? out.indexOf(prev) + 1 : 0, 0, id); });
   return out;
 }
-const dashCustom = side => { const o = dashOrder(side); return DASH_PARTS[side || dashSide()].some((id, i) => o[i] !== id); };
+const dashCustom = side => { const o = dashOrder(side); return dashDefault(side || dashSide()).some((id, i) => o[i] !== id); };
 /** The parts in the chosen order, and at the foot the button that changes it. What is drawn is kept, so the list offers only what is on the page. */
 function phoneParts(parts) {
   const ids = dashOrder().filter(id => parts[id]), hid = dashHidden(), on = ids.filter(id => !hid.includes(id)), off = ids.length - on.length;
   UI.dashShown = ids;      // what the list offers: every part with something to show, hidden or not
-  return on.map(id => partOut(parts[id])).join('') + (ids.length > 1 ? `<div class="dash-order"><button class="btn ghost" id="dash-order-btn" data-a="dash-order" aria-haspopup="dialog">${icon('sort')}${t('Reorder the dashboard')}${off ? `<span class="d-off">${tn(off, '{n} part hidden', '{n} parts hidden')}</span>` : ''}</button></div>` : '');
+  return on.map(id => partOut(parts[id])).join('') + dashOrderRow(ids.length, off);
 }
+/** At the foot of a phone's summary, the way to the order, with how many parts are hidden; only with two parts or more. */
+const dashOrderRow = (n, off) => n > 1 ? `<div class="dash-order"><button class="btn ghost" id="dash-order-btn" data-a="dash-order" aria-haspopup="dialog">${icon('sort')}${t('Reorder the dashboard')}${off ? `<span class="d-off">${tn(off, '{n} part hidden', '{n} parts hidden')}</span>` : ''}</button></div>` : '';
 /** The computer's summary: the parts in the order chosen, two to a row; the accounts' cards and the latest transactions take the whole width, and a
     card with no other beside it (its neighbour is a wide one, or the last) takes the whole width too, so no row has a hole. A row that starts with
     To do gives it the wider column, as before. */
@@ -107,7 +114,7 @@ const PHONE_ORDER_ACTIONS = {
     if (i < 0 || j < 0 || j >= shown.length) return;
     const a = ids.indexOf(shown[i]), b = ids.indexOf(shown[j]); [ids[a], ids[b]] = [ids[b], ids[a]];
     S.user.dashOrder = Object.assign({}, S.user.dashOrder, { [side]: ids }); save();
-    flip('#view > [id], #view > .grid > [id], #view > .dash-grid > [id], #overlay .ord-list li[data-id]', () => renderNow());      // the parts and the list's rows slide to their places (app/motion.js)
+    flip('#view > [id], #view > .grid > [id], #view > .dash-grid > [id], #view > .bq-pair > [id], #overlay .ord-list li[data-id]', () => renderNow());      // the parts and the list's rows slide to their places (app/motion.js)
     // the arrow pressed may now be off (the part reached the top or the foot): the finger and the keyboard stay on the same part
     const q = v => document.querySelector(`#overlay .ord-btn[data-id="${ds.id}"][data-d="${v}"]`), same = q(d);
     if (same && same.disabled) { const other = q(-d); if (other) other.focus({ preventScroll: true }); }

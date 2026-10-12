@@ -5,6 +5,7 @@
 // the person chose (features/phone/phone.summary.js). By default: the days of freedom, the quick things to do as a row of round buttons to swipe,
 // the day's insight as a signal, the accounts, and the cards a computer shows, one under the other.
 function phoneHomeDashboard(d) {
+  if (bosqueOn()) return bqHome(d);      // the light theme: the summary "Bosque" (features/phone/bosque.js)
   const { ym, inProgress, fresh } = d;
   return `${firstSteps()}${inProgress ? monthCloseCard() : ''}${inProgress ? '' : d.pastNote}${companyAsk()}${d.openNote}` + phoneParts({
     free: inProgress ? freeCard() : '', runway: inProgress ? runwayCard() : '', quick: inProgress ? quickRow() : '', insight: inProgress ? phoneInsight() : '', accounts: phoneAccountsCard(),

@@ -70,4 +70,9 @@ addTexts([
   ["Preferences","Preferencias","Preferências"],
   ["Cost", "Costo", "Custo"],
   ["Record", "Registrar", "Registrar"],
+  ["Your accounts", "Tus cuentas", "Suas contas"],
+  ["{amount} in the next 30 days", "{amount} en los próximos 30 días", "{amount} nos próximos 30 dias"],
+  ["Move money", "Transferir", "Transferir"],
+  ["Tomorrow", "Mañana", "Amanhã"],
+  ["months", "meses", "meses"],
 ]);

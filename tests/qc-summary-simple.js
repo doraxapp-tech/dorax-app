@@ -38,9 +38,12 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [!!document.querySelector('.navbar .bar-name'), !document.querySelector('.navbar .bar-who'), document.querySelector('.pagehead h1').getBoundingClientRect().width <= 1, Math.round(document.querySelector('.pagehead').getBoundingClientRect().height)]), [true, true, true, 16], 'a screen with no month: its name in the panel (owner, 2026-10-10), no large title under it, only 16 px of air before the first card');
   await page.evaluate(() => navigate('dashboard'));
   await page.evaluate(() => { S.settings.theme = 'light'; render(); });
-  eq(await page.evaluate(() => { const m = document.querySelector('.pagehead .month'); return [document.documentElement.classList.contains('app-light'), getComputedStyle(m).backgroundColor !== 'rgb(0, 0, 0)', getComputedStyle(m.querySelector('.m-slide.on')).color]; }), [true, true, 'rgb(22, 51, 0)'],
-    'the light theme keeps a light button, the month in the deep green');
-  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.quick-row .fl-ico')).backgroundColor !== 'rgb(14, 14, 14)'), 'and light circles');
+  eq(await page.evaluate(() => { const m = document.querySelector('.pagehead .month'); return [document.documentElement.classList.contains('app-light'), getComputedStyle(m).backgroundColor !== 'rgb(0, 0, 0)', getComputedStyle(m.querySelector('.m-slide.on')).color]; }), [true, true, 'rgb(255, 255, 255)'],
+    'the light theme: on the summary the month is white on its forest block (v175, "Bosque"), not the dark theme\'s black button');
+  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bq-acts .bq-ico:not(.on)')).backgroundColor !== 'rgb(14, 14, 14)'), 'and light circles');
+  await page.evaluate(() => navigate('plan'));
+  eq(await page.evaluate(() => getComputedStyle(document.querySelector('.pagehead .month .m-slide.on')).color), 'rgb(22, 51, 0)', 'on the other pages the light theme keeps the month in the deep green');
+  await page.evaluate(() => navigate('dashboard'));
   await page.evaluate(() => { S.settings.theme = 'dark'; navigate('dashboard'); });
   // ---------- 3. Savings & goals ----------
   const g = await page.evaluate(() => { const c = document.querySelector('#goals-card'), rows = [...c.querySelectorAll('button.budget[data-a="goal-open"]')], want = B().goals.filter(x => x.status === 'active' && x.kind === 'goal').slice(0, 3);
