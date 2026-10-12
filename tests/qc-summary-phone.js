@@ -168,6 +168,14 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => { window.__fu = freeUntil; window.freeUntil = (...a) => { const r = window.__fu(...a); return r && Object.assign({}, r, { free: -487536, perDay: 0 }); }; render(); });
       eq(await page.evaluate(() => { const f = document.querySelector('#view > .bq-free'); return f && [f.classList.contains('short'), f.querySelector('.fu-n').textContent.trim(), /4\.875/.test(f.querySelector('.bq-say').textContent), f.querySelector('.bq-chip').textContent.trim()]; }), [true, 'R$ 0', true, 'Puedes gastar'], 'short of money: the card stays, R$ 0 a day and how much is missing');
       await page.evaluate(() => { window.freeUntil = window.__fu; render(); });
+      // the bar at the foot: no round + here, four screens; smaller while the page goes down, whole again going up (v183)
+      eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.tabbar .fab')).display, document.querySelectorAll('.tabbar a').length]), ['none', 4], 'no round + in the bar on the summary');
+      for (const y of [120, 320, 520]) { await page.evaluate(y => { document.querySelector('.work').scrollTop = y; }, y); await page.waitForTimeout(60); }
+      await page.waitForTimeout(400);
+      const small = await page.evaluate(() => [document.documentElement.classList.contains('bar-small'), Math.round(document.querySelector('.tabbar').getBoundingClientRect().height), [...document.querySelectorAll('.tabbar a')].every(a => a.getBoundingClientRect().height >= 44 && a.textContent.trim().length > 0)]);
+      await page.evaluate(() => { document.querySelector('.work').scrollTop = 380; }); await page.waitForTimeout(400);
+      eq([small, await page.evaluate(() => document.documentElement.classList.contains('bar-small'))], [[true, 54, true], false], 'scrolling down the bar gets smaller (icons alone, names kept for a screen reader, 44 px to tap); up, whole again');
+      await page.evaluate(() => { document.querySelector('.work').scrollTop = 0; }); await page.waitForTimeout(200);
       // a month already over: no card on the block, which ends under the month
       await page.evaluate(() => A.month({ d: '-1' }));
       eq(await page.evaluate(() => [!!document.querySelector('.bq-free'), Math.round(parseFloat(getComputedStyle(document.querySelector('.topbar > .pagehead')).paddingBottom))]), [false, 24], 'a month already over: no card, the block ends under the month');

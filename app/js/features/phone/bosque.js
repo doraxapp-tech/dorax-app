@@ -136,6 +136,18 @@ function bqHome(d) {
   return `${bqFree()}${bqActions()}${bqAccounts()}${bqTodo()}${bqPair()}${phoneInsight()}${notes}`;
 }
 
+// ---------- the bar at the foot: smaller while the page goes down (owner, 2026-10-12: "quiero que esa barra se reduzca en tamaño al hacer scroll
+// down") ----------
+// Down past the first screenful the bar loses its names (css/look/look-land.css, .bar-small); up again, or near the top, it is whole. Only this look.
+let bqLastY = 0;
+document.addEventListener('scroll', e => {
+  const root = document.documentElement, el = e.target;
+  if (!root.classList.contains('land')) { root.classList.remove('bar-small'); return; }
+  if (!el || !el.classList || !el.classList.contains('work')) return;
+  const y = el.scrollTop, d = y - bqLastY; bqLastY = y;
+  if (y < 80) root.classList.remove('bar-small'); else if (d > 4) root.classList.add('bar-small'); else if (d < -4) root.classList.remove('bar-small');
+}, { capture: true, passive: true });
+
 const BOSQUE_ACTIONS = {
   'quick-more'() { UI.sheet = 'quick-more'; renderOverlay(); const el = document.querySelector('.bq-more-sheet .g-pick-list button'); if (el) el.focus({ preventScroll: true }); },
 };

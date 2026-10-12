@@ -179,24 +179,41 @@
   :root.land #view .card.part-out > .part-h .btn.sm.go svg { color: #112622; }
   :root.land #view .mc-ask { border-radius: 24px; }
 
-  /* ---------- the bar at the foot floats: forest, the screen in use a lime pill, the + lime ---------- */
+  /* ---------- the bar at the foot floats: deep green, the screen in use a lime pill. No round + in it here (owner, 2026-10-12: "quita el botón (+)
+     del medio": the summary has its own four buttons); four screens, the same width each. Scrolling down it gets smaller, the icons alone (their
+     names stay for a screen reader); scrolling up, or near the top, it is whole again (features/phone/bosque.js puts .bar-small on the page's root).
+     Under a pointer each screen lights a soft pill behind its icon; a press sinks a little. ---------- */
   :root.land .content { padding-bottom: calc(112px + var(--safe-b)); }
-  :root.land .tabbar { left: 12px; right: 12px; bottom: calc(14px + var(--safe-b)); align-items: center; height: 72px; padding: 0 6px; border: 0; border-radius: 999px; background: #112622; box-shadow: 0 14px 30px -14px rgba(17, 38, 34, .55); }
-  :root.land .tabbar a { min-height: 60px; color: #B5C2BE; }
-  :root.land .tabbar a svg { position: relative; z-index: 1; color: inherit; }
+  :root.land .tabbar { left: 12px; right: 12px; bottom: calc(14px + var(--safe-b)); grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; height: 72px; padding: 0 6px; border: 0; border-radius: 999px; background: #112622; box-shadow: 0 14px 30px -14px rgba(17, 38, 34, .55);
+    transition: height 280ms var(--ease), left 280ms var(--ease), right 280ms var(--ease), bottom 280ms var(--ease); }
+  :root.land .tabbar .fab { display: none; }
+  :root.land .tabbar a { position: relative; min-height: 60px; color: #B5C2BE; transition: color 160ms ease-out, transform 160ms ease-out, font-size 200ms var(--ease), gap 200ms var(--ease); }
+  :root.land .tabbar a svg { position: relative; z-index: 1; color: inherit; transition: color 160ms ease-out; }
+  :root.land .tabbar a::before { content: ""; position: absolute; top: 50%; left: 50%; width: 46px; height: 30px; border-radius: 999px; background: transparent; transform: translate(-50%, calc(-50% - 8px)) scale(.6); opacity: 0; transition: transform 220ms var(--ease), opacity 160ms ease-out, background 160ms ease-out; }
   :root.land .tabbar a[aria-current="page"] { color: #FFFFFF; font-weight: 600; }
-  :root.land .tabbar a[aria-current="page"]::before { top: 50%; left: 50%; right: auto; width: 46px; height: 30px; border-radius: 999px; background: #B6DD62; transform: translate(-50%, calc(-50% - 8px)); }
+  :root.land .tabbar a[aria-current="page"]::before { right: auto; background: #B6DD62; opacity: 1; transform: translate(-50%, calc(-50% - 8px)); }
   :root.land .tabbar a[aria-current="page"] svg { color: #112622; }
-  :root.land .tabbar :focus-visible { outline-color: #B6DD62; }
-  :root.land .tabbar .fab { transform: none; background: #B6DD62; color: #112622; box-shadow: none; }
-  :root.land .tabbar .fab:active { transform: scale(.92); }
+  @media (hover: hover) and (pointer: fine) {
+    :root.land .tabbar a:not([aria-current]):hover { color: #FFFFFF; }
+    :root.land .tabbar a:not([aria-current]):hover::before { background: rgba(255, 255, 255, .1); opacity: 1; transform: translate(-50%, calc(-50% - 8px)); }
+  }
+  :root.land .tabbar a:not([aria-current]):active::before { background: rgba(255, 255, 255, .14); opacity: 1; transform: translate(-50%, calc(-50% - 8px)) scale(.94); }
+  :root.land .tabbar a:active { transform: scale(.94); }
+  :root.land .tabbar :focus-visible { outline: 2px solid #B6DD62; outline-offset: -2px; }
+  /* smaller while the page goes down */
+  :root.land.bar-small .tabbar { left: 64px; right: 64px; bottom: calc(10px + var(--safe-b)); height: 54px; }
+  :root.land.bar-small .tabbar a { min-height: 46px; gap: 0; font-size: 0; }
+  :root.land.bar-small .tabbar a::before, :root.land.bar-small .tabbar a[aria-current="page"]::before { transform: translate(-50%, -50%); }
+  :root.land.bar-small .tabbar a:not([aria-current]):active::before { transform: translate(-50%, -50%) scale(.94); }
+  @media (hover: hover) and (pointer: fine) { :root.land.bar-small .tabbar a:not([aria-current]):hover::before { transform: translate(-50%, -50%); } }
+  @media (prefers-reduced-motion: reduce) { :root.land .tabbar, :root.land .tabbar a, :root.land .tabbar a::before { transition: none; } }
 
   /* ---------- narrow phones: the round buttons at the top a little smaller, so the greeting keeps one line; the bar at the foot wider, so
      "Transacciones" fits its column as on the bar that sits on the edge (screens/phone.css) ---------- */
   @media (max-width: 374px) {
     :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { width: 40px; height: 40px; }
     :root.land .bar-who .avatar { width: 40px; height: 40px; }
-    :root.land .tabbar { left: 6px; right: 6px; padding: 0 4px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 60px minmax(0, 1fr) minmax(0, 1fr); }
-    :root.land .tabbar .fab { width: 52px; height: 52px; }
+    :root.land .tabbar { left: 8px; right: 8px; padding: 0 4px; }
+    :root.land.bar-small .tabbar { left: 40px; right: 40px; }
   }
 }
