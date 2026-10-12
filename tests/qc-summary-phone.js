@@ -180,6 +180,56 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       await page.evaluate(() => A.month({ d: '-1' }));
       eq(await page.evaluate(() => [!!document.querySelector('.bq-free'), Math.round(parseFloat(getComputedStyle(document.querySelector('.topbar > .pagehead')).paddingBottom))]), [false, 24], 'a month already over: no card, the block ends under the month');
       await page.evaluate(() => A.month({ d: '1' }));
+      // ---------- 6. the panels opened from it and a new transaction with its keypad (v187: "actualiza todas las pantallas de menú a las que se
+      // accede a partir de Resumen… haz estos dos updates, quiero ver cómo se ven en vivo") ----------
+      await page.click('#quick-acts [data-v="expense"]'); await page.waitForTimeout(250);
+      eq(await page.evaluate(() => { const a = document.getElementById('d-amount'), keys = [...document.querySelectorAll('#overlay .bq-key')], dr = document.querySelector('#overlay .drawer'), cl = dr.querySelector('header [data-a="close"]');
+        return [UI.drawer.pad, a.readOnly, a.getAttribute('inputmode'), keys.map(k => k.dataset.v).join(), keys.every(k => k.getBoundingClientRect().height >= 42), getComputedStyle(dr).backgroundColor, getComputedStyle(cl).borderRadius, Math.round(cl.getBoundingClientRect().width), !document.getElementById('d-say')]; }),
+        [true, true, 'none', '1,2,3,4,5,6,7,8,9,sep,0,del', true, 'rgb(233, 237, 236)', '50%', 44, true], 'a new expense from the summary: its keypad (1 to 9, the decimal mark, 0, erase), the field takes no phone keyboard, the panel in the summary’s grey with a round close button');
+      for (const k of ['9', '2', 'sep', '5', '0', '0', 'del', '0']) await page.click(`#overlay .bq-key[data-v="${k}"]`);
+      eq(await page.evaluate(() => [UI.drawer.draft.amountText, document.getElementById('d-amount').value, document.getElementById('bq-save-amt').textContent, getComputedStyle(document.querySelector('#overlay .bq-save')).backgroundColor, getComputedStyle(document.querySelector('#overlay .bq-save-ico')).backgroundColor]),
+        ['92,50', '92,50', 'R$ 92,50', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)'], 'typed on the keys: one decimal mark, two decimals at most, erase; the deep green bar says the amount, its check lime');
+      await page.fill('#d-merchant', 'Cena QC'); await page.evaluate(() => document.getElementById('d-merchant').dispatchEvent(new Event('change', { bubbles: true })));
+      await page.click('#overlay .tx-pick'); await page.click('#overlay .bq-save'); await page.waitForTimeout(250);
+      ok(await page.evaluate(() => !UI.drawer && S.transactions.some(x => x.merchant === 'Cena QC' && x.amount === -9250)), 'saved: an expense of R$ 92,50');
+      await page.click('.navbar .bell'); await page.waitForTimeout(200);
+      eq(await page.evaluate(() => { const dr = document.querySelector('#overlay .drawer'), p = dr.querySelector('.btn.primary'); return [getComputedStyle(dr).backgroundColor, p ? getComputedStyle(p).backgroundColor : 'rgb(182, 221, 98)']; }), ['rgb(233, 237, 236)', 'rgb(182, 221, 98)'], 'the notifications, opened from it, in its look: the grey sheet, the main button lime');
+      await page.evaluate(() => A.close());
+      // ---------- 7. Transactions, "Movimientos · Bosque" (v188) ----------
+      await page.click('.tabbar a[href="#transactions"]'); await page.waitForTimeout(300);
+      const moves = () => page.evaluate(() => { const cs = el => el ? getComputedStyle(el) : {}, r = el => el.getBoundingClientRect(), top = document.querySelector('.bq-txtop'), sheet = document.querySelector('.bq-txsheet');
+        const rows = filteredTx().filter(x => x.currency === CUR && x.status !== 'ignored'), spent = -sum(rows.filter(x => x.type === 'expense').map(x => x.amount));
+        return { on: document.documentElement.classList.contains('land'), meta: document.querySelector('meta[name="theme-color"]').content, top: cs(top).backgroundColor, flush: Math.abs(r(top).top - r(document.querySelector('.topbar > .pagehead')).bottom) <= 1,
+          kind: [...document.querySelectorAll('.bq-kind button')].map(b => b.dataset.v + ':' + b.getAttribute('aria-pressed')).join(), tools: [...document.querySelectorAll('.navbar .bar-tools > button, .navbar .bar-tools .bq-tt > button')].filter(b => b.getClientRects().length).map(b => b.id || b.dataset.a).join(),
+          label: document.querySelector('.bq-sum-k').textContent, figure: document.querySelector('.bq-sum-v').textContent === fmt.money(spent, CUR), chart: !!document.querySelector('.bq-chart svg .now') && !!document.querySelector('.bq-chart .bq-mk'),
+          sheet: [cs(sheet).backgroundColor, cs(sheet).borderTopLeftRadius, r(sheet).top < r(top).bottom], rows: document.querySelectorAll('#tx-list .bq-op').length === Math.min(40, filteredTx().length), tall: [...document.querySelectorAll('#tx-list .bq-op')].every(b => r(b).height >= 44),
+          bar: [getComputedStyle(document.querySelector('.tabbar .fab')).display, document.querySelectorAll('.tabbar a').length], wide: document.documentElement.scrollWidth - innerWidth };
+      });
+      eq(await moves(), { on: true, meta: '#112622', top: 'rgb(17, 38, 34)', flush: true, kind: 'expense:true,income:false,:false', tools: 'bq-find-btn,tx-filters-btn,sheet', label: 'Gastaste en octubre', figure: true, chart: true,
+        sheet: ['rgb(233, 237, 236)', '30px', true], rows: true, tall: true, bar: ['none', 4], wide: 0 }, 'Transactions as the canvas: the forest block on from the top bar, search and filters as round buttons, Expenses first, the month’s spending large, its chart; the list by day in a grey sheet over the block; the floating bar');
+      await page.click('.bq-kind [data-v="income"]');
+      eq(await page.evaluate(() => [UI.tx.type, document.activeElement.dataset.v, document.querySelector('.bq-sum-k').textContent, filteredTx().every(x => x.type === 'income')]), ['income', 'income', 'Recibiste en octubre', true], 'Income: the list, the figure and its words follow; the finger stays on the switch');
+      await page.click('.bq-kind [data-v=""]');
+      eq(await page.evaluate(() => [UI.tx.type, document.querySelector('.bq-sum-k').textContent, /^[+−]R\$/.test(document.querySelector('.bq-sum-v').textContent)]), ['', 'Balance de octubre', true], 'All: what came in less what went out, with its sign');
+      await page.click('.bq-kind [data-v="expense"]');
+      await page.click('#bq-find-btn'); await page.keyboard.type('cena q');
+      eq(await page.evaluate(() => [document.activeElement.id, document.querySelectorAll('#tx-list .bq-op').length, document.querySelector('.bq-sum-v').textContent]), ['tx-q', 1, 'R$ 92,50'], 'search: the field opens in the block, the list and the figure follow while typing, the focus stays in the field');
+      await page.click('.bq-find-x');
+      eq(await page.evaluate(() => [document.activeElement.id, UI.tx.q, !!document.getElementById('tx-q')]), ['bq-find-btn', '', false], 'closed: the search is let go, the focus back on its button');
+      await page.click('.bq-mon [data-d="-1"]'); await page.waitForTimeout(250);
+      eq(await page.evaluate(() => [S.month, document.querySelector('.bq-sum-k').textContent, /en agosto$/.test(document.querySelector('.bq-cmp').textContent), document.activeElement.dataset.d]), ['2026-09', 'Gastaste en septiembre', true, '-1'], 'the month before: its figure, compared with the whole month before it');
+      await page.focus('.bq-chart svg'); await page.keyboard.press('Home');
+      eq(await page.evaluate(() => [bqChartNow.day, /^1 sep · R\$/.test(document.querySelector('.bq-mk text').textContent), document.getElementById('bq-mk-say').textContent === document.querySelector('.bq-mk text').textContent]), [1, true, true], 'the chart’s mark moves with the keys, and says its day and figure');
+      await page.click('.bq-mon [data-d="1"]'); await page.waitForTimeout(250);
+      await page.click('.bq-add'); await page.waitForTimeout(200);
+      eq(await page.evaluate(() => [UI.drawer && UI.drawer.kind, UI.drawer && UI.drawer.draft.type, !!document.querySelector('#overlay .bq-pad')]), ['tx', 'expense', true], '“Add” in the list opens a new expense with its keypad');
+      await page.evaluate(() => A.close());
+      await page.click('#tx-list .bq-op'); await page.waitForTimeout(200);
+      ok(await page.evaluate(() => !!(UI.drawer && UI.drawer.kind === 'tx' && !UI.drawer.isNew)), 'a row opens its transaction');
+      await page.evaluate(() => A.close());
+      await page.evaluate(() => { S.settings.theme = 'dark'; render(); });
+      eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), !!document.querySelector('#tx-card .tx-tbl'), !!document.querySelector('.bq-tx')]), [false, true, false], 'the dark theme keeps its table');
+      await page.evaluate(() => { S.settings.theme = 'light'; navigate('dashboard'); });
       // the other pages, the company's side, the dark theme: as they were
       await page.evaluate(() => navigate('plan'));
       eq(await page.evaluate(() => [document.documentElement.classList.contains('land'), getComputedStyle(document.querySelector('.work')).backgroundColor, getComputedStyle(document.documentElement).backgroundColor, getComputedStyle(document.querySelector('.tabbar')).borderRadius]), [false, 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', '0px'], 'Plan keeps its white page (behind the clock too) and its bar on the edge');

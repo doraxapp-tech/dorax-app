@@ -42,12 +42,18 @@ function txApplied(f) {
 }
 /** Beside the search box: one button that opens the filters, with how many are applied, and a way to clear them all once there is something to clear. */
 function txTools() {
+  if (typeof bqTxOn === 'function' && bqTxOn()) return bqFilterBtn();      // the summary's look: a round button in the top bar (features/phone/bosque-moves.js)
   const n = txApplied().length, any = n > 0 || !!UI.tx.q.trim();
   return `<button class="btn" id="tx-filters-btn" data-a="tx-filters" aria-haspopup="dialog" aria-label="${n ? tn(n, 'Filters, {n} applied', 'Filters, {n} applied') : t('Filters')}">${icon('filter')}<span>${t('Filters')}</span>${n ? `<span class="fcount" aria-hidden="true">${n}</span>` : ''}</button>${any ? `<button class="btn ghost" id="tx-clear" data-a="clear-filters">${icon('x')}${t('Clear filters')}</button>` : ''}`;
 }
+/** The currency the totals are counted in: the account's when one is chosen, else the side's own. */
+const txCurOf = f => txAcctOnSide(f.account) ? acct(f.account).currency : txSideBiz() ? BCUR() : CUR;
+/** While the search is typed: the list (and in the summary's look its figure) follow without drawing the page again, so the field keeps its focus. */
+function txLive() { $('tx-list').innerHTML = txList(); const tt = $('tx-tools'); if (tt) tt.innerHTML = txTools(); const s = $('bq-txsum'); if (s) s.innerHTML = bqTxSum(); }
 function txList() {
+  if (typeof bqTxOn === 'function' && bqTxOn()) return bqTxList();      // by day, in the summary's look (features/phone/bosque-moves.js)
   const rows = filteredTx(), f = UI.tx, applied = txApplied();
-  const cur = txAcctOnSide(f.account) ? acct(f.account).currency : txSideBiz() ? BCUR() : CUR, scoped = rows.filter(x => x.currency === cur && x.status !== 'ignored');
+  const cur = txCurOf(f), scoped = rows.filter(x => x.currency === cur && x.status !== 'ignored');
   const spent = -scoped.filter(x => x.type === 'expense').reduce((s, x) => s + x.amount, 0), inc = scoped.filter(x => x.type === 'income').reduce((s, x) => s + x.amount, 0);
   const arrow = k => f.sort === k ? (f.dir < 0 ? ' ↓' : ' ↑') : '';
   // what is applied stays in sight while the controls are tucked away: one chip per filter, each with its own way out
@@ -82,9 +88,15 @@ function pairsDrawer() {
     <ul class="pr-list">${ps.map(([e, i]) => `<li class="pr"><b class="pr-amt num">${fmt.money(-e.amount, acct(e.accountId).currency)}</b>${side(e, t('Went out of'))}${side(i, t('Came into'))}
       <div class="row pr-act"><button class="btn sm primary" data-a="pair-yes" data-e="${e.id}" data-i="${i.id}">${t('It is a transfer')}</button><button class="btn sm ghost" data-a="pair-no" data-e="${e.id}" data-i="${i.id}">${t('It is not')}</button></div></li>`).join('')}</ul></div>`;
 }
+/** After a category was given to the same merchant: the offer of a rule for the next imports. */
+function txRuleNote() {
+  const rp = UI.rulePrompt;
+  return rp ? banner('', `<b>${rp.count > 1 ? t('You categorized “{merchant}” as {label} {n} times.', { merchant: esc(rp.merchant), label: esc(rp.label), n: rp.count }) : t('You categorized “{merchant}” as {label}.', { merchant: esc(rp.merchant), label: esc(rp.label) })}</b> ${t('Create a rule so future imports are categorized the same way?')}<div class="row" style="margin-top:8px"><button class="btn sm primary" data-a="rule-from-prompt">${t('Create rule')}</button><button class="btn sm ghost" data-a="dismiss-prompt">${t('Not now')}</button></div>`) : '';
+}
 function viewTransactions() {
-  const f = UI.tx, rp = UI.rulePrompt;
-  return `${txPairsNote()}${txInbox()}${rp ? banner('', `<b>${rp.count > 1 ? t('You categorized “{merchant}” as {label} {n} times.', { merchant: esc(rp.merchant), label: esc(rp.label), n: rp.count }) : t('You categorized “{merchant}” as {label}.', { merchant: esc(rp.merchant), label: esc(rp.label) })}</b> ${t('Create a rule so future imports are categorized the same way?')}<div class="row" style="margin-top:8px"><button class="btn sm primary" data-a="rule-from-prompt">${t('Create rule')}</button><button class="btn sm ghost" data-a="dismiss-prompt">${t('Not now')}</button></div>`) : ''}
+  if (typeof bqTxOn === 'function' && bqTxOn()) return bqTxView();      // a phone, light, the household: "Movimientos · Bosque" (features/phone/bosque-moves.js)
+  const f = UI.tx;
+  return `${txPairsNote()}${txInbox()}${txRuleNote()}
   <section class="card" id="tx-card">
     <div class="toolbar tx-bar">
       <div class="search"><label class="sr" for="tx-q">${t('Search transactions')}</label><input type="search" id="tx-q" placeholder="${t('Search merchant, description, note or amount')}" value="${esc(f.q)}" data-c="tx-filter" data-k="q" data-live="1"></div>

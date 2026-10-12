@@ -1,0 +1,72 @@
+/* Dorax Finance — every panel and sheet opened from the summary "Bosque", in its look (owner, 2026-10-12: "actualiza todas las pantallas de menú a las
+   que se accede a partir de Resumen"), and the new transaction with its keypad (same message: "haz estos dos updates… quiero ver cómo se ven en vivo",
+   the canvas's "Nuevo gasto · Bosque"; features/phone/bosque-tx.js).
+   While the summary is on screen (a phone, the light theme, the household: :root.land, app/shell.js) the panels take its colours through the theme's
+   own words (the deep green #112622 for what is chosen and for links, the lime #B6DD62 for the main buttons with deep green words, the cool grey
+   #E9EDEC for the sheet, white for its fields and boxes, #DDE3E1 for their hairlines), and its shapes: a round close button, headings as the
+   summary's, fields and buttons as white pills, a switch's choice deep green with lime words. The account's panel has its own extras
+   (look-land-account.css). The other pages keep their panels as they were. */
+@media (max-width: 920px) {
+  :root.land #overlay {
+    --lift: #E9EDEC; --surface: #FFFFFF; --surface-2: #F3F6F5; --surface-3: #E3E9E7; --well: #FFFFFF; --pit: #F3F6F5; --badge: #E3E9E7;
+    --line: #DDE3E1; --line-strong: #C9D2CF; --field: #C9D2CF; --glass-line: #DDE3E1; --hover-line: #8FA19C;
+    --brand: #112622; --brand-deep: #112622; --link: #112622; --focus: #112622; --ring: #112622; --on-brand: #B6DD62; --col: #112622;
+    --primary: #B6DD62; --primary-hover: #C4E57A; --primary-ink: #112622; --cta: #B6DD62; --cta-hover: #C4E57A; --cta-ink: #112622;
+    --select: #E8F3D2; --select-ink: #112622; --soft-hover: #E8F3D2; --good-bg: #E8F3D2; --switch-on: #112622; --spark-ink: #B6DD62;
+    --btn: #FFFFFF; --btn-hover: #FFFFFF; --btn-line: #DDE3E1; --side-tint: #EDF1F0; --side-line: #EDF1F0;
+  }
+  :root.land #overlay .drawer, :root.land #overlay .sheet { border: 0; background: #E9EDEC; }
+  :root.land #overlay .drawer > header { border-bottom: 0; padding-bottom: 8px; }
+  :root.land #overlay .drawer > header h2, :root.land #overlay .sheet > h2 { color: #0E0F0C; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land #overlay .drawer > header [data-a="close"] { display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; }
+  :root.land #overlay .drawer > footer { border-top: 0; }
+  /* buttons: the main one lime with deep green words, the others white pills with a hairline */
+  :root.land #overlay .btn { border-radius: 999px; }
+  :root.land #overlay .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { background: #FFFFFF; border-color: #DDE3E1; color: #0E0F0C; }
+  :root.land #overlay .btn.primary { background: #B6DD62; border-color: #B6DD62; color: #112622; font-weight: 600; }
+  /* fields: white, a hairline, round */
+  :root.land #overlay input[type=text], :root.land #overlay input[type=search], :root.land #overlay input[type=number], :root.land #overlay input[type=date], :root.land #overlay select, :root.land #overlay textarea { border-color: #DDE3E1; border-radius: 16px; background-color: #FFFFFF; }
+  :root.land #overlay input:focus, :root.land #overlay select:focus, :root.land #overlay textarea:focus { border-color: #112622; box-shadow: 0 0 0 3px rgba(17, 38, 34, .12); }
+  /* switches of two or three choices: a white track, the choice deep green with lime words */
+  :root.land #overlay .seg { background: #FFFFFF; border-color: #DDE3E1; border-radius: 999px; }
+  :root.land #overlay .seg button { border-radius: 999px; color: #454745; }
+  :root.land #overlay .seg button[aria-pressed="true"], :root.land #overlay .seg button[aria-pressed="true"]:hover { background: #112622; color: #B6DD62; font-weight: 600; box-shadow: none; }
+  /* boxes inside a panel: white with a hairline */
+  :root.land #overlay .card { border-color: #DDE3E1; background: #FFFFFF; }
+
+  /* ---------- the new transaction with its keypad ---------- */
+  :root.land #overlay .bq-tx { gap: 14px; padding-top: 6px; }
+  :root.land #overlay .bq-tx .seg.tx-kind { padding: 4px; }
+  :root.land #overlay .bq-tx .tx-kind button { min-height: 40px; font-size: 14px; }
+  /* the amount: a white card, the currency in a deep green circle */
+  :root.land #overlay .bq-tx .tx-amount { grid-template-columns: 48px minmax(0, 1fr); align-items: center; column-gap: 14px; padding: 16px 18px; border: 0; border-radius: 28px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
+  :root.land #overlay .bq-tx .tx-amount label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  :root.land #overlay .bq-tx .tx-sym { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #112622; color: #B6DD62; font-size: 15px; font-weight: 700; }
+  :root.land #overlay .bq-tx .tx-amount input[type=text] { min-height: 52px; border: 0; background: none; box-shadow: none; color: #0E0F0C; font-size: 40px; font-weight: 600; letter-spacing: -.04em; caret-color: #B6DD62; }
+  :root.land #overlay .bq-tx .tx-amount:focus-within { box-shadow: inset 0 0 0 2px #112622; }
+  /* the fields' names quiet, the categories as white pills, the chosen one deep green */
+  :root.land #overlay .bq-tx .field > label, :root.land #overlay .bq-tx .tx-cats > span, :root.land #overlay .bq-tx .tx-pay > span { color: #454745; font-size: 13px; font-weight: 600; }
+  :root.land #overlay .bq-tx .tx-pick { min-height: 44px; padding: 0 15px 0 10px; border-color: #DDE3E1; border-radius: 999px; background: #FFFFFF; color: #0E0F0C; font-size: 14px; }
+  :root.land #overlay .bq-tx .tx-pick[aria-pressed="true"] { border-color: #112622; background: #112622; color: #FFFFFF; font-weight: 600; }
+  :root.land #overlay .bq-tx .tx-pick.more { border-style: dashed; border-color: #C9D2CF; color: #454745; }
+  :root.land #overlay .bq-tx #d-merchant { min-height: 52px; padding-inline: 18px; border-radius: 999px; }
+  :root.land #overlay .bq-tx .tx-more { color: #112622; font-weight: 600; }
+  /* its foot: the keypad, always in sight, and the bar that saves */
+  :root.land #overlay .bq-tx-foot { flex-direction: column; flex-wrap: nowrap; gap: 10px; padding: 10px 16px calc(14px + var(--safe-b)); background: #E9EDEC; }
+  :root.land #overlay .bq-pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  :root.land #overlay .bq-key { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; min-height: 50px; border-radius: 18px; background: #FFFFFF; color: #0E0F0C; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; transition: transform 120ms ease-out, background 120ms ease-out; }
+  :root.land #overlay .bq-key.soft { background: transparent; }
+  :root.land #overlay .bq-key svg { width: 24px; height: 24px; }
+  :root.land #overlay .bq-key:active { transform: scale(.94); background: #DFE6E4; }
+  :root.land #overlay .bq-key:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land #overlay .bq-key:hover { background: #F3F6F5; } :root.land #overlay .bq-key.soft:hover { background: #DFE6E4; } }
+  :root.land #overlay .btn.primary.bq-save { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 6px 22px 6px 6px; border: 0; border-radius: 999px; background: #112622; color: #FFFFFF; font-size: 16px; font-weight: 600; text-align: left; }
+  :root.land #overlay .btn.primary.bq-save:hover { background: #112622; }
+  :root.land #overlay .btn.primary.bq-save:active { transform: scale(.98); }
+  :root.land #overlay .bq-save-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #B6DD62; color: #112622; }
+  :root.land #overlay .bq-save-ico svg { width: 22px; height: 22px; stroke-width: 2.6; }
+  :root.land #overlay .bq-save-t { flex: 1 1 auto; }
+  :root.land #overlay .bq-save-amt { color: #B6DD62; font-size: 15px; }
+  /* a short phone: the keys a little lower, so the form keeps room */
+  @media (max-height: 740px) { :root.land #overlay .bq-key { min-height: 42px; font-size: 21px; } :root.land #overlay .bq-save { min-height: 56px; } :root.land #overlay .bq-save-ico { width: 44px; height: 44px; } }
+}
