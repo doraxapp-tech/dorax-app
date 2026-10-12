@@ -189,7 +189,9 @@ const parts = page => page.evaluate(P => [...document.querySelectorAll('#view > 
       for (const k of ['9', '2', 'sep', '5', '0', '0', 'del', '0']) await page.click(`#overlay .bq-key[data-v="${k}"]`);
       eq(await page.evaluate(() => [UI.drawer.draft.amountText, document.getElementById('d-amount').value, document.getElementById('bq-save-amt').textContent, getComputedStyle(document.querySelector('#overlay .bq-save')).backgroundColor, getComputedStyle(document.querySelector('#overlay .bq-save-ico')).backgroundColor]),
         ['92,50', '92,50', 'R$ 92,50', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)'], 'typed on the keys: one decimal mark, two decimals at most, erase; the deep green bar says the amount, its check lime');
-      await page.fill('#d-merchant', 'Cena QC'); await page.evaluate(() => document.getElementById('d-merchant').dispatchEvent(new Event('change', { bubbles: true })));
+      eq(await page.evaluate(() => [...new Set([...document.querySelectorAll('#overlay .bq-key, #quick-acts button, .bq-acc, .bq-bill')].map(k => getComputedStyle(k).touchAction + ' ' + getComputedStyle(k).userSelect))]), ['manipulation none'], 'v190: the keys and the summary’s buttons keep the quick tap (two taps never zoom the page) and select no digit');
+      await page.fill('#d-merchant', 'Cena QC');
+      eq(await page.evaluate(() => [getComputedStyle(document.querySelector('#overlay .bq-pad')).display, getComputedStyle(document.querySelector('#overlay .bq-save')).display]), ['none', 'flex'], 'v190: while a word is typed the keypad steps aside, “Save” stays'); await page.evaluate(() => document.getElementById('d-merchant').dispatchEvent(new Event('change', { bubbles: true })));
       await page.click('#overlay .tx-pick'); await page.click('#overlay .bq-save'); await page.waitForTimeout(250);
       ok(await page.evaluate(() => !UI.drawer && S.transactions.some(x => x.merchant === 'Cena QC' && x.amount === -9250)), 'saved: an expense of R$ 92,50');
       await page.click('.navbar .bell'); await page.waitForTimeout(200);

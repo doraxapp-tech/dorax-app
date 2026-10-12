@@ -78,7 +78,7 @@
   :root.land .bq-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #B6DD62; }
   :root.land .bq-free .fu-big { color: #B5C2BE; font-size: 14px; font-weight: 500; line-height: 1; }
   :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 28px; font-weight: 600; letter-spacing: -.03em; line-height: 1; margin-right: 3px; }      /* under the net balance's size, so the two do not compete (owner, 2026-10-12; it was 56, then 40 px) */
-  :root.land .bq-free-foot { all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; margin: 0 16px; padding: 10px 10px 10px 18px; border-radius: 0 0 24px 24px; background: #B6DD62; color: #112622; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-free-foot { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; margin: 0 16px; padding: 10px 10px 10px 18px; border-radius: 0 0 24px 24px; background: #B6DD62; color: #112622; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   :root.land .bq-free-foot:active { background: #A6CE52; }
   :root.land .bq-free-foot:focus-visible { outline: 2px solid #112622; outline-offset: -4px; }
   :root.land .bq-say { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; }
@@ -89,7 +89,7 @@
 
   /* ---------- four round buttons in one white bar ---------- */
   :root.land .bq-acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 14px 8px 12px; border-radius: 28px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land .bq-acts button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-acts button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-acts button:active { transform: scale(.94); }
   :root.land .bq-acts button:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
   :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
@@ -114,7 +114,7 @@
 
   /* ---------- the accounts: round logos ---------- */
   :root.land .bq-accs { gap: 8px; }
-  :root.land .bq-acc { all: unset; box-sizing: border-box; cursor: pointer; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 2px; text-align: center; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-acc { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 2px; text-align: center; -webkit-tap-highlight-color: transparent; }
   :root.land .bq-acc:focus-visible { outline: 2px solid #112622; outline-offset: 2px; border-radius: 14px; }
   :root.land .bq-acc:active .bq-mark { transform: scale(.94); }
   :root.land .bq-mark { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; transition: transform var(--t1) ease-out; }
@@ -125,7 +125,7 @@
 
   /* ---------- what there is to pay: small cards ---------- */
   :root.land .bq-bills { gap: 10px; margin-top: 4px; align-items: flex-start; }      /* each card as tall as what it says */
-  :root.land .bq-bill { all: unset; box-sizing: border-box; cursor: pointer; width: 156px; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-bill { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; width: 156px; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 24px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; color: #0E0F0C; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-bill:active { transform: scale(.97); }
   :root.land .bq-bill:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
   :root.land .bq-bill-t { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
@@ -143,7 +143,7 @@
   /* ---------- the days of freedom as a ring, the goals on mint, side by side ---------- */
   :root.land .bq-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 2px; }
   :root.land .bq-run, :root.land .bq-goals { min-width: 0; }
-  :root.land .bq-tile { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; padding: 16px; border-radius: 26px; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .bq-tile { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; padding: 16px; border-radius: 26px; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .bq-tile:active { transform: scale(.98); }
   :root.land .bq-tile:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
   :root.land .bq-tile-h { font-size: 14px; font-weight: 600; }

@@ -54,7 +54,7 @@
   /* its foot: the keypad, always in sight, and the bar that saves */
   :root.land #overlay .bq-tx-foot { flex-direction: column; flex-wrap: nowrap; gap: 10px; padding: 10px 16px calc(14px + var(--safe-b)); background: #E9EDEC; }
   :root.land #overlay .bq-pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  :root.land #overlay .bq-key { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; min-height: 50px; border-radius: 18px; background: #FFFFFF; color: #0E0F0C; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; transition: transform 120ms ease-out, background 120ms ease-out; }
+  :root.land #overlay .bq-key { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; display: grid; place-items: center; min-height: 50px; border-radius: 18px; background: #FFFFFF; color: #0E0F0C; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; transition: transform 120ms ease-out, background 120ms ease-out; }
   :root.land #overlay .bq-key.soft { background: transparent; }
   :root.land #overlay .bq-key svg { width: 24px; height: 24px; }
   :root.land #overlay .bq-key:active { transform: scale(.94); background: #DFE6E4; }
@@ -67,6 +67,12 @@
   :root.land #overlay .bq-save-ico svg { width: 22px; height: 22px; stroke-width: 2.6; }
   :root.land #overlay .bq-save-t { flex: 1 1 auto; }
   :root.land #overlay .bq-save-amt { color: #B6DD62; font-size: 15px; }
+  /* while a word is typed (what it was, a note), the phone's own keyboard is up: the keypad steps aside and the panel is only as tall as the form and
+     its "Save", so an iPhone does not have to slide a tall sheet under its keyboard (owner, 2026-10-12: "el teclado numérico no funciona bien, tocas
+     un lugar, abre otro") */
+  :root.land #overlay .drawer:has(.bq-tx-foot):has(:is(input:not([readonly]), textarea, select):focus) .bq-pad { display: none; }
+  /* every key, switch and pill of these screens keeps the browser's quick tap: two quick taps on a key (0, 0) type two zeros and never zoom the page,
+     and a long press selects no digit (their "all: unset" had taken it away) */
   /* a short phone: the keys a little lower, so the form keeps room */
   @media (max-height: 740px) { :root.land #overlay .bq-key { min-height: 42px; font-size: 21px; } :root.land #overlay .bq-save { min-height: 56px; } :root.land #overlay .bq-save-ico { width: 44px; height: 44px; } }
 }

@@ -15,7 +15,7 @@ const PHONE_ACTIONS = {
       const x = UI.drawer.draft, acc = co ? mainOf('business') || S.accounts.find(k => k.scope === 'business') : null; if (acc) x.accountId = acc.id;
       if (v === 'income') { x.type = 'income'; x.dir = 'in'; }
       if (v === 'transfer') x.type = 'transfer';
-      txKind(x); renderOverlay(); const el = $('d-say') || $('d-amount'); if (el) el.focus(); return;
+      txKind(x); renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus(); return;
     }
     if (v === 'account') { renderOverlay(); return ACCOUNTS_ACTIONS['account-add'](); }
     if (v === 'pay') return navigate('plan');

@@ -20,6 +20,9 @@ const BOSQUE_TX_ACTIONS = {
   /** One key of the keypad: a digit, the decimal mark (once, two digits after it at most) or erase. The field, the limit's line and the bar follow. */
   'tx-key'(ds) {
     const d = UI.drawer; if (!d || d.kind !== 'tx' || !d.draft) return;
+    // a field still being written (what it was, a note): the phone's keyboard goes, so the keys are not under it (an iPhone keeps a field's focus
+    // when a button is tapped)
+    const a = document.activeElement; if (a && a.id !== 'd-amount' && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && !a.readOnly) a.blur();
     const x = d.draft, sep = bqSep(); let s = String(x.amountText || '');
     if (ds.v === 'del') s = s.slice(0, -1);
     else if (ds.v === 'sep') { if (!s.includes(sep)) s = (s || '0') + sep; }

@@ -22,7 +22,7 @@
 
   /* what can be done: round buttons in one white bar, as the summary's four */
   :root.land .cv .cv-acts.quick-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; gap: 4px; margin-top: 0; padding: 14px 8px 12px; border-radius: 28px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDE3E1; }
-  :root.land .cv .cv-acts.quick-grid button { all: unset; box-sizing: border-box; cursor: pointer; grid-column: auto; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.25; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
+  :root.land .cv .cv-acts.quick-grid button { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; grid-column: auto; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; min-height: 80px; border-radius: 18px; color: #0E0F0C; font-size: 13px; font-weight: 600; line-height: 1.25; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform var(--t1) ease-out; }
   :root.land .cv .cv-acts.quick-grid button:active { transform: scale(.94); }
   :root.land .cv .cv-acts.quick-grid button:focus-visible { outline: 2px solid #112622; outline-offset: 2px; }
   :root.land .cv .cv-acts.quick-grid .fl-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 50%; background: #EDF1F0; color: #112622; }

@@ -81,7 +81,7 @@ const TRANSACTIONS_ACTIONS = {
     if (!mine.length) return needAccount();
     const start = f && mine.includes(f) ? f : mainOf(side, side === 'business' ? BCUR() : BASE_CURRENCY) || mainOf(side) || mine[0];
     UI.drawer = { kind: 'tx', title: t('Add transaction'), isNew: true, draft: { id: null, accountId: start.id, date: S.today, description: '', merchant: '', amountText: '', dir: 'out', type: 'expense', catKey: '|', status: 'confirmed', transferAccountId: null, recurring: false, notes: '', source: 'manual', sourceTxnId: null, confidence: null, splits: null } };
-    renderOverlay(); const el = $('d-say') || $('d-amount'); if (el) el.focus();
+    renderOverlay(); const el = $('d-say') || (UI.drawer.pad ? document.querySelector('#overlay .drawer header button') : $('d-amount')); if (el) el.focus();      // with the keypad (features/phone/bosque-tx.js) the panel's close button, not the amount: on an iPhone that only drew the field's tools
   },
   /** The kind, from its three buttons. An expense goes out and an income comes in; a group that belongs to the other kind is let go. */
   'tx-type'(ds) { const d = UI.drawer, x = d.draft; x.type = ds.v; txTouched('type'); txKind(x); renderOverlayKeepFocus(); const el = document.querySelector(`.tx-kind [data-v="${ds.v}"]`); if (el) el.focus({ preventScroll: true }); },
