@@ -14,9 +14,9 @@ const { chromium } = require('playwright');
 const { open, ok, eq, done, fixture } = require('./pw.js');
 const { createServer, rewriteFor } = require('../tools/serve.js');
 
-const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato' };
-const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title' };
-const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance' };
+const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda' };      // help: the Help center (v209)
+const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q' };
+const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance' };
 
 (async () => {
   // ---------- 1. the hosting rules ----------
@@ -47,7 +47,7 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
     eq([await at(page), await page.evaluate(() => PAGES.shown())], ['/' + p, v], `/${p}: still there after a reload`);
     // every link to a page is a real link to that page's address
     const links = await page.evaluate(() => [...document.querySelectorAll('#public [data-a="pub-go"]')].map(a => [a.tagName, a.getAttribute('href'), a.dataset.v]));
-    ok(links.length > 0 && links.every(([tag, href, to]) => tag === 'A' && href === '/' + ({ landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato' })[to]), `/${p}: its links to other pages are links to their addresses`, links.filter(l => l[0] !== 'A'));
+    ok(links.length > 0 && links.every(([tag, href, to]) => tag === 'A' && href === '/' + PATHS[to]), `/${p}: its links to other pages are links to their addresses`, links.filter(l => l[0] !== 'A'));
   }
   await page.goto(BASE + '/index.html'); await started(page); await page.waitForSelector(MARK.landing);
   eq(await page.evaluate(() => [PAGES.on, PAGES.shown(), PAGES.root().replace(location.origin, '')]), [true, 'landing', '/'], '/index.html is the home page too');
@@ -71,6 +71,15 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
   await page.goBack(); await page.waitForSelector(MARK.landing); ok(y > 500 && Math.abs(await page.evaluate(() => window.scrollY) - y) < 4, 'Back: the home page, where it was being read', [y, await page.evaluate(() => window.scrollY)]);
   // a section of the home page is still a section, not a page
   await page.click('.l2-nav [data-id="lp-faq"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');
+  // the Help center: a topic is a step of the same address (v209)
+  await page.click('.l2-foot [data-v="help"]'); await page.waitForSelector(MARK.help);
+  await page.click('.hc-bx[data-v="import"]'); await page.waitForSelector('.hc-topic-qs');
+  eq([await at(page), await page.evaluate(() => UI.hcTopic), await page.title()], ['/ajuda', 'import', TITLE.help], 'the Help center: a topic keeps the address /ajuda and its title');
+  await page.reload(); await started(page); await page.waitForSelector('.hc-topic-qs'); eq(await page.evaluate(() => UI.hcTopic), 'import', 'a topic: still there after a reload');
+  await page.goBack(); await page.waitForSelector('.hc-bx'); eq([await at(page), await page.evaluate(() => UI.hcTopic)], ['/ajuda', ''], 'Back from a topic: the topics');
+  await page.goForward(); await page.waitForSelector('.hc-topic-qs'); eq(await page.evaluate(() => UI.hcTopic), 'import', 'Forward: the topic again');
+  await page.click('.hc-back'); await page.waitForSelector('.hc-bx'); eq([await at(page), await page.evaluate(() => UI.hcTopic)], ['/ajuda', ''], '“Help center” at the top of a topic: the same step back');
+  await page.goBack(); await page.waitForSelector(MARK.landing); eq(await at(page), '/', 'Back again: the home page');
 
   // ---------- 4. Ctrl + click: another tab ----------
   const [tab] = await Promise.all([ctx.waitForEvent('page'), page.click('.lp-actions [data-v="signup"]', { modifiers: ['Control'] })]);

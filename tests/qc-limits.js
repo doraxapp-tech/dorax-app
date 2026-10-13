@@ -86,7 +86,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { UI.drawer = null; renderOverlay(); A.find(); }); await page.fill('#find-q', 'limit');
   eq(await page.evaluate(() => (UI.find.items || findResults(UI.find.q))[0].title), 'Spending limits', 'the search: “limit” finds Spending limits first');
   await page.fill('#find-q', 'budget'); eq(await page.evaluate(() => findResults('budget')[0].title), 'Spending limits', 'and so does “budget”');
-  await page.evaluate(() => { A['find-close'](); A.help(); }); await page.click('#overlay [data-a="help-go"][data-v="limit"]'); await page.waitForSelector('.lim-list');
+  await page.evaluate(() => { A['find-close'](); A.help(); A['help-go']({ v: 'limit' }); }); await page.waitForSelector('.lim-list');
   ok(await page.evaluate(() => /How do I set a spending limit\?/.test(helpQuestions().map(q => q[1]).join('|')) && UI.drawer.kind === 'limits'), 'Help: “How do I set a spending limit?” opens the list');
   await page.evaluate(() => { UI.drawer = null; renderOverlay(); navigate('settings/notifications'); }); await page.click('#nf-limits'); await page.waitForSelector('.lim-list');
   ok(true, 'the profile’s reminders: “See my limits” opens the list');

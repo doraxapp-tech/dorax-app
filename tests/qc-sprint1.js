@@ -59,20 +59,21 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { S.user.notify.budgets = true; navigate('settings/notifications'); });
   ok(await page.evaluate(() => !!document.querySelector('#nf-budgets') && document.querySelector('#nf-budgets').checked), 'the profile has its switch, on by default');
   // ---------- 3. Help ----------
-  await page.evaluate(() => { navigate('dashboard'); A.sheet(); }); await page.click('.sheet [data-a="help"]'); await page.waitForSelector('.hp-list');
-  eq(await page.evaluate(() => [UI.drawer.kind, document.querySelectorAll('.hp-row[data-a="help-go"]').length >= 10, !!document.querySelector('.hp-write [data-a="contact"]'), !!document.querySelector('[data-a="help-tour"]')]), ['help', true, true, true], 'Help: the questions people ask, the screen’s introduction again, and writing to Dorax at the end');
-  ok(await page.evaluate(() => [...document.querySelectorAll('.hp-row')].every(b => b.getBoundingClientRect().height >= 44) && document.documentElement.scrollWidth <= innerWidth), 'each question a thumb high, nothing wider than the phone');
-  await page.click('[data-a="help-go"][data-v="where"]'); eq(await page.evaluate(() => [UI.route, !UI.drawer]), ['reports', true], '“Where does my money go?” opens Reports');
-  await page.evaluate(() => A.help()); await page.click('[data-a="help-go"][data-v="debt"]'); await page.waitForTimeout(150);
+  await page.evaluate(() => { navigate('dashboard'); A.sheet(); }); await page.click('.sheet [data-a="help"]'); await page.waitForSelector('.hc-pub');
+  eq(await page.evaluate(() => [UI.webHelp, document.querySelectorAll('.hc-bx').length, !!document.querySelector('.hc-write [data-a="contact"]'), document.querySelectorAll('.hc-a [data-a="help-go"]').length]), [true, 10, true, 4], 'Help: the Help center, a page of the website (v209): the ten topics, the questions asked most with their way to the app, and writing to Dorax at the end');
+  ok(await page.evaluate(() => [...document.querySelectorAll('.hc-q summary, .hc-bx, .hc-hint')].every(b => b.getBoundingClientRect().height >= 44) && document.documentElement.scrollWidth <= innerWidth), 'each question and topic a thumb high, nothing wider than the phone');
+  await page.evaluate(() => A['hc-topic']({ v: 'reports' })); await page.evaluate(() => { const b = document.querySelector('.hc-a [data-a="help-go"][data-v="where"]'); b.closest('details').open = true; b.click(); }); await page.waitForTimeout(200);
+  eq(await page.evaluate(() => [UI.route, !UI.drawer, !UI.webHelp]), ['reports', true, true], '“Where does my money go?” opens Reports, in the app');
+  await page.evaluate(() => { A.help(); A['help-go']({ v: 'debt' }); }); await page.waitForTimeout(150);
   ok(await page.evaluate(() => (UI.drawer && UI.drawer.kind === 'journey') || !!UI.jstart), '“How do I get out of debt?” opens the Journey');
-  await page.evaluate(() => { if (UI.jstart) A['jstart-close'](); A.close(); A.help(); }); await page.click('.hp-write [data-a="contact"]');
+  await page.evaluate(() => { if (UI.jstart) A['jstart-close'](); A.close(); A.help(); }); await page.click('.hc-write [data-a="contact"]');
   eq(await page.evaluate(() => UI.drawer.kind), 'contact', '“Write to Dorax” opens the contact form');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
   // ---------- the computer ----------
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'es', account: 'example', plan: true, viewport: { width: 1440, height: 900 } }));
   await page.evaluate(() => navigate('dashboard'));
   eq(await page.evaluate(() => { const c = document.querySelector('#free-card'); return [!!c, !!c.querySelector('.fu-bar') && !!c.querySelector('.fu-how') && !c.querySelector('.fu-steps'), /Puedes gastar/.test(c.querySelector('h2').innerText), (document.querySelector('#runway-card .rw-alias') || {}).innerText]; }), [true, true, true, 'Tu reserva de emergencia'], 'a computer: the card with its sum in view, in Spanish; the emergency fund under Days of freedom');
-  await page.evaluate(() => A.help()); eq(await page.evaluate(() => [UI.drawer.kind, document.querySelector('.drawer').classList.contains('pop')]), ['help', true], 'Help on a computer: a card in the middle');
+  await page.evaluate(() => A.help()); eq(await page.evaluate(() => [UI.webHelp, !!document.querySelector('#public .hc-pub #hc-body'), document.querySelector('.app').hidden, !!document.querySelector('[data-a="help-close"]')]), [true, true, true, true], 'Help on a computer: the Help center, the website’s page, over the app, with the way back to Dorax (v209)');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
   // ---------- 5. the icon's shortcuts ----------
   for (const [what, check, label] of [['expense', () => !!UI.drawer && UI.drawer.kind === 'tx' && UI.drawer.draft.type === 'expense', 'the expense form'], ['import', () => UI.route === 'imports', 'Imports']]) {

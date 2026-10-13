@@ -13,7 +13,7 @@
    The screens that are a moment and not a page keep the address they happened on: "check your email", the new password (opened from an
    email), the short wait, "your account could not be opened".
    Where there is no web server (the app opened from disk, the one-file preview) there are no addresses: the pages work as they did before. */
-const PAGE_PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato' };
+const PAGE_PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda' };      // ajuda: the Help center (v209)
 const PAGES = (() => {
   let on = false, base = '/';
   try {
@@ -24,10 +24,12 @@ const PAGES = (() => {
   /** The page the address names; the home page for an address that names none. */
   const read = () => { if (!on) return 'landing'; let last = ''; try { last = location.pathname.slice(base.length); } catch (e) { return 'landing'; } return Object.keys(PAGE_PATHS).find(k => k !== 'landing' && PAGE_PATHS[k] === last) || 'landing'; };
   /** What the pages before login remember (UI.pub) for a page: the same as pressing its link (features/public/public.actions.js, pub-go). */
-  const state = v => v === 'login' || v === 'signup' ? { screen: 'auth', mode: v } : v === 'forgot' ? { screen: 'forgot', mode: 'login' } : v === 'privacy' || v === 'terms' || v === 'contact' ? { screen: v } : {};
+  const state = v => { if (v === 'help') { let st = null; try { st = history.state; } catch (e) { } UI.hcTopic = (st && st.hc) || ''; }      // reloaded on a topic of the Help center: that topic
+    return v === 'login' || v === 'signup' ? { screen: 'auth', mode: v } : v === 'forgot' ? { screen: 'forgot', mode: 'login' } : v === 'privacy' || v === 'terms' || v === 'contact' || v === 'help' ? { screen: v } : {}; };
   /** The page on screen, or null for a screen that keeps whatever address it happened on. The app itself, and the first-time setup, are at the root. */
-  const shown = () => { if (UI.session) return 'landing'; const p = UI.pub || {}, sc = p.screen; return sc === 'landing' || sc === 'onboard' ? 'landing' : sc === 'auth' ? (p.mode === 'login' ? 'login' : 'signup') : PAGE_PATHS[sc] != null ? sc : null; };
-  const names = { login: 'Log in', signup: 'Create account', forgot: 'Choose a new password', privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact' };
+  const shown = () => { if (UI.session) return UI.webHelp ? 'help' : 'landing';      // the Help center opened from the app has its address too (v209)
+    const p = UI.pub || {}, sc = p.screen; return sc === 'landing' || sc === 'onboard' ? 'landing' : sc === 'auth' ? (p.mode === 'login' ? 'login' : 'signup') : PAGE_PATHS[sc] != null ? sc : null; };
+  const names = { login: 'Log in', signup: 'Create account', forgot: 'Choose a new password', privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact', help: 'Help center' };
   const api = {
     on, arrived: 'landing', push: false, homeY: 0,
     read, state, shown,
@@ -39,12 +41,12 @@ const PAGES = (() => {
         link adds a step to the browser's history (pub-go sets push); everything else (logging in, logging out, a notice) replaces the step. */
     sync() {
       const v = shown(), app = !!UI.session || (UI.pub || {}).screen === 'onboard', push = api.push; api.push = false;
-      try { document.title = v && names[v] && !app ? t(names[v]) + ' · Dorax Finance' : 'Dorax Finance'; } catch (e) { /* the texts are not loaded yet */ }
+      try { document.title = v && names[v] && (!app || v === 'help') ? t(names[v]) + ' · Dorax Finance' : 'Dorax Finance'; } catch (e) { /* the texts are not loaded yet */ }
       if (!on || v == null) return;
       try {
         const path = base + PAGE_PATHS[v], now = location.pathname;
         if (now === path || (v === 'landing' && now === base + 'index.html')) return;
-        history[push ? 'pushState' : 'replaceState'](null, '', path + (app ? location.search + location.hash : ''));      // the app keeps its screen ("#plan") and what it was opened with
+        history[push ? 'pushState' : 'replaceState'](null, '', path + (app && v !== 'help' ? location.search + location.hash : ''));      // the app keeps its screen ("#plan") and what it was opened with
       } catch (e) { /* a frame that may not change its address: the pages still work */ }
     },
   };
@@ -55,14 +57,18 @@ const PAGES = (() => {
 function pageArrival() {
   const v = PAGES.arrived; PAGES.arrived = 'landing';
   if (!UI.session || LOCK.on) return;
-  if (v === 'privacy' || v === 'terms') A.legal({ v }); else if (v === 'contact') A.contact();
+  if (v === 'privacy' || v === 'terms') A.legal({ v }); else if (v === 'contact') A.contact(); else if (v === 'help') A.help();
 }
 // The browser's Back and Forward. The address has already changed: the page it names is shown, the way its link shows it. Back on the home
 // page returns to where it was being read. While the app, the first-time setup or a waiting screen is up, those stay, at their own address.
 window.addEventListener('popstate', () => {
   if (!PAGES.on || !UI.pub) return;      // before start-up there is no page yet (the login library may clear a link out of the address while it loads)
+  if (UI.session && UI.webHelp && PAGES.read() !== 'help') { BACK.skip = true; return helpWebClose(); }      // Back from the Help center opened over the app: the app, where it was (app/back.js lets this step go)
   if (UI.session || ['loading', 'onboard', 'reset', 'offline'].includes(UI.pub.screen) || UI.pub.busy) return PAGES.sync();
-  const v = PAGES.read(); if (v === PAGES.shown()) return;
+  const v = PAGES.read();
+  if (v === 'help' && UI.pub.screen === 'help') { let st = null; try { st = history.state; } catch (e) { } UI.hcTopic = (st && st.hc) || ''; UI.helpQ = ''; renderNow(); window.scrollTo(0, 0); return; }      // a topic of the Help center and its first page: steps of the same address
+  if (v === PAGES.shown()) return;
   const y = PAGES.homeY; A['pub-go']({ v }); PAGES.push = false;
+  if (v === 'help') { let st = null; try { st = history.state; } catch (e) { } if (st && st.hc) hcShow(st.hc, false); }      // back to a topic of the Help center
   if (v === 'landing' && y) window.scrollTo(0, y);
 });

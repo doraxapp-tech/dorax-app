@@ -89,7 +89,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => A['line-new']()); eq(await page.evaluate(() => UI.drawer.kind), 'line-form', 'after that, “New fixed cost” opens its form straight away');
   // the ways to the guide
   eq(await page.evaluate(() => [tourText('plan').go[0], firstStepList().some(r => r[1] === 'Set your spending limits'), helpQuestions().some(q => q[0] === 'limit')]), ['plan-guide', true, true], 'the Plan’s first visit, the first steps and Help lead to it');
-  await page.evaluate(() => { UI.drawer = null; S.plan.lines = S.plan.lines.filter(l => l.pay !== 'budget'); A.help(); }); await page.click('#overlay [data-a="help-go"][data-v="limit"]');
+  await page.evaluate(() => { UI.drawer = null; S.plan.lines = S.plan.lines.filter(l => l.pay !== 'budget'); A.help(); A['help-go']({ v: 'limit' }); });
   eq(await page.evaluate(() => UI.drawer.kind), 'plan-guide', 'Help with no limit yet: the guide');
   await page.evaluate(() => { UI.drawer = null; A['plan-guide']({}); }); await page.evaluate(() => A['pg-next']()); await page.waitForSelector('#pg-pct');
   eq(await page.evaluate(() => [document.querySelector('#pg-pct').value, [...document.querySelectorAll('.pg-chips button')].every(b => b.getBoundingClientRect().height >= 44)]), ['15', true], 'again: the share saved before; every chip 44px tall');

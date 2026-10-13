@@ -188,12 +188,13 @@ function renderNow() {
   const active = document.activeElement, id = active && active.id, pos = id && active.selectionStart != null ? [active.selectionStart, active.selectionEnd] : null, key = id ? null : focusKey(active);
   const sx = [...document.querySelectorAll('#view .tbl-wrap')].map(w => w.scrollLeft), before = UI.autoScroll || reducedMotion() ? null : snapshot();
   $('view').classList.remove('enter'); $('topbar').classList.remove('enter'); $('public').classList.remove('enter');
-  const pub = !UI.session;
+  const pub = !UI.session || !!UI.webHelp;      // webHelp: the Help center, a page of the website, opened from the app (v209, features/help/help-center.js)
   document.querySelector('.app').hidden = pub; $('tabbar').hidden = pub; $('public').hidden = !pub;
   if (!pub) document.documentElement.classList.remove('ob-open');      // the first-time setup's page is gone once the app is open
   applyTheme(pub); PAGES.sync();      // the address and the tab's title follow the page on screen (ui/pages.js)
   if (pub) {       // not logged in: the landing page, the login or the first question; nothing of the app is in the page
     document.documentElement.lang = S.settings.lang; $('view').innerHTML = ''; $('public').innerHTML = viewPublic(); obAfter(); UI.autoScroll = false; watchReveal();      // obAfter: the first-time setup's path (features/onboarding)
+    if (UI.session) renderShell();      // the Help center over the app: the app's frame, hidden under it, without the menu it was opened from
     renderOverlay();
     if (id) { const el = $(id); if (el && el !== document.activeElement) { el.focus({ preventScroll: true }); if (pos && el.setSelectionRange) try { el.setSelectionRange(pos[0], pos[1]); } catch (e) { } } }
     return;

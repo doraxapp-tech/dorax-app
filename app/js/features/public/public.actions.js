@@ -3,16 +3,17 @@
 const PUBLIC_ACTIONS = {
   // before login
   'pub-go'(ds) {
-    const v = ds.v, legal = v === 'privacy' || v === 'terms' || v === 'contact', p = UI.pub, fromLegal = p.screen === 'privacy' || p.screen === 'terms' || p.screen === 'contact';
+    const v = ds.v, legal = v === 'privacy' || v === 'terms' || v === 'contact' || v === 'help', p = UI.pub, fromLegal = p.screen === 'privacy' || p.screen === 'terms' || p.screen === 'contact' || p.screen === 'help';      // help: the Help center (v209), a page like these
     const backToForm = !legal && fromLegal && p.back === v;      // the terms were read in the middle of signing up: what was typed is still there
     if (p.screen === 'landing' && v !== 'landing') PAGES.homeY = window.scrollY || 0;      // Back returns to where the home page was being read (ui/pages.js)
     PAGES.push = true;                                                                  // each page has its own address: this move is a step Back can undo
     if (v === 'contact') UI.contact = null;
+    if (v === 'help') { UI.hcTopic = ''; UI.helpQ = ''; }      // the Help center opens on its first page
     if (legal) p.back = p.screen === 'auth' ? p.mode : fromLegal ? p.back : null;
     else if (!backToForm) Object.assign(p, { password: '', show: false, accept: false });      // anywhere else, a typed password is dropped
     Object.assign(p, { screen: v === 'landing' ? 'landing' : legal ? v : v === 'forgot' ? 'forgot' : 'auth', mode: v === 'landing' || legal ? p.mode : v === 'forgot' ? 'login' : v, error: null, errs: {}, notice: null, resent: false, sent: null });
     if (!legal) p.back = null;
-    renderNow(); toTop(); enterView(); const el = $('au-name') || $('au-email') || $('legal-title') || $('contact-title'); if (el) el.focus({ preventScroll: true });
+    renderNow(); toTop(); enterView(); const el = $('au-name') || $('au-email') || $('legal-title') || $('contact-title') || $('hc-title'); if (el) el.focus({ preventScroll: true });
   },
   /** Monthly or yearly prices on the home page. Both are in the page; this shows one, without drawing the page again. */
   'lp-bill'(ds) { UI.lpBill = ds.v === 'year' ? 'year' : 'month'; const box = document.querySelector('.lp-plans'); if (box) box.dataset.bill = UI.lpBill; document.querySelectorAll('.seg.bill button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === UI.lpBill))); },
@@ -43,7 +44,8 @@ const PUBLIC_ACTIONS = {
     const n = Math.max(0, Math.min(3, +ds.v || 0)), row = $('l2-moments'); UI.lpMoment = n; if (!row) return;
     row.innerHTML = l2Moments(); const el = row.querySelector('.l2-mo.on'); if (el) el.focus({ preventScroll: true });
   },
-  'pub-scroll'(ds) { const el = $(ds.id); if (el) el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }); },
+  'pub-scroll'(ds) { if (!$(ds.id) && !UI.session && UI.pub.screen !== 'landing') PUBLIC_ACTIONS['pub-go']({ v: 'landing' });      // from another page (the Help center's footer): the home page first
+    const el = $(ds.id); if (el) el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }); },
   // contact: the same form before login (a page) and inside the app (a panel). The message goes to the server.
   contact() { UI.sheet = false; UI.contact = null; UI.drawer = { kind: 'contact', title: t('Contact') }; renderOverlay(); const el = $('ct-message'); if (el) el.focus(); },
   async 'contact-send'() {

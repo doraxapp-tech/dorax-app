@@ -52,9 +52,9 @@ const PARTS = ['general', 'appearance', 'notifications', 'security', 'imports', 
   eq(await p.evaluate(() => [...document.querySelectorAll('.pf-page > .set-group .set-head h2')].map(h => h.textContent.trim())), ['Tú', 'Correo e inicio de sesión', 'Eliminar cuenta'], 'Profile: only the person (name, email and login, deleting the account)');
   eq(await p.evaluate(() => [!!document.querySelector('#pf-lang'), !!document.querySelector('#reminders-card'), !!document.querySelector('#guard-card'), !!document.querySelector('.pf-page a[href="#settings"]')]), [false, false, false, true], 'Profile: no language, reminders or lock; a link says they are in Settings');
   await p.evaluate(() => { A.help(); }); await p.waitForTimeout(150);
-  await p.evaluate(() => HELP_GO.notify()); await p.waitForTimeout(200);
+  await p.evaluate(() => A['help-go']({ v: 'notify' })); await p.waitForTimeout(200);      // from the Help center (v209: a page of the website, over the app)
   eq(await p.evaluate(() => [UI.route, UI.setSec, !!document.querySelector('#reminders-card')]), ['settings', 'notifications', true], 'Help’s way to the reminders leads to Settings › Notifications');
-  await p.evaluate(() => { UI.drawer = null; renderOverlay(); HELP_GO.safe(); }); await p.waitForTimeout(200);
+  await p.evaluate(() => { UI.drawer = null; renderOverlay(); A.help(); A['help-go']({ v: 'safe' }); }); await p.waitForTimeout(200);
   eq(await p.evaluate(() => [UI.route, UI.setSec]), ['settings', 'security'], 'and to the app lock, Settings › Security');
   await p.evaluate(() => { UI.drawer = null; renderOverlay(); A.space({ v: 'business' }); navigate('settings/imports'); }); await p.waitForTimeout(250);
   eq(await p.evaluate(() => [UI.space, !!document.querySelector('#set-platform'), !!document.querySelector('[data-a="edit-profile"]')]), ['business', true, true], 'the company’s side: Imports has the converter and its OFX profiles');

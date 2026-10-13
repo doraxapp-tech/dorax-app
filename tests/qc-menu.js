@@ -62,10 +62,10 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     eq(await p.evaluate(() => { const r = document.querySelector('#user-menu').getBoundingClientRect(); return [r.top >= 0, r.bottom <= innerHeight, document.documentElement.scrollWidth - innerWidth <= 0]; }), [true, true, true], tag + 'in a short window the menu is still entirely on screen');
     await p.setViewportSize({ width: 1440, height: 900 });
     // help
-    await p.evaluate(() => { UI.menu = true; render(); }); await p.click('#user-menu [data-a="help"]'); await p.waitForSelector('.hp-list');      // Help: the questions first (2026-10-10), writing to Dorax at its end
-    await p.click('.hp-write [data-a="contact"]'); await p.waitForSelector('#ct-message');
+    await p.evaluate(() => { UI.menu = true; render(); }); await p.click('#user-menu [data-a="help"]'); await p.waitForSelector('.hc-pub');      // Help: the Help center, a page of the website (v209), writing to Dorax at its end
+    await p.click('.hc-write [data-a="contact"]'); await p.waitForSelector('#ct-message');
     eq(await p.evaluate(() => [UI.menu, UI.drawer.kind, !!document.querySelector('#user-menu')]), [false, 'contact', false], tag + 'Help closes the menu and opens the panel to write to Dorax');
-    await p.evaluate(() => A.close());
+    await p.evaluate(() => { A.close(); helpWebClose(); });
     // the profile is a row of the menu now (owner: "move the profile tab into a button in the 3 dot dropdown")
     await p.click('#user-menu-btn'); await p.click('#user-menu a[href="#profile"]');
     eq(await p.evaluate(() => [UI.route, UI.menu, document.querySelector('.pagehead h1').innerText.trim()]), ['profile', false, 'Profile'], tag + 'the menu’s first row opens the profile and closes the menu');
@@ -116,8 +116,8 @@ const { open, ok, eq, done, TARGET } = require('./pw.js');
     eq(await p.evaluate(() => { const sh = document.querySelector('.sheet'), ids = [...sh.querySelectorAll('select, button')].map(el => el.id || el.dataset.a), help = sh.querySelector('[data-a="help"]'), out = sh.querySelector('[data-a="logout"]'); sh.scrollTop = sh.scrollHeight; const h = help.getBoundingClientRect(), u = out.getBoundingClientRect(), box = sh.getBoundingClientRect();
       return [ids, help.innerText.trim(), h.height >= 44 && u.height >= 44, h.bottom <= u.top + 1, Math.abs(h.width - u.width) <= 1 && h.width >= box.width - 30, u.bottom <= innerHeight]; }),
       [['find', 'lang-m', 'theme-m', 'help', 'logout', 'legal', 'legal'], await T('Help'), true, true, true, true], where + 'More holds the search, then the preferences (language, appearance), Help, Log out and the terms, in that order (owner, 2026-10-10: ordered like Cash App and ARQ); Help and Log out are as wide as the sheet and a thumb high');
-    await p.evaluate(() => document.querySelector('.sheet [data-a="help"]').click()); await p.waitForSelector('.hp-list');
-    eq(await p.evaluate(() => [UI.sheet, UI.drawer.kind, !!document.querySelector('.hp-write [data-a="contact"]')]), [false, 'help', true], where + 'Help closes More and opens the questions people ask, with writing to Dorax at the end (2026-10-10)');
+    await p.evaluate(() => document.querySelector('.sheet [data-a="help"]').click()); await p.waitForSelector('.hc-pub');
+    eq(await p.evaluate(() => [UI.sheet, UI.webHelp, !!document.querySelector('.hc-write [data-a="contact"]')]), [false, true, true], where + 'Help closes More and opens the Help center, a page of the website (v209), with writing to Dorax at the end');
     eq(o.errors, [], where + 'no errors'); await o.browser.close();
   }
   done('qc-menu');

@@ -151,6 +151,24 @@ function calcCarry() {
 /** The home page. Order since 2026-10-11 (the design canvas the owner approved): hero with the phone and its Household | Company choice >
     three big true numbers > "your money, with a date" (the calculator) > the moments of the month > what's inside > for entrepreneurs (PJ) >
     how it works > your data > questions > closing call to action > footer. No two sections share a layout (owner, 2026-10-05). */
+/** The website's footer: the home page's, and the Help center's (help-center.js). Opened from the app (app), only what is there for someone
+    already in: the legal texts in a panel, the Help center and the form to write. */
+function l2Foot(app) {
+  const go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
+  const page = (v, label) => app ? `<button type="button" class="l2-link" data-a="${v === 'contact' ? 'contact' : v === 'help' ? 'hc-home' : 'legal'}" data-v="${v}">${label}</button>` : `<a class="l2-link" href="${PAGES.href(v)}" data-a="pub-go" data-v="${v}">${label}</a>`;
+  return `<footer class="l2-foot"><div class="l2-wrap">
+    <div class="l2-ft-top">
+      <div class="l2-ft-brand">${brandMark(true)}<p>${t('Your money, organized clearly enough to make better decisions yourself.')}</p>
+        ${app ? '' : `<div class="l2-ft-lang">${icon('globe')}${langSelect('ft-lang', true)}</div>`}</div>
+      <nav class="l2-ft-cols" aria-label="${t('Footer')}">
+        ${app ? '' : `<div><h3>${t('Product')}</h3><ul><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${go('lp-pj', t('For entrepreneurs'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
+        <div><h3>${t('Account')}</h3><ul><li>${page('signup', t('Create account'))}</li><li>${page('login', t('Log in'))}</li></ul></div>`}
+        <div><h3>${t('Legal')}</h3><ul><li>${page('privacy', t('Privacy policy'))}</li><li>${page('terms', t('Terms of use'))}</li></ul></div>
+        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('contact', t('Contact form'))}</li></ul></div>
+      </nav></div>
+    <div class="l2-ft-bottom"><p>© 2026 Dorax Finance</p>
+      <p>${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></div></footer>`;
+}
 function viewLanding() {
   const co = UI.lpSide === 'co', go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   const pj = [
@@ -176,7 +194,7 @@ function viewLanding() {
     [t('How do I log in, and how am I reminded?'), t('You log in with your email and a password, or with your Google account. Reminders come in the app, by email and, if you turn them on, as notifications on your phone or computer. You can also download a calendar file.')],
     [t('How does the bank statement converter work?'), t('You choose the statement as your bank gives it (CSV, Excel, PDF and the other usual formats), confirm what was read, and download an OFX file whose format was checked. A scanned PDF, which is a picture, cannot be read. Nothing is sent to your accountant for you. Files made this way were imported in Contabilizei in October 2026 without errors; that is our own test, not a statement by Contabilizei.')],
     [t('Does Dorax give financial advice?'), t('No. Dorax organises your own numbers. It gives no financial, tax or investment advice, does not tell you what to buy, sell or save, and does not replace an accountant. Investment figures are a record of what you typed, not market values.')],
-    [t('Does it work outside Brazil?'), t('The plan, the fixed costs and the goals work anywhere, but every amount is shown in reais (R$): other currencies are not handled. Investments are built for Brazilian FIIs and the converter for Brazilian accounting.')],
+    [t('Does it work outside Brazil?'), t('The plan, the fixed costs and the goals work anywhere, and the main currency can be reais, dollars, euros or Cuban pesos. Investments are built for Brazilian FIIs and the converter for Brazilian accounting.')],
   ];
   const band = (cls, num, text, tag) => `<div class="l2-band-w ${cls}"><div class="l2-band"><div class="l2-wrap l2-band-in"><span class="l2-num">${num}</span><p>${text}</p><span class="l2-tag">${tag}</span></div></div></div>`;
   const contact = `<a class="linkbtn" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${t('contact form')}</a>`;
@@ -230,16 +248,5 @@ function viewLanding() {
     <section class="l2-end"><div class="l2-wrap"><div class="l2-end-box"><h2 class="l2-h2">${t('Make sense of the numbers you have.')}</h2>
       <div class="l2-end-r">${l2Go('forest lg')}<p>${t('Free')} · ${t('No card')}</p></div></div></div></section>
   </main>
-  <footer class="l2-foot"><div class="l2-wrap">
-    <div class="l2-ft-top">
-      <div class="l2-ft-brand">${brandMark(true)}<p>${t('Your money, organized clearly enough to make better decisions yourself.')}</p>
-        <div class="l2-ft-lang">${icon('globe')}${langSelect('ft-lang', true)}</div></div>
-      <nav class="l2-ft-cols" aria-label="${t('Footer')}">
-        <div><h3>${t('Product')}</h3><ul><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${go('lp-pj', t('For entrepreneurs'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
-        <div><h3>${t('Account')}</h3><ul><li><a class="l2-link" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${t('Create account')}</a></li><li><a class="l2-link" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a></li></ul></div>
-        <div><h3>${t('Legal')}</h3><ul><li><a class="l2-link" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a></li><li><a class="l2-link" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a></li></ul></div>
-        <div><h3>${t('Contact')}</h3><ul><li><a class="l2-link" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${t('Contact form')}</a></li></ul></div>
-      </nav></div>
-    <div class="l2-ft-bottom"><p>© 2026 Dorax Finance</p>
-      <p>${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></div></footer></div>`;
+  ${l2Foot()}</div>`;
 }

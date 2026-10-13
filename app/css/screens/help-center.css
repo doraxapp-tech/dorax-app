@@ -1,0 +1,100 @@
+/* Dorax Finance — the Help center (v209; features/help/help-center.js): a page of the website, /ajuda, made of the home page's own parts (.lp2 and
+   its l2- rules, css/public/landing-v2.css: the bar, the centred title, the eyebrows, the bento, the two-column questions, the forest band, the
+   lime closing box, the footer). Only what the home page has no rule for is here: the search, the words under it, the topics' cards in its bento,
+   a topic's page, the way to the app under an answer. (Owner, 2026-10-13, on the artifact built only from the home page's style: "se ve bien".) */
+
+/* the bar: Help marked in the capsule; opened from the app, the name and "Back to Dorax" only */
+.hc2 .l2-links .l2-link[aria-current] { background: var(--l2-forest); color: var(--l2-lime); font-weight: 600; }
+.hc2 .hc-nav.hc-in-app { grid-template-columns: auto minmax(0, 1fr); }
+.hc-brand { justify-self: start; display: inline-flex; border-radius: 8px; color: var(--l2-forest); text-decoration: none; }
+.hc-brand:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 4px; }
+
+/* the top: centred, as the home page's */
+.hc-hero { padding: 48px 0 96px; }
+.hc-hero .l2-h1:focus { outline: none; }
+.hc-search { position: relative; display: flex; align-items: center; width: min(680px, 100%); margin-top: 8px; padding: 8px 8px 8px 0; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line), 0 24px 48px -28px rgba(22, 51, 0, .35); transition: box-shadow 150ms ease-out; }
+.hc-search:focus-within { box-shadow: 0 0 0 2px var(--l2-forest), 0 24px 48px -28px rgba(22, 51, 0, .35); }
+.hc-search > svg { width: 22px; height: 22px; margin: 0 14px 0 24px; color: var(--l2-forest); }
+.hc-search input { flex: 1; min-width: 0; height: 48px; padding: 0; border: 0; outline: 0; background: transparent; color: var(--l2-ink); font: 500 18px var(--font); -webkit-appearance: none; appearance: none; }
+.hc-search input::placeholder { color: var(--l2-ink-3); font-weight: 400; }
+.hc-search input::-webkit-search-cancel-button { display: none; }
+.hc-clear[hidden] { display: none; }
+.hc-clear { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; margin-right: 4px; border-radius: 50%; color: var(--l2-ink-3); }
+.hc-clear svg { width: 18px; height: 18px; }
+.hc-clear:hover { background: var(--l2-soft); color: var(--l2-ink); }
+.hc-clear:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 2px; }
+.hc-hints { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+.hc-hint { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line); font-size: 14px; font-weight: 600; color: var(--l2-forest); transition: background-color 150ms ease-out, box-shadow 150ms ease-out, color 150ms ease-out; }
+.hc-hint:hover { box-shadow: 0 0 0 1px var(--l2-forest); }
+.hc-hint[aria-pressed="true"] { background: var(--l2-forest); box-shadow: none; color: var(--l2-lime); }
+.hc-hint:active { transform: scale(.97); }
+.hc-hint:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 2px; }
+.hc-back { margin-bottom: 4px; }
+
+/* the topics: cards of the home page's bento (.l2-bx), on its white band; the company's dark, as its FIIs card */
+.hc-bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 56px; }
+.hc-bx { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: flex; flex-direction: column; min-height: 240px; padding: 32px; border-radius: 32px; background: var(--l2-soft); overflow: hidden; transition: transform 200ms var(--l2-ease), box-shadow 200ms ease-out; }
+.hc-bx.wide { grid-column: span 2; }
+.hc-bx:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--l2-line-strong); }
+.hc-bx:active { transform: scale(.99); }
+.hc-bx:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 3px; }
+.hc-bx-ic { position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line); color: var(--l2-forest); }
+.hc-bx-ic svg { width: 24px; height: 24px; }
+.hc-bx-go { position: absolute; top: 32px; right: 32px; display: inline-flex; align-items: center; gap: 4px; min-height: 38px; padding: 0 12px 0 16px; border-radius: 12px; border: 1px solid var(--l2-forest); font-size: 15px; font-weight: 500; color: var(--l2-forest); }
+.hc-bx-go svg { width: 16px; height: 16px; transition: transform 200ms var(--l2-ease); }
+.hc-bx:hover .hc-bx-go svg { transform: translateX(3px); }
+.hc-bt { position: relative; margin-top: auto; padding-top: 32px; max-width: 470px; font-size: 24px; font-weight: 500; letter-spacing: -.025em; line-height: 1.22; color: var(--l2-ink-3); text-wrap: pretty; }
+.hc-bt > span { color: var(--l2-ink); }
+.hc-bx.dark { background: var(--l2-forest); }
+.hc-bx.dark .hc-bx-ic { background: var(--l2-lime); box-shadow: none; }
+.hc-bx.dark .hc-bt { color: #C9D2C0; } .hc-bx.dark .hc-bt > span { color: var(--l2-lime); }
+.hc-bx.dark .hc-bx-go { border-color: var(--l2-lime); color: var(--l2-lime); }
+
+/* the questions: the home page's (.l2-faq); with the topic's name above them in a list of several, and the way to the app under the answer */
+.hc2 .hc-tight { padding-top: 0; }
+.hc-qs summary { padding-block: 14px; }
+.hc-qt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hc-qt small { font-size: 13px; font-weight: 500; color: var(--l2-ink-3); }
+.hc-a { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 24px; }
+.l2-faq .hc-a p { padding: 0; }
+.hc-a .l2-btn svg { width: 16px; height: 16px; }
+.hc-lk { color: var(--l2-forest); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.hc-none { padding: 32px; border: 1.5px dashed var(--l2-line-strong); border-radius: 24px; font-size: 16px; line-height: 1.55; color: var(--l2-ink-2); }
+.hc-none b { display: block; margin-bottom: 4px; font-size: 18px; color: var(--l2-ink); }
+.hc-none p { margin: 0; }
+
+/* a topic's page: its title held at the left with the other topics under it, its questions at the right */
+.hc-tl { gap: 28px; }
+.hc-th { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.hc-to { display: flex; flex-direction: column; gap: 14px; }
+.hc-to .l2-sub { margin: 0; }
+.hc-others { display: flex; flex-wrap: wrap; gap: 8px; }
+.hc-others .l2-link { min-height: 44px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line); }
+.hc-others .l2-link:hover { background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-forest); }
+.hc-topic-qs { min-width: 0; }
+
+/* writing to Dorax: the home page's forest band */
+.hc-write-go { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 40px; }
+.hc-write-go p { margin: 0; font-size: 14px; font-weight: 500; color: var(--l2-on-dark-2); }
+.hc2 .hc-write .l2-btn:focus-visible { outline-color: var(--l2-lime); }
+.hc2 .l2-end { padding-top: 120px; }      /* after the forest band, the home page's room above its closing box */
+
+@media (prefers-reduced-motion: reduce) { .hc-bx, .hc-bx-go svg, .hc-hint, .hc-search { transition: none; } }
+@media (max-width: 1100px) {
+  .hc-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* a topic on a narrower screen: its title, its questions, then the other topics (the left column's parts take their own places) */
+  .hc-tgrid { display: flex; flex-direction: column; gap: 32px; }
+  .hc-tl { display: contents; }
+  .hc-th { order: 0; } .hc-topic-qs { order: 1; } .hc-to { order: 2; }
+}
+@media (max-width: 720px) {
+  .hc-hero { padding: 24px 0 64px; }
+  .hc-search input { font-size: 16px; } .hc-search > svg { margin: 0 10px 0 18px; }
+  .hc-bento { grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 40px; } .hc-bx.wide { grid-column: auto; }
+  .hc-bx { min-height: 0; padding: 24px; border-radius: 28px; }
+  .hc-bx-go { top: 24px; right: 24px; }
+  .hc-bt { padding-top: 24px; font-size: 20px; }
+  .hc-none { padding: 24px 20px; }
+  .hc-write-go .l2-btn { width: 100%; }
+  .hc2 .l2-end { padding-top: 72px; }
+}

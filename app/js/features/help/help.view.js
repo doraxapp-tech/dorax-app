@@ -16,7 +16,7 @@ function helpQuestions() {
     ['record', t('How do I record an expense quickly?'), t('Tap + and write one line: “taxi 15”.')],
     ['import', t('How do I bring my bank statement?'), t('Imports: choose the OFX or CSV file and Dorax sorts it; you only check what is unclear.')],
     ['sides', t('How do I keep the company apart from home?'), hasCompany() ? t('The button with two arrows switches sides: the two never mix.') : t('Open a company account: its money has its own side and never mixes with home.')],
-    ['notify', t('How do I choose my reminders and notifications?'), t('In your profile, under Reminders: what, how early, and the tips.')],
+    ['notify', t('How do I choose my reminders and notifications?'), t('In Settings, under Notifications: what, how early, and the tips.')],
     ['safe', t('Is my data safe?'), t('No ads and no data sold. Add a PIN, Face ID or fingerprint in Settings, under Security; hide the amounts with the eye.')],
   ];
 }

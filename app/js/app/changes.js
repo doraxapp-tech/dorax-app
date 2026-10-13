@@ -1,7 +1,7 @@
 /* Dorax Finance — every field: what happens when its value changes (data-c). */
 // ---------- changes (input / change) ----------
 const C = {
-  ...SETTINGS_CHANGES, ...SHEET_CHANGES, ...PHOTO_CHANGES, ...WALLET_CHANGES, ...REMIND_CHANGES, ...ONBOARD_CHANGES, ...FIND_CHANGES, ...AHEAD_CHANGES, ...COMPANY_CHANGES, ...LOCK_CHANGES, ...PUBLIC_CHANGES, ...JOURNEY_CHANGES, ...LIMIT_CHANGES, ...PLAN_GUIDE_CHANGES, ...YEARLY_CHANGES,
+  ...SETTINGS_CHANGES, ...HELP_CENTER_CHANGES, ...SHEET_CHANGES, ...PHOTO_CHANGES, ...WALLET_CHANGES, ...REMIND_CHANGES, ...ONBOARD_CHANGES, ...FIND_CHANGES, ...AHEAD_CHANGES, ...COMPANY_CHANGES, ...LOCK_CHANGES, ...PUBLIC_CHANGES, ...JOURNEY_CHANGES, ...LIMIT_CHANGES, ...PLAN_GUIDE_CHANGES, ...YEARLY_CHANGES,
   'tx-filter'(el) { UI.tx[el.dataset.k] = el.value; UI.tx.page = 1; if (el.dataset.k === 'q') txLive(); else render(); },
   /** A choice inside the filter pop-up: it changes the copy, and the pop-up is redrawn so its button counts again. A scope chosen by hand lets go of the account. */
   'tx-size'(el) { UI.tx.size = +el.value; UI.tx.page = 1; $('tx-list').innerHTML = txList(); const s = $('tx-size'); if (s) s.focus({ preventScroll: true }); },
