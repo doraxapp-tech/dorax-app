@@ -19,27 +19,21 @@ const PUBLIC_ACTIONS = {
   },
   /** Monthly or yearly prices on the home page. Both are in the page; this shows one, without drawing the page again. */
   'lp-bill'(ds) { UI.lpBill = ds.v === 'year' ? 'year' : 'month'; const box = document.querySelector('.lp-plans'); if (box) box.dataset.bill = UI.lpBill; document.querySelectorAll('.seg.bill button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === UI.lpBill))); },
-  // the home page's calculator (features/public/landing.view.js)
-  /** Another dream: its cost slider starts at that dream's own round figure, until the person has moved or typed one. The tool is drawn again (its slider has another far end). */
+  // the home page's calculator (features/public/landing.view.js): two rows of buttons since v213
+  /** Another dream, at the first-time setup's own round cost. The tool is drawn again, and the pressed dream keeps the focus. */
   'calc-dream'(ds) {
     const c = calcState(), row = obDreams().find(x => x[0] === ds.v); if (!row) return;
-    c.dream = ds.v; if (!c.costTouched) c.cost = plain(row[4] * 100);
-    calcDraw(); const el = document.querySelector('#calc-tool .ob-dream[aria-pressed="true"]'); if (el) el.focus({ preventScroll: true });
+    c.dream = ds.v; c.cost = plain(row[4] * 100); calcDraw(); const el = document.querySelector('#calc-tool [data-a="calc-dream"][aria-pressed="true"]'); if (el) el.focus({ preventScroll: true });
   },
-  /** "Try it": the step the tip names is added to what is put aside each month, as far as its slider goes. */
-  'calc-try'() {
-    const c = calcState(), L = calcLook(); if (L.bad || !L.lever) return;
-    c.monthly = plain(L.monthly + L.lever.extra); calcDraw(); const el = $('calc-try') || $('calc-monthly-r'); if (el) el.focus({ preventScroll: true });
+  /** Another amount put aside each month (one of CALC_MONTHLY, in reais). */
+  'calc-monthly'(ds) {
+    const v = +ds.v; if (!CALC_MONTHLY.includes(v)) return;
+    calcState().monthly = plain(v * 100); calcDraw(); const el = document.querySelector('#calc-tool [data-a="calc-monthly"][aria-pressed="true"]'); if (el) el.focus({ preventScroll: true });
   },
   /** The way in: what was chosen is kept on this device for a day, for the first-time setup of the account about to be created (calcCarry). */
   'calc-go'() {
     const c = calcState(); try { localStorage.setItem(CALC_KEY, JSON.stringify({ at: Date.now(), dream: c.dream, cost: c.cost, saved: c.saved })); } catch (e) { /* a browser that keeps nothing: the setup starts empty */ }
     PUBLIC_ACTIONS['pub-go']({ v: 'signup' });
-  },
-  /** The home page's phone: the household's side or the company's (2026-10-11). Only the phone and the two buttons are drawn again, and the pressed one keeps the focus. */
-  'lp-side'(ds) {
-    UI.lpSide = ds.v === 'co' ? 'co' : 'home'; const co = UI.lpSide === 'co', ph = $('l2-phone'); if (ph) ph.outerHTML = l2Phone(co);
-    document.querySelectorAll('.l2-sg').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.v === 'co') === co)));
   },
   /** One of the four moments of the month opens and shows how it looks in Dorax; only the four are drawn again. */
   'lp-moment'(ds) {
@@ -65,20 +59,7 @@ const PUBLIC_ACTIONS = {
   'contact-new'() { const email = contactState().email; UI.contact = { ...freshContact(), email }; UI.session ? renderOverlay() : renderNow(); const el = $('ct-message'); if (el) el.focus(); },
   legal(ds) { UI.sheet = false; UI.drawer = { kind: 'legal', doc: ds.v === 'terms' ? 'terms' : 'privacy', title: legalDoc(ds.v === 'terms' ? 'terms' : 'privacy').title }; renderOverlay(); },
 };
-/** The calculator's answer follows its fields without the page being drawn again; the whole tool is drawn again only when its parts change. */
-function calcShow() { const o = $('calc-out'), m = $('calc-more'); if (!o || !m) return; const [main, more] = calcParts(); o.innerHTML = main; m.innerHTML = more; }
+/** The calculator is drawn again when one of its buttons is pressed. */
 function calcDraw() { const el = $('calc-tool'); if (el) el.innerHTML = calcTool(); }
-const PUBLIC_CHANGES = {
-  /** A field of the calculator. One that has a slider moves it along, as far as the slider goes (a larger amount stays in the field). */
-  calc(el) {
-    const c = calcState(); c[el.dataset.k] = el.value; if (el.dataset.k === 'cost') c.costTouched = true;
-    const r = el.dataset.range && $(el.dataset.range), n = r ? typedAmount(el.value) : null;
-    if (r && n !== null && n >= 0) obRangeShow(r, Math.min(+r.max, Math.round(n / 100)));
-    calcShow();
-  },
-  /** A slider of the calculator: its field takes the amount, written the way amounts are typed here. */
-  'calc-range'(el) {
-    const c = calcState(), n = +el.value, text = plain(n * 100); c[el.dataset.k] = text; if (el.dataset.k === 'cost') c.costTouched = true;
-    const field = $(el.dataset.text); if (field) field.value = text; obRangeShow(el, n); calcShow();
-  },
-};
+/** Fields of the pages before login: none since v213 (the home page's calculator has buttons, not fields). Joined into C in app/changes.js. */
+const PUBLIC_CHANGES = {};

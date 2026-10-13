@@ -135,23 +135,20 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
     ok(/Inter/.test(m.font), `${w}px home page: set in Inter, as the app`, m.font);
     eq(m.logo, ['rgb(22, 51, 0)', 'rgb(159, 209, 130)'], `${w}px home page: the logo in forest with its lit quarter in lime`);
     eq(m.old, 0, `${w}px home page: none of the first look's pieces is left in the page`);
-    eq(m.ids, 'lp-calc lp-days lp-what lp-pj lp-how lp-data lp-faq', `${w}px home page: the sections in the approved order`);
-    // the phone of the hero: one picture for a screen reader, nothing in it to press, nothing spills out of it; the choice over it changes its side
-    eq(await p.evaluate(() => { const st = document.querySelector('.l2-stage'), ph = st.querySelector('#l2-phone');
-      return { hidden: [st.getAttribute('role'), !!st.getAttribute('aria-label'), ph.getAttribute('aria-hidden'), st.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length],
-        seg: [...document.querySelectorAll('.l2-sg')].map(b => b.getAttribute('aria-pressed')), co: ph.classList.contains('co'), fig: ph.querySelector('.l2-pbig b').textContent,
-        fits: [...ph.querySelectorAll('.l2-phead, .l2-pc, .l2-kds, .l2-tabs')].every(x => { const a = x.getBoundingClientRect(), b = ph.getBoundingClientRect(); return a.left >= b.left - .5 && a.right <= b.right + .5 && a.bottom <= b.bottom + .5; }) }; }),
-      { hidden: ['img', true, 'true', 0], seg: ['true', 'false'], co: false, fig: '3', fits: true }, `${w}px home page: the phone shows the household's side (3 and a half months of freedom); it is one picture for a screen reader and nothing in it can be pressed or spills out`);
-    await p.click('.l2-sg.co');
-    eq(await p.evaluate(() => { const ph = document.querySelector('#l2-phone'); return [ph.classList.contains('co'), [...document.querySelectorAll('.l2-sg')].map(b => b.getAttribute('aria-pressed')), ph.querySelector('.l2-pbig b').textContent, getComputedStyle(ph.querySelector('.rw-seg .bar > i')).backgroundColor, document.activeElement.dataset.v]; }),
-      [true, ['false', 'true'], '5', 'rgb(91, 157, 255)', 'co'], `${w}px home page: "Company" turns the phone to the company's side, in its blue (5 months of runway); the button keeps the focus`);
+    eq(m.ids, 'lp-who lp-days lp-what lp-how lp-pj lp-calc lp-blog lp-data lp-faq', `${w}px home page: the sections in the approved order (v213, the canvas drawn around the people)`);
+    // the people at the top (v213): one picture for a screen reader, nothing in it to press; on a computer five of them carry a piece of their month, none over another
+    eq(await p.evaluate(() => { const c = document.querySelector('.l2-cast'), chips = [...c.querySelectorAll('.l2-chip')].filter(x => x.getClientRects().length).map(x => x.getBoundingClientRect());
+      const over = chips.some((a, i) => chips.some((b, k) => k > i && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom));
+      const trust = document.querySelector('.l2-trust').getBoundingClientRect();
+      return { hidden: [c.getAttribute('aria-hidden'), c.querySelectorAll('button, a, input, select, [data-a], [tabindex], h1, h2, h3').length], people: c.querySelectorAll('.l2-p').length, shown: [...c.querySelectorAll('.l2-p')].filter(x => x.getClientRects().length).length, chips: chips.length, over, clear: chips.every(r => r.top >= trust.bottom) }; }),
+      { hidden: ['true', 0], people: 7, shown: w > 900 ? 7 : 5, chips: w > 900 ? 5 : 0, over: false, clear: true }, `${w}px home page: the people at the top are one picture for a screen reader with nothing to press; ${w > 900 ? 'seven of them, five with a piece of their month, none covering another or the words above' : 'five of them on a phone, without their labels'}`);
     // the moments of the month: the one pressed opens and shows a piece of the app; only one is open
     await p.click('.l2-mo[data-v="2"]');
     eq(await p.evaluate(() => [[...document.querySelectorAll('.l2-mo')].map(b => b.getAttribute('aria-pressed')).join(' '), document.querySelectorAll('.l2-mo-ui').length, document.activeElement.dataset.v, getComputedStyle(document.querySelector('.l2-mo.on')).backgroundColor]),
       ['false false true false', 1, '2', 'rgb(22, 51, 0)'], `${w}px home page: a moment of the month opens in forest with how it looks in Dorax; the others close; the focus stays on it`);
     // small text is not tightened (owner: tight letter spacing on small text is hard to read); words can be read on what is behind them
     eq(await p.evaluate(() => { const ls = sel => { const e = document.querySelector(sel); if (!e) return 'missing ' + sel; const v = getComputedStyle(e).letterSpacing; return v === 'normal' ? 0 : parseFloat(v); };
-      return ['.l2-link', '.l2-eyebrow', '.l2-trust', '.l2-mo-p', '.l2-st-p span', '.l2-faq details summary', '.l2-ft-cols h3', '.l2-fl > small', '.l2-tc p', '.lp2 .calc .ob-slide-h label'].map(ls).filter(v => !(v >= 0)); }),
+      return ['.l2-link', '.l2-eyebrow', '.l2-trust', '.l2-mo-p', '.l2-step p', '.l2-faq details summary', '.l2-ft-cols h3', '.l2-chip > small', '.l2-tc p', '.l2-lbl', '.l2-hc-feats li', '.l2-cnote'].map(ls).filter(v => !(v >= 0)); }),
       [], `${w}px home page: no small text with negative letter spacing`);
     const low = await p.evaluate(() => {
       const rgb = c => { const m = /rgba?\(([\d.]+), ([\d.]+), ([\d.]+)(?:, ([\d.]+))?/.exec(c); return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null; };
@@ -193,58 +190,44 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
     eq(o.errors, [], `${w}px style reference: no console errors`); await o.browser.close();
   }
 
-  // C4. the home page's calculator, "When do you get there?" (owner, 2026-10-07: "do phase 3"). The tests run on 2026-10-02, so the first contribution is October's.
+  // C4. the home page's calculator, "When do you get there?" (owner, 2026-10-07: "do phase 3"; since v213 two rows of buttons: "demasiado larga esta
+  // sección"). The tests run on 2026-10-02, so the first contribution is October's.
   for (const [w, h] of [[1440, 900], [390, 844]]) {
     const o = await open({ lang: 'pt', viewport: { width: w, height: h }, mobile: w < 500, touch: w < 500, server: { confirmEmail: false } }); const p = o.page; await p.waitForSelector('#calc-tool');
-    const read = () => p.evaluate(() => ({ month: document.querySelector('.calc-month').textContent, line: document.querySelector('.calc-when p').textContent, label: (document.querySelector('.calc-when small') || {}).textContent || '',
-      marks: document.querySelectorAll('.calc-line i').length, ends: [...document.querySelectorAll('.calc-ends span')].map(e => e.textContent), tip: (document.querySelector('.calc-tip span') || {}).textContent || '', sum: !!document.querySelector('#calc-more .note'),
-      fields: ['calc-cost', 'calc-saved', 'calc-monthly'].map(id => document.getElementById(id).value), ranges: ['calc-cost-r', 'calc-saved-r', 'calc-monthly-r'].map(id => { const r = document.getElementById(id); return [+r.value, +r.max, r.getAttribute('aria-valuetext')]; }), pressed: document.querySelector('#calc-tool .ob-dream[aria-pressed="true"]').dataset.v }));
-    const slide = (id, v) => p.evaluate(([id, v]) => { const r = document.getElementById(id); r.value = v; r.dispatchEvent(new Event('input', { bubbles: true })); }, [id, v]);
-    const type = async (id, v) => { await p.fill('#' + id, v); };
+    const read = () => p.evaluate(() => { const q = sel => document.querySelector(sel), txt = sel => (q(sel) || {}).textContent || '';
+      return { dream: (q('#calc-tool [data-a="calc-dream"][aria-pressed="true"]') || {}).dataset?.v, monthly: (q('#calc-tool [data-a="calc-monthly"][aria-pressed="true"]') || {}).dataset?.v, label: txt('.l2-calc-r > small'), month: txt('.calc-month'), pace: txt('.l2-pace'), cost: txt('.l2-cost'),
+        marks: document.querySelectorAll('.calc-line i').length, ends: [...document.querySelectorAll('.calc-ends span')].map(e => e.textContent), fig: !!q('#calc-out .l2-calc-fig img[src$="win.svg"]'), note: /sem rendimentos/.test(txt('.l2-cnote')) }; });
     const first = await read();
-    eq([first.pressed, first.fields, first.label, first.month, first.line, first.marks, first.ends], ['trip', ['6.000', '0', '500'], 'Você chega em', 'Setembro 2027', 'Neste ritmo você chega em 12 meses.', 12, ['Outubro 2026', 'Setembro 2027']],
-      `${w}px calculator: it opens on a trip of 6.000 with nothing put aside and 500 a month: twelve contributions from October, so September 2027, with one mark a month`);
-    ok(/R\$ 50 a mais por mês/.test(first.tip) && /1 mês antes/.test(first.tip) && first.sum, `${w}px calculator: the tip is the app's own smallest step (50 more a month, one month sooner), and it says no investment return is counted`, first.tip);
-    eq(first.ranges.map(r => r[2]), ['R$ 6.000', 'R$ 0', 'R$ 500'], `${w}px calculator: each slider says its amount in reais to a screen reader`);
-    eq(await p.evaluate(() => { const g = id => document.getElementById(id), tool = g('calc-tool'); return [g('calc-out').getAttribute('aria-live'), [...tool.querySelectorAll('input[type=range]')].every(r => r.getAttribute('aria-label')), [...tool.querySelectorAll('input[type=text]')].every(i => i.labels.length === 1 || i.getAttribute('aria-label')), tool.querySelectorAll('.ob-dream').length, tool.querySelector('.ob-dreams').getAttribute('role'), document.querySelector('.calc-way').getAttribute('aria-hidden')]; }),
-      ['polite', true, true, 4, 'group', 'true'], `${w}px calculator: the answer is announced as it changes, every slider and field has a name, the four dreams are one group, the marks are decoration (the sentence says the same)`);
-    // a slider moves: the answer follows, the field beside it takes the amount, and the page is not drawn again (the slider is the same element)
-    await p.evaluate(() => { document.getElementById('calc-monthly-r').dataset.mark = 'same'; }); await slide('calc-monthly-r', 1000);
-    const moved = await read();
-    eq([moved.month, moved.marks, moved.fields[2], moved.ranges[2][2], await p.evaluate(() => document.getElementById('calc-monthly-r').dataset.mark)], ['Março 2027', 6, '1.000', 'R$ 1.000', 'same'], `${w}px calculator: 1.000 a month reaches 6.000 in six months (March 2027); the field shows 1.000 and the slider was not replaced`);
-    // an amount typed: the slider follows it
-    await type('calc-saved', '3.000'); const typed = await read();
-    eq([typed.month, typed.marks, typed.ranges[1][0]], ['Dezembro 2026', 3, 3000], `${w}px calculator: 3.000 already put aside leaves three months (December 2026), and its slider moved to 3.000`);
-    // another dream: its own cost, its own slider (the cost was not touched yet, so it starts at the dream's round figure)
-    await type('calc-saved', '0'); await slide('calc-monthly-r', 500); await p.click('#calc-tool .ob-dream[data-v="car"]'); const car = await read();
-    eq([car.pressed, car.fields[0], car.ranges[0][1], car.month, car.marks, car.ends], ['car', '50.000', 300000, 'Janeiro 2035', 34, ['Outubro 2026', 'Cada marca são 3 meses.', 'Janeiro 2035']],
-      `${w}px calculator: the car starts at 50.000 with a slider up to 300.000; at 500 a month that is 100 months (January 2035), drawn as 34 marks of three months each`);
-    eq(await p.evaluate(() => document.activeElement && document.activeElement.dataset.v), 'car', `${w}px calculator: the chosen dream keeps the focus after the tool is drawn again`);
-    // the cases with no date
-    await slide('calc-monthly-r', 100); const far = await read(); eq([far.month, far.marks, far.label, /R\$ 50 a mais/.test(far.tip)], ['Mais de 10 anos', 0, '', true], `${w}px calculator: 100 a month for 50.000 is more than ten years: no date is printed, the tip still shows a step that helps`);
-    await slide('calc-monthly-r', 0); const none = await read(); ok(none.month === 'Ainda sem data' && /12 meses: R\$ 4\.167 por mês/.test(none.line) && !none.tip, `${w}px calculator: nothing put aside each month: no date, and what a year would take (50.000 / 12, rounded up)`, [none.month, none.line]);
-    await type('calc-saved', '60.000'); const cov = await read(); eq([cov.month, cov.marks, cov.tip, cov.sum], ['Já está coberto', 0, '', false], `${w}px calculator: more put aside than it costs: already covered, nothing else to say`);
-    await type('calc-cost', 'abc'); const none2 = await read(); ok(none2.month === 'Ainda sem data' && /quanto custa/.test(none2.line) && (await p.inputValue('#calc-cost')) === '', `${w}px calculator: letters cannot be typed in an amount (owner, 2026-10-09): the field stays empty and asks for the cost`, [none2.month, none2.line]);
-    await type('calc-cost', '1.2.3'); const bad = await read(); ok(bad.month === 'Ainda sem data' && /1500 ou 9,90/.test(bad.line), `${w}px calculator: something that is not an amount is said plainly, and nothing breaks`, [bad.month, bad.line]);
+    eq(first, { dream: 'trip', monthly: '500', label: 'Você chega em', month: 'Setembro 2027', pace: 'Neste ritmo você chega em 12 meses.', cost: 'Custa R$ 6.000 · você guarda R$ 500 por mês', marks: 12, ends: ['Outubro 2026', 'Setembro 2027'], fig: true, note: true },
+      `${w}px calculator: it opens on a trip (the setup's own 6.000) and 500 a month: twelve contributions from October, so September 2027, one bar a month, the person who got there at the end, and it says no investment return is counted`);
+    eq(await p.evaluate(() => { const tool = document.getElementById('calc-tool'), groups = [...tool.querySelectorAll('[role="group"]')];
+      return [document.getElementById('calc-out').getAttribute('aria-live'), groups.map(g => document.getElementById(g.getAttribute('aria-labelledby')).textContent), groups.map(g => g.querySelectorAll('button[aria-pressed]').length), tool.querySelector('.calc-line').getAttribute('aria-hidden'), tool.querySelector('.calc-ends').getAttribute('aria-hidden')]; }),
+      ['polite', ['Seu sonho', 'Guardo por mês'], [4, 3], 'true', 'true'], `${w}px calculator: the answer is announced as it changes; the four dreams and the three amounts are two named groups of buttons that say which is pressed; the bars are decoration (the sentence says the same)`);
+    // another amount: the answer follows, the pressed button keeps the focus
+    await p.click('#calc-tool [data-a="calc-monthly"][data-v="1000"]'); const more = await read();
+    eq([more.monthly, more.month, more.marks, more.cost, await p.evaluate(() => document.activeElement && document.activeElement.dataset.v)], ['1000', 'Março 2027', 6, 'Custa R$ 6.000 · você guarda R$ 1.000 por mês', '1000'], `${w}px calculator: 1.000 a month reaches 6.000 in six months (March 2027); the pressed amount keeps the focus`);
+    // another dream: the setup's own round cost
+    await p.click('#calc-tool [data-a="calc-dream"][data-v="car"]'); const car = await read();
+    eq([car.dream, car.month, car.pace, car.marks, car.ends, await p.evaluate(() => document.activeElement && document.activeElement.dataset.v)], ['car', 'Novembro 2030', 'Neste ritmo você chega em 50 meses.', 10, ['Outubro 2026', 'Novembro 2030'], 'car'],
+      `${w}px calculator: the car costs 50.000; at 1.000 a month that is 50 months (November 2030), drawn as ten bars of five months each; the chosen dream keeps the focus`);
+    await p.click('#calc-tool [data-a="calc-monthly"][data-v="300"]'); const far = await read();
+    eq([far.month, far.pace, far.marks, far.fig], ['Mais de 10 anos', 'Neste ritmo fica longe demais para ter data.', 0, false], `${w}px calculator: 300 a month for 50.000 is more than ten years: no date and no bars`);
     ok(!/NaN|undefined|null|Infinity/.test(await p.locator('#calc-tool').innerText()), `${w}px calculator: no broken value in any of those states`);
-    // "Try it" adds the tip's step to what is put aside each month
-    await type('calc-cost', '6.000'); await type('calc-saved', '0'); await slide('calc-monthly-r', 500); await p.click('#calc-try'); const tried = await read();
-    eq([tried.fields[2], tried.ranges[2][0], tried.month], ['550', 550, 'Agosto 2027'], `${w}px calculator: "Testar" turns 500 a month into 550 (the field and the slider both), and the date comes one month closer`);
-    ok(await p.evaluate(() => !!document.activeElement && !!document.activeElement.closest('#calc-tool')), `${w}px calculator: the focus stays in the tool after "Testar"`);
-    // layout (second look, 2026-10-11): one card split in two; on a computer the heading, the dreams, the amounts and the way in on the left and the answer
-    // with its tip on the right, in mint; on a phone the answer right under the dreams, above the sliders, and the way in last
-    eq(await p.evaluate(() => { const r = sel => document.querySelector(sel).getBoundingClientRect(), card = r('.l2-calc'), dreams = r('.calc-dreams'), inn = r('.calc-in'), out = r('#calc-out'), more = r('#calc-more'), go = r('.calc-go'), h2 = document.querySelector('#lp-calc h2');
+    // layout: one card split in two, white with the answer in mint; on a computer the buttons on the left and the answer on the right, the four
+    // dreams on one row; on a phone the answer under the way in
+    await p.click('#calc-tool [data-a="calc-dream"][data-v="trip"]'); await p.click('#calc-tool [data-a="calc-monthly"][data-v="500"]');
+    eq(await p.evaluate(() => { const r = sel => document.querySelector(sel).getBoundingClientRect(), card = r('.l2-calc'), left = r('.l2-calc-l'), right = r('#calc-out'), h2 = document.querySelector('#lp-calc h2');
         const inside = [...document.querySelectorAll('.l2-calc *')].every(e => { const a = e.getBoundingClientRect(); return !a.width || (a.left >= card.left - .5 && a.right <= card.right + .5); });
-        return [dreams.bottom <= inn.top + 1, innerWidth > 900 ? inn.right <= out.left + 1 && out.bottom <= more.top + 1 && inn.bottom <= go.top + 1 && go.right <= more.left + 1 : dreams.bottom <= out.top + 1 && out.bottom <= inn.top + 1 && inn.bottom <= more.top + 1 && more.bottom <= go.top + 1, inside,
-          Math.round(h2.getBoundingClientRect().height / parseFloat(getComputedStyle(h2).lineHeight)) <= 2, document.documentElement.scrollWidth - innerWidth, [getComputedStyle(document.querySelector('#calc-out')).backgroundColor, getComputedStyle(document.querySelector('.l2-calc')).backgroundColor],
-          [...document.querySelectorAll('#calc-tool button, #calc-tool input[type=range]')].every(e => innerWidth > 900 || e.getBoundingClientRect().height >= 44)]; }),
-      [true, true, true, true, 0, ['rgb(226, 246, 213)', 'rgb(255, 255, 255)'], true], `${w}px calculator: ${w > 900 ? 'the dreams over the amounts and the way in on the left, the answer on the right with the tip under it' : 'the answer right under the dreams and above the sliders, so it is in sight while one is dragged, then the tip, then the way in'}; nothing spills out of the card (white, the answer in mint), the heading is two lines at most${w > 900 ? '' : ', and everything to press is 44px tall'}`);
+        const dreams = [...document.querySelectorAll('#calc-tool [data-a="calc-dream"]')].map(b => Math.round(b.getBoundingClientRect().top));
+        return [innerWidth > 900 ? left.right <= right.left + 1 && new Set(dreams).size === 1 : left.bottom <= right.top + 1, inside, Math.round(h2.getBoundingClientRect().height / parseFloat(getComputedStyle(h2).lineHeight)) <= 2, document.documentElement.scrollWidth - innerWidth,
+          [getComputedStyle(document.querySelector('#calc-out')).backgroundColor, getComputedStyle(document.querySelector('.l2-calc')).backgroundColor], [...document.querySelectorAll('#calc-tool button')].every(e => e.getBoundingClientRect().height >= 44)]; }),
+      [true, true, true, 0, ['rgb(226, 246, 213)', 'rgb(255, 255, 255)'], true], `${w}px calculator: ${w > 900 ? 'the buttons on the left, the four dreams on one row, the answer on the right' : 'the answer under the way in'}; nothing spills out of the card (white, the answer in mint), the heading is two lines at most, and everything to press is 44px tall`);
     // the way in keeps the dream on this device and opens sign-up; the first-time setup of the new account starts from it
-    await p.click('#calc-tool .ob-dream[data-v="safety"]'); await type('calc-cost', '9.500'); await type('calc-saved', '1.200');
+    await p.click('#calc-tool [data-a="calc-dream"][data-v="safety"]');
     await p.click('[data-a="calc-go"]'); await p.waitForSelector('#au-name');
-    eq(await p.evaluate(() => { const c = JSON.parse(localStorage.getItem('dorax.calc')); return [c.dream, c.cost, c.saved, Date.now() - c.at < 5000, Object.keys(c).sort().join(' ')]; }), ['safety', '9.500', '1.200', true, 'at cost dream saved'], `${w}px calculator: the way in keeps the dream, its cost and what is put aside on this device, and nothing else, and opens sign-up`);
+    eq(await p.evaluate(() => { const c = JSON.parse(localStorage.getItem('dorax.calc')); return [c.dream, c.cost, c.saved, Date.now() - c.at < 5000, Object.keys(c).sort().join(' ')]; }), ['safety', '10.000', '0', true, 'at cost dream saved'], `${w}px calculator: the way in keeps the dream, its cost and what is put aside on this device, and nothing else, and opens sign-up`);
     await p.fill('#au-name', 'Rui'); await p.fill('#au-email', `rui${w}@example.org`); await p.fill('#au-pass', 'RuiSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name');
-    eq(await p.evaluate(() => [document.querySelector('.ob-dream[aria-pressed="true"]').dataset.v, document.getElementById('ob-cost').value, UI.ob.saved, UI.ob.pay]), ['safety', '9.500', '1.200', '3.700'], `${w}px calculator: the new account's setup opens with that dream chosen, its cost and what is put aside; what comes in still starts where it always did`);
+    eq(await p.evaluate(() => [document.querySelector('.ob-dream[aria-pressed="true"]').dataset.v, document.getElementById('ob-cost').value, UI.ob.saved, UI.ob.pay]), ['safety', '10.000', '0', '3.700'], `${w}px calculator: the new account's setup opens with that dream chosen and its cost; what comes in still starts where it always did`);
     eq(o.errors, [], `${w}px calculator: no console errors`); await o.browser.close();
   }
   // what the calculator kept is used for a day, and anything unreadable is ignored: the setup then starts as it always did

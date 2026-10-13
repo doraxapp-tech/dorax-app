@@ -135,7 +135,7 @@ const fs = require('fs'), path = require('path');
     eq([await first('body'), await first('.card-h h2'), await first('.kpi .value, .rw-n'), await page.evaluate(() => /apple-system/.test(getComputedStyle(document.body).fontFamily))], ['Inter', 'Inter', 'Inter', true], 'the app asks for Inter first on every device, a Mac included; the system font stays only as what is left when Inter cannot load');
     eq(await page.evaluate(() => [...document.querySelectorAll('link[rel="stylesheet"]')].some(l => /fonts\.googleapis\.com\/css2\?family=Inter/.test(l.href))), true, 'and Inter is loaded by the page');
     await page.evaluate(() => logOut()); await page.waitForFunction(() => !UI.session);
-    const piece = await page.evaluate(() => { const el = document.querySelector('#public .lp2 .l2-phone, #public .lp2 .l2-fl, #public .lp [style*="--font"], #public .lp .duo-pane, #public .lp .shot'); return el ? getComputedStyle(el).fontFamily.split(',')[0].trim().replace(/"/g, '') : 'none'; });
+    const piece = await page.evaluate(() => { const el = document.querySelector('#public .lp2 .l2-pop, #public .lp2 .l2-hc-side, #public .lp [style*="--font"], #public .lp .duo-pane, #public .lp .shot'); return el ? getComputedStyle(el).fontFamily.split(',')[0].trim().replace(/"/g, '') : 'none'; });
     ok(piece === 'none' || /Inter/.test(piece), 'the pieces of the app shown on the home page are in Inter too', piece);
     eq(errors, [], 'fonts: no error in the console'); await browser.close(); }
   done('qc-tidy');
