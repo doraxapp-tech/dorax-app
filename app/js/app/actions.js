@@ -19,6 +19,7 @@ const A = {
   ...TOUR_ACTIONS,      // the first visit to each main screen (features/tours)
   ...FREE_ACTIONS,      // what is free to spend until pay day (features/dashboard/free-until.view.js)
   ...HELP_ACTIONS,      // Help: the questions people ask, each leading to its answer (features/help)
+  ...BLOG_ACTIONS,      // the blog: tips, news and curiosities, pages of the website (features/blog, v210)
   ...LIMIT_ACTIONS,      // spending limits by category (features/limits)
   ...YEARLY_ACTIONS,      // what is paid once a year (features/yearly)
   ...MONTH_CLOSE_ACTIONS,      // the close of the month, guided (features/month-close)

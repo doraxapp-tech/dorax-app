@@ -7,7 +7,7 @@ document.addEventListener('click', e => {
   if (UI.menu && !tg.closest('#rail-foot')) { UI.menu = false; renderShell(); }      // a click anywhere else closes the menu beside the name; the click itself still counts
   if (UI.goalMenu && !tg.closest('.gmenu-wrap')) { UI.goalMenu = false; renderOverlay(); }      // and the goal's menu (features/goals)
   if (UI.rvMore && !tg.closest('#rv-more-btn')) { UI.rvMore = false; if (!tg.closest('[data-a]')) render(); }      // and an import review's "More" (a choice in it redraws by itself)
-  const pg = tg.closest('a[data-a="pub-go"]');      // a link to a page before login (ui/pages.js): a plain click changes the page here; with Ctrl, Shift or ⌘ the browser opens its address
+  const pg = tg.closest('a[data-a][href]:not([href^="#"])');      // a link to a page of the website (ui/pages.js; a post of the blog too): a plain click changes the page here; with Ctrl, Shift or ⌘ the browser opens its address
   if (pg && !pg.getAttribute('href').startsWith('#')) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); }
   const link = tg.closest('a[href^="#"]');
   if (link) {

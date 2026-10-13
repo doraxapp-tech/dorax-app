@@ -3,12 +3,6 @@
    lime closing box, the footer). Only what the home page has no rule for is here: the search, the words under it, the topics' cards in its bento,
    a topic's page, the way to the app under an answer. (Owner, 2026-10-13, on the artifact built only from the home page's style: "se ve bien".) */
 
-/* the bar: Help marked in the capsule; opened from the app, the name and "Back to Dorax" only */
-.hc2 .l2-links .l2-link[aria-current] { background: var(--l2-forest); color: var(--l2-lime); font-weight: 600; }
-.hc2 .hc-nav.hc-in-app { grid-template-columns: auto minmax(0, 1fr); }
-.hc-brand { justify-self: start; display: inline-flex; border-radius: 8px; color: var(--l2-forest); text-decoration: none; }
-.hc-brand:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 4px; }
-
 /* the top: centred, as the home page's */
 .hc-hero { padding: 48px 0 96px; }
 .hc-hero .l2-h1:focus { outline: none; }

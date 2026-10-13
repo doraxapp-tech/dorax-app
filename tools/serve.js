@@ -13,10 +13,11 @@ function headersFor(url) {
   for (const r of rules) if (new RegExp('^' + r.source + '$').test(url)) for (const h of r.headers) out[h.key] = h.value;
   return out;
 }
-/** The file vercel.json answers a path with (its "rewrites"): the pages before login have addresses of their own (app/js/ui/pages.js), all answered with index.html. */
+/** The file vercel.json answers a path with (its "rewrites"): the pages before login have addresses of their own (app/js/ui/pages.js), all answered with
+    index.html; the files a blog post's page asks for (/blog/css/…) are the root's. */
 function rewriteFor(url) {
   let rules = []; try { rules = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).rewrites || []; } catch (e) { /* no file: no rewrites */ }
-  for (const r of rules) if (new RegExp('^' + r.source + '$').test(url)) return r.destination;
+  for (const r of rules) { const m = url.match(new RegExp('^' + r.source + '$')); if (m) return r.destination.replace(/\$(\d)/g, (x, i) => m[+i] || ''); }      // "$1": what the pattern's group caught (a blog post's files)
   return url;
 }
 /** opts.preview: the stand-in server takes the place of config.js. opts.files: { '/path': 'text' } served instead of the file (the tests use it). */

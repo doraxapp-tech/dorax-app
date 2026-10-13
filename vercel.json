@@ -6,7 +6,9 @@
   "outputDirectory": "app",
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/(entrar|criar-conta|recuperar-senha|privacidade|termos|contato|ajuda)", "destination": "/index.html" }
+    { "source": "/(entrar|criar-conta|recuperar-senha|privacidade|termos|contato|ajuda|blog)", "destination": "/index.html" },
+    { "source": "/blog/([a-z0-9-]+)", "destination": "/index.html" },
+    { "source": "/blog/(.+\\.[a-z0-9]+)", "destination": "/$1" }
   ],
   "redirects": [
     {

@@ -14,16 +14,17 @@ const { chromium } = require('playwright');
 const { open, ok, eq, done, fixture } = require('./pw.js');
 const { createServer, rewriteFor } = require('../tools/serve.js');
 
-const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda' };      // help: the Help center (v209)
-const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q' };
-const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance' };
+const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog' };      // help: the Help center (v209); blog: the blog (v210)
+const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q', blog: '.bl-page .bl-grid' };
+const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance', blog: 'Blog · Dorax Finance' };
 
 (async () => {
   // ---------- 1. the hosting rules ----------
   const vercel = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8'));
-  eq([(vercel.rewrites || []).length, vercel.trailingSlash], [1, false], 'vercel.json: one rewrite, and no address ends in a slash');
+  eq([(vercel.rewrites || []).length, vercel.trailingSlash], [3, false], 'vercel.json: three rewrites (the pages; a blog post; the files a post asks for), and no address ends in a slash');
   for (const [v, p] of Object.entries(PATHS)) if (p) eq(rewriteFor('/' + p), '/index.html', `vercel.json: /${p} is answered with index.html`);
-  eq(['/', '/css/base/tokens.css', '/entrar/x', '/entrarx', '/sw.js'].map(rewriteFor), ['/', '/css/base/tokens.css', '/entrar/x', '/entrarx', '/sw.js'], 'vercel.json: nothing else is rewritten');
+  eq(['/blog/fgc-garantia-250-mil', '/blog/css/base/tokens.css', '/blog/js/ui/pages.js', '/blog/config.js'].map(rewriteFor), ['/index.html', '/css/base/tokens.css', '/js/ui/pages.js', '/config.js'], 'vercel.json: a blog post’s address is answered with index.html, and the files it asks for from there with the root’s');
+  eq(['/', '/css/base/tokens.css', '/entrar/x', '/entrarx', '/sw.js', '/blog/a/b', '/blogx'].map(rewriteFor), ['/', '/css/base/tokens.css', '/entrar/x', '/entrarx', '/sw.js', '/blog/a/b', '/blogx'], 'vercel.json: nothing else is rewritten');
 
   const web = createServer({ preview: true }); await new Promise(r => web.listen(0, '127.0.0.1', r));
   const BASE = 'http://127.0.0.1:' + web.address().port;
@@ -80,6 +81,20 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
   await page.goForward(); await page.waitForSelector('.hc-topic-qs'); eq(await page.evaluate(() => UI.hcTopic), 'import', 'Forward: the topic again');
   await page.click('.hc-back'); await page.waitForSelector('.hc-bx'); eq([await at(page), await page.evaluate(() => UI.hcTopic)], ['/ajuda', ''], '“Help center” at the top of a topic: the same step back');
   await page.goBack(); await page.waitForSelector(MARK.landing); eq(await at(page), '/', 'Back again: the home page');
+  // the blog: each post has an address of its own under /blog (v210)
+  await page.click('.l2-foot [data-v="blog"]'); await page.waitForSelector(MARK.blog); await page.evaluate(() => { window.__same = true; });
+  eq([await at(page), await page.title()], ['/blog', TITLE.blog], 'the footer → Blog: /blog');
+  await page.click('.bl-card[data-v="fgc-garantia-250-mil"]'); await page.waitForSelector('.bl-body');
+  eq([await at(page), await page.title(), await page.evaluate(() => window.__same)], ['/blog/fgc-garantia-250-mil', 'Your money in the bank is protected up to R$ 250 thousand · Dorax Finance', true], 'a post: its own address, its title as the tab’s, the site not loaded again');
+  await page.reload(); await started(page); await page.waitForSelector('.bl-body');
+  eq([await at(page), await page.evaluate(() => [UI.blogPost, [...document.styleSheets].filter(x => { try { return x.cssRules.length > 0; } catch (e) { return false; } }).length >= 40, getComputedStyle(document.body).backgroundColor, typeof STARTED !== 'undefined' && STARTED])],
+    ['/blog/fgc-garantia-250-mil', ['fgc-garantia-250-mil', true, 'rgb(242, 244, 238)', true]], 'a post reloaded at its address: the post, its styles and scripts (asked from /blog/…, answered from the root)');
+  await page.goBack(); await page.waitForSelector('.bl-grid'); eq([await at(page), await page.evaluate(() => UI.blogPost)], ['/blog', ''], 'Back from a post: the blog’s list');
+  await page.goForward(); await page.waitForSelector('.bl-body'); eq([await at(page), await page.evaluate(() => UI.blogPost)], ['/blog/fgc-garantia-250-mil', 'fgc-garantia-250-mil'], 'Forward: the post again');
+  await page.click('.bl-art-top [data-a="blog-home"]'); await page.waitForSelector('.bl-grid'); eq(await at(page), '/blog', '“Blog” at the top of a post: the list');
+  await page.goto(BASE + '/blog/nao-existe'); await started(page); await page.waitForSelector('.bl-grid');
+  eq(await at(page), '/blog', 'a post that does not exist: the blog’s list, at its address');
+  await page.goto(BASE + '/'); await started(page); await page.waitForSelector(MARK.landing);
 
   // ---------- 4. Ctrl + click: another tab ----------
   const [tab] = await Promise.all([ctx.waitForEvent('page'), page.click('.lp-actions [data-v="signup"]', { modifiers: ['Control'] })]);

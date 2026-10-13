@@ -1,0 +1,117 @@
+/* Dorax Finance — the blog (v210; features/blog/blog.view.js): pages of the website made of the home page's parts (.lp2 and its l2- rules,
+   css/public/landing-v2.css; the bar: css/public/web-pages.css). Only what the home page has no rule for is here: the categories, the featured post,
+   the posts' cards with their big figures, and an article. A post's colour says its category: tips sage, news forest, curiosities mint (its tag
+   says it in words too). */
+
+/* the top: centred, as the home page's; the categories as its Home / Company switch */
+.bl-hero { padding: 48px 0 64px; }
+.bl-page .l2-h1:focus { outline: none; }
+.bl-seg { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 8px; padding: 5px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line), 0 18px 40px -26px rgba(22, 51, 0, .35); }
+.bl-seg button { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; font-size: 15px; font-weight: 600; color: var(--l2-ink-2); transition: background-color 150ms ease-out, color 150ms ease-out; }
+.bl-seg button:hover { background: var(--l2-soft); color: var(--l2-ink); }
+.bl-seg button[aria-pressed="true"] { background: var(--l2-forest); color: var(--l2-lime); }
+.bl-seg button:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 2px; }
+.bl-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(22, 51, 0, .25); }
+.bl-dot.tips { background: var(--l2-soft); } .bl-dot.news { background: var(--l2-forest); box-shadow: none; } .bl-dot.curiosities { background: var(--l2-mint); }
+.bl-seg button[aria-pressed="true"] .bl-dot { box-shadow: 0 0 0 1.5px var(--l2-lime); }
+
+/* a category's tag, as the home page's bands' tags */
+.bl-tag { display: inline-flex; align-items: center; align-self: flex-start; min-height: 34px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--l2-forest); font-size: 14px; font-weight: 500; color: var(--l2-forest); }
+.bl-art-top .bl-tag { align-self: center; }
+.bl-byline { margin: 0; font-size: 15px; font-weight: 500; color: var(--l2-ink-3); }
+.bl-fig { font-size: clamp(64px, 8vw, 128px); font-weight: 400; letter-spacing: -.06em; line-height: .9; font-variant-numeric: tabular-nums; }
+
+/* the featured post: the calculator's white and mint card */
+.bl-feat-sec { padding-bottom: 120px; }
+.bl-feat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-radius: 32px; overflow: hidden; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line); color: inherit; text-decoration: none; transition: transform 200ms var(--l2-ease); }
+.bl-feat:hover { transform: translateY(-2px); }
+.bl-feat:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 4px; }
+.bl-feat-l { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding: 48px; }
+.bl-feat-l h2 { margin: 0; font-size: clamp(30px, 3.2vw, 44px); font-weight: 500; letter-spacing: -.035em; line-height: 1.08; color: var(--l2-ink); text-wrap: balance; }
+.bl-feat-l p { margin: 0; max-width: 480px; font-size: 17px; line-height: 1.55; color: var(--l2-ink-2); }
+.bl-feat-l .l2-btn { margin-top: auto; }
+.bl-feat-r { display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 48px; background: var(--l2-forest); color: var(--l2-lime); }
+.bl-feat-r.tips { background: var(--l2-soft); color: var(--l2-forest); } .bl-feat-r.curiosities { background: var(--l2-mint); color: var(--l2-forest); }
+.bl-feat-r small { font-size: 15px; font-weight: 500; }
+
+/* the posts: cards on a white band, three a row; a last card alone in its row takes the room left */
+.bl-posts { padding-block: 120px; }
+.bl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 56px; }
+.bl-grid > .bl-card:last-child:nth-child(3n+2) { grid-column: span 2; }
+.bl-card { display: flex; flex-direction: column; min-height: 420px; padding: 28px; border-radius: 32px; background: var(--l2-soft); color: var(--l2-ink); text-decoration: none; transition: transform 200ms var(--l2-ease), box-shadow 200ms ease-out; }
+.bl-card:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--l2-line-strong); }
+.bl-card:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 3px; }
+.bl-card.news { background: var(--l2-forest); color: #FFFFFF; }
+.bl-card.curiosities { background: var(--l2-mint); }
+.bl-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bl-card.news .bl-tag { border-color: var(--l2-lime); color: var(--l2-lime); }
+.bl-mins { font-size: 14px; font-weight: 500; color: var(--l2-ink-3); }
+.bl-card.news .bl-mins { color: #C9D2C0; }
+.bl-card .bl-fig { margin-top: 40px; font-size: clamp(56px, 5.6vw, 84px); color: var(--l2-forest); }
+.bl-card.news .bl-fig { color: var(--l2-lime); }
+.bl-card h3 { margin: auto 0 0; color: inherit; padding-top: 32px; font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.22; text-wrap: balance; }
+.bl-card p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: var(--l2-ink-3); }
+.bl-card.news p { color: #C9D2C0; }
+.bl-empty { grid-column: 1 / -1; margin: 0; padding: 32px; border: 1.5px dashed var(--l2-line-strong); border-radius: 24px; color: var(--l2-ink-2); }
+
+/* an article: its title centred, its figure on a band, its text in one column */
+.bl-art-top { padding: 40px 0 56px; }
+.bl-art-top .l2-h1 { max-width: 980px; font-size: clamp(38px, 5vw, 68px); letter-spacing: -.04em; line-height: 1.02; }
+.bl-band-w { background: var(--l2-forest); color: var(--l2-lime); }
+.bl-band-w.tips { background: #FFFFFF; color: var(--l2-forest); } .bl-band-w.curiosities { background: var(--l2-mint); color: var(--l2-forest); }
+.bl-band { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 56px), calc(100% - 56px) 100%, 0 100%); }
+.bl-band-in { display: flex; align-items: center; gap: 40px; min-height: 228px; }
+.bl-band .bl-fig { font-size: clamp(80px, 11vw, 168px); }
+.bl-band p { margin: 0; max-width: 360px; font-size: 20px; line-height: 1.4; }
+.bl-band-w.news p { color: #C9D2C0; }
+.bl-body { max-width: 720px; margin: 0 auto; padding-block: 72px 40px; }
+.bl-body > * + * { margin-top: 22px; }
+.bl-body p, .bl-body li { font-size: 19px; line-height: 1.7; color: var(--l2-ink-2); }
+.bl-body h2 { margin-top: 48px; font-size: 28px; font-weight: 600; letter-spacing: -.025em; line-height: 1.2; color: var(--l2-ink); }
+.bl-body ul { list-style: none; margin-bottom: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.bl-body li { display: flex; align-items: flex-start; gap: 14px; }
+.bl-body li .l2-ck { margin-top: 3px; background: rgba(159, 209, 130, .3); }
+.bl-note { margin-top: 40px; padding: 28px 30px; border-radius: 28px; background: var(--l2-mint); }
+.bl-note b { display: block; margin-bottom: 6px; font-size: 17px; font-weight: 600; color: var(--l2-forest); }
+.bl-body .bl-note p { margin: 0; font-size: 17px; line-height: 1.6; color: var(--l2-forest); }
+.bl-note .l2-btn { margin-top: 18px; }
+.bl-src { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--l2-line); }
+.bl-body .bl-src h2 { margin: 0 0 12px; font-size: 16px; letter-spacing: 0; }
+.bl-src ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.bl-body .bl-src li { display: list-item; font-size: 15px; line-height: 1.5; color: var(--l2-ink-3); }
+.bl-src a { color: var(--l2-forest); font-weight: 600; text-underline-offset: 3px; }
+.bl-body .bl-src p { margin-top: 16px; font-size: 14px; line-height: 1.55; color: var(--l2-ink-3); }
+.bl-more { padding-block: 72px 120px; }
+.bl-more .bl-grid { margin-top: 40px; }
+.bl-page .bl-end { padding-top: 120px; }
+
+@media (prefers-reduced-motion: reduce) { .bl-card, .bl-feat, .bl-seg button { transition: none; } }
+@media (max-width: 1100px) {
+  .bl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bl-grid > .bl-card:last-child:nth-child(3n+2) { grid-column: auto; } .bl-grid > .bl-card:last-child:nth-child(odd) { grid-column: span 2; }
+}
+@media (max-width: 920px) { .bl-feat { grid-template-columns: minmax(0, 1fr); } .bl-feat-r { order: -1; } }
+@media (max-width: 720px) {
+  .bl-hero { padding: 24px 0 48px; }
+  .bl-seg { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .bl-seg::-webkit-scrollbar { display: none; }
+  .bl-seg button { flex: none; padding: 0 12px; font-size: 14px; }
+  .bl-seg .bl-dot { display: none; }      /* on a phone the four fit in one row; every card still names its category */
+  .bl-feat-sec { padding-bottom: 72px; }
+  .bl-feat { border-radius: 28px; } .bl-feat-l, .bl-feat-r { padding: 28px 22px; }
+  .bl-posts { padding-block: 72px; }
+  .bl-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 40px; }
+  .bl-grid > .bl-card:last-child:nth-child(odd) { grid-column: auto; }
+  .bl-card { min-height: 0; padding: 24px; border-radius: 28px; }
+  .bl-art-top { padding: 24px 0 40px; }
+  .bl-art-top .l2-h1 { font-size: 9vw; }
+  .bl-band { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 32px), calc(100% - 32px) 100%, 0 100%); }
+  .bl-band-in { flex-wrap: wrap; gap: 14px 20px; min-height: 0; padding-block: 36px 52px; }
+  .bl-band p { font-size: 17px; }
+  .bl-body { padding-block: 48px 24px; }
+  .bl-body p, .bl-body li { font-size: 17px; }
+  .bl-body h2 { font-size: 24px; }
+  .bl-note { padding: 22px 20px; border-radius: 24px; }
+  .bl-more { padding-block: 48px 72px; }
+  .bl-page .bl-end { padding-top: 72px; }
+}

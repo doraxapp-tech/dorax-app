@@ -18,7 +18,7 @@ const PUSH = (() => {
     permission: () => Notification.permission,
     ask: () => Notification.requestPermission(),
     async current() { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); return sub ? sub.toJSON() : null; },
-    async subscribe(key) { const reg = await navigator.serviceWorker.register('sw.js'); await navigator.serviceWorker.ready; return (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytes(key) })).toJSON(); },
+    async subscribe(key) { const reg = await navigator.serviceWorker.register(swPath()); await navigator.serviceWorker.ready; return (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytes(key) })).toJSON(); },
     async unsubscribe() { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); },
   };
   const env = () => (typeof window !== 'undefined' && window.DORAX_PUSH) || real;

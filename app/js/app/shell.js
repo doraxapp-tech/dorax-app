@@ -188,7 +188,7 @@ function renderNow() {
   const active = document.activeElement, id = active && active.id, pos = id && active.selectionStart != null ? [active.selectionStart, active.selectionEnd] : null, key = id ? null : focusKey(active);
   const sx = [...document.querySelectorAll('#view .tbl-wrap')].map(w => w.scrollLeft), before = UI.autoScroll || reducedMotion() ? null : snapshot();
   $('view').classList.remove('enter'); $('topbar').classList.remove('enter'); $('public').classList.remove('enter');
-  const pub = !UI.session || !!UI.webHelp;      // webHelp: the Help center, a page of the website, opened from the app (v209, features/help/help-center.js)
+  const pub = !UI.session || !!UI.webHelp || !!UI.webBlog;      // webHelp, webBlog: the Help center and the blog, pages of the website, opened from the app (v209, v210)
   document.querySelector('.app').hidden = pub; $('tabbar').hidden = pub; $('public').hidden = !pub;
   if (!pub) document.documentElement.classList.remove('ob-open');      // the first-time setup's page is gone once the app is open
   applyTheme(pub); PAGES.sync();      // the address and the tab's title follow the page on screen (ui/pages.js)

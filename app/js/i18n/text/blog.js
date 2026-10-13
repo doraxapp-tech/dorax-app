@@ -1,0 +1,25 @@
+/* Dorax Finance — interface texts: features/blog. Each row: [English source, Español, Português]. English is the key.
+   A new text goes in the file of the part that uses it. */
+addTexts([
+  ["Tips", "Tips", "Dicas"],
+  ["News", "Noticias", "Notícias"],
+  ["{n} min read", "{n} min de lectura", "{n} min de leitura"],
+  ["{n} min", "{n} min", "{n} min"],
+  ["To read over a coffee.", "Para leer en un café.", "Para ler com um cafezinho."],
+  ["Ideas to organise your month.", "Ideas para organizar el mes.", "Ideias para organizar o mês."],
+  ["What changes in your pocket.", "Lo que cambia en tu bolsillo.", "O que muda no seu bolso."],
+  ["Things about money you did not know.", "Cosas del dinero que no sabías.", "Coisas do dinheiro que você não sabia."],
+  ["Dorax blog", "Blog de Dorax", "Blog do Dorax"],
+  ["Your money,", "Tu dinero,", "Seu dinheiro,"],
+  ["explained simply.", "explicado claro.", "sem complicação."],
+  ["Tips to organise your month, news that touches your pocket and curiosities about money in Brazil. With dates and sources.", "Tips para organizar el mes, noticias que tocan tu bolsillo y curiosidades sobre el dinero en Brasil. Con fecha y con fuentes.", "Dicas para organizar o mês, notícias que mexem no seu bolso e curiosidades sobre o dinheiro no Brasil. Com data e fontes."],
+  ["Featured", "Destacado", "Destaque"],
+  ["Read the article", "Leer el artículo", "Ler o artigo"],
+  ["No articles in this category yet.", "Todavía no hay artículos en esta categoría.", "Ainda não há artigos nesta categoria."],
+  ["By Dorax Finance", "Por Dorax Finance", "Por Dorax Finance"],
+  ["Sources", "Fuentes", "Fontes"],
+  ["Updated on {date}.", "Actualizado el {date}.", "Atualizado em {date}."],
+  ["Keep reading", "Sigue leyendo", "Continue lendo"],
+  ["More from the blog.", "Más del blog.", "Mais do blog."],
+  ["Blog", "Blog", "Blog"],
+]);

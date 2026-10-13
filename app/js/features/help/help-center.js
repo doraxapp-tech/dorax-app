@@ -138,13 +138,9 @@ function hcBody() {
         <p class="l2-sub">${t('Not there?')} ${UI.session ? form + '.' : t('Use the {form}. It works without logging in.', { form })}</p></div>
       ${hcQs(top, false)}</div></section>`;
 }
-/** The top: the home page's bar (the way in before login; "Back to Dorax" from the app), then, centred, the title and the search. */
+/** The top: the website's bar (landing.view.js, l2Bar), then, centred, the title and the search. */
 function hcTop() {
-  const app = !!UI.session, tp = hcTopicNow(), go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
-  const nav = app ? `<div class="l2-nav hc-nav hc-in-app">${brandMark()}<div class="lp-actions l2-actions"><button type="button" class="l2-btn lime sm" data-a="help-close">${icon('left')}${t('Back to Dorax')}</button></div></div>`
-    : `<div class="l2-nav hc-nav"><a class="hc-brand" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing" aria-label="${esc(t('Home'))}">${brandMark()}</a>
-      <nav class="l2-links" aria-label="${t('Sections')}">${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${go('lp-pj', t('For PJ'))}${go('lp-faq', t('Questions'))}<button class="l2-link" data-a="hc-home" aria-current="page">${t('Help')}</button></nav>
-      <div class="lp-actions l2-actions">${langPill('hc-lang')}<a class="l2-in" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>${l2Go('lime sm')}</div></div>`;
+  const tp = hcTopicNow(), nav = l2Bar('help');
   const search = `<div class="hc-search" role="search">${icon('search')}<label class="sr" for="hc-q">${t('Search the help')}</label><input type="search" id="hc-q" value="${esc(UI.helpQ || '')}" placeholder="${esc(t('Search: limit, import, PIN…'))}" autocomplete="off" enterkeyhint="search" data-c="help-q" data-live="1"><button type="button" class="hc-clear" data-a="hc-clear" aria-label="${esc(t('Clear the search'))}"${UI.helpQ ? '' : ' hidden'}>${icon('x')}</button></div>`;
   const copy = tp ? `<button type="button" class="l2-btn white sm hc-back" data-a="hc-home">${icon('left')}${t('Help center')}</button>
       <h1 class="l2-h1" id="hc-title" tabindex="-1">${esc(tp[2])}.</h1><p class="l2-lead">${esc(t(HC_SAY[tp[0]]))}</p>${search}`
@@ -157,7 +153,7 @@ function hcTop() {
 function viewHelpPublic() {
   const app = !!UI.session;
   const write = app ? `<button type="button" class="l2-btn lime lg" data-a="contact">${icon('mail')}${t('Write to Dorax')}</button>` : `<a class="l2-btn lime lg" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${icon('mail')}${t('Write to Dorax')}</a>`;
-  return `<div class="lp2 hc2 hc-pub">${hcTop()}
+  return `<div class="lp2 web-page hc2 hc-pub">${hcTop()}
     <main><div id="hc-body" aria-live="polite">${hcBody()}</div>
       <section class="l2-pj hc-write"><div class="l2-wrap"><div class="l2-sec-h light">${l2Eyebrow(t('Contact'), true)}<h2 class="l2-h2">${t('Didn’t find your answer?')}</h2><p class="l2-sub">${t('Write to us: a person reads it.')}</p></div>
         <div class="hc-write-go">${write}${app ? '' : `<p>${t('It works without logging in.')}</p>`}</div></div></section>

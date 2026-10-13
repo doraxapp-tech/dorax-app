@@ -35,6 +35,6 @@ const INSTALL = (() => {
   }
   // Chrome on Android offers to install only a site that has a background script able to answer requests. The app's one (sw.js) is there for
   // notifications; on an Android phone that could install the app it is started at once, so the offer can come. It keeps no copy of anything.
-  try { if (real.android() && !real.standalone() && /^https?:$/.test(location.protocol) && navigator.serviceWorker && !document.getElementById('lib-pdf')) navigator.serviceWorker.register('sw.js').catch(() => { /* no offer from the browser: the button shows the menu's way */ }); } catch (x) { /* a frame without its own storage */ }
+  try { if (real.android() && !real.standalone() && /^https?:$/.test(location.protocol) && navigator.serviceWorker && !document.getElementById('lib-pdf')) navigator.serviceWorker.register(swPath()).catch(() => { /* no offer from the browser: the button shows the menu's way */ }); } catch (x) { /* a frame without its own storage */ }
   return { kind, due, close, canPrompt: () => { try { return !!env().canPrompt(); } catch (x) { return false; } }, prompt: () => env().prompt() };
 })();

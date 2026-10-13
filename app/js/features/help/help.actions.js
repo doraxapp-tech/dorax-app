@@ -23,7 +23,7 @@ const HELP_ACTIONS = {
   // the menu's "Help" (beside the person's name on a computer, in More on a phone): the questions, not the contact form (owner, 2026-10-10)
   // since v209 the Help center, a page of the website (help-center.js), opened over the app from the menu beside the name, More on a phone and the
   // search, at its address (/ajuda): the browser's Back or "Back to Dorax" returns to the app where it was
-  help() { UI.menu = false; UI.sheet = false; UI.drawer = null; UI.helpQ = ''; UI.hcTopic = ''; UI.webHelp = true; UI.webHelpPushed = PAGES.on && PAGES.read() !== 'help'; PAGES.push = UI.webHelpPushed; render(); window.scrollTo(0, 0); const h = $('hc-title'); if (h) h.focus({ preventScroll: true }); },
+  help() { UI.menu = false; UI.sheet = false; UI.drawer = null; UI.helpQ = ''; UI.hcTopic = ''; UI.webBlog = false; UI.webHelp = true; UI.webHelpPushed = PAGES.on && PAGES.read() !== 'help'; PAGES.push = UI.webHelpPushed; render(); window.scrollTo(0, 0); const h = $('hc-title'); if (h) h.focus({ preventScroll: true }); },
   'help-close'() { if (!UI.webHelp) return; if (UI.webHelpPushed) { UI.webHelpPushed = false; history.back(); return; } helpWebClose(); },
   /** A topic of the center: its own page (help-center.js). */
   'hc-topic'(ds) { if (helpTopics().some(x => x[0] === ds.v)) hcShow(ds.v, true); },

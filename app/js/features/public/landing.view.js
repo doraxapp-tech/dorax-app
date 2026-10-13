@@ -151,11 +151,22 @@ function calcCarry() {
 /** The home page. Order since 2026-10-11 (the design canvas the owner approved): hero with the phone and its Household | Company choice >
     three big true numbers > "your money, with a date" (the calculator) > the moments of the month > what's inside > for entrepreneurs (PJ) >
     how it works > your data > questions > closing call to action > footer. No two sections share a layout (owner, 2026-10-05). */
-/** The website's footer: the home page's, and the Help center's (help-center.js). Opened from the app (app), only what is there for someone
-    already in: the legal texts in a panel, the Help center and the form to write. */
+/** The bar of the website's own pages, the Help center and the blog (owner, 2026-10-13): the name; the capsule with the home page's sections, the
+    blog and Help, the one on screen marked (pressed, it goes back to its own first page); the way in. Opened from the app, the name and "Back to
+    Dorax" only. Its own rules: css/public/web-pages.css. */
+function l2Bar(cur) {
+  if (UI.session) return `<div class="l2-nav web-nav web-in-app">${brandMark()}<div class="lp-actions l2-actions"><button type="button" class="l2-btn lime sm" data-a="${cur === 'blog' ? 'blog-close' : 'help-close'}">${icon('left')}${t('Back to Dorax')}</button></div></div>`;
+  const go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
+  const page = (v, label, home) => `<a class="l2-link" href="${PAGES.href(v)}" ${cur === v ? `data-a="${home}" aria-current="page"` : `data-a="pub-go" data-v="${v}"`}>${label}</a>`;
+  return `<div class="l2-nav web-nav"><a class="web-brand" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing" aria-label="${esc(t('Home'))}">${brandMark()}</a>
+    <nav class="l2-links" aria-label="${t('Sections')}">${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${go('lp-pj', t('For PJ'))}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}</nav>
+    <div class="lp-actions l2-actions">${langPill('web-lang')}<a class="l2-in" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>${l2Go('lime sm')}</div></div>`;
+}
+/** The website's footer: the home page's, the Help center's and the blog's. Opened from the app (app), only what is there for someone already
+    in: the legal texts in a panel, the Help center, the blog and the form to write. */
 function l2Foot(app) {
   const go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
-  const page = (v, label) => app ? `<button type="button" class="l2-link" data-a="${v === 'contact' ? 'contact' : v === 'help' ? 'hc-home' : 'legal'}" data-v="${v}">${label}</button>` : `<a class="l2-link" href="${PAGES.href(v)}" data-a="pub-go" data-v="${v}">${label}</a>`;
+  const page = (v, label) => app ? `<button type="button" class="l2-link" data-a="${v === 'contact' || v === 'help' || v === 'blog' ? v : 'legal'}" data-v="${v}">${label}</button>` : `<a class="l2-link" href="${PAGES.href(v)}" data-a="pub-go" data-v="${v}">${label}</a>`;
   return `<footer class="l2-foot"><div class="l2-wrap">
     <div class="l2-ft-top">
       <div class="l2-ft-brand">${brandMark(true)}<p>${t('Your money, organized clearly enough to make better decisions yourself.')}</p>
@@ -164,7 +175,7 @@ function l2Foot(app) {
         ${app ? '' : `<div><h3>${t('Product')}</h3><ul><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${go('lp-pj', t('For entrepreneurs'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
         <div><h3>${t('Account')}</h3><ul><li>${page('signup', t('Create account'))}</li><li>${page('login', t('Log in'))}</li></ul></div>`}
         <div><h3>${t('Legal')}</h3><ul><li>${page('privacy', t('Privacy policy'))}</li><li>${page('terms', t('Terms of use'))}</li></ul></div>
-        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('contact', t('Contact form'))}</li></ul></div>
+        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('blog', t('Blog'))}</li><li>${page('contact', t('Contact form'))}</li></ul></div>
       </nav></div>
     <div class="l2-ft-bottom"><p>© 2026 Dorax Finance</p>
       <p>${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></div></footer>`;

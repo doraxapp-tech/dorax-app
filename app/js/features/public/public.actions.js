@@ -3,17 +3,19 @@
 const PUBLIC_ACTIONS = {
   // before login
   'pub-go'(ds) {
-    const v = ds.v, legal = v === 'privacy' || v === 'terms' || v === 'contact' || v === 'help', p = UI.pub, fromLegal = p.screen === 'privacy' || p.screen === 'terms' || p.screen === 'contact' || p.screen === 'help';      // help: the Help center (v209), a page like these
+    const page = x => x === 'privacy' || x === 'terms' || x === 'contact' || x === 'help' || x === 'blog';      // help, blog: the Help center (v209) and the blog (v210), pages like these
+    const v = ds.v, legal = page(v), p = UI.pub, fromLegal = page(p.screen);
     const backToForm = !legal && fromLegal && p.back === v;      // the terms were read in the middle of signing up: what was typed is still there
     if (p.screen === 'landing' && v !== 'landing') PAGES.homeY = window.scrollY || 0;      // Back returns to where the home page was being read (ui/pages.js)
     PAGES.push = true;                                                                  // each page has its own address: this move is a step Back can undo
     if (v === 'contact') UI.contact = null;
     if (v === 'help') { UI.hcTopic = ''; UI.helpQ = ''; }      // the Help center opens on its first page
+    if (v === 'blog') { UI.blogPost = ds.post && blogPost(ds.post) ? ds.post : ''; UI.blogCat = ''; }      // and the blog on its list (Back and Forward: on the post the address names)
     if (legal) p.back = p.screen === 'auth' ? p.mode : fromLegal ? p.back : null;
     else if (!backToForm) Object.assign(p, { password: '', show: false, accept: false });      // anywhere else, a typed password is dropped
     Object.assign(p, { screen: v === 'landing' ? 'landing' : legal ? v : v === 'forgot' ? 'forgot' : 'auth', mode: v === 'landing' || legal ? p.mode : v === 'forgot' ? 'login' : v, error: null, errs: {}, notice: null, resent: false, sent: null });
     if (!legal) p.back = null;
-    renderNow(); toTop(); enterView(); const el = $('au-name') || $('au-email') || $('legal-title') || $('contact-title') || $('hc-title'); if (el) el.focus({ preventScroll: true });
+    renderNow(); toTop(); enterView(); const el = $('au-name') || $('au-email') || $('legal-title') || $('contact-title') || $('hc-title') || $('bl-title'); if (el) el.focus({ preventScroll: true });
   },
   /** Monthly or yearly prices on the home page. Both are in the page; this shows one, without drawing the page again. */
   'lp-bill'(ds) { UI.lpBill = ds.v === 'year' ? 'year' : 'month'; const box = document.querySelector('.lp-plans'); if (box) box.dataset.bill = UI.lpBill; document.querySelectorAll('.seg.bill button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === UI.lpBill))); },
