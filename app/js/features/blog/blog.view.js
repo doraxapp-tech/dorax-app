@@ -8,7 +8,9 @@
    Before login each post is a page with its own address (ui/pages.js); opened from the app (UI.webBlog) the same pages show over it, with "Back to
    Dorax". The posts themselves: blog-posts.js. Styles: css/screens/blog.css. */
 /** A post's words, escaped, with "R$" kept on the same line as its figure. */
-const blogEsc = s => esc(s).replace(/R\$ (?=\d)/g, 'R$&nbsp;');
+const blogEsc = s => esc(s).replace(/R\$ (?=\d)/g, () => 'R$\u00a0');      // a function: in a replacement text "$&" would stand for what was found
+/** The figure's longest run of letters that cannot break ("R$ 250" is one): its size follows it, so a long word ("pagamentos") fits its card. */
+const blogFigLen = fig => Math.max(4, ...String(fig).replace(/R\$ (?=\d)/g, 'R$_').split(' ').map(w => w.length));
 const blogCatName = c => ({ tips: t('Tips'), news: t('News'), curiosities: t('Curiosities') })[c] || '';
 /** "13 oct 2026": the date a post was written, in the language on screen. */
 function blogDate(iso) {
@@ -21,7 +23,7 @@ function blogCard(p) {
   const x = blogText(p);
   return `<a class="bl-card ${p.cat}" href="${blogHref(p.id)}" data-a="blog-post" data-v="${p.id}">
     <span class="bl-card-top"><span class="bl-tag">${blogCatName(p.cat)}</span><span class="bl-mins">${t('{n} min', { n: p.mins })}</span></span>
-    <span class="bl-fig" aria-hidden="true">${blogEsc(x.fig)}</span>
+    <span class="bl-fig" aria-hidden="true" style="--n:${blogFigLen(x.fig)}">${blogEsc(x.fig)}</span>
     <h3>${blogEsc(x.title)}</h3><p>${blogEsc(x.excerpt)}</p></a>`;
 }
 /** The way in, before login: the home page's lime closing box. */
@@ -37,7 +39,7 @@ function blogList() {
       <div class="bl-seg" role="group" aria-label="${esc(t('Categories'))}">${seg}</div></div></section></div></header>
     <main>${cat ? '' : `<section class="l2-wrap bl-feat-sec" aria-label="${esc(t('Featured'))}"><a class="bl-feat" href="${blogHref(f.id)}" data-a="blog-post" data-v="${f.id}">
         <span class="bl-feat-l"><span class="bl-tag">${blogCatName(f.cat)}</span><h2>${blogEsc(fx.title)}</h2><p>${blogEsc(fx.excerpt)}</p><span class="bl-byline">${blogDate(f.date)} · ${blogMins(f)}</span><span class="l2-btn forest">${t('Read the article')}${icon('right')}</span></span>
-        <span class="bl-feat-r ${f.cat}" aria-hidden="true"><span class="bl-fig">${blogEsc(fx.fig)}</span><small>${blogEsc(fx.figSay)}</small></span></a></section>`}
+        <span class="bl-feat-r ${f.cat}" aria-hidden="true"><span class="bl-fig" style="--n:${blogFigLen(fx.fig)}">${blogEsc(fx.fig)}</span><small>${blogEsc(fx.figSay)}</small></span></a></section>`}
       <section class="l2-white bl-posts"><div class="l2-wrap"><div class="l2-sec-h">${l2Eyebrow(head[0])}<h2 class="l2-h2">${head[1]}</h2></div>
         <div class="bl-grid">${shown.length ? shown.map(blogCard).join('') : `<p class="bl-empty">${t('No articles in this category yet.')}</p>`}</div></div></section>
       ${blogEnd()}</main>`;
@@ -53,7 +55,7 @@ function blogArticle(p) {
       <h1 class="l2-h1" id="bl-title" tabindex="-1">${blogEsc(x.title)}</h1>
       <p class="bl-byline">${t('By Dorax Finance')} · ${blogDate(p.date)} · ${blogMins(p)}</p></div></div></div></header>
     <main><article aria-labelledby="bl-title">
-      <div class="bl-band-w ${p.cat}"><div class="bl-band"><div class="l2-wrap bl-band-in"><span class="bl-fig">${blogEsc(x.fig)}</span><p>${blogEsc(x.figSay)}</p></div></div></div>
+      <div class="bl-band-w ${p.cat}"><div class="bl-band"><div class="l2-wrap bl-band-in"><span class="bl-fig" style="--n:${blogFigLen(x.fig)}">${blogEsc(x.fig)}</span><p>${blogEsc(x.figSay)}</p></div></div></div>
       <div class="l2-wrap"><div class="bl-body">${blocks}
         <footer class="bl-src">${p.sources.length ? `<h2>${t('Sources')}</h2><ol>${p.sources.map(([n, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a></li>`).join('')}</ol>` : ''}
           <p>${t('Updated on {date}.', { date: blogDate(p.date) })} ${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')}</p></footer></div></div></article>

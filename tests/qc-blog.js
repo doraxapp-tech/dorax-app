@@ -49,6 +49,16 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [UI.blogPost, !!document.querySelector('.bl-feat')]), ['', true], '“Blog” at the top of a post: the list');
   eq(errors, [], 'before login: no error'); await browser.close();
 
+  // every big figure fits its card, at every width, and "R$" stays with its number (owner, 2026-10-13: "R$" came out as "RR$ nbsp;", and "pagamentos" ran out of its card)
+  for (const w of [1440, 1180, 1024, 390]) {
+    ({ browser, page, errors } = await open({ lang: 'pt', viewport: { width: w, height: 900 }, ...(w < 600 ? { touch: true, mobile: true } : {}) }));
+    await page.evaluate(() => A['pub-go']({ v: 'blog' })); await page.waitForSelector('.bl-page');
+    eq(await page.evaluate(() => { const out = [...document.querySelectorAll('.bl-fig')].filter(f => { const box = f.parentElement.getBoundingClientRect(), r = f.getBoundingClientRect(); return f.scrollWidth > f.clientWidth + 1 || r.right > box.right + 1 || r.left < box.left - 1; }).map(f => f.textContent); return [out, /nbsp|RR\$/.test(document.body.innerText), [...document.querySelectorAll('.bl-fig')].some(f => /R\$\u00a0\d/.test(f.textContent))]; }),
+      [[], false, true], w + 'px, in Portuguese: every figure inside its card, no stray “nbsp”, “R$” joined to its number');
+    await page.evaluate(() => A['blog-post']({ v: 'salario-em-duas-datas' })); await page.waitForTimeout(150);
+    ok(await page.evaluate(() => { const f = document.querySelector('.bl-band .bl-fig'); return f.getBoundingClientRect().right <= innerWidth && document.documentElement.scrollWidth <= innerWidth; }), w + 'px: a post’s figure inside the screen');
+    eq(errors, [], w + 'px: no error'); await browser.close();
+  }
   ({ browser, page, errors } = await open({ lang: 'pt', viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   await page.evaluate(() => A['pub-go']({ v: 'blog' })); await page.waitForSelector('.bl-page');
   eq(await page.evaluate(() => { const seg = document.querySelector('.bl-seg'), b = [...seg.querySelectorAll('button')].map(x => x.getBoundingClientRect()); return [document.querySelector('#bl-title').textContent, document.documentElement.scrollWidth <= innerWidth, b.every(r => Math.abs(r.top - b[0].top) < 2), seg.scrollWidth <= seg.clientWidth + 1, [...document.querySelectorAll('.bl-seg button, .bl-card, .bl-feat .l2-btn')].every(e => e.getBoundingClientRect().height >= 44), [...document.querySelectorAll('.bl-tag')].map(x => x.textContent).slice(0, 2)]; }),

@@ -48,6 +48,10 @@
 .bl-mins { font-size: 14px; font-weight: 500; color: var(--l2-ink-3); }
 .bl-card.news .bl-mins { color: #C9D2C0; }
 .bl-card .bl-fig { margin-top: 40px; font-size: clamp(56px, 5.6vw, 84px); color: var(--l2-forest); }
+/* the figure as large as its card allows: its longest word (--n letters, blog.view.js) always fits the width, a short one stays at the full size */
+.bl-card, .bl-feat-r { container-type: inline-size; }
+.bl-card .bl-fig { font-size: clamp(36px, calc(100cqi / (var(--n, 6) * .56)), 84px); }
+.bl-feat-r .bl-fig { font-size: clamp(44px, calc(100cqi / (var(--n, 6) * .56)), 128px); }
 .bl-card.news .bl-fig { color: var(--l2-lime); }
 .bl-card h3 { margin: auto 0 0; color: inherit; padding-top: 32px; font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.22; text-wrap: balance; }
 .bl-card p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: var(--l2-ink-3); }
@@ -62,6 +66,8 @@
 .bl-band { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 56px), calc(100% - 56px) 100%, 0 100%); }
 .bl-band-in { display: flex; align-items: center; gap: 40px; min-height: 228px; }
 .bl-band .bl-fig { font-size: clamp(80px, 11vw, 168px); }
+.bl-band-in { flex-wrap: wrap; container-type: inline-size; }      /* a long figure takes the row, and its words go under it */
+.bl-band .bl-fig { font-size: clamp(44px, min(11vw, calc(100cqi / (var(--n, 6) * .56))), 168px); }
 .bl-band p { margin: 0; max-width: 360px; font-size: 20px; line-height: 1.4; }
 .bl-band-w.news p { color: #C9D2C0; }
 .bl-body { max-width: 720px; margin: 0 auto; padding-block: 72px 40px; }
