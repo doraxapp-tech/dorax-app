@@ -22,7 +22,8 @@ const A = {
   ...LIMIT_ACTIONS,      // spending limits by category (features/limits)
   ...YEARLY_ACTIONS,      // what is paid once a year (features/yearly)
   ...MONTH_CLOSE_ACTIONS,      // the close of the month, guided (features/month-close)
-  ...PLAN_DESK_ACTIONS,      // the Plan on a computer: the income and the year one click away (features/plan)
+  ...PLAN_DESK_ACTIONS,
+  ...DESK_ACTIONS,      // the computer's own pages in the summary's look: folds, the year and the plan one click away (features/desk, v203)      // the Plan on a computer: the income and the year one click away (features/plan)
   ...PLAN_GUIDE_ACTIONS,      // "Plan your month": income, what to keep, a limit per category (features/limits/plan-guide)
   ...TRANSACTIONS_ACTIONS,
   ...SETTINGS_ACTIONS,

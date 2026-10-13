@@ -169,6 +169,7 @@ function repIncome(bk, CUR, L, ym, m, co) {
     ${repRingIncome(bk, CUR, ym, co) || `<section class="card" id="rep-in-from"><div class="card-h"><h2>${co ? t('Where it came from') : t('Where your income came from')}</h2><span class="sub">${fmt.month(ym)}</span></div><div class="card-b"><div class="empty">${t('No income recorded this month.')}</div></div></section>`}`;      // a ring since 2026-10-09 (features/reports/report-rings.js)
 }
 function viewReports() {
+  if (dkOn()) return dkReports();      // a computer in the summary's look: its own page (v203, features/reports/reports.desk.js)
   // a month in progress is compared with the same days of the month before, as on the dashboard; a closed month with the whole month before
   // 2026-10-07: the company's side has its reports too (owner: "do everything that is pending"). Same page, read from the company's book in the
   // currency shown: received, costs and result in place of income, expenses and left over; what has no company category yet is its own line.

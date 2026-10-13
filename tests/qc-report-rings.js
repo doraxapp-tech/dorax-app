@@ -11,7 +11,8 @@
 //   6. a phone: the categories' ring in place of the dashboard's bar, and how it was paid; where the income came from, as a ring.
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
+  // v203: the household's computer page in the summary's look draws its parts in qc-desk-pages.js; the rings stay on the company's and the previous look's
+  let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
   await page.evaluate(() => { S.user.greeted = true; S.settings.locale = 'en-US'; S.month = '2026-09'; navigate('reports'); }); await page.waitForSelector('#rep-ring-cat');
   // ---------- 1. the categories ----------
   const ring = sel => page.evaluate(sel => { const c = document.querySelector(sel); if (!c) return null; const arcs = [...c.querySelectorAll('.rg-seg')], rows = [...c.querySelectorAll('.rg-row')];

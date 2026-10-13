@@ -11,7 +11,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await p.evaluate(() => navigate('accounts')); await p.waitForTimeout(300);
   // ---------- 1. the default ----------
   eq(await p.evaluate(() => [mainOf('personal').id, mainOf('business').id, S.accounts.filter(a => a.main).length]), ['nu-conta', 'nu-pj', 0], 'with none marked, the first account that pays by debit is each side’s main one');
-  eq(await p.evaluate(() => [...document.querySelectorAll('.cc-mainchip')].map(c => c.closest('.cc-item, li, .cc-card, [data-id]') ? 1 : 1).length), 1, 'one card in Accounts says it is the main account');
+  eq(await p.evaluate(() => [...document.querySelectorAll('.cc-mainchip, .dk-mainchip')].map(c => c.closest('.cc-item, li, .cc-card, [data-id]') ? 1 : 1).length), 1, 'one card in Accounts says it is the main account');
   await p.evaluate(() => A['card-view']({ id: 'nu-conta' })); await p.waitForSelector('#cv-main-nu-conta');
   eq(await p.evaluate(() => { const s = document.querySelector('#cv-main-nu-conta'); return [s.checked, s.disabled, s.closest('.cv-main').innerText.includes('The household’s expenses are charged here')]; }), [true, true, true], 'its panel: the switch is on, and fixed: another account is made the main one instead');
   // ---------- 2. moving it ----------

@@ -10,7 +10,8 @@ const { open, ok, eq, done } = require('./pw.js');
 const money = c => { const neg = c < 0, a = Math.abs(c), w = String(Math.floor(a / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (neg ? '−' : '') + 'R$ ' + w + ',' + String(a % 100).padStart(2, '0'); };
 const unit = c => { const neg = c < 0, w = String(Math.round(Math.abs(c) / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (neg ? '−' : '') + w; };
 (async () => {
-  let { browser, page: p, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
+  // v203: the household's computer page in the summary's look is checked in qc-desk-pages.js; this page stays the company's and the previous look's
+  let { browser, page: p, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1280, height: 900 } });
   await p.evaluate(() => { S.month = '2026-09'; navigate('reports'); }); await p.waitForTimeout(300);
   eq(await p.evaluate(() => ['rep-trend', 'rep-matrix', 'rep-merchants', 'rep-balance', 'rep-compare', 'rep-year'].map(id => !!document.getElementById(id))), [true, true, true, true, true, true], 'the computer’s page has its new parts, and keeps the comparison; the year table is on the household side too');
   // 1. month by month

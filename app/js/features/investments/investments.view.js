@@ -59,6 +59,7 @@ function fiiSimCard(f) {
 }
 
 function viewInvestments() {
+  if (dkOn()) return dkInvestments();      // a computer in the summary's look: its own page (v203, features/investments/investments.desk.js)
   const f = fiiSummary(S, S.today), year = S.today.slice(0, 4), F = UI.fii, nowYm = ymOf(S.today);
   if (!S.fii.moves.length) return `<div class="card"><div class="empty"><b>${t('No FIIs yet')}</b>${t('Record a purchase, or the quotas you already hold, and the position is calculated from there.')}<div style="margin-top:12px"><button class="btn primary" data-a="fii-move" data-kind="buy">${icon('plus')}${t('Record movement')}</button></div></div></div>${fiiSimCard(f)}`;
   const quotas = sum(f.held.map(r => r.qty)), gone = f.rows.filter(r => !r.qty);

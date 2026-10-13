@@ -85,20 +85,11 @@ function distCard(ym) {
 
 // ---------- screen ----------
 function viewGoals() {
-  const ym = B().month, nowYm = ymOf(B().today), years = goalYears(B()), year = years.includes(UI.goalYear) ? UI.goalYear : (years.includes(+nowYm.slice(0, 4)) ? +nowYm.slice(0, 4) : years[0]), mode = UI.goalMode;
+  if (dkOn()) return dkGoals();      // a computer in the summary's look: its own page (v203, features/goals/goals.desk.js)
+  const ym = B().month, nowYm = ymOf(B().today);
   const open = B().goals.filter(g => g.status === 'active' || g.status === 'paused'), closed = B().goals.filter(g => g.status === 'done' || g.status === 'archived');
   if (!B().goals.length) return `${companyNote()}<div class="card"><div class="empty"><b>${t('No goals yet')}</b>${t('Create a goal with a target, or a fund for money you set aside every month.')}<div style="margin-top:12px"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div></div></div>${yearlySection()}`;
   const d = distribution(B(), ym), totalSaved = sum(B().goals.filter(g => g.status !== 'archived').map(g => goalSaved(B(), g.id)));
-  // year grid
-  const months = Array.from({ length: 12 }, (_, i) => year + '-' + String(i + 1).padStart(2, '0')), rem = allocRemainder(B(), year), pays = payRows(B(), year, 'savings');
-  const cur = i => months[i] === ym ? ' cur' : '', past = i => months[i] <= nowYm;
-  const show = v => v === null ? '<span class="z">—</span>' : mode === 'diff' ? (v === 0 ? '<span class="z">0</span>' : `<span class="${v > 0 ? 'pos' : 'neg'}">${fmt.money(v, null, { bare: true, trim: true, sign: true })}</span>`) : v === 0 ? '<span class="z">0</span>' : plain(v);
-  const lastYear = years[years.length - 1], thisYear = +nowYm.slice(0, 4), lastEmpty = yearEmpty(B(), lastYear);
-  const gval = (g, i) => { const p = (g.plan[year] || [])[i] || 0; return mode === 'plan' ? p : past(i) ? (mode === 'actual' ? goalMonth(B(), g.id, months[i]) : goalMonth(B(), g.id, months[i]) - p) : null; };
-  const gridRows = open.map(g => `<tr class="${g.status === 'paused' ? 'muted-row' : ''}"><th scope="row"><button class="linkbtn" data-a="goal-open" data-id="${g.id}">${esc(g.name)}</button>${g.status === 'paused' ? ` <span class="chip">${t('Paused')}</span>` : ''}</th>
-    ${months.map((m, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${(g.plan[year] || [])[i] ? '' : 'z'}" id="gp-${year}-${g.id}-${i}" aria-label="${esc(g.name)}, ${mon(i, true)}" value="${plain((g.plan[year] || [])[i] || 0)}" data-c="goal-cell" data-id="${g.id}" data-y="${year}" data-m="${i}">` : show(gval(g, i))}</td>`).join('')}
-    <td class="c tot">${show(sum(months.map((m, i) => gval(g, i))))}</td></tr>`).join('');
-  const payCells = r => r.values.map((v, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${v ? '' : 'z'}" id="ap-${year}-${r.id}-${i}" aria-label="${esc(r.name)}, ${mon(i, true)}" value="${plain(v)}" data-c="pay-cell" data-id="${r.id}" data-y="${year}" data-m="${i}">` : show(v)}</td>`).join('');
   const top = isPhone() ? phoneGoalsTop(open, closed, ym) : `<section class="tiles">
       <div class="card tile tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<div class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</div><div class="value num">${fmt.money(totalSaved, BCUR())}</div></div>
       <div class="card tile tap">${kpiTap('goal-plan', t('Plan for {month}', { month: fmt.month(ym, 'bare') }))}<div class="label"><span>${t('Plan for {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('goalPlan')}</div><div class="value num">${fmt.money(d.planned, BCUR())}</div></div>
@@ -110,7 +101,26 @@ function viewGoals() {
   ${yearlySection()}
   ${distCard(ym)}`;      // the goals first (the yearly expenses under them: features/yearly), then the hand-out of the month's savings (owner, 2026-10-08)      // a phone has its own top, without the hand-out (features/phone/phone.goals.js)
   return deskCut(`${companyNote()}${top}
-  <section class="card" id="goal-year"><div class="card-h"><h2>${t('Monthly plan')}</h2>${hint('goalGrid')}${yearStepper('goal-year', years, year)}
+  ${goalYearSection()}
+  <p class="note g-real" id="goal-money">${t('Your goals are plans; the real money is in your savings accounts.')} <a href="#accounts">${t('See Accounts & savings')}</a></p>`, 'goal-year', '<section class="card" id="goal-year">', '<p class="note g-real"');
+}
+
+/** The monthly plan: what is routed to savings and what each goal and fund takes, month by month; Plan, Actual or Difference. On a computer in the
+    summary's look it opens as a wide panel (asPanel; "Edit the plan month by month" on Goals, v203). */
+function goalYearSection(asPanel) {
+  const ym = B().month, nowYm = ymOf(B().today), years = goalYears(B()), year = years.includes(UI.goalYear) ? UI.goalYear : (years.includes(+nowYm.slice(0, 4)) ? +nowYm.slice(0, 4) : years[0]), mode = UI.goalMode;
+  const open = B().goals.filter(g => g.status === 'active' || g.status === 'paused');
+  // year grid
+  const months = Array.from({ length: 12 }, (_, i) => year + '-' + String(i + 1).padStart(2, '0')), rem = allocRemainder(B(), year), pays = payRows(B(), year, 'savings');
+  const cur = i => months[i] === ym ? ' cur' : '', past = i => months[i] <= nowYm;
+  const show = v => v === null ? '<span class="z">—</span>' : mode === 'diff' ? (v === 0 ? '<span class="z">0</span>' : `<span class="${v > 0 ? 'pos' : 'neg'}">${fmt.money(v, null, { bare: true, trim: true, sign: true })}</span>`) : v === 0 ? '<span class="z">0</span>' : plain(v);
+  const lastYear = years[years.length - 1], thisYear = +nowYm.slice(0, 4), lastEmpty = yearEmpty(B(), lastYear);
+  const gval = (g, i) => { const p = (g.plan[year] || [])[i] || 0; return mode === 'plan' ? p : past(i) ? (mode === 'actual' ? goalMonth(B(), g.id, months[i]) : goalMonth(B(), g.id, months[i]) - p) : null; };
+  const gridRows = open.map(g => `<tr class="${g.status === 'paused' ? 'muted-row' : ''}"><th scope="row"><button class="linkbtn" data-a="goal-open" data-id="${g.id}">${esc(g.name)}</button>${g.status === 'paused' ? ` <span class="chip">${t('Paused')}</span>` : ''}</th>
+    ${months.map((m, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${(g.plan[year] || [])[i] ? '' : 'z'}" id="gp-${year}-${g.id}-${i}" aria-label="${esc(g.name)}, ${mon(i, true)}" value="${plain((g.plan[year] || [])[i] || 0)}" data-c="goal-cell" data-id="${g.id}" data-y="${year}" data-m="${i}">` : show(gval(g, i))}</td>`).join('')}
+    <td class="c tot">${show(sum(months.map((m, i) => gval(g, i))))}</td></tr>`).join('');
+  const payCells = r => r.values.map((v, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${v ? '' : 'z'}" id="ap-${year}-${r.id}-${i}" aria-label="${esc(r.name)}, ${mon(i, true)}" value="${plain(v)}" data-c="pay-cell" data-id="${r.id}" data-y="${year}" data-m="${i}">` : show(v)}</td>`).join('');
+  return `<section class="${asPanel ? 'py-panel' : 'card'}" id="goal-year"><div class="card-h"><h2>${t('Monthly plan')}</h2>${hint('goalGrid')}${yearStepper('goal-year', years, year)}
       ${year !== lastYear ? '' : lastEmpty && lastYear > thisYear && years.length > 1 ? `<button class="btn sm ghost" data-a="goal-remove-year" data-v="${lastYear}">${t('Remove {year}', { year: lastYear })}</button>` : `<button class="btn sm ghost" data-a="goal-add-year">${icon('plus')}${t('Add {year}', { year: lastYear + 1 })}</button>`}<div class="right">${seg('goal-mode', [['plan', t('Plan')], ['actual', t('Actual')], ['diff', t('Difference')]], mode, t('Show'))}</div></div>
     <div class="card-b flush"><div class="tbl-wrap"><table class="tbl plan alloc"><thead><tr><th></th>${months.map((m, i) => `<th class="c${cur(i)}">${mon(i)}</th>`).join('')}<th class="c">${t('Year')}</th></tr></thead><tbody>
       ${mode === 'diff' ? '' : `<tr class="grp"><th scope="rowgroup" colspan="14">${t('Income for savings')}</th></tr>${pays.map(r => `<tr><th scope="row">${esc(r.name)}</th>${payCells(r)}<td class="c tot">${plain(sum(r.values))}</td></tr>`).join('') || `<tr><th scope="row" class="muted">${t('No income is routed to savings')}</th><td colspan="13"></td></tr>`}`}
@@ -118,10 +128,8 @@ function viewGoals() {
       ${mode === 'plan' ? `<tr class="sumrow grand"><th scope="row">${esc(B().remainderLabel)}</th>${rem.map((v, i) => `<td class="c${cur(i)}">${v < 0 ? `<span class="neg">${fmt.money(v, null, { bare: true, trim: true })}</span>` : plain(v)}</td>`).join('')}<td class="c tot">${fmt.money(sum(rem), null, { bare: true, trim: true })}</td></tr>`
         : `<tr class="sumrow grand"><th scope="row">${t('Total')}</th>${months.map((m, i) => { const vs = open.map(g => gval(g, i)); return `<td class="c${cur(i)}">${show(vs.some(v => v === null) ? null : sum(vs))}</td>`; }).join('')}<td class="c tot">${show(sum(open.flatMap(g => months.map((m, i) => gval(g, i)))))}</td></tr>`}
     </tbody></table></div></div>
-    <div class="toolbar" style="border-top:1px solid var(--line);border-bottom:0"><span class="note">${mode === 'plan' ? (rem.some(v => v < 0) ? t('Some months plan more than the income routed to savings.') : t('Type in any cell. Enter or the arrow keys move down the column; Tab moves across. The last row is income minus every goal and fund.')) : mode === 'actual' ? t('What was recorded each month. Withdrawals count as negative.') : t('Recorded minus planned. Negative means less was set aside than planned.')}</span></div></section>
-  <p class="note g-real" id="goal-money">${t('Your goals are plans; the real money is in your savings accounts.')} <a href="#accounts">${t('See Accounts & savings')}</a></p>`, 'goal-year', '<section class="card" id="goal-year">', '<p class="note g-real"');
+    <div class="toolbar" style="border-top:1px solid var(--line);border-bottom:0"><span class="note">${mode === 'plan' ? (rem.some(v => v < 0) ? t('Some months plan more than the income routed to savings.') : t('Type in any cell. Enter or the arrow keys move down the column; Tab moves across. The last row is income minus every goal and fund.')) : mode === 'actual' ? t('What was recorded each month. Withdrawals count as negative.') : t('Recorded minus planned. Negative means less was set aside than planned.')}</span></div></section>`;
 }
-
 // ---------- drawers ----------
 const yearsAhead = () => { const y = +B().today.slice(0, 4), max = Math.max(y + 6, ...goalYears(B())); return Array.from({ length: max - y + 2 }, (_, i) => y - 1 + i); };
 function ymPicker(id, key, value, label, optional) {

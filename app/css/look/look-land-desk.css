@@ -83,9 +83,9 @@
   }
   :root.land .topbar :focus-visible { outline-color: #B6DD62; }
   /* a screen with its own top on the forest: the top bar goes straight on into it, and that top carries the rounded edge */
-  :root.land .work:has(#view > :is(.bq-dhero, .bq-hero, .bq-tx)) .topbar { padding-bottom: 14px; }
-  :root.land .work:has(#view > :is(.bq-dhero, .bq-hero, .bq-tx)) .topbar::after { display: none; }
-  :root.land #view > :first-child:not(.bq-dhero):not(.bq-hero):not(.bq-tx) { margin-top: 2px; }
+  :root.land .work:has(#view > :is(.bq-dhero, .bq-hero, .bq-tx, .dk-hero)) .topbar { padding-bottom: 14px; }
+  :root.land .work:has(#view > :is(.bq-dhero, .bq-hero, .bq-tx, .dk-hero)) .topbar::after { display: none; }
+  :root.land #view > :first-child:not(.bq-dhero):not(.bq-hero):not(.bq-tx):not(.dk-hero) { margin-top: 2px; }
 
   /* ---------- the forest top of a screen: the whole width under the top bar, its content on the page's column ---------- */
   :root.land #view > :is(.bq-dhero, .bq-hero) { position: relative; margin-inline: 0; padding: 8px var(--bq-gut) 62px; background: #112622; color: #FFFFFF; }

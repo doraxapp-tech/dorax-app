@@ -13,7 +13,7 @@
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
   let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, beta: true, viewport: { width: 1440, height: 900 } });
-  await page.evaluate(() => { S.user.greeted = true; S.month = '2026-09'; navigate('reports'); }); await page.waitForSelector('#rep-ring-cat');
+  await page.evaluate(() => { S.user.greeted = true; S.month = '2026-09'; navigate('reports'); }); await page.waitForSelector('#rep-cats');      // v203: the computer's Reports, its categories in “Where it went”
   // v202 (owner: "quita el botón … al lado del nombre del tab, como para ir atrás"): no button on top on a computer either; where back goes is still kept
   // (the browser's Back, a panel's ‹), so the steps are read and taken here as that button did
   const backPc = () => page.evaluate(() => { const p = backForPage(); return p ? [backName(p), backSay(p)] : null; });
@@ -21,12 +21,12 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(await page.evaluate(() => !document.querySelector('#back-pc, .topbar .back-btn, .topbar [data-a="back"]')), 'v202: no way back beside the screen’s title');
   eq(await backPc(), null, 'nowhere to go back to yet: no way back');
   // ---------- 1. Reports → Transactions → back ----------
-  const cat = await page.evaluate(() => document.querySelector('#rep-ring-cat .rg-row[data-a="rep-drill"]').dataset.cat);
-  await page.click(`#rep-ring-cat .rg-row[data-cat="${cat}"]`); await page.click('#rep-ring-cat button.rg-row[data-a="filter-cat"]'); await page.waitForTimeout(150);
-  eq([await page.evaluate(() => UI.route), await backPc()], ['transactions', ['Reports', 'Back to Reports']], 'a subcategory of the ring opens Transactions; “‹ Reports” before the title');
+  const cat = await page.evaluate(() => document.querySelector('#rep-cats .dk-cat[data-a="filter-cat"]').dataset.cat);
+  await page.click(`#rep-cats .dk-cat[data-cat="${cat}"]`); await page.waitForTimeout(150);
+  eq([await page.evaluate(() => UI.route), await backPc()], ['transactions', ['Reports', 'Back to Reports']], 'a category of “Where it went” opens Transactions; back is Reports');
   await page.evaluate(() => { S.month = '2026-08'; });      // what the new screen does is its own
   await goBackPc(); await page.waitForTimeout(150);
-  eq(await page.evaluate(() => [UI.route, S.month, UI.repDrill, !!document.querySelector('#rep-ring-cat .rg-back'), BACK.stack.length]), ['reports', '2026-09', cat, true, 0], 'back: Reports, on its month, the category still open');
+  eq(await page.evaluate(() => [UI.route, S.month, !!document.querySelector('#rep-cats'), BACK.stack.length]), ['reports', '2026-09', true, 0], 'back: Reports, on its month');
   eq(await backPc(), null, 'and nothing more to go back to');
   // ---------- 2. the menu, screen after screen ----------
   await page.click('#nav a[href="#plan"]'); await page.click('#nav a[href="#goals"]'); await page.click('#nav a[href="#accounts"]'); await page.waitForTimeout(100);
@@ -34,7 +34,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await goBackPc(); await goBackPc(); await page.waitForTimeout(100);
   eq([await page.evaluate(() => UI.route), await backPc()], ['plan', ['Reports', 'Back to Reports']], 'twice: Plan, and Reports before it');
   // ---------- 3. a panel from a panel ----------
-  await page.evaluate(() => navigate('accounts')); await page.click('.cc-item[data-id="mp"] .cc-tap'); await page.waitForSelector('#overlay .cv');
+  await page.evaluate(() => navigate('accounts')); await page.click('#acc-table [data-a="card-view"][data-id="mp"]'); await page.waitForSelector('#overlay .cv');
   eq(await page.evaluate(() => !document.querySelector('#overlay .dr-back')), true, 'a panel opened over a screen: its X is the way back, no ‹');
   await page.click('[data-a="card-do"][data-v="edit"]'); await page.waitForSelector('#a-name');
   eq(await page.evaluate(() => { const b = document.querySelector('#overlay header .dr-back'); return b && [b.getAttribute('aria-label'), b.parentElement.nextElementSibling.tagName]; }), ['Back to Mercado Pago', 'H2'], 'the account’s form, opened from the card: ‹ before its title, back to the card');
@@ -43,7 +43,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.click('[data-a="card-do"][data-v="edit"]'); await page.waitForSelector('#a-name'); await page.click('#overlay header [data-a="close"]'); await page.waitForTimeout(250);
   eq(await page.evaluate(() => [UI.drawer, BACK.stack.some(p => p.drawer)]), [null, false], 'the form closed with its X: the panels behind it go too');
   // ---------- 4. from a panel to a screen ----------
-  await page.click('.cc-item[data-id="nu-conta"] .cc-tap'); await page.waitForSelector('#overlay .cv-ops');
+  await page.click('#acc-table [data-a="card-view"][data-id="nu-conta"]'); await page.waitForSelector('#overlay .cv-ops');
   await page.click('#overlay .cv-ops .op-head .linkbtn'); await page.waitForTimeout(150);
   eq([await page.evaluate(() => [UI.route, UI.drawer])], [['transactions', null]], '“View all” under a card: Transactions');
   eq(await backPc(), ['Nubank account', 'Back to Nubank account'], 'the way back names the card it came from');

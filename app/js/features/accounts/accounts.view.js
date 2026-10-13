@@ -14,6 +14,7 @@ function acctCard(a) {
 function viewAccounts() {
   const co = UI.space === 'business', list = co ? business() : personal();
   if (!list.length) return `<div class="card"><div class="empty"><b>${co ? t('No company accounts yet') : t('No accounts yet')}</b>${co ? t('Add the company’s first account to plan its costs and keep its reserves in it.') : t('Add your first account to start importing statements.')}<div style="margin-top:12px"><button class="btn primary" data-a="account-add">${icon('plus')}${co ? t('Add company account') : t('Add account')}</button></div></div></div>`;
+  if (dkOn() && !co) return dkAccounts(list);      // a computer in the summary's look: its own page (v203, features/accounts/accounts.desk.js)
   if (isPhone()) return phoneAccounts(list);      // a phone: one button, the accounts as rows by kind, how long the savings last (features/accounts/accounts.phone.js)
   // no figures on top, on the phone (owner, 2026-10-08: "remove from Accounts the KPI cards of the household's net balance, it is already in the bar on
   // top, and the number of accounts, it is irrelevant") nor on the computer (owner, 2026-10-09: "on the computer remove the KPI cards from the Accounts tab")

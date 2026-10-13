@@ -1,0 +1,438 @@
+/* Dorax Finance — the computer's own pages in the summary's look: Accounts & savings, Plan, Goals, Investments and Reports (v203; the pieces:
+   js/features/desk/desk-kit.js, each page in features/<page>/<page>.desk.js). On the forest under the top bar: the page's figure, what comes next at its
+   right, a band across; the grey sheet rising over it with the page's sections, white cards with a hairline and 24 px corners, pills.
+   Colours: the forest #112622, lime #B6DD62 (#C4E57A lighter), mint #E8F3D2, the look's page and cards (look-land.css). Text never under 12 px. */
+@media (min-width: 921px) {
+  :root.land { --dk-warn-bg: #FFF1D6; --dk-warn-ink: #6E4600; --dk-mint-ink: #2F4A28; --dk-crit-bg: #FDE7E4; --dk-crit-ink: #B42318; --dk-g1: #112622; --dk-g2: #557A4C; --dk-g3: #B8CDB0; --dk-g4: #DCE7D6; --dk-track: rgba(17, 38, 34, .12); --dk-neg: #B42318; --dk-pos: #2F6B1C; --dk-now: rgba(182, 221, 98, .22); }
+  :root.land-dark { --dk-warn-bg: rgba(245, 192, 74, .14); --dk-warn-ink: #F5C04A; --dk-mint-ink: #C9DDA6; --dk-crit-bg: rgba(255, 138, 128, .14); --dk-crit-ink: #FF8A80; --dk-g1: #B6DD62; --dk-g2: #7FA046; --dk-g3: #3F5A2C; --dk-g4: #2A3D37; --dk-track: rgba(255, 255, 255, .12); --dk-neg: #FF8A80; --dk-pos: #B6DD62; --dk-now: rgba(182, 221, 98, .12); }
+
+  /* ---------- the forest top ---------- */
+  :root.land #view > .dk-hero { position: relative; display: flex; flex-direction: column; gap: 36px; margin-inline: 0; padding: 18px var(--bq-gut) 72px; background: #112622; color: #FFFFFF; }
+  :root.land #view > .dk-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
+  :root.land .dk-hero :focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; }
+  :root.land .dk-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px 64px; }
+  :root.land .dk-main { flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  :root.land .dk-k { color: #B5C2BE; font-size: 14px; font-weight: 500; }
+  :root.land .dk-big { color: #FFFFFF; font-family: var(--fig); font-size: 48px; font-weight: 600; letter-spacing: -.04em; line-height: 1; white-space: nowrap; }
+  :root.land .dk-big .cents { color: #B5C2BE; opacity: 1; font-size: .5em; letter-spacing: 0; }
+  :root.land .dk-big.neg { color: #FF8A80; }
+  :root.land .dk-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  :root.land .dk-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #D6DCCF; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  :root.land .dk-chip.go { background: rgba(182, 221, 98, .16); color: #B6DD62; }
+  :root.land .dk-chip.warn { background: rgba(245, 192, 74, .16); color: #F5C04A; }
+  :root.land .dk-chip.neg { background: rgba(255, 138, 128, .16); color: #FF8A80; }
+  :root.land .dk-side { flex: 1 1 380px; min-width: 0; max-width: 540px; display: flex; flex-direction: column; gap: 14px; }
+  :root.land .dk-side-h, :root.land .dk-band-h { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  :root.land .dk-side-h h2, :root.land .dk-band-h h2 { margin: 0; color: #B5C2BE; font-size: 14px; font-weight: 500; letter-spacing: 0; }
+  :root.land .dk-mid { color: #FFFFFF; font-family: var(--fig); font-size: 32px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+  :root.land .dk-mid small { margin-left: 4px; color: #B5C2BE; font-family: var(--font, inherit); font-size: 15px; font-weight: 500; letter-spacing: 0; }
+  :root.land .dk-say { margin: 0; color: #B5C2BE; font-size: 14px; line-height: 1.45; }
+  :root.land .dk-say b { color: #FFFFFF; font-weight: 600; }
+  :root.land .dk-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  :root.land #view .dk-hero .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+  :root.land #view .dk-hero .btn:not(.primary) { border: 0; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #FFFFFF; }
+  :root.land #view .dk-hero .btn:not(.primary) svg { color: #B6DD62; }
+  @media (hover: hover) and (pointer: fine) { :root.land #view .dk-hero .btn:not(.primary):hover { background: rgba(255, 255, 255, .14); } }
+  :root.land .dk-link { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; min-height: 32px; color: #B6DD62; font-size: 13px; font-weight: 600; text-decoration: none; }
+  :root.land .dk-link:hover { color: #C4E57A; }
+  :root.land .dk-link.ink { color: var(--bq-ink); font-size: 14px; min-height: 44px; }
+  :root.land .dk-link.ink:hover { color: var(--bq-ink-2); }
+  :root.land .dk-link:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; border-radius: 6px; }
+  :root.land .dk-link.ink:focus-visible { outline-color: var(--bq-accent); }
+  /* the next thing due */
+  :root.land .dk-next { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  :root.land .dk-next .inst, :root.land .dk-next .inst img { width: 44px; height: 44px; min-width: 44px; }
+  :root.land .dk-next-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  :root.land .dk-next-t b { overflow: hidden; color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .dk-next-t span { color: #B5C2BE; font-size: 14px; }
+  :root.land .dk-next-v { color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; white-space: nowrap; }
+  /* the band across */
+  :root.land .dk-band { display: flex; flex-direction: column; gap: 18px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, .12); }
+  :root.land .dk-band-r { display: inline-flex; align-items: center; gap: 14px; }
+  :root.land .dk-band-r b { color: #FFFFFF; font-size: 15px; font-weight: 600; }
+  :root.land .dk-none { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+  :root.land .dk-split { display: flex; gap: 4px; height: 12px; }
+  :root.land .dk-split span { min-width: 4px; }
+  :root.land .dk-split .first { border-radius: 999px 0 0 999px; } :root.land .dk-split .last { border-radius: 0 999px 999px 0; } :root.land .dk-split .first.last { border-radius: 999px; }
+  :root.land .dk-split .ring { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .45); }
+  :root.land .dk-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px 40px; margin: 4px 0 0; padding: 0; list-style: none; }
+  :root.land .dk-legend li { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  :root.land .dk-legend li + li { padding-left: 24px; border-left: 1px solid rgba(255, 255, 255, .12); }
+  :root.land .dk-legend-k { color: #B5C2BE; font-size: 14px; }
+  :root.land .dk-legend b { color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .dk-legend b.neg { color: #FF8A80; }
+  :root.land .dk-legend small { color: #8FA19C; font-size: 13px; line-height: 1.35; }
+  :root.land .dk-dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; }
+  :root.land .dk-dot.ring { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .7); }
+  :root.land .dk-bar.lime { background: rgba(255, 255, 255, .14); } :root.land .dk-bar.lime i { background: #B6DD62; }
+
+  /* ---------- the sheet ---------- */
+  :root.land #view > .dk-sheet { display: flex; flex-direction: column; gap: 40px; margin-top: 4px; }
+  :root.land .dk-sec { display: flex; flex-direction: column; gap: 14px; min-width: 0; scroll-margin-top: 96px; }
+  :root.land .dk-sec-h { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  :root.land .dk-sec-t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  :root.land .dk-sec-t h2 { margin: 0; color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .dk-sub { color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .dk-sec-r { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  :root.land #view .dk-sheet .btn { min-height: 44px; padding: 0 18px; font-size: 14px; font-weight: 600; }
+  :root.land #view .dk-sheet .btn.sm { min-height: 40px; padding: 0 16px; }
+  :root.land .dk-card { min-width: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); overflow: hidden; }
+  :root.land .dk-card-top { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px 22px; border-bottom: 1px solid var(--bq-line); }
+  :root.land .dk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--dk-min, 300px)), 1fr)); gap: 20px; align-items: stretch; }
+  :root.land .dk-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: var(--bq-circle); color: var(--bq-ink-2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+  :root.land .dk-pill.mint { background: var(--bq-mint); color: var(--dk-mint-ink); }
+  :root.land .dk-pill.warn { background: var(--dk-warn-bg); color: var(--dk-warn-ink); }
+  :root.land .dk-pill.crit { background: var(--dk-crit-bg); color: var(--dk-crit-ink); }
+  :root.land .dk-bar { position: relative; display: block; height: 8px; border-radius: 999px; background: var(--dk-track); overflow: hidden; }
+  :root.land .dk-bar i { display: block; height: 100%; border-radius: 999px; background: var(--bq-accent); }
+  :root.land .dk-bar.warn i { background: #C98A00; } :root.land .dk-bar.crit i { background: var(--dk-neg); }
+  :root.land .dk-mute { color: var(--bq-ink-3); }
+  :root.land .dk-foot { margin: -16px 0 0; color: var(--bq-ink-3); font-size: 13px; line-height: 1.45; }
+  :root.land .dk-who { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  :root.land .dk-who > div { min-width: 0; }
+  :root.land .dk-who .inst, :root.land .dk-who .inst img { width: 36px; height: 36px; min-width: 36px; }
+  :root.land .dk-who .cg { flex: none; }
+  :root.land .dk-who b, :root.land .dk-who .dk-name { color: var(--bq-ink); font-size: 16px; font-weight: 600; text-align: left; }
+  :root.land .dk-who small { display: block; margin-top: 3px; color: var(--bq-ink-2); font-size: 13px; font-weight: 400; }
+  :root.land .dk-name.linkbtn { text-decoration: none; }
+  :root.land .dk-name.linkbtn:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* the tables: a header of small capitals, rows with a hairline, a group's row on the second card colour */
+  :root.land .dk-tbl-wrap { position: relative; overflow-x: auto; }      /* relative: a column's hidden name (.sr, absolute) scrolls with the table instead of widening the page */
+  :root.land .dk-tbl { width: 100%; min-width: 820px; border-collapse: collapse; }
+  :root.land .dk-tbl th { padding: 16px 24px 10px; border-bottom: 1px solid var(--bq-line); color: var(--bq-ink-3); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+  :root.land .dk-tbl td { padding: 16px 24px; border-bottom: 1px solid var(--bq-line); color: var(--bq-ink); font-size: 15px; vertical-align: middle; }
+  :root.land .dk-tbl th.r, :root.land .dk-tbl td.r { text-align: right; }
+  :root.land .dk-tbl td b { font-size: 16px; font-weight: 600; }
+  :root.land .dk-tbl td small { display: block; margin-top: 3px; color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-tbl tbody tr:last-child td { border-bottom: 0; }
+  :root.land .dk-tbl .grp td { padding-top: 12px; padding-bottom: 12px; background: var(--bq-card-2); }
+  :root.land .dk-tbl .tot td { background: var(--bq-card-2); }
+  :root.land .dk-tbl tr.done td:first-child b, :root.land .dk-tbl tr.done .dk-name { color: var(--bq-ink-2); }
+  @media (hover: hover) and (pointer: fine) { :root.land .dk-tbl tbody tr:not(.grp):not(.tot):hover > td { background: var(--bq-card-2); } }
+  :root.land .dk-tbl .dk-setday { min-height: 44px; color: var(--bq-accent); font-weight: 600; text-decoration: none; }
+  :root.land .dk-tbl input.fld, :root.land .dk-fld { box-sizing: border-box; height: 44px; padding: 0 14px; border: 0; border-radius: 12px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line-2); color: var(--bq-ink); font: inherit; font-size: 15px; font-variant-numeric: tabular-nums; }
+  :root.land .dk-fld:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 1px; }
+  :root.land .dk-amt { width: 150px; text-align: right; }
+  :root.land .dk-card .pager { padding: 12px 24px 14px; border-top: 1px solid var(--bq-line); }
+
+  /* the tiles: a white card each (a limit, a goal); the dashed one invites to add (owner, 2026-10-11: the dashed "También para el resumen") */
+  :root.land .dk-tile { all: unset; box-sizing: border-box; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); }
+  :root.land button.dk-tile { cursor: pointer; transition: box-shadow 160ms ease-out, transform 120ms ease-out; }
+  :root.land button.dk-tile:active { transform: scale(.98); }
+  @media (hover: hover) and (pointer: fine) { :root.land button.dk-tile:hover { box-shadow: inset 0 0 0 1px var(--bq-line-2), 0 10px 24px -16px rgba(14, 15, 12, .35); } }
+  :root.land .dk-tile:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
+  :root.land .dk-tile-h { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  :root.land .dk-tile-h .cg { flex: none; }
+  :root.land .dk-tile-h .inst, :root.land .dk-tile-h .inst img { width: 36px; height: 36px; min-width: 36px; }
+  :root.land .dk-tile-n { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  :root.land .dk-tile-n b { overflow: hidden; font-size: 16px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .dk-tile-n small { color: var(--bq-ink-3); font-size: 13px; }
+  :root.land .dk-tile-v { color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .dk-tile-v b { color: var(--bq-ink); font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .dk-tile-s { color: var(--bq-ink-2); font-size: 14px; line-height: 1.4; }
+  :root.land .dk-add { all: unset; box-sizing: border-box; cursor: pointer; min-width: 0; min-height: 180px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; padding: 22px 24px; border: 1.5px dashed var(--bq-line-2); border-radius: 24px; color: var(--bq-ink-2); font-size: 14px; transition: border-color 160ms ease-out; }
+  :root.land .dk-add b { color: var(--bq-ink); font-size: 16px; font-weight: 600; }
+  @media (hover: hover) and (pointer: fine) { :root.land .dk-add:hover, :root.land .dk-add:has(button:hover) { border-color: #5F9A31; } }
+  :root.land .dk-add:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
+  :root.land div.dk-add { cursor: default; }
+
+  /* ---------- Plan ---------- */
+  :root.land .dk-strip { position: relative; height: 136px; }
+  :root.land .dk-track { position: absolute; left: 0; right: 0; top: 62px; height: 4px; border-radius: 999px; background: var(--dk-track); }
+  :root.land .dk-past { position: absolute; left: 0; top: 62px; height: 4px; border-radius: 999px; background: var(--bq-accent); }
+  :root.land .dk-today { position: absolute; top: 54px; width: 2px; height: 20px; margin-left: -1px; border-radius: 2px; background: var(--bq-accent); }
+  :root.land .dk-today-l { position: absolute; top: 74px; transform: translateX(-50%); color: var(--bq-accent); font-size: 12px; font-weight: 700; }
+  :root.land .dk-end { position: absolute; top: 74px; color: var(--bq-ink-3); font-size: 12px; }
+  :root.land .dk-end.l { left: 0; } :root.land .dk-end.r { right: 0; }
+  :root.land .dk-m { position: absolute; top: 57px; width: 14px; height: 14px; margin-left: -7px; box-sizing: border-box; border-radius: 50%; background: var(--bq-accent); box-shadow: 0 0 0 3px var(--bq-card); }
+  :root.land .dk-m.inv { background: var(--bq-card); box-shadow: inset 0 0 0 3px var(--bq-accent), 0 0 0 3px var(--bq-card); }
+  :root.land .dk-m.paid { opacity: .4; }
+  :root.land .dk-ml { position: absolute; display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; white-space: nowrap; }
+  :root.land .dk-ml.up { top: 0; } :root.land .dk-ml.down { top: 92px; }
+  :root.land .dk-ml.end { align-items: flex-end; text-align: right; }
+  :root.land .dk-ml b { overflow: hidden; color: var(--bq-ink); font-size: 14px; font-weight: 600; text-overflow: ellipsis; }
+  :root.land .dk-ml span { display: inline-flex; align-items: center; gap: 4px; color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-ml span svg { width: 13px; height: 13px; color: var(--dk-pos); }
+  :root.land .dk-ml.paid b { color: var(--bq-ink-3); font-weight: 500; }
+  :root.land .dk-noday { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  :root.land .dk-noday > span:not(.dk-pill) { flex: 1 1 320px; color: var(--bq-ink-2); font-size: 14px; line-height: 1.4; }
+  :root.land .dk-noday .dk-pill { font-size: 13px; }
+  :root.land .dk-lim-bar { position: relative; display: block; padding: 5px 0; }
+  :root.land .dk-lim-today { position: absolute; top: 0; width: 2px; height: 18px; margin-left: -1px; border-radius: 2px; background: var(--bq-ink); }
+  :root.land .dk-add .cg { margin-bottom: 4px; }
+}
+
+/* ---------- Goals ---------- */
+@media (min-width: 921px) {
+  :root.land .dk-ico { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-ink-2); }
+  :root.land .dk-ico svg { width: 18px; height: 18px; }
+  :root.land .dk-ico.mint { background: var(--bq-mint); color: var(--dk-mint-ink); }
+  :root.land .dk-goal { gap: 16px; }
+  :root.land .dk-goal .dk-tile-h .dk-pill { flex: none; }
+  :root.land .dk-goal .dk-tile-v b { font-size: 28px; letter-spacing: -.03em; }
+  :root.land .dk-goal .dk-tile-s { display: flex; flex-direction: column; gap: 4px; }
+  :root.land .dk-tile-a { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; }
+  :root.land #view .dk-tile-a .btn.ghost { border-color: transparent; background: none; box-shadow: none; padding: 0 8px; }
+  :root.land .dk-cover { display: flex; gap: 6px; }
+  :root.land .dk-cover > span { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  :root.land .dk-cover-a { flex: 1 1 0; } :root.land .dk-cover-b { flex: 2 1 0; text-align: right; }
+  :root.land .dk-cover small { color: var(--bq-ink-3); font-size: 12px; }
+  :root.land .dk-goal-add { min-height: 0; justify-content: flex-start; gap: 10px; }
+  :root.land .dk-add-main { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--bq-ink); font-size: 16px; font-weight: 600; }
+  :root.land .dk-add-main:focus-visible, :root.land .dk-idea:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; border-radius: 10px; }
+  :root.land .dk-goal-add > span { color: var(--bq-ink-2); font-size: 14px; line-height: 1.45; }
+  :root.land .dk-ideas { display: flex; flex-wrap: wrap; gap: 0 16px; }
+  :root.land .dk-idea { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; min-height: 40px; color: var(--bq-ink-2); font-size: 14px; font-weight: 600; }
+  :root.land .dk-idea svg { width: 14px; height: 14px; color: #5F9A31; }
+  :root.land .dk-idea:hover { color: var(--bq-ink); }
+  /* when each goal gets there: a line of time, one lane each */
+  :root.land .dk-lanes { display: flex; flex-direction: column; gap: 4px; }
+  :root.land .dk-lane { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr); align-items: center; gap: 24px; min-height: 58px; }
+  :root.land .dk-lane-n { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  :root.land .dk-lane-n b { overflow: hidden; color: #FFFFFF; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  :root.land .dk-lane-n small { color: #8FA19C; font-size: 13px; }
+  :root.land .dk-lane-t { position: relative; height: 40px; }
+  :root.land .dk-lane-line { position: absolute; left: 0; right: 0; top: 26px; height: 2px; background: rgba(255, 255, 255, .12); }
+  :root.land .dk-lane-bar { position: absolute; top: 23px; height: 8px; border-radius: 999px; background: rgba(182, 221, 98, .42); }
+  :root.land .dk-lane-dot { position: absolute; top: 20px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: #B6DD62; box-shadow: 0 0 0 3px #112622; }
+  :root.land .dk-lane-dot.late { background: #F5C04A; }
+  :root.land .dk-lane-due { position: absolute; top: 16px; width: 2px; height: 22px; margin-left: -1px; border-radius: 2px; background: rgba(255, 255, 255, .5); }
+  :root.land .dk-lane-l { position: absolute; top: 0; display: inline-flex; align-items: center; gap: 5px; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  :root.land .dk-lane-l svg { width: 14px; height: 14px; color: #B6DD62; stroke-width: 2.6; }
+  :root.land .dk-lane-l.late { color: #F5C04A; }
+  :root.land .dk-lane-x { min-height: 24px; }
+  :root.land .dk-lane-x .dk-lane-t { height: 20px; color: #8FA19C; font-size: 12px; }
+  :root.land .dk-lane-x .dk-lane-t > span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+  :root.land .dk-lane-x .dk-lane-now { left: 0; transform: none !important; color: #B6DD62; font-weight: 700; }
+  :root.land .dk-note { margin: 0; color: #8FA19C; font-size: 13px; line-height: 1.45; }
+  :root.land .dk-sheet .dk-note { color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .dk-sheet .dk-note.neg { color: var(--dk-neg); }
+  /* a table's foot: what is left, where it comes from, the date and the button */
+  :root.land .dk-card-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: flex-end; gap: 14px 16px; padding: 18px 24px 22px; border-top: 1px solid var(--bq-line); }
+  :root.land .dk-card-foot .dk-note { flex: 1 1 280px; align-self: center; }
+  :root.land .dk-lbl { display: flex; flex-direction: column; gap: 6px; min-width: 0; color: var(--bq-ink-2); font-size: 13px; font-weight: 500; }
+  :root.land .dk-lbl select.dk-fld { min-width: 220px; }
+  :root.land .dk-lbl input[type="date"].dk-fld { width: 160px; }
+  :root.land .dk-tot { padding-right: 14px; }
+  :root.land .dk-fld.z { color: var(--bq-ink-3); }
+}
+
+/* ---------- Investments ---------- */
+@media (min-width: 921px) {
+  :root.land .dk-tk { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+  :root.land .dk-tk.g1, :root.land .dk-split .g1, :root.land .dk-dot.g1 { background: var(--dk-g1); color: var(--bq-card); }
+  :root.land .dk-tk.g2, :root.land .dk-split .g2, :root.land .dk-dot.g2 { background: var(--dk-g2); color: var(--bq-card); }
+  :root.land .dk-tk.g3, :root.land .dk-split .g3, :root.land .dk-dot.g3 { background: var(--dk-g3); color: var(--bq-ink); }
+  :root.land .dk-tk.g4, :root.land .dk-split .g4, :root.land .dk-dot.g4 { background: var(--dk-g4); color: var(--bq-ink); }
+  :root.land .dk-split.dk-onsheet { display: flex; gap: 4px; height: 12px; }
+  :root.land .dk-keys { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; padding: 0; list-style: none; color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .dk-keys b { color: var(--bq-ink); font-weight: 600; }
+  :root.land .dk-pos { color: var(--dk-pos); font-weight: 600; } :root.land .dk-neg { color: var(--dk-neg); font-weight: 600; }
+  :root.land .dk-tbl .dk-price { width: 110px; text-align: right; }
+  :root.land .dk-go { all: unset; box-sizing: border-box; cursor: pointer; display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: var(--bq-ink-3); }
+  :root.land .dk-go svg { width: 18px; height: 18px; }
+  :root.land .dk-go:hover { background: var(--bq-circle); color: var(--bq-ink); }
+  :root.land .dk-go:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 1px; }
+  :root.land .dk-card-note { margin: 0; padding: 12px 24px 16px; border-top: 1px solid var(--bq-line); color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-cov { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  :root.land .dk-cov .dk-say { font-size: 13px; }
+  /* the distributions of the year on the forest */
+  :root.land .dk-cols { display: flex; align-items: flex-end; gap: 6px; }
+  :root.land .dk-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  :root.land .dk-col-b { position: relative; width: 100%; height: 120px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid rgba(255, 255, 255, .18); }
+  :root.land .dk-col-b i { display: block; width: 58%; max-width: 34px; border-radius: 4px 4px 0 0; background: #B6DD62; }
+  :root.land .dk-col-b i.zero { height: 2px; border-radius: 0; background: rgba(255, 255, 255, .18); }
+  :root.land .dk-col-b i.todo { box-sizing: border-box; background: none; border: 1.5px dashed #B6DD62; border-bottom: 0; }
+  :root.land .dk-col-b b, :root.land .dk-col-tag { position: absolute; left: 50%; transform: translateX(-50%); color: #FFFFFF; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  :root.land .dk-col-tag { color: #B6DD62; }
+  :root.land .dk-col small { color: #8FA19C; font-size: 12px; }
+  :root.land .dk-col.now small { color: #B6DD62; font-weight: 600; }
+  /* the month's distributions and the simulator, side by side */
+  :root.land .dk-box { gap: 18px; }
+  :root.land .dk-box-h { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 12px; }
+  :root.land .dk-box-h h2 { margin: 0; color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .dk-box-f { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: flex-end; gap: 12px; margin-top: auto; }
+  :root.land .dk-inc { display: flex; flex-direction: column; }
+  :root.land .dk-inc-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--bq-line); }
+  :root.land .dk-inc-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  :root.land .dk-inc-t b { font-size: 15px; font-weight: 600; } :root.land .dk-inc-t small { color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-inc .dk-amt { width: 120px; }
+  :root.land .dk-inc-tot { display: flex; justify-content: space-between; padding: 14px 14px 0 0; font-size: 15px; }
+  :root.land .dk-inc-tot b { font-weight: 600; }
+  :root.land .dk-sim-f { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+  :root.land .dk-sim-f .dk-fld { width: 100%; }
+  :root.land .dk-sim-out { display: flex; flex-direction: column; gap: 14px; padding-top: 16px; border-top: 1px solid var(--bq-line); }
+  :root.land .dk-sim-r { display: flex; flex-wrap: wrap; gap: 16px 32px; }
+  :root.land .dk-sim-r > div { display: flex; flex-direction: column; gap: 4px; }
+  :root.land .dk-sim-r span { color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-sim-r b { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+  :root.land .dk-sim-r b small { color: var(--bq-ink-2); font-size: 14px; font-weight: 500; letter-spacing: 0; }
+  :root.land .dk-sim-bar { display: flex; flex-direction: column; gap: 8px; }
+  :root.land .dk-sim-bar .dk-split { height: 10px; }
+  :root.land .dk-sim-bar .dk-note b { color: var(--bq-ink); font-weight: 600; }
+  /* the movements */
+  :root.land .dk-detail { color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .dk-detail b { color: var(--bq-ink); font-weight: 600; }
+  :root.land .dk-tbl .dk-sub-row td { padding-top: 10px; padding-bottom: 10px; background: var(--bq-card-2); font-size: 14px; }
+  :root.land .dk-pillsel { height: 44px; border-radius: 999px; font-weight: 600; font-size: 14px; }
+  :root.land .dk-empty { padding: 40px 24px; color: var(--bq-ink-2); text-align: center; }
+  :root.land .dk-empty b { display: block; color: var(--bq-ink); font-weight: 600; }
+}
+@media (min-width: 921px) {
+  :root.land .dk-sec-r .dk-pillsel { width: auto; min-width: 170px; padding-right: 36px; }
+  :root.land .dk-sec-r .seg { flex: none; }
+}
+
+/* ---------- Reports ---------- */
+@media (min-width: 921px) {
+  /* in and out, month by month, on the forest */
+  :root.land .dk-keys2 { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; color: #D6DCCF; font-size: 13px; }
+  :root.land .dk-grps { display: flex; gap: 8px; }
+  :root.land .dk-grp { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding-bottom: 4px; border-radius: 12px; }
+  :root.land .dk-grp-b { position: relative; width: 100%; height: 150px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .18); }
+  :root.land .dk-grp-b i { display: block; width: 22px; border-radius: 4px 4px 0 0; }
+  :root.land .dk-grp-b i.in { background: #B6DD62; } :root.land .dk-grp-b i.out { background: #8FA19C; }
+  :root.land .dk-grp-b i.zero { border-radius: 0; background: rgba(255, 255, 255, .3); }
+  :root.land .dk-grp-b b { position: absolute; transform: translateX(-50%); color: #FFFFFF; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  :root.land .dk-grp-b b.in { left: calc(50% - 13px); } :root.land .dk-grp-b b.out { left: calc(50% + 13px); color: #D6DCCF; }
+  :root.land .dk-grp-m { color: #D6DCCF; font-size: 13px; }
+  :root.land .dk-grp small { color: #8FA19C; font-size: 12px; }
+  :root.land .dk-grp.now .dk-grp-m { color: #B6DD62; font-weight: 600; }
+  :root.land .dk-grp.on .dk-grp-m { color: #FFFFFF; font-weight: 600; text-decoration: underline; text-decoration-color: #B6DD62; text-underline-offset: 4px; }
+  :root.land .dk-grp:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .dk-grp:hover { background: rgba(255, 255, 255, .05); } }
+  /* the charts on the sheet */
+  :root.land .dk-chart { display: block; width: 100%; height: auto; overflow: visible; }
+  :root.land .dk-chart .dk-gl path { stroke: var(--bq-line); stroke-width: 1; }
+  :root.land .dk-chart .dk-ax text { fill: var(--bq-ink-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  :root.land .dk-chart .dk-lplan { fill: none; stroke: var(--bq-ink-3); stroke-width: 1.5; stroke-dasharray: 5 5; }
+  :root.land .dk-chart .dk-lwas { fill: none; stroke: #8FA19C; stroke-width: 2; stroke-linejoin: round; }
+  :root.land .dk-chart .dk-lnow { fill: none; stroke: var(--bq-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  :root.land .dk-chart .dk-pt, :root.land .dk-chart .dk-pts circle { fill: var(--bq-accent); stroke: var(--bq-card); stroke-width: 2; }
+  :root.land .dk-chart .dk-area { fill: var(--bq-mint); opacity: .7; }
+  :root.land .dk-chart .dk-tag { fill: var(--bq-ink); font-size: 13px; font-weight: 600; }
+  :root.land .dk-lines { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-lines li { display: inline-flex; align-items: center; gap: 6px; }
+  :root.land .dk-lines b { color: var(--bq-ink); font-weight: 600; }
+  :root.land .dk-lines span { color: var(--bq-ink-3); }
+  :root.land .dk-lines .dk-ln { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+  :root.land .dk-lines .dk-ln.now { background: var(--bq-accent); } :root.land .dk-lines .dk-ln.was { background: #8FA19C; } :root.land .dk-lines .dk-ln.plan { height: 0; border-top: 2px dashed var(--bq-ink-3); }
+  /* where it went */
+  :root.land .dk-cats { display: flex; flex-direction: column; gap: 14px; }
+  :root.land .dk-cat { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 8px; border-radius: 12px; }
+  :root.land .dk-cat-h { display: flex; align-items: center; gap: 12px; }
+  :root.land .dk-cat-h b:first-of-type { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; }
+  :root.land .dk-cat-h b.num { font-size: 15px; font-weight: 600; }
+  :root.land .dk-cat-h span.num { width: 52px; color: var(--bq-ink-2); font-size: 14px; text-align: right; }
+  :root.land .dk-cat .dk-bar { margin-left: 48px; }
+  :root.land .dk-cat:focus-visible, :root.land .dk-most-r:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 3px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .dk-cat:hover b:first-of-type, :root.land .dk-most-r:hover span { text-decoration: underline; text-underline-offset: 3px; } }
+  :root.land .dk-most { display: flex; flex-direction: column; gap: 4px; padding-top: 16px; border-top: 1px solid var(--bq-line); }
+  :root.land .dk-most h3 { margin: 0 0 6px; color: var(--bq-ink-2); font-size: 14px; font-weight: 500; letter-spacing: 0; }
+  :root.land .dk-most-r { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; min-height: 32px; align-items: center; color: var(--bq-ink); font-size: 15px; border-radius: 8px; }
+  :root.land .dk-most-r b { font-weight: 600; }
+  /* how you paid */
+  :root.land .dk-pays { display: flex; flex-direction: column; }
+  :root.land .dk-pay-r { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--bq-line); }
+  :root.land .dk-pay-r:last-child { border-bottom: 0; }
+  :root.land .dk-pay-r .inst, :root.land .dk-pay-r .inst img { width: 36px; height: 36px; min-width: 36px; }
+  :root.land .dk-pay-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  :root.land .dk-pay-t b { font-size: 15px; font-weight: 600; } :root.land .dk-pay-t small { color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-pay-v { display: flex; flex-direction: column; gap: 2px; text-align: right; }
+  :root.land .dk-pay-v b { font-size: 16px; font-weight: 600; } :root.land .dk-pay-v small { color: var(--bq-ink-2); font-size: 13px; }
+  /* categories, month by month */
+  :root.land .dk-tbl .dk-now { background: var(--dk-now); }
+  :root.land .dk-catn { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; color: var(--bq-ink); font-weight: 500; text-decoration: none; }
+  :root.land .dk-share { display: inline-flex; align-items: center; gap: 10px; }
+  :root.land .dk-share-bar { position: relative; display: block; width: 96px; height: 8px; border-radius: 999px; background: var(--dk-track); }
+  :root.land .dk-share-bar i { position: absolute; left: 0; top: 0; height: 8px; border-radius: 999px; }
+  :root.land .dk-share-bar b { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; border-radius: 2px; background: var(--bq-ink); }
+  :root.land .dk-share .num { color: var(--bq-ink-2); font-size: 14px; }
+}
+@media (min-width: 921px) { :root.land .dk-tbl th.dk-wrap { min-width: 150px; white-space: normal; } }
+
+/* ---------- Accounts & savings ---------- */
+@media (min-width: 921px) {
+  :root.land .dk-band-s { color: #8FA19C; font-size: 13px; }
+  :root.land .dk-rw { display: flex; gap: 6px; margin-top: 6px; }
+  :root.land .dk-rw-s { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  :root.land .dk-rw-s small { color: #8FA19C; font-size: 12px; }
+  :root.land .dk-tbl.acc .dk-who b { font-size: 16px; }
+  :root.land .dk-tbl.acc .dk-pill { vertical-align: 2px; margin-left: 4px; }
+  :root.land .dk-tbl .dk-sub-acc td { background: var(--bq-card-2); }
+  :root.land .dk-tbl .dk-sub-acc .dk-who { padding-left: 28px; }
+  :root.land .dk-tbl small .dk-pill svg { width: 12px; height: 12px; }
+  :root.land .dk-dot.ok { background: #3E9B3A; } :root.land .dk-dot.old, :root.land .dk-dot.hand { background: #C98A00; }
+  :root.land .dk-mini { display: inline-block; width: 64px; margin-right: 6px; vertical-align: 1px; }
+  :root.land .dk-mini .dk-bar { height: 6px; }
+  :root.land .dk-foot-in { margin: 0; }
+  :root.land .dk-svs { display: flex; flex-direction: column; gap: 18px; }
+  :root.land .dk-rule { display: block; height: 1px; background: var(--bq-line); }
+  :root.land .dk-sv { display: flex; flex-direction: column; gap: 10px; }
+  :root.land .dk-sv-h { display: flex; align-items: center; gap: 12px; }
+  :root.land .dk-sv-h .inst, :root.land .dk-sv-h .inst img { width: 32px; height: 32px; min-width: 32px; }
+  :root.land .dk-sv-h b { font-size: 15px; font-weight: 600; } :root.land .dk-sv-h b:first-of-type { flex: 1 1 auto; min-width: 0; }
+  :root.land .dk-sv .dk-split { height: 10px; gap: 3px; }
+  :root.land .dk-sv .dk-split .ring { box-shadow: inset 0 0 0 1.5px var(--bq-line-2); }
+  :root.land .dk-sv-l { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; color: var(--bq-ink-2); font-size: 13px; }
+  :root.land .dk-sv-l b { color: var(--bq-ink); font-weight: 600; }
+  :root.land .dk-sv-st { margin-left: auto; color: var(--bq-ink-2); font-weight: 600; } :root.land .dk-sv-st.ok { color: var(--dk-mint-ink); } :root.land .dk-sv-st.warn { color: var(--dk-warn-ink); }
+  :root.land .dk-lost { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid var(--bq-line); color: var(--bq-ink); font-size: 14px; line-height: 1.4; }      /* a row, not a box in the card (no boxes inside boxes): the amber is the mark's */
+  :root.land .dk-lost > svg { flex: none; width: 20px; height: 20px; color: var(--dk-warn-ink); }
+  :root.land .dk-lost > span { flex: 1 1 220px; }
+  :root.land .dk-lost b { font-weight: 600; }
+  :root.land .dk-inv { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  :root.land .dk-inv > div { display: flex; flex-direction: column; gap: 4px; }
+  :root.land .dk-inv b { color: var(--bq-ink); font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+  :root.land .dk-used { display: flex; flex-direction: column; gap: 8px; }
+  :root.land .dk-used > div, :root.land .dk-nextinv { display: flex; justify-content: space-between; gap: 12px; color: var(--bq-ink-2); font-size: 14px; }
+  :root.land .dk-used b, :root.land .dk-nextinv b { color: var(--bq-ink); font-weight: 600; }
+  :root.land .dk-nextinv { padding-top: 14px; border-top: 1px solid var(--bq-line); }
+}
+@media (min-width: 921px) {
+  /* the accounts' table: fixed columns, so a long name or purpose wraps in its own column and the figures keep theirs */
+  :root.land .dk-tbl.acc { table-layout: fixed; min-width: 900px; }
+  :root.land .dk-tbl.acc th:nth-child(1) { width: 31%; } :root.land .dk-tbl.acc th:nth-child(2) { width: 14%; } :root.land .dk-tbl.acc th:nth-child(3) { width: 19%; }
+  :root.land .dk-tbl.acc th:nth-child(4) { width: 15%; } :root.land .dk-tbl.acc th:nth-child(5) { width: 15%; } :root.land .dk-tbl.acc th:nth-child(6) { width: 6%; }
+  :root.land .dk-tbl.acc th, :root.land .dk-tbl.acc td { padding-left: 14px; padding-right: 14px; }
+  :root.land .dk-tbl.acc th:first-child, :root.land .dk-tbl.acc td:first-child { padding-left: 24px; }
+  :root.land .dk-tbl.acc td b.num, :root.land .dk-tbl.acc td .dk-pill { white-space: nowrap; }
+  :root.land .dk-tbl.acc th { white-space: normal; }
+}
+@media (min-width: 921px) {
+  /* a goal's name keeps its words whole: when the chip does not fit beside it, the chip goes under it */
+  :root.land .dk-goal .dk-tile-h { flex-wrap: wrap; align-items: flex-start; row-gap: 8px; }
+  :root.land .dk-goal .dk-tile-n { flex: 1 1 150px; }
+  :root.land .dk-goal .dk-tile-n b { white-space: normal; line-height: 1.25; overflow-wrap: anywhere; }
+  :root.land .dk-goal .dk-tile-h .dk-pill { margin-top: 2px; }
+  :root.land .dk-tbl.dist { min-width: 560px; }
+}
+@media (min-width: 921px) {
+  :root.land .dk-tbl td b.num, :root.land .dk-tbl td .num b, :root.land .dk-tbl .dk-setday, :root.land .dk-tbl td:nth-child(2) > .num { white-space: nowrap; }
+}
+@media (min-width: 921px) {
+  /* a figure that opens what it is made of: as the summary's figures, its name underlined under the pointer */
+  :root.land .dk-fig { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 12px; max-width: 100%; border-radius: 12px; }
+  :root.land .dk-fig:not(.dk-fig-big) { gap: 0; }
+  :root.land .dk-fig:focus-visible { outline: 2px solid #B6DD62; outline-offset: 4px; }
+  @media (hover: hover) and (pointer: fine) {
+    :root.land .dk-fig:hover .dk-k, :root.land .dk-fig:hover small, :root.land .dk-fig:hover > b.num { text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .3); text-underline-offset: 4px; }
+    :root.land button.dk-chip:hover { background: rgba(255, 255, 255, .14); } :root.land button.dk-chip.go:hover { background: rgba(182, 221, 98, .24); }
+  }
+  :root.land button.dk-chip { border: 0; font-family: inherit; cursor: pointer; }
+  :root.land button.dk-chip:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+}
+@media (min-width: 921px) {
+  :root.land .dk-h2 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  :root.land .dk-h2 .hint { flex: none; }
+}
+@media (min-width: 921px) {
+  /* an account's round mark on these pages: its bank's logo, its colour and letters, or a wallet (js/ui/bank-mark.js), as on Accounts' cards */
+  :root.land :is(.dk-hero, .dk-sheet) .inst { display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--bq-circle); color: var(--bq-ink); font-family: var(--mono); font-size: 12px; font-weight: 600; overflow: hidden; }
+  :root.land :is(.dk-hero, .dk-sheet) .inst.bank { box-shadow: inset 0 0 0 1px rgba(128, 128, 128, .28); letter-spacing: .02em; }
+  :root.land :is(.dk-hero, .dk-sheet) .inst.pic { background: #FFFFFF; box-shadow: inset 0 0 0 1px rgba(128, 128, 128, .28); }
+  :root.land :is(.dk-hero, .dk-sheet) .inst img { display: block; object-fit: cover; border-radius: 50%; }
+  :root.land :is(.dk-hero, .dk-sheet) .inst svg { width: 18px; height: 18px; }
+  :root.land .dk-hero .inst:not(.bank):not(.pic) { background: rgba(255, 255, 255, .1); color: #FFFFFF; }
+}

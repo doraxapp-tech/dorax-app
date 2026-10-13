@@ -45,7 +45,7 @@ const CONTRAST = () => {
     return [document.documentElement.classList.contains('land'), cs('.rail').backgroundColor, cs('.topbar').backgroundColor, getComputedStyle(on).backgroundColor, getComputedStyle(on).color, cs('.topbar .btn.primary').backgroundColor, cs('.topbar .btn.primary').color, cs('.content').backgroundColor]; }),
     [true, 'rgb(17, 38, 34)', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)', 'rgb(17, 38, 34)', 'rgb(182, 221, 98)', 'rgb(17, 38, 34)', 'rgb(233, 237, 236)'],
     'a computer, the household: the side bar and the top bar in the forest, the screen in use a lime pill, the main button lime, the page grey');
-  await page.evaluate(() => navigate('plan'));
+  await page.evaluate(() => navigate('recurring'));      // v203: the Plan, Goals, Investments, Reports and Accounts have their own top on the forest (qc-desk-pages.js)
   eq(await page.evaluate(() => { const a = getComputedStyle(document.querySelector('.topbar'), '::after'); return [a.display, a.borderTopLeftRadius, a.backgroundColor]; }), ['block', '30px', 'rgb(233, 237, 236)'], 'a screen without a top of its own: the grey page rises right under the bar, its corners round');
   await page.evaluate(() => navigate('dashboard'));
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.topbar'), '::after').display, getComputedStyle(document.querySelector('.bq-dhero'), '::after').borderTopLeftRadius]), ['none', '30px'], 'the summary: the bar goes on into its forest top, which carries the rounded edge');
@@ -145,7 +145,7 @@ const CONTRAST = () => {
   for (const w of [1440, 1024]) {
     await page.setViewportSize({ width: w, height: 800 });
     const wide = [];
-    for (const r of ['dashboard', 'transactions', 'plan', 'goals', 'reports', 'accounts']) { await page.evaluate(r => navigate(r), r); await page.waitForTimeout(250); if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) wide.push(r); }
+    for (const r of ['dashboard', 'transactions', 'plan', 'goals', 'investments', 'reports', 'accounts']) { await page.evaluate(r => navigate(r), r); await page.waitForTimeout(250); if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) wide.push(r); }
     eq(wide, [], `${w} px: nothing wider than the window`);
   }
   await page.evaluate(() => navigate('dashboard')); await page.waitForTimeout(250);

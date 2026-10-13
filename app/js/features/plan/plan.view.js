@@ -58,6 +58,7 @@ function payList(ym) {
 
 // ---------- screen ----------
 function viewPlan() {
+  if (dkOn()) return dkPlan();      // a computer in the summary's look: its own page (v203, features/plan/plan.desk.js)
   const ym = B().month;
   const prog = planProgress(B(), ym, BCUR(), B().today).filter(x => x.bill), pt = planTotals(B(), ym), spent = sum(prog.map(x => x.spent)), toPay = sum(prog.map(x => x.toPay)), net = pt.income - pt.expenses, billsPlanned = sum(prog.map(x => x.planned));
   const netSay = B().plan.lines.some(l => l.pay === 'budget' && planValue(B(), l, ym) > 0) ? t('Left after bills and limits') : t('Income minus fixed costs');
