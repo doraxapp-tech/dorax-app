@@ -17,12 +17,13 @@ const l2Go = (cls, label) => `<a class="l2-btn ${cls}" href="${PAGES.href('signu
 const l2Eyebrow = (text, dark) => `<span class="l2-eyebrow${dark ? ' dark' : ''}"><i></i>${text}</span>`;
 const l2Check = () => `<span class="l2-ck">${icon('check')}</span>`;
 
-/** The people at the top (v213: the home page drawn around the people, the design canvas the owner approved on 2026-10-13, "publish"): seven
-    of them in a row, standing on one line, five with a piece of their month over their heads. A picture (aria-hidden): the words above say it. */
+/** The people at the top (v213: the home page drawn around the people, the design canvas the owner approved on 2026-10-13, "publish"): five
+    of them in a row (owner: "reduce el monto de ilustraciones aquí a 5, quita las dos de las esquinas"), with a lime shadow ("cambia el estilo a sombra
+    lima"), each with a piece of their month over their head. A picture (aria-hidden): the words above say it. */
 function l2Cast() {
   const f = rwFigure(107);
-  const p = (who, cls, chip, low) => `<span class="l2-p${cls ? ' ' + cls : ''}">${chip ? `<span class="l2-chip${low ? ' low' : ''}"><small>${chip[0]}</small><b>${chip[1]}</b></span>` : ''}${artFig(who)}</span>`;
-  return `<div class="l2-cast" aria-hidden="true">${p('paper', 'far')}${p('coffee', '', [t('Days of freedom'), f.span])}${p('phone', '', [t('{name} is due tomorrow', { name: t('Electricity') }), l2Money(186.3)], true)}${p('laptop', 'big', [t('Company reserve'), l2Money(8400)])}${p('win', '', [`${t('Trip')} · ${t('You get there in')}`, fmt.month('2027-02')], true)}${p('idea', '', [t('Left this month'), l2Money(1240)])}${p('hi', 'far')}</div>`;
+  const p = (who, cls, chip, low) => `<span class="l2-p${cls ? ' ' + cls : ''}">${chip ? `<span class="l2-chip${low ? ' low' : ''}"><small>${chip[0]}</small><b>${chip[1]}</b></span>` : ''}${artFig(who, '', 'shadow')}</span>`;
+  return `<div class="l2-cast" aria-hidden="true">${p('coffee', '', [t('Days of freedom'), f.span])}${p('phone', '', [t('{name} is due tomorrow', { name: t('Electricity') }), l2Money(186.3)], true)}${p('laptop', 'big', [t('Company reserve'), l2Money(8400)])}${p('win', '', [`${t('Trip')} · ${t('You get there in')}`, fmt.month('2027-02')], true)}${p('idea', '', [t('Left this month'), l2Money(1240)])}</div>`;
 }
 /** "Is one of these you?": the three situations Dorax was born from (the story on the page About us), each a person with a lime shadow
     (owner: "usa la versión de sombra lima aquí") and the thing it is about at its corner. */
