@@ -46,7 +46,7 @@ function viewAuth() {
   // an email is on its way: the one that confirms a new account, or the one that lets a password be chosen again
   if (p.screen === 'sent') {
     const reset = p.sent === 'reset';
-    return card(`<div class="modal-icon neutral">${icon('mail')}</div><h1 id="au-title" tabindex="-1">${reset ? t('Check your email') : t('Confirm your email')}</h1>
+    return card(`<div class="auth-obj">${artObj('envelope-simple')}</div><h1 id="au-title" tabindex="-1">${reset ? t('Check your email') : t('Confirm your email')}</h1>
       <p>${reset ? t('If {email} has an account, a link to choose a new password is on its way.', { email: `<b>${esc(p.email)}</b>` }) : t('We sent a link to {email}. Open it to finish creating your account.', { email: `<b>${esc(p.email)}</b>` })}</p>
       ${top}
       <p class="note">${t('It can take a minute. If it does not arrive, look in your spam folder.')}</p>
@@ -55,7 +55,7 @@ function viewAuth() {
   }
 
   // forgotten password, step 1: which account
-  if (p.screen === 'forgot') return card(`<h1 id="au-title" tabindex="-1">${t('Choose a new password')}</h1>
+  if (p.screen === 'forgot') return card(`<div class="auth-obj">${artObj('key')}</div><h1 id="au-title" tabindex="-1">${t('Choose a new password')}</h1>
       <p>${t('Type the email of your account. You get a link to choose a new password.')}</p>
       ${top}
       <form class="au-form" novalidate data-enter="auth-forgot-send">${auEmail()}
@@ -63,7 +63,7 @@ function viewAuth() {
       <p class="auth-alt"><a class="linkbtn" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Back to log in')}</a></p>`);
 
   // forgotten password, step 2: the link from the email was opened
-  if (p.screen === 'reset') return card(`<h1 id="au-title" tabindex="-1">${t('Choose a new password')}</h1>
+  if (p.screen === 'reset') return card(`<div class="auth-obj">${artObj('key')}</div><h1 id="au-title" tabindex="-1">${t('Choose a new password')}</h1>
       <p>${t('For {email}. After saving, you are in.', { email: `<b>${esc(p.email)}</b>` })}</p>
       ${top}
       <form class="au-form" novalidate data-enter="auth-reset-save"><input type="text" class="sr" name="email" autocomplete="username" value="${esc(p.email)}" readonly tabindex="-1" aria-hidden="true">
@@ -73,7 +73,7 @@ function viewAuth() {
 
   // create account / log in
   const legal = `${t('I have read and accept the')} <a class="linkbtn" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a> ${t('and the')} <a class="linkbtn" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a> (${t('drafts')}).`;
-  return card(`<h1 id="au-title" tabindex="-1">${signup ? t('Create your account') : t('Welcome back')}</h1>
+  return card(`<div class="auth-pic">${artFig('hi', 'hand-waving')}</div><h1 id="au-title" tabindex="-1">${signup ? t('Create your account') : t('Welcome back')}</h1>
       <p>${signup ? t('With Google, or with your email and a password.') : t('Log in with Google, or with your email and password.')}</p>
       ${top}
       ${auGoogle()}
@@ -85,4 +85,4 @@ function viewAuth() {
         ${signup ? auBtn('auth-signup', t('Create account'), 'primary lg') : auBtn('auth-login', t('Log in'), 'primary lg')}</form>
       <p class="auth-alt">${signup ? `${t('Already have an account?')} <a class="linkbtn" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>` : `${t('New here?')} <a class="linkbtn" href="${PAGES.href('signup')}" data-a="pub-go" data-v="signup">${t('Create account')}</a>`}</p>`);
 }
-function viewPublic() { const sc = UI.pub.screen; return UI.session && UI.webBlog ? viewBlog() : UI.session && UI.webHelp ? viewHelpPublic() : sc === 'blog' ? viewBlog() : sc === 'pj' ? viewPj() : sc === 'converter' ? viewConverterPage() : sc === 'about' ? viewAbout() : sc === 'landing' ? viewLanding() : sc === 'privacy' || sc === 'terms' ? viewLegal(sc) : sc === 'contact' ? viewContact() : sc === 'help' ? viewHelpPublic() : viewAuth(); }
+function viewPublic() { const sc = UI.pub.screen; return UI.session && UI.webBlog ? viewBlog() : UI.session && UI.webHelp ? viewHelpPublic() : sc === 'blog' ? viewBlog() : sc === 'pj' ? viewPj() : sc === 'converter' ? viewConverterPage() : sc === 'about' ? viewAbout() : sc === 'how' ? viewHow() : sc === 'landing' ? viewLanding() : sc === 'privacy' || sc === 'terms' ? viewLegal(sc) : sc === 'contact' ? viewContact() : sc === 'help' ? viewHelpPublic() : viewAuth(); }

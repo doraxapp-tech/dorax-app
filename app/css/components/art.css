@@ -1,0 +1,15 @@
+/* Dorax Finance — the illustrations (v212; js/ui/art.js). The landing's colours: a forest line, lime, mint, white.
+   A person (.fig) is a picture file on its lime circle; a thing at its corner (.fig-bdg) sits on the circle's edge, where the picture puts it.
+   A thing (.obj) is drawn inline on a mint circle; on a dark or forest band its line turns mint and its circle forest; on a mint or sage panel
+   its circle turns white. */
+.fig { position: relative; display: block; width: 100%; }
+.fig img { display: block; width: 100%; height: auto; }
+.fig-bdg { position: absolute; left: 83.26%; top: 85.94%; width: 30.7%; transform: translate(-50%, -50%); }
+
+.obj { display: block; width: 100%; height: auto; overflow: visible; --obj-bg: #E2F6D5; --obj-ink: #163300; --obj-fill: #9FD182; }
+.obj .obj-bg { fill: var(--obj-bg); } .obj .of { fill: var(--obj-fill); } .obj .ol { fill: var(--obj-ink); }
+.obj.badge .obj-bg { fill: #FFFFFF; stroke: #163300; stroke-width: 12; } .obj.badge .ol { fill: #163300; } .obj.badge .of { fill: #9FD182; }
+/* on a white circle: a mint or sage panel */
+.l2-steps .obj, .st-data .obj, .st-month .obj, .obj.on-panel { --obj-bg: #FFFFFF; }
+/* on a dark band, the forest band, a dark card */
+.l2-trustsec .obj, .l2-pj .obj, .hc-bx.dark .obj, .obj.on-dark { --obj-ink: #E2F6D5; --obj-bg: #1F4209; }

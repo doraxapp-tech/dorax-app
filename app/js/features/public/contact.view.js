@@ -17,7 +17,7 @@ function contactFields() {
 function viewContact() {
   const c = contactState();
   return `<main class="legal"><div class="legal-page contact-page"><div class="legal-top"><a class="btn ghost sm auth-back" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing">${icon('left')}${t('Home')}</a>${brandMark(true)}</div>
-    <h1 id="contact-title" tabindex="-1">${t('Contact')}</h1><p class="lead sm">${t('Write to Dorax. The answer comes by email.')}</p>
+    <div class="ct-pic">${artFig('explain', 'chat-circle-dots')}</div><h1 id="contact-title" tabindex="-1">${t('Contact')}</h1><p class="lead sm">${t('Write to Dorax. The answer comes by email.')}</p>
     <div class="contact-form">${contactFields()}
       <div class="row">${c.sent ? `<button class="btn" data-a="contact-new">${t('Write another message')}</button>` : `<button class="btn primary lg${c.busy ? ' busy' : ''}" data-a="contact-send" ${c.busy ? 'disabled aria-busy="true"' : ''}>${c.busy ? t('One moment…') : t('Send message')}</button>`}</div></div>
     <p class="legal-foot"><a class="linkbtn" href="${PAGES.href('privacy')}" data-a="pub-go" data-v="privacy">${t('Privacy policy')}</a> · <a class="linkbtn" href="${PAGES.href('terms')}" data-a="pub-go" data-v="terms">${t('Terms of use')}</a> · <a class="linkbtn" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing">${t('Home')}</a></p></div></main>`;

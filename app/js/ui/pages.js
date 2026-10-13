@@ -17,9 +17,9 @@
    The screens that are a moment and not a page keep the address they happened on: "check your email", the new password (opened from an
    email), the short wait, "your account could not be opened".
    Where there is no web server (the app opened from disk, the one-file preview) there are no addresses: the pages work as they did before. */
-const PAGE_PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog', pj: 'para-pj', converter: 'conversor-de-extrato-ofx', about: 'sobre' };      // ajuda: the Help center (v209); blog: the blog (v210); the pages before launch (v211)
+const PAGE_PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog', pj: 'para-pj', converter: 'conversor-de-extrato-ofx', about: 'sobre', how: 'como-funciona' };      // ajuda: the Help center (v209); blog: the blog (v210); the pages before launch (v211); how it works (v212)
 /** The pages that are a screen of their own before login, each at its address (the others: the home page, the login and the account's forms). */
-const SITE_PAGES = ['privacy', 'terms', 'contact', 'help', 'blog', 'pj', 'converter', 'about'];
+const SITE_PAGES = ['privacy', 'terms', 'contact', 'help', 'blog', 'pj', 'converter', 'about', 'how'];
 /** A post of the blog has an address of its own under the blog's: blog/<post> (features/blog/blog-posts.js). */
 const POST_PATH = /^blog\/([a-z0-9-]+)$/;
 const PAGES = (() => {
@@ -43,7 +43,7 @@ const PAGES = (() => {
   /** The page on screen, or null for a screen that keeps whatever address it happened on. The app itself, and the first-time setup, are at the root. */
   const shown = () => { if (UI.session) return UI.webBlog ? 'blog' : UI.webHelp ? 'help' : 'landing';      // the Help center and the blog opened from the app have their addresses too (v209, v210)
     const p = UI.pub || {}, sc = p.screen; return sc === 'landing' || sc === 'onboard' ? 'landing' : sc === 'auth' ? (p.mode === 'login' ? 'login' : 'signup') : PAGE_PATHS[sc] != null ? sc : null; };
-  const names = { login: 'Log in', signup: 'Create account', forgot: 'Choose a new password', privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact', help: 'Help center', blog: 'Blog', pj: 'For PJ and MEI', converter: 'Statement converter', about: 'About Dorax' };
+  const names = { login: 'Log in', signup: 'Create account', forgot: 'Choose a new password', privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact', help: 'Help center', blog: 'Blog', pj: 'For PJ and MEI', converter: 'Statement converter', about: 'About us', how: 'How it works' };
   const api = {
     on, arrived: 'landing', arrivedPost: '', push: false, homeY: 0,
     read, post, state, shown,

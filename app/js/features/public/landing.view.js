@@ -152,15 +152,15 @@ function calcCarry() {
     three big true numbers > "your money, with a date" (the calculator) > the moments of the month > what's inside > for entrepreneurs (PJ) >
     how it works > your data > questions > closing call to action > footer. No two sections share a layout (owner, 2026-10-05). */
 /** The website's bar, the same on every page of the website: the home page, the Help center, the blog, the pages for PJ, the converter and about
-    (owner, 2026-10-13: "el menú principal es el viejo, no me lleva a ningún lugar"). The name; the capsule: the home page's sections (How it works,
-    What's inside), the page for PJ and MEI, the blog and Help, the one on screen marked (pressed, it goes back to its own top); the language and the
+    (owner, 2026-10-13: "el menú principal es el viejo, no me lleva a ningún lugar"). The name; the capsule: the pages How it works and About us
+    (since v212, owner: "quita del menú 'Qué trae' y coloca sobre nosotros ahí"), the page for PJ and MEI, the blog and Help, the one on screen marked (pressed, it goes back to its own top); the language and the
     way in. On a narrower screen the capsule gives way to a menu button that opens the same links in a panel (with the language and the login on a
     phone). Opened from the app, the name and "Back to Dorax" only. Its own rules: css/public/web-pages.css. */
 function l2Bar(cur, langId) {
   if (UI.session) return `<div class="l2-nav web-nav web-in-app">${brandMark()}<div class="lp-actions l2-actions"><button type="button" class="l2-btn lime sm" data-a="${cur === 'blog' ? 'blog-close' : 'help-close'}">${icon('left')}${t('Back to Dorax')}</button></div></div>`;
   const go = (id, label) => `<button type="button" class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   const page = (v, label, home) => `<a class="l2-link" href="${PAGES.href(v)}" ${cur === v ? `data-a="${home}" aria-current="page"` : `data-a="pub-go" data-v="${v}"`}>${label}</a>`;
-  const links = () => `${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${page('pj', t('For PJ'), 'web-top')}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}`;
+  const links = () => `${page('how', t('How it works'), 'web-top')}${page('about', t('About us'), 'web-top')}${page('pj', t('For PJ'), 'web-top')}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}`;
   const burger = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
   return `<div class="l2-nav web-nav"><a class="web-brand" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing" aria-label="${esc(t('Home'))}">${brandMark()}</a>
     <nav class="l2-links" aria-label="${t('Sections')}">${links()}</nav>
@@ -179,10 +179,10 @@ function l2Foot(app) {
       <div class="l2-ft-brand">${brandMark(true)}<p>${t('Your money, organized clearly enough to make better decisions yourself.')}</p>
         ${app ? '' : `<div class="l2-ft-lang">${icon('globe')}${langSelect('ft-lang', true)}</div>`}</div>
       <nav class="l2-ft-cols" aria-label="${t('Footer')}">
-        ${app ? '' : `<div><h3>${t('Product')}</h3><ul><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${page('pj', t('For PJ and MEI'))}</li><li>${page('converter', t('Statement converter'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
+        ${app ? '' : `<div><h3>${t('Product')}</h3><ul><li>${page('how', t('How it works'))}</li><li>${page('pj', t('For PJ and MEI'))}</li><li>${page('converter', t('Statement converter'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
         <div><h3>${t('Account')}</h3><ul><li>${page('signup', t('Create account'))}</li><li>${page('login', t('Log in'))}</li></ul></div>`}
         <div><h3>${t('Legal')}</h3><ul><li>${page('privacy', t('Privacy policy'))}</li><li>${page('terms', t('Terms of use'))}</li></ul></div>
-        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('blog', t('Blog'))}</li>${app ? '' : `<li>${page('about', t('About Dorax'))}</li>`}<li>${page('contact', t('Contact form'))}</li></ul></div>
+        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('blog', t('Blog'))}</li>${app ? '' : `<li>${page('about', t('About us'))}</li>`}<li>${page('contact', t('Contact form'))}</li></ul></div>
       </nav></div>
     <div class="l2-ft-bottom"><p>© 2026 Dorax Finance</p>
       <p>${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></div></footer>`;
@@ -207,10 +207,10 @@ function l2PjList() {
 function viewLanding() {
   const co = UI.lpSide === 'co', go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   const steps = [
-    ['upload', t('Add your financial information'), t('Accounts, income, fixed costs and goals. Type or import.')],
-    ['calendar', t('Build your monthly plan'), t('What you expect to earn, pay and save.')],
-    ['list', t('Track what actually happened'), t('Mark bills as paid and sort them into categories.')],
-    ['target', t('See when you get there'), t('Planned against actual, and the date of each goal.')],
+    ['table', t('Add your financial information'), t('Accounts, income, fixed costs and goals. Type or import.')],
+    ['calendar-dots', t('Build your monthly plan'), t('What you expect to earn, pay and save.')],
+    ['list-checks', t('Track what actually happened'), t('Mark bills as paid and sort them into categories.')],
+    ['flag-banner', t('See when you get there'), t('Planned against actual, and the date of each goal.')],
   ];
   // nine questions, in the order the doubts come up (2026-10-07): is it free, the bank, the phone, then the rest. "No ads, data not sold" is the owner's commitment.
   const faq = [
@@ -256,13 +256,13 @@ function viewLanding() {
       ${l2PjList()}
       <div class="l2-pj-go">${l2Go('lime lg')}<a class="l2-btn white lg" href="${PAGES.href('pj')}" data-a="pub-go" data-v="pj">${t('See the company’s side')}${icon('right')}</a></div></div></section>
     <section class="l2-sec" id="lp-how"><div class="l2-wrap"><div class="l2-steps">
-      <div class="l2-steps-l">${l2Eyebrow(t('How it works'))}<h2 class="l2-h2">${t('Four steps, no detours.')}</h2><p class="l2-sub">${t('A clear path from raw transactions to a usable picture of your month.')}</p></div>
-      <ol class="l2-steps-r">${steps.map(([ic, title, text], i) => `<li class="l2-st s${i + 1}" data-reveal="st-${i}"><span class="l2-st-c">${icon(ic)}</span><span class="l2-st-p"><b>${i + 1}. ${title}</b><span>${text}</span></span></li>`).join('')}</ol></div></div></section>
+      <div class="l2-steps-l">${l2Eyebrow(t('How it works'))}<h2 class="l2-h2">${t('Four steps, no detours.')}</h2><p class="l2-sub">${t('A clear path from raw transactions to a usable picture of your month.')}</p><a class="l2-btn white" href="${PAGES.href('how')}" data-a="pub-go" data-v="how">${t('See how it works in detail')}${icon('right')}</a></div>
+      <ol class="l2-steps-r">${steps.map(([ic, title, text], i) => `<li class="l2-st s${i + 1}" data-reveal="st-${i}"><span class="l2-st-c">${artObj(ic, 'bare')}</span><span class="l2-st-p"><b>${i + 1}. ${title}</b><span>${text}</span></span></li>`).join('')}</ol></div></div></section>
     <section class="l2-trustsec" id="lp-data"><div class="l2-wrap">
       <div class="l2-sec-h light">${l2Eyebrow(t('Your data'), true)}<h2 class="l2-h2">${t('Your money is yours. Your data too.')}</h2><p class="l2-sub">${t('Dorax organises what you type or import. Nothing more.')}</p></div>
-      <div class="l2-tr-grid">${[['lock', t('No bank password'), t('You do not have to connect your bank. The workflow is based on information you enter and files you choose to import.')], ['archive', t('Your files are not uploaded'), t('Sheets and statements open in your browser to be read. Only the rows you accept become your data.')], ['eyeoff', t('No ads'), t('Your data is not sold or used for advertising.')]].map(([ic, title, text], i) => `<div class="l2-tc" data-reveal="tc-${i}"><span class="l2-tc-ic">${icon(ic)}</span><h3>${title}</h3><p>${text}</p></div>`).join('')}</div>
+      <div class="l2-tr-grid">${[['bank', t('No bank password'), t('You do not have to connect your bank. The workflow is based on information you enter and files you choose to import.')], ['laptop', t('Your files are not uploaded'), t('Sheets and statements open in your browser to be read. Only the rows you accept become your data.')], ['shield-check', t('No ads'), t('Your data is not sold or used for advertising.')]].map(([ic, title, text], i) => `<div class="l2-tc" data-reveal="tc-${i}">${artObj(ic, 'st-obj')}<h3>${title}</h3><p>${text}</p></div>`).join('')}</div>
       <div class="l2-tr-wide" data-reveal="key"><div><h3 class="l2-h3w">${t('You hold the key.')}</h3><ul class="l2-tr-list">${[t('Download a backup of everything whenever you want.'), t('Delete your data or your account from Settings.'), t('Your password is stored encrypted, never as you typed it.')].map(x => `<li>${l2Check()}${x}</li>`).join('')}</ul></div>
-        <div class="l2-lock" aria-hidden="true"><span class="c1"><span class="c2">${icon('lock')}</span></span></div></div>
+        <div class="l2-lock" aria-hidden="true">${artObj('key', 'st-key')}</div></div>
       <p class="l2-disc">${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')}</p></div></section>
     <section class="l2-sec" id="lp-faq"><div class="l2-wrap"><div class="l2-faq-grid">
       <div class="l2-faq-l">${l2Eyebrow(t('Questions'))}<h2 class="l2-h2">${t('Questions before you start')}</h2><p class="l2-sub">${t('Use the {form}. It works without logging in.', { form: contact })}</p></div>

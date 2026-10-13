@@ -100,6 +100,8 @@ const HC_SAY = {
   account: 'Email, password, language, currency and deleting the account.',
 };
 const HC_WIDE = ['start', 'company'];
+/** Each topic's thing (js/ui/art.js, v212): what the topic is about. */
+const HC_OBJ = { start: 'hand-waving', money: 'wallet', import: 'file-text', plan: 'calendar-dots', goals: 'flag-banner', reports: 'chart-bar', notify: 'bell-ringing', safe: 'shield-check', company: 'briefcase', account: 'user-circle' };
 /** A question that opens its answer in place, as on the home page (it slides open: app/motion.js); in a list of several topics, with its topic's
     name above it; opened from the app, the way to its place there. */
 function hcQ([q, a, go], topic) {
@@ -110,7 +112,7 @@ const hcQs = (rows, tags) => `<div class="l2-faq hc-qs">${rows.map(([r, topic]) 
 const hcCount = n => tn(n, '1 question', '{n} questions');
 /** A topic: a card of the home page's bento, its name and what it holds, and how many questions. */
 const hcCard = ([id, ic, name, qs]) => `<button type="button" class="hc-bx${HC_WIDE.includes(id) ? ' wide' : ''}${id === 'company' ? ' dark' : ''}" data-a="hc-topic" data-v="${id}">${id === 'company' ? '<span class="l2-glow" aria-hidden="true"></span>' : ''}
-  <span class="hc-bx-ic" aria-hidden="true">${icon(ic)}</span><span class="hc-bx-go">${hcCount(qs.length)}${icon('right')}</span><span class="hc-bt"><span>${esc(name)}.</span> ${esc(t(HC_SAY[id]))}</span></button>`;
+  <span class="hc-bx-ic" aria-hidden="true">${HC_OBJ[id] ? artObj(HC_OBJ[id]) : icon(ic)}</span><span class="hc-bx-go">${hcCount(qs.length)}${icon('right')}</span><span class="hc-bt"><span>${esc(name)}.</span> ${esc(t(HC_SAY[id]))}</span></button>`;
 const hcLinkBtn = (a, label, v) => `<button type="button" class="linkbtn hc-lk" data-a="${a}"${v ? ` data-v="${v}"` : ''}>${label}</button>`;
 /** What follows the top: what was found for the search; a topic's questions; or the topics and the questions asked most. Drawn again alone while
     the search is typed (HELP_CENTER_CHANGES), so the field keeps its focus. */
@@ -155,7 +157,7 @@ function viewHelpPublic() {
   const write = app ? `<button type="button" class="l2-btn lime lg" data-a="contact">${icon('mail')}${t('Write to Dorax')}</button>` : `<a class="l2-btn lime lg" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${icon('mail')}${t('Write to Dorax')}</a>`;
   return `<div class="lp2 web-page hc2 hc-pub">${hcTop()}
     <main><div id="hc-body" aria-live="polite">${hcBody()}</div>
-      <section class="l2-pj hc-write"><div class="l2-wrap"><div class="l2-sec-h light">${l2Eyebrow(t('Contact'), true)}<h2 class="l2-h2">${t('Didn’t find your answer?')}</h2><p class="l2-sub">${t('Write to us: a person reads it.')}</p></div>
+      <section class="l2-pj hc-write"><div class="l2-wrap"><div class="l2-sec-h light">${artFig('explain', 'chat-circle-dots', 'hc-fig')}${l2Eyebrow(t('Contact'), true)}<h2 class="l2-h2">${t('Didn’t find your answer?')}</h2><p class="l2-sub">${t('Write to us: a person reads it.')}</p></div>
         <div class="hc-write-go">${write}${app ? '' : `<p>${t('It works without logging in.')}</p>`}</div></div></section>
       ${app ? '' : `<section class="l2-end"><div class="l2-wrap"><div class="l2-end-box"><h2 class="l2-h2">${t('Make sense of the numbers you have.')}</h2><div class="l2-end-r">${l2Go('forest lg')}<p>${t('Free')} · ${t('No card')}</p></div></div></div></section>`}</main>
     ${l2Foot(app)}</div>`;

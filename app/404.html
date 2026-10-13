@@ -35,11 +35,12 @@
   .btn:focus-visible, .brand:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
   .lime { background: var(--lime); color: var(--forest); }
   .white { background: #FFFFFF; color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+  .pic { display: block; width: 140px; height: auto; }      /* the signpost: the way back (js/ui/art.js, v212) */
   footer { padding-block: 24px 32px; font-size: 13px; color: var(--ink-3); text-align: center; }
   @media (max-width: 720px) {
     .wrap { padding-inline: 16px; }
     header .wrap { min-height: calc(64px + env(safe-area-inset-top, 0px)); } .brand svg { height: 24px; }
-    h1 { font-size: 11vw; letter-spacing: -.04em; } p { font-size: 17px; }
+    h1 { font-size: 11vw; letter-spacing: -.04em; } p { font-size: 17px; } .pic { width: 104px; }
     .copy { gap: 18px; padding-block: 24px 64px; }
     .cta { flex-direction: column; align-self: stretch; } .btn { width: 100%; }
   }
@@ -49,6 +50,7 @@
 <body>
 <header><div class="wrap"><a class="brand" href="/" aria-label="Dorax Finance"><svg class="logo" viewBox="0 10 306 90" role="img" aria-label="Dorax Finance"><g fill="none" stroke="currentColor" stroke-width="15"><circle cx="30" cy="70" r="22.5"/><circle cx="97" cy="70" r="22.5"/><circle cx="214" cy="70" r="22.5"/><path d="M141.5 70a22.5 22.5 0 0 1 33.75-19.49"/><path class="ac" d="M7.5 70a22.5 22.5 0 0 1 22.5-22.5"/></g><g fill="currentColor"><rect x="45" y="10" width="15" height="90"/><rect x="134" y="40" width="15" height="60"/><rect x="229" y="40" width="15" height="60"/><polygon points="288,40 306,40 268,100 250,100"/><polygon points="250,40 268,40 306,100 288,100"/></g></svg></a></div></header>
 <main><div class="wrap"><div class="copy">
+  <svg class="pic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><circle cx="128" cy="128" r="128" fill="#E2F6D5"/><g transform="translate(44 44) scale(.656)"><path fill="#9FD182" d="M240,112l-33.62,37.35a8,8,0,0,1-5.94,2.65H40a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H200.44a8,8,0,0,1,5.94,2.65Z" transform="translate(10 10)"/><path fill="#163300" d="M243,109.32,209.36,72a12.06,12.06,0,0,0-8.92-4H132V32a4,4,0,0,0-8,0V68H40A12,12,0,0,0,28,80v64a12,12,0,0,0,12,12h84v68a4,4,0,0,0,8,0V156h68.44a12.06,12.06,0,0,0,8.92-4L243,114.68A4,4,0,0,0,243,109.32Zm-39.56,37.36a4,4,0,0,1-3,1.32H40a4,4,0,0,1-4-4V80a4,4,0,0,1,4-4H200.44a4,4,0,0,1,3,1.32L234.62,112Z"/></g></svg>
   <span class="eyebrow"><i></i><span data-t="eyebrow">Erro 404</span></span>
   <h1><span data-t="h1a">Esta página não existe.</span> <span class="hl" data-t="h1b">Mas o caminho de volta, sim.</span></h1>
   <p data-t="lead">O endereço pode estar errado, ou a página mudou de lugar.</p>

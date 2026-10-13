@@ -14,9 +14,9 @@ const { chromium } = require('playwright');
 const { open, ok, eq, done, fixture } = require('./pw.js');
 const { createServer, rewriteFor } = require('../tools/serve.js');
 
-const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog', pj: 'para-pj', converter: 'conversor-de-extrato-ofx', about: 'sobre' };      // help: the Help center (v209); blog: the blog (v210); the pages before launch (v211)
-const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q', blog: '.bl-page .bl-grid', pj: '.st-page #st-title', converter: '.st-page #st-title', about: '.st-page #st-title' };
-const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance', blog: 'Blog · Dorax Finance', pj: 'For PJ and MEI · Dorax Finance', converter: 'Statement converter · Dorax Finance', about: 'About Dorax · Dorax Finance' };
+const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog', pj: 'para-pj', converter: 'conversor-de-extrato-ofx', about: 'sobre', how: 'como-funciona' };      // help: the Help center (v209); blog: the blog (v210); the pages before launch (v211); how it works (v212)
+const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q', blog: '.bl-page .bl-grid', pj: '.st-page #st-title', converter: '.st-page #st-title', about: '.st-page #st-title', how: '.st-page #st-title' };
+const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance', blog: 'Blog · Dorax Finance', pj: 'For PJ and MEI · Dorax Finance', converter: 'Statement converter · Dorax Finance', about: 'About us · Dorax Finance', how: 'How it works · Dorax Finance' };
 
 (async () => {
   // ---------- 1. the hosting rules ----------
@@ -50,10 +50,14 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
     ok(await page.evaluate(() => [...document.styleSheets].filter(s => s.href && s.href.startsWith(location.origin + '/css/') && s.cssRules.length).length) >= 40, `/${p}: the styles arrived (the files are found from this address)`);
     await page.reload(); await started(page); await page.waitForSelector(MARK[v]);
     eq([await at(page), await page.evaluate(() => PAGES.shown())], ['/' + p, v], `/${p}: still there after a reload`);
+    // its drawings (v212: the people are files of their own, app/assets/art/people) arrive from this address
+    const imgs = await page.evaluate(async () => { const all = [...document.querySelectorAll('#public img')]; for (const i of all) { i.loading = 'eager'; if (!i.complete) await new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 3000); }); } return all.map(i => i.naturalWidth > 0); });
+    ok(imgs.every(Boolean), `/${p}: its drawings arrive from this address`, imgs);
     // every link to a page is a real link to that page's address
     const links = await page.evaluate(() => [...document.querySelectorAll('#public [data-a="pub-go"]')].map(a => [a.tagName, a.getAttribute('href'), a.dataset.v]));
     ok(links.length > 0 && links.every(([tag, href, to]) => tag === 'A' && href === '/' + PATHS[to]), `/${p}: its links to other pages are links to their addresses`, links.filter(l => l[0] !== 'A'));
   }
+  eq([(await page.request.get(BASE + '/blog/assets/art/people/idea.svg')).status(), (await page.request.get(BASE + '/assets/art/people/hi.svg')).headers()['content-type']], [200, 'image/svg+xml'], 'a drawing asked for from a blog post’s address is the root’s, as a picture');
   await page.goto(BASE + '/index.html'); await started(page); await page.waitForSelector(MARK.landing);
   eq(await page.evaluate(() => [PAGES.on, PAGES.shown(), PAGES.root().replace(location.origin, '')]), [true, 'landing', '/'], '/index.html is the home page too');
 
@@ -75,7 +79,7 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
   await page.click('.l2-foot [data-v="privacy"]'); await page.waitForSelector(MARK.privacy); eq([await at(page), await page.evaluate(() => window.scrollY)], ['/privacidade', 0], 'the footer → Privacy policy, from its top');
   await page.goBack(); await page.waitForSelector(MARK.landing); ok(y > 500 && Math.abs(await page.evaluate(() => window.scrollY) - y) < 4, 'Back: the home page, where it was being read', [y, await page.evaluate(() => window.scrollY)]);
   // a section of the home page is still a section, not a page
-  await page.click('.l2-nav .l2-links [data-id="lp-how"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');
+  await page.click('.l2-hero [data-id="lp-how"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');      // (since v212 the bar has pages only; the top's "How it works" goes down to its section)
   // the Help center: a topic is a step of the same address (v209)
   await page.click('.l2-foot [data-v="help"]'); await page.waitForSelector(MARK.help);
   await page.click('.hc-bx[data-v="import"]'); await page.waitForSelector('.hc-topic-qs');

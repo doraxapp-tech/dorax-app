@@ -33,7 +33,7 @@ function blogList() {
   const shown = BLOG_POSTS.filter(p => cat ? p.cat === cat : p !== f), fx = blogText(f);
   const seg = [['', t('All')], ...BLOG_CATS.map(c => [c, blogCatName(c)])].map(([c, name]) => `<button type="button" data-a="blog-cat" data-v="${c}" aria-pressed="${cat === c}">${c ? `<span class="bl-dot ${c}" aria-hidden="true"></span>` : ''}${name}</button>`).join('');
   const head = { '': [t('Latest'), t('To read over a coffee.')], tips: [t('Tips'), t('Ideas to organise your month.')], news: [t('News'), t('What changes in your pocket.')], curiosities: [t('Curiosities'), t('Things about money you did not know.')] }[cat];
-  return `<header class="l2-top"><div class="l2-wrap">${l2Bar('blog')}<section class="bl-hero"><div class="l2-copy">${l2Eyebrow(t('Dorax blog'))}
+  return `<header class="l2-top"><div class="l2-wrap">${l2Bar('blog')}<section class="bl-hero"><div class="l2-copy"><div class="st-pic">${artFig('idea', 'book-open')}</div>${l2Eyebrow(t('Dorax blog'))}
       <h1 class="l2-h1" id="bl-title" tabindex="-1">${t('Your money,')} <span class="hl">${t('explained simply.')}</span></h1>
       <p class="l2-lead">${t('Tips to organise your month, news that touches your pocket and curiosities about money in Brazil. With dates and sources.')}</p>
       <div class="bl-seg" role="group" aria-label="${esc(t('Categories'))}">${seg}</div></div></section></div></header>
