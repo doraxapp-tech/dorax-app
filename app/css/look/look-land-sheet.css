@@ -6,29 +6,29 @@
 /* (v199: on a phone and on a computer; look-land-desk.css fits them to a computer) */
   /* ---------- the forest part ---------- */
   :root.land #overlay .drawer:has(.bq-sheet), :root.land #overlay .sheet:has(.bq-sheet) {
-    --ink: #F1F4EE; --ink-strong: #FFFFFF; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
+    --ink: var(--lk-on); --ink-strong: #FFFFFF; --ink-2: var(--lk-soft); --ink-3: var(--lk-soft-2); --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
     --surface: rgba(255, 255, 255, .06); --surface-2: rgba(255, 255, 255, .08); --surface-3: rgba(255, 255, 255, .12); --well: rgba(255, 255, 255, .06); --badge: rgba(255, 255, 255, .1);
-    --track: rgba(255, 255, 255, .14); --switch-on: #B6DD62; --switch-off: rgba(255, 255, 255, .16); --field: rgba(255, 255, 255, .22); --knob: #FFFFFF; --hover-line: rgba(255, 255, 255, .45);
-    --pos: #B6DD62; --good: #B6DD62; --crit: #FF8A80; --warn: #F5C04A; --brand: #B6DD62; --brand-deep: #B6DD62; --link: #B6DD62; --focus: #B6DD62; --select: rgba(182, 221, 98, .16); --select-ink: #B6DD62;
-    border: 0; background: #112622; color: #FFFFFF;
+    --track: rgba(255, 255, 255, .14); --switch-on: var(--lk-lime); --switch-off: rgba(255, 255, 255, .16); --field: rgba(255, 255, 255, .22); --knob: #FFFFFF; --hover-line: rgba(255, 255, 255, .45);
+    --pos: var(--lk-lime); --good: var(--lk-lime); --crit: #FF8A80; --warn: #F5C04A; --brand: var(--lk-lime); --brand-deep: var(--lk-lime); --link: var(--lk-lime); --focus: var(--lk-lime); --select: rgba(var(--lk-lime-rgb), .16); --select-ink: var(--lk-lime);
+    border: 0; background: var(--lk-deep); color: #FFFFFF;
   }
   :root.land #overlay .drawer:has(.bq-sheet) > header h2 { color: #FFFFFF; }
   :root.land #overlay .drawer:has(.bq-sheet) > header [data-a="close"] { background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #FFFFFF; }
-  :root.land #overlay .drawer:has(.bq-sheet) > header [data-a="close"]:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land #overlay .drawer:has(.bq-sheet) > header [data-a="close"]:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
   :root.land #overlay :is(.drawer, .sheet):has(.bq-sheet) > .grab::before { background: rgba(255, 255, 255, .35); opacity: 1; }
   /* on the forest: the buttons that are not the main one light pills, a switch's choice lime, a field translucent */
   :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn),
   :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .1); color: #FFFFFF; }
   :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .12); }
-  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button { color: #B5C2BE; }
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button { color: var(--lk-soft); }
   :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button[aria-pressed="true"],
-  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button[aria-pressed="true"]:hover { background: #B6DD62; color: #112622; }
+  :root.land #overlay :is(.drawer .body, .sheet):has(> .bq-sheet) > :not(.bq-sheet) .seg button[aria-pressed="true"]:hover { background: var(--lk-lime); color: var(--lk-deep); }
 
   /* ---------- the sheet ---------- */
   :root.land #overlay .bq-sheet {
     --ink: var(--bq-ink); --ink-strong: var(--bq-ink); --ink-2: var(--bq-ink-2); --ink-3: var(--bq-ink-3); --line: var(--bq-line); --line-strong: var(--bq-line-2);
     --surface: var(--bq-card); --surface-2: var(--bq-card-2); --surface-3: var(--bq-card-3); --well: var(--bq-card); --badge: var(--bq-card-3); --track: var(--bq-track);
-    --switch-on: var(--bq-accent); --switch-off: var(--bq-grab); --field: var(--bq-line-2); --knob: #FFFFFF; --hover-line: #8FA19C;
+    --switch-on: var(--bq-accent); --switch-off: var(--bq-grab); --field: var(--bq-line-2); --knob: #FFFFFF; --hover-line: var(--lk-soft-2);
     --pos: var(--bq-in); --good: var(--bq-in); --crit: var(--bq-crit); --warn: var(--bq-warn); --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --link: var(--bq-accent); --focus: var(--bq-accent); --select: var(--bq-mint); --select-ink: var(--bq-accent);
     position: relative; display: flex; flex-direction: column; gap: 16px; flex: 1 0 auto; margin: 6px -16px -16px; padding: 10px 16px 24px;
     border-radius: 30px 30px 0 0; background: var(--bq-page); color: var(--bq-ink);
@@ -37,7 +37,7 @@
   :root.land #overlay .bq-sheet > .bq-grab { align-self: center; flex: none; width: 40px; height: 5px; margin-bottom: -4px; border-radius: 999px; background: var(--bq-grab); }
   /* the buttons at the foot of a panel with a sheet: on the sheet's grey */
   :root.land #overlay .drawer:has(.bq-sheet) > footer {
-    --ink: var(--bq-ink); --ink-strong: var(--bq-ink); --ink-2: var(--bq-ink-2); --ink-3: var(--bq-ink-3); --line: var(--bq-line); --brand: #112622; --link: #112622; --focus: #112622; --crit: var(--bq-crit);
+    --ink: var(--bq-ink); --ink-strong: var(--bq-ink); --ink-2: var(--bq-ink-2); --ink-3: var(--bq-ink-3); --line: var(--bq-line); --brand: var(--lk-deep); --link: var(--lk-deep); --focus: var(--lk-deep); --crit: var(--bq-crit);
     background: var(--bq-page); color: var(--bq-ink);
   }
 
@@ -48,8 +48,8 @@
   :root.land #overlay .bq-sheet > .empty, :root.land #overlay .bq-sheet > .banner { margin: 0; border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
 
   /* ---------- More: the person and the search on the forest; the places in white cards in the sheet ---------- */
-  :root.land #overlay .sheet:has(.bq-sheet) .mr-me .mr-who small { color: #B5C2BE; }
-  :root.land #overlay .sheet:has(.bq-sheet) .sheet-find { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); box-shadow: none; color: #B5C2BE; }
+  :root.land #overlay .sheet:has(.bq-sheet) .mr-me .mr-who small { color: var(--lk-soft); }
+  :root.land #overlay .sheet:has(.bq-sheet) .sheet-find { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); box-shadow: none; color: var(--lk-soft); }
   :root.land #overlay .bq-sheet .mr-nav { display: flex; flex-direction: column; gap: 12px; }
   :root.land #overlay .bq-sheet .mr-group { padding: 4px 4px 6px; border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   :root.land #overlay .bq-sheet .mr-group + .mr-group, :root.land #overlay .bq-sheet .mr-nav + .mr-help { margin-top: 0; padding-top: 4px; border-top: 0; }
@@ -59,7 +59,7 @@
 
   /* ---------- "You can spend": the figure and the bar on the forest; how it is worked out in the sheet, in a white card ---------- */
   :root.land #overlay .fu-view > .fu-big, :root.land #overlay .fu-view > .fu-say { color: #FFFFFF; }
-  :root.land #overlay .fu-view > .fu-say { color: #B5C2BE; }
+  :root.land #overlay .fu-view > .fu-say { color: var(--lk-soft); }
   :root.land #overlay .bq-sheet .fu-h { margin: 6px 0 -6px; }
   :root.land #overlay .bq-sheet .fu-steps { padding: 4px 14px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
 

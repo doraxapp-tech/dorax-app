@@ -3,48 +3,48 @@
    right, a band across; the grey sheet rising over it with the page's sections, white cards with a hairline and 24 px corners, pills.
    Colours: the forest #112622, lime #B6DD62 (#C4E57A lighter), mint #E8F3D2, the look's page and cards (look-land.css). Text never under 12 px. */
 @media (min-width: 921px) {
-  :root.land { --dk-warn-bg: #FFF1D6; --dk-warn-ink: #6E4600; --dk-mint-ink: #2F4A28; --dk-crit-bg: #FDE7E4; --dk-crit-ink: #B42318; --dk-g1: #112622; --dk-g2: #557A4C; --dk-g3: #B8CDB0; --dk-g4: #DCE7D6; --dk-track: rgba(17, 38, 34, .12); --dk-neg: #B42318; --dk-pos: #2F6B1C; --dk-now: rgba(182, 221, 98, .22); }
-  :root.land-dark { --dk-warn-bg: rgba(245, 192, 74, .14); --dk-warn-ink: #F5C04A; --dk-mint-ink: #C9DDA6; --dk-crit-bg: rgba(255, 138, 128, .14); --dk-crit-ink: #FF8A80; --dk-g1: #B6DD62; --dk-g2: #7FA046; --dk-g3: #3F5A2C; --dk-g4: #2A3D37; --dk-track: rgba(255, 255, 255, .12); --dk-neg: #FF8A80; --dk-pos: #B6DD62; --dk-now: rgba(182, 221, 98, .12); }
+  :root.land { --dk-warn-bg: #FFF1D6; --dk-warn-ink: #6E4600; --dk-mint-ink: #2F4A28; --dk-crit-bg: #FDE7E4; --dk-crit-ink: #B42318; --dk-g1: var(--lk-deep); --dk-g2: #557A4C; --dk-g3: #B8CDB0; --dk-g4: #DCE7D6; --dk-track: rgba(var(--lk-deep-rgb), .12); --dk-neg: #B42318; --dk-pos: #2F6B1C; --dk-now: rgba(var(--lk-lime-rgb), .22); }
+  :root.land-dark { --dk-warn-bg: rgba(245, 192, 74, .14); --dk-warn-ink: #F5C04A; --dk-mint-ink: #C9DDA6; --dk-crit-bg: rgba(255, 138, 128, .14); --dk-crit-ink: #FF8A80; --dk-g1: var(--lk-lime); --dk-g2: #7FA046; --dk-g3: #3F5A2C; --dk-g4: #2A3D37; --dk-track: rgba(255, 255, 255, .12); --dk-neg: #FF8A80; --dk-pos: var(--lk-lime); --dk-now: rgba(var(--lk-lime-rgb), .12); }
 
   /* ---------- the forest top ---------- */
-  :root.land #view > .dk-hero { position: relative; display: flex; flex-direction: column; gap: 36px; margin-inline: 0; padding: 18px var(--bq-gut) 72px; background: #112622; color: #FFFFFF; }
+  :root.land #view > .dk-hero { position: relative; display: flex; flex-direction: column; gap: 36px; margin-inline: 0; padding: 18px var(--bq-gut) 72px; background: var(--lk-deep); color: #FFFFFF; }
   :root.land #view > .dk-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
-  :root.land .dk-hero :focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; }
+  :root.land .dk-hero :focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 3px; }
   :root.land .dk-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px 64px; }
   :root.land .dk-main { flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-  :root.land .dk-k { color: #B5C2BE; font-size: 14px; font-weight: 500; }
+  :root.land .dk-k { color: var(--lk-soft); font-size: 14px; font-weight: 500; }
   :root.land .dk-big { color: #FFFFFF; font-family: var(--fig); font-size: 48px; font-weight: 600; letter-spacing: -.04em; line-height: 1; white-space: nowrap; }
-  :root.land .dk-big .cents { color: #B5C2BE; opacity: 1; font-size: .5em; letter-spacing: 0; }
+  :root.land .dk-big .cents { color: var(--lk-soft); opacity: 1; font-size: .5em; letter-spacing: 0; }
   :root.land .dk-big.neg { color: #FF8A80; }
   :root.land .dk-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-  :root.land .dk-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #D6DCCF; font-size: 13px; font-weight: 600; white-space: nowrap; }
-  :root.land .dk-chip.go { background: rgba(182, 221, 98, .16); color: #B6DD62; }
+  :root.land .dk-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: var(--lk-on-2); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  :root.land .dk-chip.go { background: rgba(var(--lk-lime-rgb), .16); color: var(--lk-lime); }
   :root.land .dk-chip.warn { background: rgba(245, 192, 74, .16); color: #F5C04A; }
   :root.land .dk-chip.neg { background: rgba(255, 138, 128, .16); color: #FF8A80; }
   :root.land .dk-side { flex: 1 1 380px; min-width: 0; max-width: 540px; display: flex; flex-direction: column; gap: 14px; }
   :root.land .dk-side-h, :root.land .dk-band-h { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
-  :root.land .dk-side-h h2, :root.land .dk-band-h h2 { margin: 0; color: #B5C2BE; font-size: 14px; font-weight: 500; letter-spacing: 0; }
+  :root.land .dk-side-h h2, :root.land .dk-band-h h2 { margin: 0; color: var(--lk-soft); font-size: 14px; font-weight: 500; letter-spacing: 0; }
   :root.land .dk-mid { color: #FFFFFF; font-family: var(--fig); font-size: 32px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
-  :root.land .dk-mid small { margin-left: 4px; color: #B5C2BE; font-family: var(--font, inherit); font-size: 15px; font-weight: 500; letter-spacing: 0; }
-  :root.land .dk-say { margin: 0; color: #B5C2BE; font-size: 14px; line-height: 1.45; }
+  :root.land .dk-mid small { margin-left: 4px; color: var(--lk-soft); font-family: var(--font, inherit); font-size: 15px; font-weight: 500; letter-spacing: 0; }
+  :root.land .dk-say { margin: 0; color: var(--lk-soft); font-size: 14px; line-height: 1.45; }
   :root.land .dk-say b { color: #FFFFFF; font-weight: 600; }
   :root.land .dk-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
   :root.land #view .dk-hero .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
   :root.land #view .dk-hero .btn:not(.primary) { border: 0; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #FFFFFF; }
-  :root.land #view .dk-hero .btn:not(.primary) svg { color: #B6DD62; }
+  :root.land #view .dk-hero .btn:not(.primary) svg { color: var(--lk-lime); }
   @media (hover: hover) and (pointer: fine) { :root.land #view .dk-hero .btn:not(.primary):hover { background: rgba(255, 255, 255, .14); } }
-  :root.land .dk-link { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; min-height: 32px; color: #B6DD62; font-size: 13px; font-weight: 600; text-decoration: none; }
-  :root.land .dk-link:hover { color: #C4E57A; }
+  :root.land .dk-link { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; min-height: 32px; color: var(--lk-lime); font-size: 13px; font-weight: 600; text-decoration: none; }
+  :root.land .dk-link:hover { color: var(--lk-lime-hi); }
   :root.land .dk-link.ink { color: var(--bq-ink); font-size: 14px; min-height: 44px; }
   :root.land .dk-link.ink:hover { color: var(--bq-ink-2); }
-  :root.land .dk-link:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; border-radius: 6px; }
+  :root.land .dk-link:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; border-radius: 6px; }
   :root.land .dk-link.ink:focus-visible { outline-color: var(--bq-accent); }
   /* the next thing due */
   :root.land .dk-next { display: flex; align-items: center; gap: 14px; min-width: 0; }
   :root.land .dk-next .inst, :root.land .dk-next .inst img { width: 44px; height: 44px; min-width: 44px; }
   :root.land .dk-next-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
   :root.land .dk-next-t b { overflow: hidden; color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .dk-next-t span { color: #B5C2BE; font-size: 14px; }
+  :root.land .dk-next-t span { color: var(--lk-soft); font-size: 14px; }
   :root.land .dk-next-v { color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; white-space: nowrap; }
   /* the band across */
   :root.land .dk-band { display: flex; flex-direction: column; gap: 18px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, .12); }
@@ -58,13 +58,13 @@
   :root.land .dk-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px 40px; margin: 4px 0 0; padding: 0; list-style: none; }
   :root.land .dk-legend li { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   :root.land .dk-legend li + li { padding-left: 24px; border-left: 1px solid rgba(255, 255, 255, .12); }
-  :root.land .dk-legend-k { color: #B5C2BE; font-size: 14px; }
+  :root.land .dk-legend-k { color: var(--lk-soft); font-size: 14px; }
   :root.land .dk-legend b { color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
   :root.land .dk-legend b.neg { color: #FF8A80; }
-  :root.land .dk-legend small { color: #8FA19C; font-size: 13px; line-height: 1.35; }
+  :root.land .dk-legend small { color: var(--lk-soft-2); font-size: 13px; line-height: 1.35; }
   :root.land .dk-dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; }
   :root.land .dk-dot.ring { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .7); }
-  :root.land .dk-bar.lime { background: rgba(255, 255, 255, .14); } :root.land .dk-bar.lime i { background: #B6DD62; }
+  :root.land .dk-bar.lime { background: rgba(255, 255, 255, .14); } :root.land .dk-bar.lime i { background: var(--lk-lime); }
 
   /* ---------- the sheet ---------- */
   :root.land #view > .dk-sheet { display: flex; flex-direction: column; gap: 40px; margin-top: 4px; }
@@ -191,21 +191,21 @@
   :root.land .dk-lane { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr); align-items: center; gap: 24px; min-height: 58px; }
   :root.land .dk-lane-n { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   :root.land .dk-lane-n b { overflow: hidden; color: #FFFFFF; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .dk-lane-n small { color: #8FA19C; font-size: 13px; }
+  :root.land .dk-lane-n small { color: var(--lk-soft-2); font-size: 13px; }
   :root.land .dk-lane-t { position: relative; height: 40px; }
   :root.land .dk-lane-line { position: absolute; left: 0; right: 0; top: 26px; height: 2px; background: rgba(255, 255, 255, .12); }
-  :root.land .dk-lane-bar { position: absolute; top: 23px; height: 8px; border-radius: 999px; background: rgba(182, 221, 98, .42); }
-  :root.land .dk-lane-dot { position: absolute; top: 20px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: #B6DD62; box-shadow: 0 0 0 3px #112622; }
+  :root.land .dk-lane-bar { position: absolute; top: 23px; height: 8px; border-radius: 999px; background: rgba(var(--lk-lime-rgb), .42); }
+  :root.land .dk-lane-dot { position: absolute; top: 20px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--lk-lime); box-shadow: 0 0 0 3px var(--lk-deep); }
   :root.land .dk-lane-dot.late { background: #F5C04A; }
   :root.land .dk-lane-due { position: absolute; top: 16px; width: 2px; height: 22px; margin-left: -1px; border-radius: 2px; background: rgba(255, 255, 255, .5); }
   :root.land .dk-lane-l { position: absolute; top: 0; display: inline-flex; align-items: center; gap: 5px; color: #FFFFFF; font-size: 13px; font-weight: 600; white-space: nowrap; }
-  :root.land .dk-lane-l svg { width: 14px; height: 14px; color: #B6DD62; stroke-width: 2.6; }
+  :root.land .dk-lane-l svg { width: 14px; height: 14px; color: var(--lk-lime); stroke-width: 2.6; }
   :root.land .dk-lane-l.late { color: #F5C04A; }
   :root.land .dk-lane-x { min-height: 24px; }
-  :root.land .dk-lane-x .dk-lane-t { height: 20px; color: #8FA19C; font-size: 12px; }
+  :root.land .dk-lane-x .dk-lane-t { height: 20px; color: var(--lk-soft-2); font-size: 12px; }
   :root.land .dk-lane-x .dk-lane-t > span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
-  :root.land .dk-lane-x .dk-lane-now { left: 0; transform: none !important; color: #B6DD62; font-weight: 700; }
-  :root.land .dk-note { margin: 0; color: #8FA19C; font-size: 13px; line-height: 1.45; }
+  :root.land .dk-lane-x .dk-lane-now { left: 0; transform: none !important; color: var(--lk-lime); font-weight: 700; }
+  :root.land .dk-note { margin: 0; color: var(--lk-soft-2); font-size: 13px; line-height: 1.45; }
   :root.land .dk-sheet .dk-note { color: var(--bq-ink-2); font-size: 14px; }
   :root.land .dk-sheet .dk-note.neg { color: var(--dk-neg); }
   /* a table's foot: what is left, where it comes from, the date and the button */
@@ -241,13 +241,13 @@
   :root.land .dk-cols { display: flex; align-items: flex-end; gap: 6px; }
   :root.land .dk-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
   :root.land .dk-col-b { position: relative; width: 100%; height: 120px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid rgba(255, 255, 255, .18); }
-  :root.land .dk-col-b i { display: block; width: 58%; max-width: 34px; border-radius: 4px 4px 0 0; background: #B6DD62; }
+  :root.land .dk-col-b i { display: block; width: 58%; max-width: 34px; border-radius: 4px 4px 0 0; background: var(--lk-lime); }
   :root.land .dk-col-b i.zero { height: 2px; border-radius: 0; background: rgba(255, 255, 255, .18); }
-  :root.land .dk-col-b i.todo { box-sizing: border-box; background: none; border: 1.5px dashed #B6DD62; border-bottom: 0; }
+  :root.land .dk-col-b i.todo { box-sizing: border-box; background: none; border: 1.5px dashed var(--lk-lime); border-bottom: 0; }
   :root.land .dk-col-b b, :root.land .dk-col-tag { position: absolute; left: 50%; transform: translateX(-50%); color: #FFFFFF; font-size: 12px; font-weight: 600; white-space: nowrap; }
-  :root.land .dk-col-tag { color: #B6DD62; }
-  :root.land .dk-col small { color: #8FA19C; font-size: 12px; }
-  :root.land .dk-col.now small { color: #B6DD62; font-weight: 600; }
+  :root.land .dk-col-tag { color: var(--lk-lime); }
+  :root.land .dk-col small { color: var(--lk-soft-2); font-size: 12px; }
+  :root.land .dk-col.now small { color: var(--lk-lime); font-weight: 600; }
   /* the month's distributions and the simulator, side by side */
   :root.land .dk-box { gap: 18px; }
   :root.land .dk-box-h { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 12px; }
@@ -287,27 +287,27 @@
 /* ---------- Reports ---------- */
 @media (min-width: 921px) {
   /* in and out, month by month, on the forest */
-  :root.land .dk-keys2 { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; color: #D6DCCF; font-size: 13px; }
+  :root.land .dk-keys2 { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; color: var(--lk-on-2); font-size: 13px; }
   :root.land .dk-grps { display: flex; gap: 8px; }
   :root.land .dk-grp { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding-bottom: 4px; border-radius: 12px; }
   :root.land .dk-grp-b { position: relative; width: 100%; height: 150px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .18); }
   :root.land .dk-grp-b i { display: block; width: 22px; border-radius: 4px 4px 0 0; }
-  :root.land .dk-grp-b i.in { background: #B6DD62; } :root.land .dk-grp-b i.out { background: #8FA19C; }
+  :root.land .dk-grp-b i.in { background: var(--lk-lime); } :root.land .dk-grp-b i.out { background: var(--lk-soft-2); }
   :root.land .dk-grp-b i.zero { border-radius: 0; background: rgba(255, 255, 255, .3); }
   :root.land .dk-grp-b b { position: absolute; transform: translateX(-50%); color: #FFFFFF; font-size: 12px; font-weight: 600; white-space: nowrap; }
-  :root.land .dk-grp-b b.in { left: calc(50% - 13px); } :root.land .dk-grp-b b.out { left: calc(50% + 13px); color: #D6DCCF; }
-  :root.land .dk-grp-m { color: #D6DCCF; font-size: 13px; }
-  :root.land .dk-grp small { color: #8FA19C; font-size: 12px; }
-  :root.land .dk-grp.now .dk-grp-m { color: #B6DD62; font-weight: 600; }
-  :root.land .dk-grp.on .dk-grp-m { color: #FFFFFF; font-weight: 600; text-decoration: underline; text-decoration-color: #B6DD62; text-underline-offset: 4px; }
-  :root.land .dk-grp:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land .dk-grp-b b.in { left: calc(50% - 13px); } :root.land .dk-grp-b b.out { left: calc(50% + 13px); color: var(--lk-on-2); }
+  :root.land .dk-grp-m { color: var(--lk-on-2); font-size: 13px; }
+  :root.land .dk-grp small { color: var(--lk-soft-2); font-size: 12px; }
+  :root.land .dk-grp.now .dk-grp-m { color: var(--lk-lime); font-weight: 600; }
+  :root.land .dk-grp.on .dk-grp-m { color: #FFFFFF; font-weight: 600; text-decoration: underline; text-decoration-color: var(--lk-lime); text-underline-offset: 4px; }
+  :root.land .dk-grp:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
   @media (hover: hover) and (pointer: fine) { :root.land .dk-grp:hover { background: rgba(255, 255, 255, .05); } }
   /* the charts on the sheet */
   :root.land .dk-chart { display: block; width: 100%; height: auto; overflow: visible; }
   :root.land .dk-chart .dk-gl path { stroke: var(--bq-line); stroke-width: 1; }
   :root.land .dk-chart .dk-ax text { fill: var(--bq-ink-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
   :root.land .dk-chart .dk-lplan { fill: none; stroke: var(--bq-ink-3); stroke-width: 1.5; stroke-dasharray: 5 5; }
-  :root.land .dk-chart .dk-lwas { fill: none; stroke: #8FA19C; stroke-width: 2; stroke-linejoin: round; }
+  :root.land .dk-chart .dk-lwas { fill: none; stroke: var(--lk-soft-2); stroke-width: 2; stroke-linejoin: round; }
   :root.land .dk-chart .dk-lnow { fill: none; stroke: var(--bq-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
   :root.land .dk-chart .dk-pt, :root.land .dk-chart .dk-pts circle { fill: var(--bq-accent); stroke: var(--bq-card); stroke-width: 2; }
   :root.land .dk-chart .dk-area { fill: var(--bq-mint); opacity: .7; }
@@ -317,7 +317,7 @@
   :root.land .dk-lines b { color: var(--bq-ink); font-weight: 600; }
   :root.land .dk-lines span { color: var(--bq-ink-3); }
   :root.land .dk-lines .dk-ln { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
-  :root.land .dk-lines .dk-ln.now { background: var(--bq-accent); } :root.land .dk-lines .dk-ln.was { background: #8FA19C; } :root.land .dk-lines .dk-ln.plan { height: 0; border-top: 2px dashed var(--bq-ink-3); }
+  :root.land .dk-lines .dk-ln.now { background: var(--bq-accent); } :root.land .dk-lines .dk-ln.was { background: var(--lk-soft-2); } :root.land .dk-lines .dk-ln.plan { height: 0; border-top: 2px dashed var(--bq-ink-3); }
   /* where it went */
   :root.land .dk-cats { display: flex; flex-direction: column; gap: 14px; }
   :root.land .dk-cat { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 8px; border-radius: 12px; }
@@ -354,10 +354,10 @@
 
 /* ---------- Accounts & savings ---------- */
 @media (min-width: 921px) {
-  :root.land .dk-band-s { color: #8FA19C; font-size: 13px; }
+  :root.land .dk-band-s { color: var(--lk-soft-2); font-size: 13px; }
   :root.land .dk-rw { display: flex; gap: 6px; margin-top: 6px; }
   :root.land .dk-rw-s { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-  :root.land .dk-rw-s small { color: #8FA19C; font-size: 12px; }
+  :root.land .dk-rw-s small { color: var(--lk-soft-2); font-size: 12px; }
   :root.land .dk-tbl.acc .dk-who b { font-size: 16px; }
   :root.land .dk-tbl.acc .dk-pill { vertical-align: 2px; margin-left: 4px; }
   :root.land .dk-tbl .dk-sub-acc td { background: var(--bq-card-2); }
@@ -415,13 +415,13 @@
   /* a figure that opens what it is made of: as the summary's figures, its name underlined under the pointer */
   :root.land .dk-fig { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 12px; max-width: 100%; border-radius: 12px; }
   :root.land .dk-fig:not(.dk-fig-big) { gap: 0; }
-  :root.land .dk-fig:focus-visible { outline: 2px solid #B6DD62; outline-offset: 4px; }
+  :root.land .dk-fig:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 4px; }
   @media (hover: hover) and (pointer: fine) {
     :root.land .dk-fig:hover .dk-k, :root.land .dk-fig:hover small, :root.land .dk-fig:hover > b.num { text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .3); text-underline-offset: 4px; }
-    :root.land button.dk-chip:hover { background: rgba(255, 255, 255, .14); } :root.land button.dk-chip.go:hover { background: rgba(182, 221, 98, .24); }
+    :root.land button.dk-chip:hover { background: rgba(255, 255, 255, .14); } :root.land button.dk-chip.go:hover { background: rgba(var(--lk-lime-rgb), .24); }
   }
   :root.land button.dk-chip { border: 0; font-family: inherit; cursor: pointer; }
-  :root.land button.dk-chip:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land button.dk-chip:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
 }
 @media (min-width: 921px) {
   :root.land .dk-h2 { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -446,7 +446,7 @@
   :root.land .dk-axl.tag { transform: translate(-100%, -50%); color: var(--bq-ink); font-size: 13px; font-weight: 600; }
   :root.land .dk-gx { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding-bottom: 4px; }
   :root.land .dk-gx .dk-grp-b::after { content: ""; align-self: flex-end; width: 48px; height: 46%; border: 1.5px dashed rgba(255, 255, 255, .2); border-bottom: 0; border-radius: 6px 6px 0 0; }
-  :root.land .dk-gx .dk-grp-m { color: #8FA19C; }
+  :root.land .dk-gx .dk-grp-m { color: var(--lk-soft-2); }
   :root.land .dk-gx small { color: #6F827D; font-size: 12px; }
   :root.land .dk-sheet .dk-tbl .num.neg, :root.land .dk-sheet .dk-share .num.neg { color: var(--dk-neg); }
   :root.land .dk-tbl:is(#rep-matrix-tbl, #rep-vsplan-tbl) { table-layout: auto; }      /* the previous page's rule (screens/reports.css) fixed the columns: "Oct, hasta hoy" ran into "Promedio" */

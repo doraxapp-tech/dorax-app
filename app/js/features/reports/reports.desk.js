@@ -43,10 +43,12 @@ function dkRepWhere(bk, CUR, ym, m) {
     <div class="dk-cats">${shown.map(row).join('')}${rest.length ? `<p class="dk-note num">${esc(t('And {n} more categories: {amount}', { n: rest.length, amount: fmt.money(sum(rest.map(p => p.v)), CUR) }))}</p>` : ''}</div>
     ${top.length ? `<div class="dk-most"><h3>${t('Where most')}</h3>${top.map(o => `<button class="dk-most-r" data-a="filter-q" data-q="${esc(o.name)}"><span>${esc(o.name)}</span><b class="num">${fmt.money(o.v, CUR)}</b></button>`).join('')}</div>` : ''}</section>`;
 }
-/** The household's net balance at the end of each month (today for this one): a line rising or falling, and how far it moved. */
+/** The accounts whose net balance the page follows: the side's on screen, in this currency (v214: the company's side has this page too). */
+const repSideAccts = CUR => S.accounts.filter(a => (a.scope === 'business') === inCompany() && a.currency === CUR);
+/** The side's net balance at the end of each month (today for this one): a line rising or falling, and how far it moved. */
 function dkRepBalance(rows, ym, CUR) {
   if (rows.length < 2) return dkRepBalanceDays(ym, CUR);
-  const accts = personal().filter(a => a.currency === CUR), nowYm = ymOf(S.today);
+  const accts = repSideAccts(CUR), nowYm = ymOf(S.today);
   const pts = rows.map(([m]) => ({ m, v: sum(accts.map(a => accountBalance(S, a.id, m === nowYm ? S.today : isoDate(m, 31)))) }));
   const { ticks, bottom, top } = niceTicks(Math.min(0, ...pts.map(p => p.v)), Math.max(...pts.map(p => p.v))), W = 520, H = 230, L = 52, R = 14, T = 14, B = 30, N = pts.length;
   const x = i => L + i * (W - L - R) / Math.max(1, N - 1), y = v => T + (H - T - B) * (1 - (v - bottom) / (top - bottom)), line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
@@ -59,9 +61,9 @@ function dkRepBalance(rows, ym, CUR) {
   return `<section class="dk-tile dk-box" id="rep-balance" aria-labelledby="rep-balance-h"><div class="dk-box-h"><div class="dk-sec-t"><h2 id="rep-balance-h">${t('Your net balance, month by month')}</h2><span class="dk-sub">${t('What you have less what you owe, at the end of each month')}</span></div>${dkPill(esc(t('{change} since {month}', { change: fmt.money(ch, CUR, { sign: true, round: true }), month: yrMonth(first.m) })), ch >= 0 ? 'mint' : 'crit')}</div>
     ${svg}<div>${dkLink('href="#accounts"', t('See Accounts & savings'), true)}</div></section>`;
 }
-/** The first month: the household's net balance at the end of each day of the month (to today), from where it stood when the month began. */
+/** The first month: the side's net balance at the end of each day of the month (to today), from where it stood when the month began. */
 function dkRepBalanceDays(ym, CUR) {
-  const accts = personal().filter(a => a.currency === CUR), ids = new Set(accts.map(a => a.id)), nowYm = ymOf(S.today), D = daysInMonth(ym), upto = ym === nowYm ? +S.today.slice(8) : D;
+  const accts = repSideAccts(CUR), ids = new Set(accts.map(a => a.id)), nowYm = ymOf(S.today), D = daysInMonth(ym), upto = ym === nowYm ? +S.today.slice(8) : D;
   if (!accts.length) return '';
   const start = sum(accts.map(a => accountBalance(S, a.id, isoDate(addMonths(ym, -1), 31)))), v = Array(upto + 1).fill(0);
   S.transactions.forEach(x => { if (ids.has(x.accountId) && counts(x) && ymOf(x.date) === ym && +x.date.slice(8) <= upto) v[+x.date.slice(8)] += x.amount; });
@@ -142,7 +144,7 @@ function dkRepTrend(rows, ym, CUR) {
         <i class="in${v.income ? '' : ' zero'}" style="height:${v.income ? h(v.income) + '%' : '2px'}"></i><i class="out${v.expenses ? '' : ' zero'}" style="height:${v.expenses ? h(v.expenses) + '%' : '2px'}"></i></span>
       <span class="dk-grp-m">${esc(fmt.month(m, 'bare'))}</span><small class="num">${m === nowYm ? t('in progress') : esc(t('keeps {amount}', { amount: r0(v.saved) }))}</small></button>`;
   };
-  const right = `<span class="dk-keys2"><span><i class="dk-dot" style="background:#B6DD62"></i>${t('In')}</span><span><i class="dk-dot" style="background:#8FA19C"></i>${t('Out')}</span>${dkLink('data-a="dk-rep-table"', t('See as a table'))}</span>`;
+  const right = `<span class="dk-keys2"><span><i class="dk-dot" style="background:var(--lk-lime)"></i>${t('In')}</span><span><i class="dk-dot" style="background:var(--lk-soft-2)"></i>${t('Out')}</span>${dkLink('data-a="dk-rep-table"', t('See as a table'))}</span>`;
   const ghost = i => `<div class="dk-gx" aria-hidden="true"><span class="dk-grp-b"></span><span class="dk-grp-m">${esc(fmt.month(addMonths(ym, i + 1), 'bare'))}</span><small>${t('to come')}</small></div>`;
   return dkBand('dk-trend-h', t('In and out, month by month'), right, `<div class="dk-grps">${rows.map(grp).join('')}${Array.from({ length: pad }, (_, i) => ghost(i)).join('')}</div>${pad ? `<p class="sr">${t('The months to come are added here as they go by.')}</p>` : ''}`);
 }
@@ -158,7 +160,7 @@ function dkReports() {
   if (done.length) {
     const inc = Math.round(sum(done.map(r => r[1].income)) / done.length), exp = Math.round(sum(done.map(r => r[1].expenses)) / done.length), left = inc - exp, rate = inc > 0 ? Math.round(left * 1000 / inc) / 10 : null;
     side = `${dkSideHead('dk-keep-h', t('What you keep each month, on average'))}<b class="dk-mid num${left < 0 ? ' neg' : ''}">${fmt.money(left, CUR, { round: true })}${rate === null ? '' : ` <small>${esc(t('{pct} of what comes in', { pct: fmt.pct(rate) }))}</small>`}</b>
-      ${inc > 0 ? `<div class="dk-split" role="img" aria-label="${esc(t('Of {inc} that comes in a month, {exp} goes out and {left} is left', { inc: fmt.money(inc, CUR, { round: true }), exp: fmt.money(exp, CUR, { round: true }), left: fmt.money(Math.max(0, left), CUR, { round: true }) }))}"><span class="first${left > 0 ? '' : ' last'}" style="flex:${Math.min(exp, inc)} 1 0;background:#8FA19C"></span>${left > 0 ? `<span class="last" style="flex:${left} 1 0;background:#B6DD62"></span>` : ''}</div>` : ''}
+      ${inc > 0 ? `<div class="dk-split" role="img" aria-label="${esc(t('Of {inc} that comes in a month, {exp} goes out and {left} is left', { inc: fmt.money(inc, CUR, { round: true }), exp: fmt.money(exp, CUR, { round: true }), left: fmt.money(Math.max(0, left), CUR, { round: true }) }))}"><span class="first${left > 0 ? '' : ' last'}" style="flex:${Math.min(exp, inc)} 1 0;background:var(--lk-soft-2)"></span>${left > 0 ? `<span class="last" style="flex:${left} 1 0;background:var(--lk-lime)"></span>` : ''}</div>` : ''}
       <p class="dk-say num">${esc(tn(done.length, 'Last {n} month: {inc} comes in, {exp} goes out', 'Last {n} months: {inc} comes in, {exp} goes out', { inc: fmt.money(inc, CUR, { round: true }), exp: fmt.money(exp, CUR, { round: true }) }))}</p>`;
   } else {      // no month closed yet: what is left of this one, and when the average takes its place
     const head = dkSideHead('dk-keep-h', open ? t('What you keep in {month}, so far', { month: yrMonth(ym) }) : t('What you kept in {month}', { month: yrMonth(ym) }));
@@ -166,7 +168,7 @@ function dkReports() {
     if (m.income > 0) {
       const left = m.income - m.expenses, rate = Math.round(left * 1000 / m.income) / 10;
       side = `${head}<b class="dk-mid num${left < 0 ? ' neg' : ''}">${fmt.money(left, CUR, { round: true })} <small>${esc(t('{pct} of what came in', { pct: fmt.pct(rate) }))}</small></b>
-        <div class="dk-split" role="img" aria-label="${esc(t('{inc} came in, {exp} went out', { inc: fmt.money(m.income, CUR, { round: true }), exp: fmt.money(m.expenses, CUR, { round: true }) }))}"><span class="first${left > 0 ? '' : ' last'}" style="flex:${Math.min(m.expenses, m.income)} 1 0;background:#8FA19C"></span>${left > 0 ? `<span class="last" style="flex:${left} 1 0;background:#B6DD62"></span>` : ''}</div>
+        <div class="dk-split" role="img" aria-label="${esc(t('{inc} came in, {exp} went out', { inc: fmt.money(m.income, CUR, { round: true }), exp: fmt.money(m.expenses, CUR, { round: true }) }))}"><span class="first${left > 0 ? '' : ' last'}" style="flex:${Math.min(m.expenses, m.income)} 1 0;background:var(--lk-soft-2)"></span>${left > 0 ? `<span class="last" style="flex:${left} 1 0;background:var(--lk-lime)"></span>` : ''}</div>
         <p class="dk-say num">${esc(t('{inc} came in, {exp} went out', { inc: fmt.money(m.income, CUR, { round: true }), exp: fmt.money(m.expenses, CUR, { round: true }) }))}</p>${then}`;
     } else side = `${head}<p class="dk-say">${esc(t('No income in {month} yet: with it, here you see what you keep.', { month: yrMonth(ym) }))}</p>${open ? `<div class="dk-acts"><button class="btn primary" data-a="quick-go" data-v="income">${icon('plus')}${t('Add income')}</button></div>` : ''}`;
   }

@@ -97,7 +97,7 @@ function dkAccounts(list) {
   const spend = list.filter(a => a.currency === CUR && a.type !== 'savings' && a.type !== 'credit'), sv = list.filter(a => a.currency === CUR && a.type === 'savings'), cards = list.filter(a => a.currency === CUR && a.type === 'credit');
   const v = xs => sum(xs.map(a => accountBalance(S, a.id, S.today))), names = xs => { const n = xs.map(a => a.name); return n.length > 2 ? t('{list} and {n} more', { list: n.slice(0, 2).join(', '), n: n.length - 2 }) : n.join(' ' + t('and') + ' '); };
   const owed = -v(cards), inv = cardInvoices(S, S.today, CUR).find(c => !c.paid && c.amount > 0 && ymOf(c.date) === nowYm);
-  const parts = [{ label: t('To spend'), v: v(spend), color: '#B6DD62', sub: esc(names(spend)) }, { label: t('Saved'), v: v(sv), color: '#E8F3D2', sub: esc(names(sv)) },
+  const parts = [{ label: t('To spend'), v: v(spend), color: 'var(--lk-lime)', sub: esc(names(spend)) }, { label: t('Saved'), v: v(sv), color: 'var(--lk-mint)', sub: esc(names(sv)) },
     ...(cards.length ? [{ label: owed >= 0 ? t('Owed on cards') : t('In your favour on cards'), v: Math.abs(owed), color: '#FF8A80', neg: owed > 0, show: fmt.money(-owed, CUR), sub: inv ? esc(t('Invoice of {date}', { date: fmt.date(inv.date) })) : '' }] : [])];
   const band = dkBand('dk-shared-h', t('How it is shared'), `<span class="dk-band-r"><span class="num dk-band-s">${esc(t('{a} in accounts · {b} on cards', { a: fmt.money(v(spend) + v(sv), CUR), b: fmt.money(owed, CUR) }))}</span></span>`, dkSplit(parts, CUR));
   const hero = dkHero({ label: t('Household net balance'), big: fmt.money(net, CUR), neg: net < 0, k: 'net', chips, side, sideId: side ? 'dk-last-h' : '', band });

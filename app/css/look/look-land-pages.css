@@ -13,9 +13,9 @@
   :root.land .navbar .bar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
   :root.land .navbar .bq-back { flex: none; text-decoration: none; }
   :root.land .navbar .bq-back svg { width: 20px; height: 20px; }
-  :root.land .navbar .bq-new { border-color: #B6DD62; background: #B6DD62; color: #112622; }
+  :root.land .navbar .bq-new { border-color: var(--lk-lime); background: var(--lk-lime); color: var(--lk-deep); }
   :root.land .navbar .bq-new svg { stroke-width: 2.4; }
-  @media (hover: hover) and (pointer: fine) { :root.land .navbar .bq-new:hover { background: #C4E57A; } }
+  @media (hover: hover) and (pointer: fine) { :root.land .navbar .bq-new:hover { background: var(--lk-lime-hi); } }
 
   /* ---------- the light sheet: right under the bar, or under the screen's top on the forest ---------- */
   :root.land-page .topbar > .pagehead { position: relative; margin: 0; padding-bottom: 44px; }
@@ -30,42 +30,42 @@
 /* ---------- the forest top of Plan, Goals and Reports and the summary's language in the sheet: on a phone and (v199) on a computer (its frame:
    look-land-desk.css) ---------- */
   :root.land-page #view > .bq-hero {
-    --ink: #F1F4EE; --ink-strong: #FFFFFF; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
+    --ink: var(--lk-on); --ink-strong: #FFFFFF; --ink-2: var(--lk-soft); --ink-3: var(--lk-soft-2); --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24);
     --surface: rgba(255, 255, 255, .06); --surface-2: rgba(255, 255, 255, .08); --surface-3: rgba(255, 255, 255, .12); --badge: rgba(255, 255, 255, .1); --track: rgba(255, 255, 255, .14);
-    --pos: #B6DD62; --good: #B6DD62; --neg: #FF8A80; --crit: #FF8A80; --brand: #B6DD62; --focus: #B6DD62; --link: #B6DD62;
-    position: relative; display: flex; flex-direction: column; gap: 14px; background: #112622; color: #FFFFFF;
+    --pos: var(--lk-lime); --good: var(--lk-lime); --neg: #FF8A80; --crit: #FF8A80; --brand: var(--lk-lime); --focus: var(--lk-lime); --link: var(--lk-lime);
+    position: relative; display: flex; flex-direction: column; gap: 14px; background: var(--lk-deep); color: #FFFFFF;
   }
   :root.land-page #view > .bq-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
   /* on the forest: the large figure bare, its tiles translucent with their dashed edge, the buttons lime and light, the switch lime */
   :root.land-page #view > .bq-hero .card.g-total { padding: 2px 0 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
-  :root.land-page #view > .bq-hero .g-total .label { color: #B5C2BE; font-size: 14px; font-weight: 500; }
+  :root.land-page #view > .bq-hero .g-total .label { color: var(--lk-soft); font-size: 14px; font-weight: 500; }
   :root.land-page #view > .bq-hero .g-total .value { color: #FFFFFF; font-size: clamp(32px, 10vw, 40px); font-weight: 600; letter-spacing: -.045em; }
-  :root.land-page #view > .bq-hero .g-total .value .cents { color: #B5C2BE; }
+  :root.land-page #view > .bq-hero .g-total .value .cents { color: var(--lk-soft); }
   :root.land-page #view > .bq-hero .kpi, :root.land-page #view > .bq-hero .card.tile { border: 1px dashed rgba(255, 255, 255, .24); border-radius: 20px; background: rgba(255, 255, 255, .06); box-shadow: none; color: #FFFFFF; }
-  :root.land-page #view > .bq-hero .kpi .label, :root.land-page #view > .bq-hero .card.tile .label { color: #B5C2BE; }
+  :root.land-page #view > .bq-hero .kpi .label, :root.land-page #view > .bq-hero .card.tile .label { color: var(--lk-soft); }
   :root.land-page #view > .bq-hero .kpi .value, :root.land-page #view > .bq-hero .card.tile .value { color: #FFFFFF; }
   :root.land-page #view > .bq-hero .kpis.g-mini { margin: 0 -16px; padding: 0 16px; }
   :root.land-page #view > .bq-hero .btn, :root.land-page #view > .bq-hero .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { min-height: 48px; border-radius: 999px; border: 0; background: rgba(255, 255, 255, .1); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16); color: #FFFFFF; font-weight: 600; }
-  :root.land-page #view > .bq-hero .btn.primary { background: #B6DD62; box-shadow: none; color: #112622; }
-  @media (hover: hover) and (pointer: fine) { :root.land-page #view > .bq-hero .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { background: rgba(255, 255, 255, .16); } :root.land-page #view > .bq-hero .btn.primary:hover { background: #C4E57A; } }
-  :root.land-page #view > .bq-hero .btn:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land-page #view > .bq-hero .btn.primary { background: var(--lk-lime); box-shadow: none; color: var(--lk-deep); }
+  @media (hover: hover) and (pointer: fine) { :root.land-page #view > .bq-hero .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { background: rgba(255, 255, 255, .16); } :root.land-page #view > .bq-hero .btn.primary:hover { background: var(--lk-lime-hi); } }
+  :root.land-page #view > .bq-hero .btn:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
   :root.land-page #view > .bq-hero .seg { padding: 4px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
-  :root.land-page #view > .bq-hero .seg button { min-height: 44px; border-radius: 999px; color: #B5C2BE; font-weight: 500; }
-  :root.land-page #view > .bq-hero .seg button[aria-pressed="true"], :root.land-page #view > .bq-hero .seg button[aria-pressed="true"]:hover { background: #B6DD62; color: #112622; font-weight: 600; box-shadow: none; }
+  :root.land-page #view > .bq-hero .seg button { min-height: 44px; border-radius: 999px; color: var(--lk-soft); font-weight: 500; }
+  :root.land-page #view > .bq-hero .seg button[aria-pressed="true"], :root.land-page #view > .bq-hero .seg button[aria-pressed="true"]:hover { background: var(--lk-lime); color: var(--lk-deep); font-weight: 600; box-shadow: none; }
 
   /* Reports: its switch and its month side by side (v194: no month row on these screens) */
   :root.land-page #view > .bq-hero .bq-rep-top { display: flex; align-items: center; gap: 10px; }
   :root.land-page #view > .bq-hero .bq-rep-top .seg { flex: 1 1 auto; min-width: 0; }
   /* Plan and Goals with another month in view: which, and the way back to this one */
-  :root.land-page #view > .bq-hero .bq-past { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 4px 4px 4px 14px; border-radius: 999px; background: rgba(182, 221, 98, .14); color: #B6DD62; font-size: 13px; font-weight: 600; }
-  :root.land-page #view > .bq-hero .bq-past-go { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: #B6DD62; color: #112622; font-size: 13px; font-weight: 600; touch-action: manipulation; }
-  :root.land-page #view > .bq-hero .bq-past-go:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land-page #view > .bq-hero .bq-past { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 4px 4px 4px 14px; border-radius: 999px; background: rgba(var(--lk-lime-rgb), .14); color: var(--lk-lime); font-size: 13px; font-weight: 600; }
+  :root.land-page #view > .bq-hero .bq-past-go { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--lk-lime); color: var(--lk-deep); font-size: 13px; font-weight: 600; touch-action: manipulation; }
+  :root.land-page #view > .bq-hero .bq-past-go:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
 
   /* ---------- in the sheet: the summary's language ---------- */
   :root.land-page #view {
     --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --link: var(--bq-accent); --focus: var(--bq-accent); --select: var(--bq-mint); --select-ink: var(--bq-accent); --switch-on: var(--bq-accent);
     --line: var(--bq-line); --line-strong: var(--bq-line-2); --surface: var(--bq-card); --surface-2: var(--bq-card-2); --surface-3: var(--bq-card-3); --well: var(--bq-card); --badge: var(--bq-card-3);
-    --primary: #B6DD62; --primary-ink: #112622; --cta: #B6DD62; --cta-ink: #112622;
+    --primary: var(--lk-pop); --primary-ink: var(--lk-pop-ink); --cta: var(--lk-pop); --cta-ink: var(--lk-pop-ink);
   }
   :root.land-page #view .card { border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   /* the cards that hold cards keep no box of their own (no boxes inside boxes, owner 2026-10-11): the categories, a part of the page set bare */
@@ -77,8 +77,8 @@
   :root.land-page #view h2.sec::before { display: none; }
   :root.land-page #view .btn { border-radius: 999px; }
   :root.land-page #view .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: var(--bq-line); background: var(--bq-card); color: var(--bq-ink); }
-  :root.land-page #view .btn.primary { border-color: #B6DD62; background: #B6DD62; color: #112622; font-weight: 600; }
-  @media (hover: hover) and (pointer: fine) { :root.land-page #view .btn.primary:hover { border-color: #C4E57A; background: #C4E57A; } }
+  :root.land-page #view .btn.primary { border-color: var(--lk-pop); background: var(--lk-pop); color: var(--lk-pop-ink); font-weight: 600; }
+  @media (hover: hover) and (pointer: fine) { :root.land-page #view .btn.primary:hover { border-color: var(--lk-pop-hi); background: var(--lk-pop-hi); } }
   :root.land-page #view .seg { border-color: var(--bq-line); border-radius: 999px; background: var(--bq-card); }
   :root.land-page #view .seg button { border-radius: 999px; }
   :root.land-page #view .seg button[aria-pressed="true"], :root.land-page #view .seg button[aria-pressed="true"]:hover { background: var(--bq-pick-bg); color: var(--bq-pick-ink); font-weight: 600; box-shadow: none; }

@@ -41,7 +41,7 @@ function bqFree() {
 function bqActions() {
   const by = Object.fromEntries(quickItems().map(x => [x[0], x]));
   const one = (v, d, on, label) => by[v] ? `<button data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}"><span class="bq-ico${on ? ' on' : ''}">${bqSvg(d)}</span><span>${label}</span></button>` : '';
-  return `<nav class="bq-acts" id="quick-acts" aria-label="${t('Add')}">${one('expense', BQ_OUT, true, quickShort('expense'))}${one('income', BQ_IN, false, t('Inflow'))}${one('transfer', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', false, t('Move money'))}<button data-a="quick-more" aria-haspopup="dialog"><span class="bq-ico">${icon('more')}</span><span>${t('More')}</span></button></nav>`;
+  return `<nav class="bq-acts" id="quick-acts" aria-label="${t('Add')}">${one('expense', BQ_OUT, true, quickShort('expense', inCompany()))}${one('income', BQ_IN, false, inCompany() ? quickShort('income', true) : t('Inflow'))}${one('transfer', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', false, t('Move money'))}<button data-a="quick-more" aria-haspopup="dialog"><span class="bq-ico">${icon('more')}</span><span>${t('More')}</span></button></nav>`;
 }
 /** More: every other thing the summary's row of circles offered, in a short list. */
 /** On a computer, More is a menu under its button (v201: a web page's menu, not the phone's sheet at the foot of the screen): where it opens, under
@@ -70,15 +70,17 @@ function bqShort(a) {
   const rest = acctRest(a.name, inst).replace(/^\((.+)\)$/, '$1');      // "Santander (débito)" is "Débito", not "(débito)"
   return !rest || BQ_PLAIN.test(rest) ? (BQ_SHORT[inst] || inst) : rest.charAt(0).toUpperCase() + rest.slice(1);
 }
+/** The accounts the summary shows: the household's, or the company's in the currency its page is in (v214). */
+const bqSideAccts = () => inCompany() ? bookAccounts() : personal();
 const bqHead = (title, link, sub) => `<div class="bq-h"><span class="bq-t"><h2>${title}</h2>${sub ? `<span class="bq-sub">${sub}</span>` : ''}</span>${link || ''}</div>`;
 const bqLink = (href, label) => `<a class="bq-more" href="${href}">${label}${icon('right')}</a>`;
 function bqAccounts() {
-  if (!personal().length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty"><b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
+  if (!bqSideAccts().length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty"><b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
   return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'), bqLink('#accounts', t('View all')))}<ul class="bq-accs bq-row">${bqAccItems()}</ul></section>`;
 }
 /** The accounts as round logos, one per bank (the phone's row; on a computer, the summary's header: features/phone/bosque-desk.js). */
 function bqAccItems() {
-  const list = personal(), bal = a => accountBalance(S, a.id, S.today);
+  const list = bqSideAccts(), bal = a => accountBalance(S, a.id, S.today);
   // one logo per card, its functions together (owner, 2026-10-12: "no es necesario tener Santander de ahorro y otro de débito, son lo mismo pero
   // diferentes funciones; condensa las cuentas"): a savings account and its balance to spend by debit are one logo, a credit card linked to its
   // account is inside that account's logo; a credit card with no account of its own is a logo of its own (cardsOf, wallet.js). The most money first.
@@ -120,8 +122,8 @@ function bqRunway() {
   const days = r.days, next = RUNWAY_MARKS.find(m => m > days), share = next ? Math.min(1, days / next) : 1, C = 2 * Math.PI * 44;
   const months = days >= 60, n = months ? fmt.num(runwayMonths(days)) : fmt.num(days), unit = months ? t('months') : t('days');
   const say = next ? t('Next goal: {mark}.', { mark: rwMark(next) }) : t('Past every goal: more than a year.');
-  return `<section class="bq-run" id="runway-card"><button class="bq-tile" id="runway-open" data-a="runway-view" aria-haspopup="dialog" aria-label="${esc(`${t('Days of freedom')}: ${rwFigure(days, false).span}. ${say}`)}">
-    <span class="bq-tile-h" aria-hidden="true">${t('Days of freedom')}</span>
+  return `<section class="bq-run" id="runway-card"><button class="bq-tile" id="runway-open" data-a="runway-view" aria-haspopup="dialog" aria-label="${esc(`${inCompany() ? t('Company runway') : t('Days of freedom')}: ${rwFigure(days, false).span}. ${say}`)}">
+    <span class="bq-tile-h" aria-hidden="true">${inCompany() ? t('Company runway') : t('Days of freedom')}</span>
     <span class="bq-ring" aria-hidden="true"><svg viewBox="0 0 104 104" focusable="false"><circle cx="52" cy="52" r="44" fill="none" stroke="#DFE6E4" stroke-width="10"/>${share > 0 ? `<circle cx="52" cy="52" r="44" fill="none" stroke="#112622" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(share * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 52 52)"/>` : ''}</svg><span class="bq-ring-n"><b data-count="${months ? runwayMonths(days) : days}">${n}</b><small>${unit}</small></span></span>
     <span class="bq-tile-s" aria-hidden="true">${say}</span></button></section>`;
 }

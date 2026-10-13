@@ -85,7 +85,9 @@ const { open, ok, eq, done } = require('./pw.js');
   // the first-time setup and the company's setup, before an account exists
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 } }));
   const sl = await page.evaluate(() => { const els = [...document.querySelectorAll('input[type=text]')].filter(e => /amount|0,00/.test(e.placeholder) || e.closest('.ob-slide')); return els.map(e => [e.id, e.getAttribute('inputmode')]); });
-  ok(sl.length >= 3 && sl.every(x => x[1] === 'decimal'), 'the home page’s calculator: its money fields say so too', sl);
+  // v213: the home page's calculator is chosen with buttons (a dream, an amount a month), so it has no money field to type into; any other money field there still says so
+  const picks = await page.evaluate(() => document.querySelectorAll('#calc-tool .l2-pick').length);
+  ok(picks >= 7 && sl.every(x => x[1] === 'decimal'), 'the home page’s calculator: chosen with buttons, and any money field says it is one', [picks, sl]);
   if (sl.length) { const id = '#' + sl[0][0]; await page.click(id, { clickCount: 3 }); await page.keyboard.type('2k0.000'); eq(await page.inputValue(id), '20.000', 'and refuse letters'); }
   eq(errors, [], 'public: no error in the console'); await browser.close();
   done('qc-money-fields');

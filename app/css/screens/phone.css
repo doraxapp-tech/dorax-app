@@ -62,7 +62,7 @@
   .more-btn[aria-current="page"] { background: #FAFAFA; color: #0A0A0A; border-color: #FAFAFA; }
   .navbar .bell:focus-visible, .more-btn:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
   .navbar .bell .count, .app-light .navbar .bell .count { background: var(--brand); color: var(--on-brand); box-shadow: 0 0 0 2px #050505; }
-  .side-co .navbar .bell .count { background: var(--fab); color: var(--fab-ink); }
+  :root.side-co:not(.land) .navbar .bell .count { background: var(--fab); color: var(--fab-ink); }
   .navbar .save-badge { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
   .bar-side { display: block; background: none; padding: 4px 16px 16px; border-radius: 0 0 22px 22px; -webkit-user-select: none; user-select: none; }
   .bar-side .side-seg { border: 0; padding: 3px; gap: 3px; background: rgba(0, 0, 0, .26); }
@@ -107,9 +107,9 @@
   .tabbar a[aria-current="page"]::before { content: ""; position: absolute; top: -6px; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: var(--brand); }
   .tabbar a[aria-current="page"] svg { color: var(--brand); }
   .tabbar .fab { background: var(--cta); color: var(--cta-ink); }      /* Wise's lime with forest words (2026-10-11; it was #006239 with white) */
-  .side-co .tabbar a[aria-current="page"]::before { background: var(--fab); }
-  .side-co .tabbar a[aria-current="page"] svg { color: var(--fab); }
-  .side-co .tabbar .fab { background: var(--fab); color: var(--fab-ink); }
+  :root.side-co:not(.land) .tabbar a[aria-current="page"]::before { background: var(--fab); }
+  :root.side-co:not(.land) .tabbar a[aria-current="page"] svg { color: var(--fab); }
+  :root.side-co:not(.land) .tabbar .fab { background: var(--fab); color: var(--fab-ink); }
   /* the dashboard (js/features/phone/phone.home.js, phone.company.js) */
   /* the quick things to do: round buttons in a row to swipe, the fifth always peeking in so the row is seen to go on */
   .quick-row { display: flex; gap: 2px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 16px; margin: 0 -16px; padding: 4px 16px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }

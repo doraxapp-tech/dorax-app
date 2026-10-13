@@ -39,7 +39,15 @@ const libs = Buffer.concat(Object.entries(LIBS).map(([id, f]) => { const b = rea
 const SERVER_FILES = ['config.js', 'vendor/supabase.js'], standIn = fs.readFileSync(path.join(__dirname, 'preview-backend.js'));
 for (const f of SERVER_FILES) if (!scripts.includes(f)) fail('index.html no longer lists ' + f + ': the preview build expects to replace it');
 // the bank logos are files beside the app; the one-file preview has nothing beside it, so there they are written into the list itself
-const LOGOS = 'js/data/bank-logos.js', inlined = f => f === LOGOS ? Buffer.from(require('./build-banks.js').inlineText()) : read(f);
+// so are the people's pictures (assets/art/people/, js/ui/art.js: artFig): in the preview they are written into the page, each by its file's name
+const ART = 'js/ui/art.js', PEOPLE = 'assets/art/people', ART_FROM = 'src="assets/art/people/${/\\bshadow\\b/.test(cls || \'\') ? \'shadow/\' : \'\'}${name}.svg"';
+function artInline() {
+  const map = {}, src = read(ART).toString();
+  for (const sub of ['', 'shadow/']) for (const f of fs.readdirSync(path.join(APP, PEOPLE, sub)).filter(x => x.endsWith('.svg'))) map[sub + f] = 'data:image/svg+xml;base64,' + read(PEOPLE + '/' + sub + f).toString('base64') + '#' + PEOPLE + '/' + sub + f;      // its file's address after the #, so the picture still says which it is
+  if (!src.includes(ART_FROM)) fail(ART + ': the address of a person\'s picture changed; tools/build.js writes the pictures into the preview by it');
+  return Buffer.from(`const ART_PEOPLE_INLINE = ${JSON.stringify(map)};\n` + src.replace(ART_FROM, 'src="${ART_PEOPLE_INLINE[(/\\bshadow\\b/.test(cls || \'\') ? \'shadow/\' : \'\') + name + \'.svg\']}"'));
+}
+const LOGOS = 'js/data/bank-logos.js', inlined = f => f === LOGOS ? Buffer.from(require('./build-banks.js').inlineText()) : f === ART ? artInline() : read(f);
 const js = Buffer.concat([Buffer.from('\n// ===== tools/preview-backend.js (the stand-in server: preview only) =====\n'), standIn, ...scripts.filter(f => !SERVER_FILES.includes(f)).map(f => Buffer.concat([Buffer.from('\n// ===== ' + f + ' =====\n'), inlined(f)]))]);
 if (/<\/script/i.test(js.toString())) fail('a script contains a closing script tag');
 const page = Buffer.concat([Buffer.from(title + '\n' + remote.map(h => `<link rel="stylesheet" href="${h}">`).join('\n') + '\n<style>'), css, Buffer.from('</style>\n' + body + '\n'), libs, Buffer.from('<script>'), js, Buffer.from('</script>\n')]);

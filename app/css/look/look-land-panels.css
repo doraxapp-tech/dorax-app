@@ -9,15 +9,15 @@
 /* (v199: on a phone and on a computer; look-land-desk.css fits them to a computer) */
   :root.land #overlay {
     --lift: var(--bq-page); --surface: var(--bq-card); --surface-2: var(--bq-card-2); --surface-3: var(--bq-card-3); --well: var(--bq-card); --pit: var(--bq-card-2); --badge: var(--bq-card-3);
-    --line: var(--bq-line); --line-strong: var(--bq-line-2); --field: var(--bq-line-2); --glass-line: var(--bq-line); --hover-line: #8FA19C;
-    --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --link: var(--bq-accent); --focus: var(--bq-accent); --ring: var(--bq-accent); --on-brand: #B6DD62; --col: var(--bq-accent);
-    --primary: #B6DD62; --primary-hover: #C4E57A; --primary-ink: #112622; --cta: #B6DD62; --cta-hover: #C4E57A; --cta-ink: #112622;
-    --select: var(--bq-mint); --select-ink: var(--bq-accent); --soft-hover: var(--bq-mint); --good-bg: var(--bq-mint); --switch-on: var(--bq-accent); --spark-ink: #B6DD62;
+    --line: var(--bq-line); --line-strong: var(--bq-line-2); --field: var(--bq-line-2); --glass-line: var(--bq-line); --hover-line: var(--lk-soft-2);
+    --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --link: var(--bq-accent); --focus: var(--bq-accent); --ring: var(--bq-accent); --on-brand: var(--lk-lime); --col: var(--bq-accent);
+    --primary: var(--lk-pop); --primary-hover: var(--lk-pop-hi); --primary-ink: var(--lk-pop-ink); --cta: var(--lk-pop); --cta-hover: var(--lk-pop-hi); --cta-ink: var(--lk-pop-ink);
+    --select: var(--bq-mint); --select-ink: var(--bq-accent); --soft-hover: var(--bq-mint); --good-bg: var(--bq-mint); --switch-on: var(--bq-accent); --spark-ink: var(--lk-lime);
     --btn: var(--bq-card); --btn-hover: var(--bq-card); --btn-line: var(--bq-line); --side-tint: var(--bq-circle); --side-line: var(--bq-circle);
   }
   /* the dark version: the accent is the lime, so what sits on it is the deep green (owner, 2026-10-12: "la racha, el círculo no se ve el check mark":
      the day marked in the Journey, and the count on the filters' button, were lime on lime) */
-  :root.land-dark #overlay { --on-brand: #112622; }
+  :root.land-dark #overlay { --on-brand: var(--lk-deep); }
   :root.land #overlay .drawer, :root.land #overlay .sheet { border: 0; background: var(--bq-page); }
   :root.land #overlay .drawer > header { border-bottom: 0; padding-bottom: 8px; }
   :root.land #overlay .drawer > header h2, :root.land #overlay .sheet > h2 { color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
@@ -26,10 +26,10 @@
   /* buttons: the main one lime with deep green words, the others white pills with a hairline */
   :root.land #overlay .btn { border-radius: 999px; }
   :root.land #overlay .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { background: var(--bq-card); border-color: var(--bq-line); color: var(--bq-ink); }
-  :root.land #overlay .btn.primary { background: #B6DD62; border-color: #B6DD62; color: #112622; font-weight: 600; }
+  :root.land #overlay .btn.primary { background: var(--lk-pop); border-color: var(--lk-pop); color: var(--lk-pop-ink); font-weight: 600; }
   /* fields: white, a hairline, round */
   :root.land #overlay input[type=text], :root.land #overlay input[type=search], :root.land #overlay input[type=number], :root.land #overlay input[type=date], :root.land #overlay select, :root.land #overlay textarea { border-color: var(--bq-line); border-radius: 16px; background-color: var(--bq-card); }
-  :root.land #overlay input:focus, :root.land #overlay select:focus, :root.land #overlay textarea:focus { border-color: var(--bq-accent); box-shadow: 0 0 0 3px rgba(17, 38, 34, .12); }
+  :root.land #overlay input:focus, :root.land #overlay select:focus, :root.land #overlay textarea:focus { border-color: var(--bq-accent); box-shadow: 0 0 0 3px rgba(var(--lk-deep-rgb), .12); }
   /* switches of two or three choices: a white track, the choice deep green with lime words */
   :root.land #overlay .seg { background: var(--bq-card); border-color: var(--bq-line); border-radius: 999px; }
   :root.land #overlay .seg button { border-radius: 999px; color: var(--bq-ink-2); }
@@ -44,13 +44,13 @@
   /* the amount: a white card, the currency in a deep green circle */
   :root.land #overlay .bq-tx .tx-amount { grid-template-columns: 48px minmax(0, 1fr); align-items: center; column-gap: 14px; padding: 16px 18px; border: 0; border-radius: 28px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   :root.land #overlay .bq-tx .tx-amount label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  :root.land #overlay .bq-tx .tx-sym { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #112622; color: #B6DD62; font-size: 15px; font-weight: 700; }
-  :root.land #overlay .bq-tx .tx-amount input[type=text] { min-height: 52px; border: 0; background: none; box-shadow: none; color: var(--bq-ink); font-size: 40px; font-weight: 600; letter-spacing: -.04em; caret-color: #B6DD62; }
+  :root.land #overlay .bq-tx .tx-sym { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--lk-deep); color: var(--lk-lime); font-size: 15px; font-weight: 700; }
+  :root.land #overlay .bq-tx .tx-amount input[type=text] { min-height: 52px; border: 0; background: none; box-shadow: none; color: var(--bq-ink); font-size: 40px; font-weight: 600; letter-spacing: -.04em; caret-color: var(--lk-lime); }
   :root.land #overlay .bq-tx .tx-amount:has(input#d-amount:focus), :root.land #overlay .bq-tx .tx-amount:has(.bq-amt:focus-visible) { box-shadow: inset 0 0 0 2px var(--bq-accent); }
   /* with the keypad, the amount is a button that shows what the keys typed (v202, bosque-tx.js: bqAmt), with a lime line after it while the keypad is up */
   :root.land #overlay .bq-tx .bq-amt { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; cursor: pointer; display: flex; align-items: center; min-width: 0; min-height: 52px; overflow: hidden; color: var(--bq-ink); font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1.1; white-space: nowrap; }
   :root.land #overlay .bq-tx .bq-amt .bq-amt-ph { color: var(--bq-ink-3); }
-  :root.land #overlay .bq-tx .tx-amount.typing .bq-amt::after { content: ""; flex: none; width: 3px; height: 38px; margin-left: 3px; border-radius: 2px; background: #B6DD62; }
+  :root.land #overlay .bq-tx .tx-amount.typing .bq-amt::after { content: ""; flex: none; width: 3px; height: 38px; margin-left: 3px; border-radius: 2px; background: var(--lk-lime); }
   :root.land #overlay .bq-tx .tx-amount:has(.bq-amt[aria-invalid="true"]) { box-shadow: inset 0 0 0 2px var(--bq-crit); }
   /* on its right, the round button that puts the keypad away and brings it back (v197) */
   :root.land #overlay .bq-tx .tx-amount:has(.bq-pad-btn) { grid-template-columns: 48px minmax(0, 1fr) 44px; }
@@ -82,13 +82,13 @@
   :root.land #overlay .bq-key:active { transform: scale(.94); background: var(--bq-circle-2); }
   :root.land #overlay .bq-key:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: -2px; }
   @media (hover: hover) and (pointer: fine) { :root.land #overlay .bq-key:hover { background: var(--bq-card-2); } :root.land #overlay .bq-key.soft:hover { background: var(--bq-circle-2); } }
-  :root.land #overlay .btn.primary.bq-save { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 6px 22px 6px 6px; border: 0; border-radius: 999px; background: #112622; color: #FFFFFF; font-size: 16px; font-weight: 600; text-align: left; }
-  :root.land #overlay .btn.primary.bq-save:hover { background: #112622; }
+  :root.land #overlay .btn.primary.bq-save { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 6px 22px 6px 6px; border: 0; border-radius: 999px; background: var(--lk-deep); color: #FFFFFF; font-size: 16px; font-weight: 600; text-align: left; }
+  :root.land #overlay .btn.primary.bq-save:hover { background: var(--lk-deep); }
   :root.land #overlay .btn.primary.bq-save:active { transform: scale(.98); }
-  :root.land #overlay .bq-save-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #B6DD62; color: #112622; }
+  :root.land #overlay .bq-save-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--lk-lime); color: var(--lk-deep); }
   :root.land #overlay .bq-save-ico svg { width: 22px; height: 22px; stroke-width: 2.6; }
   :root.land #overlay .bq-save-t { flex: 1 1 auto; }
-  :root.land #overlay .bq-save-amt { color: #B6DD62; font-size: 15px; }
+  :root.land #overlay .bq-save-amt { color: var(--lk-lime); font-size: 15px; }
   /* while a word is typed (what it was, a note), the phone's own keyboard is up: the keypad steps aside and the panel is only as tall as the form and
      its "Save", so an iPhone does not have to slide a tall sheet under its keyboard (owner, 2026-10-12: "el teclado numérico no funciona bien, tocas
      un lugar, abre otro") */

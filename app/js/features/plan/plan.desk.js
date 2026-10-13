@@ -40,9 +40,9 @@ function dkPlanShare(ym) {
   const nBills = lines.filter(l => l.pay !== 'budget' && val(l) > 0).length, lims = lines.filter(l => l.pay === 'budget' && val(l) > 0).map(l => l.name), nGoals = bk.goals.filter(g => goalLive(g) && goalPlan(g, ym) > 0).length;
   const limNames = lims.length > 2 ? t('{list} and {n} more', { list: lims.slice(0, 2).map(esc).join(', '), n: lims.length - 2 }) : lims.map(esc).join(lims.length === 2 ? ' ' + t('and') + ' ' : '');
   const parts = [
-    { label: t('Fixed bills'), v: mp.bills, color: '#B6DD62', sub: `${pct(mp.bills)} · ${tn(nBills, '{n} payment', '{n} payments')}` },
-    { label: t('Savings and goals'), v: mp.saving, color: '#E8F3D2', sub: `${pct(mp.saving)}${nGoals ? ' · ' + tn(nGoals, '{n} goal or fund', '{n} goals and funds') : ''}` },
-    { label: t('Spending limits'), v: mp.limits, color: '#8FA19C', sub: `${pct(mp.limits)}${limNames ? ' · ' + limNames : ''}` },
+    { label: t('Fixed bills'), v: mp.bills, color: 'var(--lk-lime)', sub: `${pct(mp.bills)} · ${tn(nBills, '{n} payment', '{n} payments')}` },
+    { label: t('Savings and goals'), v: mp.saving, color: 'var(--lk-mint)', sub: `${pct(mp.saving)}${nGoals ? ' · ' + tn(nGoals, '{n} goal or fund', '{n} goals and funds') : ''}` },
+    { label: t('Spending limits'), v: mp.limits, color: 'var(--lk-soft-2)', sub: `${pct(mp.limits)}${limNames ? ' · ' + limNames : ''}` },
     mp.free >= 0 ? { label: t('Not assigned yet'), v: mp.free, color: 'ring', sub: `${pct(mp.free)} · ${t('for whatever comes up')}` }
       : { label: t('Over the income'), v: -mp.free, color: 'ring', neg: true, sub: t('The plan uses more than comes in') },
   ].filter(x => x.v > 0 || x.label === t('Fixed bills'));

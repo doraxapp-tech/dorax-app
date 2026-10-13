@@ -67,18 +67,18 @@
 :root.in-app h2.sec::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: #9FD182; box-shadow: 0 0 0 3px rgba(159, 209, 130, .3); }
 :root.app-light h2.sec { background: #FFFFFF; box-shadow: 0 0 0 1px var(--line); color: #163300; }
 :root.in-app:not(.app-light) h2.sec { background: rgba(255, 255, 255, .05); box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); color: #9FD182; }
-:root.in-app.side-co h2.sec { color: var(--ink-strong); } :root.in-app.side-co h2.sec::before { background: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 30%, transparent); }
+:root.in-app.side-co:not(.land) h2.sec { color: var(--ink-strong); } :root.in-app.side-co:not(.land) h2.sec::before { background: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 30%, transparent); }
 
 /* ---------- the company's side: its blue, as the home page draws it (the "Company" choice filled blue with dark words; its fact a dark card) ---------- */
-:root.app-light.side-co .nav a[aria-current="page"] { background: #5B9DFF; color: #0E0F0C; }
-:root.app-light.side-co .nav a[aria-current="page"] svg { color: #0E0F0C; }
-:root.app-light.side-co .ins-pc { background: #0E0F0C; border-color: rgba(91, 157, 255, .4); color: #D4D4D4;
+:root.app-light.side-co:not(.land) .nav a[aria-current="page"] { background: #5B9DFF; color: #0E0F0C; }
+:root.app-light.side-co:not(.land) .nav a[aria-current="page"] svg { color: #0E0F0C; }
+:root.app-light.side-co:not(.land) .ins-pc { background: #0E0F0C; border-color: rgba(91, 157, 255, .4); color: #D4D4D4;
   --ink: #E8EBE6; --ink-strong: #FFFFFF; --ink-2: #C3C7BF; --ink-3: #959793; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .28);
   --btn: rgba(255, 255, 255, .06); --btn-line: rgba(255, 255, 255, .24); --btn-hover: rgba(255, 255, 255, .1); --link: #5B9DFF; --focus: #5B9DFF; }
-:root.app-light.side-co .ins-pc .card-h h2 { color: #5B9DFF; }
-:root.app-light.side-co .ins-pc .grow b { color: #FFFFFF; }
-:root.app-light.side-co .ins-pc .btn { color: #E8EBE6; }
-:root.app-light.side-co .ins-pc .ins-mark { color: #5B9DFF; opacity: .16; }
+:root.app-light.side-co:not(.land) .ins-pc .card-h h2 { color: #5B9DFF; }
+:root.app-light.side-co:not(.land) .ins-pc .grow b { color: #FFFFFF; }
+:root.app-light.side-co:not(.land) .ins-pc .btn { color: #E8EBE6; }
+:root.app-light.side-co:not(.land) .ins-pc .ins-mark { color: #5B9DFF; opacity: .16; }
 
 /* ---------- the light theme: the menu stays on the sage page, the work area is white with its bar (owner, 2026-10-11: "leave the sidebar with the
    current background colour, but make the right view's background white along with the header"; then the same on phones). The page colour is

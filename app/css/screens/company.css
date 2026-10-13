@@ -5,24 +5,25 @@
    Everything that wears the brand's green as an accent (links, focus, the active mark, meters, the chosen chart column, the current month's
    column) wears blue here. What green MEANS is left alone: money that came in, "paid", "on track" stay green on both sides, and so do the
    main buttons and the logo. Blue was checked on these surfaces: #5B9DFF on #000 is 7.9:1, white on #1F4E9E is 7.6:1, #1D5FD1 on #FFF is 5.6:1. */
-:root.side-co {
+/* (only in the look before the summary's, v214: in the summary's look the company wears the forest and white, css/look/look-land-co.css) */
+:root.side-co:not(.land) {
   --brand: #5B9DFF; --link: #5B9DFF; --focus: #5B9DFF; --ring: #5B9DFF; --switch-on: #5B9DFF; --col: #5B9DFF;
   --brand-deep: #1F4E9E; --brand-edge: #1D3557;
   --cur: rgba(31, 78, 158, .5); --cur-sum: rgba(31, 78, 158, .66);
   --side: #1F4E9E; --side-ink: #FAFAFA; --side-line: rgba(91, 157, 255, .5); --side-tint: rgba(91, 157, 255, .08);
 }
-:root.side-co.app-light {
+:root.side-co.app-light:not(.land) {
   --brand: #1D5FD1; --link: #1B55BD; --focus: #1B55BD; --ring: #1B55BD; --switch-on: #1D5FD1; --col: #17479B;
   --brand-deep: #1F4E9E; --brand-edge: #BBD3F7;
   --cur: rgba(29, 95, 209, .12); --cur-sum: rgba(29, 95, 209, .19);
   --side-line: rgba(29, 95, 209, .5); --side-tint: rgba(29, 95, 209, .06);
 }
-:root { --glow: 22, 51, 0; } :root.app-light:not(.side-co) { --glow: 159, 209, 130; } :root.side-co { --glow: 31, 78, 158; }      /* Wise's forest in dark, its lime in light (2026-10-11) */      /* the phone's top panel: a breath of the side's colour (screens/phone.css) */
+:root { --glow: 22, 51, 0; } :root.app-light:not(.side-co), :root.app-light.land { --glow: 159, 209, 130; } :root.side-co:not(.land) { --glow: 31, 78, 158; }      /* Wise's forest in dark, its lime in light (2026-10-11) */      /* the phone's top panel: a breath of the side's colour (screens/phone.css) */
 :root { --side: var(--primary); --side-ink: var(--primary-ink); --side-line: var(--primary-line); --side-tint: var(--good-bg); }
 /* the phone's round +, the main action there, wears the side's bright colour with dark words (the household's is the main button's green) */
 :root { --fab: var(--cta); --fab-ink: var(--cta-ink); }
-:root.side-co { --fab: #5B9DFF; --fab-ink: #06162E; --nt-link: #5B9DFF; }      /* a notice's link on the company's side: its blue (the notice stays dark in both themes) */
-:root.side-co.app-light { --fab: #1D5FD1; --fab-ink: #FFFFFF; }
+:root.side-co:not(.land) { --fab: #5B9DFF; --fab-ink: #06162E; --nt-link: #5B9DFF; }      /* a notice's link on the company's side: its blue (the notice stays dark in both themes) */
+:root.side-co.app-light:not(.land) { --fab: #1D5FD1; --fab-ink: #FFFFFF; }
 
 /* Household | Company, in the menu under the logo: one choice for the whole app. The side in use is filled with its own colour. */
 /* the side's switch under the logo is gone (2026-10-08): the two arrows sit beside the eye (base/shell.css, .rail-flip) */

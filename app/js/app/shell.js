@@ -99,14 +99,15 @@ const lookOld = () => window.DORAX_OLD_LOOK === true;
 function applyTheme(pub) {
   const light = !pub && themeNow() === 'light', root = document.documentElement;
   root.classList.toggle('app-light', light);
-  root.classList.toggle('side-co', !pub && UI.space === 'business');      // the company's side wears blue (css/screens/company.css)
+  root.classList.toggle('side-co', !pub && UI.space === 'business');      // the company's side: its own colours (css/look/look-land-co.css; the look before, blue: css/screens/company.css)
   root.classList.toggle('in-app', !pub);      // the app itself is on screen: the room for the page's scroll bar is kept (css/base/tokens.css)
   // on a phone the browser's own bar takes the colour of the panel at the top of the page, so the two read as one piece
   const phone = !pub && window.matchMedia && matchMedia('(max-width: 920px)').matches;
   // a phone's summary, light, on the household's side: the summary "Bosque", its forest block at the top (owner, 2026-10-11: "lleva esa a cabo en
   // resumen, exactamente lo que me muestras"; features/phone/bosque.js, css/look/look-land.css), and the browser's bar the same forest
   // a computer too since v199 (owner, 2026-10-12: "push updates a la versión de ordenador"; css/look/look-land-desk.css)
-  const land = !pub && UI.space !== 'business' && !lookOld(); root.classList.toggle('land', land); root.classList.toggle('land-dark', land && !light);      // both themes since v194 ("el modo oscuro me lleva al diseño viejo"): the dark one is the look's dark version
+  const land = !pub && !lookOld();      // the company's side too since v214 (owner, 2026-10-13: "actualiza la vista empresa… aún tienen la versión vieja"), in its own colours (css/look/look-land-co.css)
+  root.classList.toggle('land', land); root.classList.toggle('land-dark', land && !light);      // both themes since v194 ("el modo oscuro me lleva al diseño viejo"): the dark one is the look's dark version
   root.classList.toggle('land-page', land && UI.route !== 'dashboard' && UI.route !== 'transactions');      // every screen since v193 ("sigue con el resto de la webapp", features/phone/bosque-frame.js); the summary and Transactions have their own top
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', land ? '#112622' : phone ? (UI.space === 'business' ? (light ? '#DAE0EB' : '#081429') : (light ? '#F3F9EF' : '#10180A')) : light ? '#F6F6F6' : '#000000');      // a phone: the top of its glass panel (screens/phone.css)
 }

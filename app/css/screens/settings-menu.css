@@ -13,13 +13,13 @@
 .rail .nav .nav-sub a { min-height: 34px; padding-block: 6px; padding-left: 22px; font-size: 14px; }
 /* with the parts open the side bar is taller than many screens: the person's card stays at its foot and the links scroll above it */
 .rail .rail-foot { position: sticky; bottom: 0; z-index: 2; box-shadow: 0 10px 0 14px var(--bg); }      /* the bar's own colour around the card hides the links scrolled under it */
-@media (min-width: 921px) { :root.land .rail .rail-foot { background: #1F332F; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 10px 0 14px #112622; } }      /* its glass made solid (white at 6% over the forest): nothing shows through it */
+@media (min-width: 921px) { :root.land .rail .rail-foot { background: var(--lk-deep-2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 10px 0 14px var(--lk-deep); } }      /* its glass made solid (white at 6% over the forest): nothing shows through it */
 .rail .nav .nav-sub a svg { width: 16px; height: 16px; }
 @keyframes nav-sub-in { from { opacity: 0; transform: translateY(-6px); } }
 @media (prefers-reduced-motion: reduce) { .nav-sub { animation: none; } .nav a.nav-parent .nav-chev { transition: none; } }
 /* the household's forest */
 :root.land .rail .nav a.nav-parent.on { color: #FFFFFF; }
-:root.land .rail .nav a.nav-parent.on svg { color: #B6DD62; }
+:root.land .rail .nav a.nav-parent.on svg { color: var(--lk-lime); }
 :root.land .rail .nav-sub::before { background: rgba(255, 255, 255, .14); }
 :root.land .rail .nav .nav-sub a { min-height: 34px; }      /* the look's links are 40 px; its parts a step smaller, under their parent */
 /* the side bar closed to its icons: the parts are icons too, under the gear */

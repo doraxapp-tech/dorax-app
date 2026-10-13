@@ -50,7 +50,15 @@ const CONTRAST = () => {
   await page.evaluate(() => navigate('dashboard'));
   eq(await page.evaluate(() => [getComputedStyle(document.querySelector('.topbar'), '::after').display, getComputedStyle(document.querySelector('.bq-dhero'), '::after').borderTopLeftRadius]), ['none', '30px'], 'the summary: the bar goes on into its forest top, which carries the rounded edge');
   await page.evaluate(() => A.space({ v: 'business' }));
-  eq(await page.evaluate(() => document.documentElement.classList.contains('land')), false, 'the company’s side keeps its own look');
+  // v214 (owner: "actualiza la vista empresa… aún tienen la versión vieja", then "verde y blanco"): the company has the look too, in its colours:
+  // the same forest, white where the household has lime, its page #F2F4EE, and its own summary (features/phone/bosque-co.js)
+  eq(await page.evaluate(() => { const r = document.documentElement, cs = getComputedStyle(r), bg = el => el && getComputedStyle(el).backgroundColor;
+    return [r.classList.contains('land'), cs.getPropertyValue('--lk-lime').trim().toUpperCase(), cs.getPropertyValue('--bq-page').trim().toUpperCase(), bg(document.querySelector('.rail')), bg(document.querySelector('.rail .nav a[aria-current="page"]')), !!document.querySelector('#view > .bq-dhero.bq-co-hero'), !!document.querySelector('.bq-co-hero .bq-dk[data-k="transfers"]'), !!document.querySelector('#view .co-band:not(.bq-co-id)')]; }),
+    [true, '#FFFFFF', '#F2F4EE', 'rgb(17, 38, 34)', 'rgb(255, 255, 255)', true, true, false], 'the company’s side: the look in its colours (forest, white, #F2F4EE) and its own header, with what was transferred');
+  await page.evaluate(() => navigate('plan')); await page.waitForTimeout(150);
+  eq(await page.evaluate(() => { const b = [...document.querySelectorAll('#view .btn.primary')].find(x => !x.closest('.bq-hero, .dk-hero, .bq-dhero')); return b ? [getComputedStyle(b).backgroundColor, getComputedStyle(b).color] : null; }),
+    ['rgb(17, 38, 34)', 'rgb(255, 255, 255)'], 'the company’s side: on the grey, the main button is the forest with white words (white would not show on white)');
+  await page.evaluate(() => navigate('dashboard'));
   await page.evaluate(() => { A.space({ v: 'personal' }); navigate('dashboard'); });
 
   // ---------- 2. the summary (v201: a web page's layout, not the phone's parts enlarged) ----------

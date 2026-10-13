@@ -118,5 +118,6 @@ function viewDashboard() {
   const co = inCompany(), phone = isPhone();
   if (co && UI.coSetup) return viewCompanySetup();
   const d = dashParts();
+  if (co && landOn()) return phone ? bqCompany(d) : bqCompanyDesk(d);      // the company's side in the summary's look (v214, features/phone/bosque-co.js)
   return co ? (phone ? phoneCompanyDashboard(d) : companyDashboard(d)) : (phone ? phoneHomeDashboard(d) : bosqueOn() ? bqHomeDesk(d) : homeDashboard(d));      // a computer in the summary's look (v199, features/phone/bosque-desk.js)
 }

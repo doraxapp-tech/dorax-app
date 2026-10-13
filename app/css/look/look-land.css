@@ -13,23 +13,33 @@
    circles, the colour of what is chosen. In the dark theme (.land-dark, app/shell.js) the page is a green so deep it reads as black, the cards a
    step lighter, the words light; what was deep green on the light page (a link, an icon, a bar) is lime, and a choice is lime with deep green words,
    as on the forest. */
+/* The look's two colours and what goes with them, as words (v214): the household's forest and lime here; the company's side redefines them
+   (css/look/look-land-co.css), so every part of the look wears the side it is on. */
+:root {
+  --lk-deep: #112622; --lk-deep-rgb: 17, 38, 34; --lk-deep-2: #1F332F;
+  --lk-lime: #B6DD62; --lk-lime-rgb: 182, 221, 98; --lk-lime-hi: #C4E57A; --lk-lime-lo: #A6CE52; --lk-lime-2: #9FD182;
+  --lk-soft: #B5C2BE; --lk-soft-2: #8FA19C; --lk-on: #F1F4EE; --lk-on-2: #D6DCCF; --lk-mint: #E8F3D2;
+  /* the accent on a light surface (the page, a card, a panel): the household's lime with deep green words; the company's light theme has the
+     forest with white words there (look-land-co.css) */
+  --lk-pop: var(--lk-lime); --lk-pop-ink: var(--lk-deep); --lk-pop-hi: var(--lk-lime-hi); --lk-pop-lo: var(--lk-lime-lo);
+}
 :root.land {
   --bq-page: #E9EDEC; --bq-page-glass: rgba(233, 237, 236, .92); --bq-card: #FFFFFF; --bq-card-2: #F3F6F5; --bq-card-3: #E3E9E7;
   --bq-ink: #0E0F0C; --bq-ink-2: #454745; --bq-ink-3: #5F625D; --bq-line: #DDE3E1; --bq-line-2: #C9D2CF; --bq-grab: #C3C9BD; --bq-track: #E3E8DD;
   --bq-circle: #EDF1F0; --bq-circle-2: #DFE6E4; --bq-mint: #E8F3D2; --bq-mint-ink-2: #3B5534;
-  --bq-accent: #112622; --bq-pick-bg: #112622; --bq-pick-ink: #B6DD62; --bq-pick-ink-2: #FFFFFF;
+  --bq-accent: var(--lk-deep); --bq-pick-bg: var(--lk-deep); --bq-pick-ink: var(--lk-lime); --bq-pick-ink-2: #FFFFFF;
   --bq-in: #2F6B1C; --bq-crit: #D03238; --bq-warn: #B87A00; --bq-late: #B42318; --bq-late-bg: #FDE7E4;
-  --bq-glass: rgba(255, 255, 255, .72); --bq-glass-line: rgba(17, 38, 34, .08); --bq-glass-hi: rgba(255, 255, 255, .7); --bq-glass-ink: #0E0F0C; --bq-glass-icon: #112622;
-  --bq-glass-pick: rgba(17, 38, 34, .08); --bq-glass-hover: rgba(17, 38, 34, .05); --bq-glass-press: rgba(17, 38, 34, .1); --bq-area: rgba(17, 38, 34, .06); --bq-bar-track: rgba(17, 38, 34, .12);
+  --bq-glass: rgba(255, 255, 255, .72); --bq-glass-line: rgba(var(--lk-deep-rgb), .08); --bq-glass-hi: rgba(255, 255, 255, .7); --bq-glass-ink: #0E0F0C; --bq-glass-icon: var(--lk-deep);
+  --bq-glass-pick: rgba(var(--lk-deep-rgb), .08); --bq-glass-hover: rgba(var(--lk-deep-rgb), .05); --bq-glass-press: rgba(var(--lk-deep-rgb), .1); --bq-area: rgba(var(--lk-deep-rgb), .06); --bq-bar-track: rgba(var(--lk-deep-rgb), .12);
 }
 :root.land.land-dark {
   --bq-page: #0B1412; --bq-page-glass: rgba(11, 20, 18, .92); --bq-card: #15221F; --bq-card-2: #1A2925; --bq-card-3: #22332E;
-  --bq-ink: #EEF2EF; --bq-ink-2: #B5C2BE; --bq-ink-3: #8FA19C; --bq-line: rgba(255, 255, 255, .08); --bq-line-2: rgba(255, 255, 255, .16); --bq-grab: rgba(255, 255, 255, .22); --bq-track: rgba(255, 255, 255, .12);
+  --bq-ink: #EEF2EF; --bq-ink-2: var(--lk-soft); --bq-ink-3: var(--lk-soft-2); --bq-line: rgba(255, 255, 255, .08); --bq-line-2: rgba(255, 255, 255, .16); --bq-grab: rgba(255, 255, 255, .22); --bq-track: rgba(255, 255, 255, .12);
   --bq-circle: #1F302B; --bq-circle-2: #2A3D37; --bq-mint: #1B2E16; --bq-mint-ink-2: #C9DDA6;
-  --bq-accent: #B6DD62; --bq-pick-bg: #B6DD62; --bq-pick-ink: #112622; --bq-pick-ink-2: #112622;
-  --bq-in: #B6DD62; --bq-crit: #FF8A80; --bq-warn: #F5C04A; --bq-late: #FF8A80; --bq-late-bg: rgba(255, 138, 128, .14);
+  --bq-accent: var(--lk-lime); --bq-pick-bg: var(--lk-lime); --bq-pick-ink: var(--lk-deep); --bq-pick-ink-2: var(--lk-deep);
+  --bq-in: var(--lk-lime); --bq-crit: #FF8A80; --bq-warn: #F5C04A; --bq-late: #FF8A80; --bq-late-bg: rgba(255, 138, 128, .14);
   --bq-glass: rgba(21, 34, 31, .72); --bq-glass-line: rgba(255, 255, 255, .1); --bq-glass-hi: rgba(255, 255, 255, .06); --bq-glass-ink: #EEF2EF; --bq-glass-icon: #EEF2EF;
-  --bq-glass-pick: rgba(255, 255, 255, .12); --bq-glass-hover: rgba(255, 255, 255, .07); --bq-glass-press: rgba(255, 255, 255, .16); --bq-area: rgba(182, 221, 98, .08); --bq-bar-track: rgba(182, 221, 98, .18);
+  --bq-glass-pick: rgba(255, 255, 255, .12); --bq-glass-hover: rgba(255, 255, 255, .07); --bq-glass-press: rgba(255, 255, 255, .16); --bq-area: rgba(var(--lk-lime-rgb), .08); --bq-bar-track: rgba(var(--lk-lime-rgb), .18);
   color-scheme: dark;
 }
 @media (max-width: 920px) {
@@ -40,21 +50,21 @@
   /* and only at the top: under the app, at the foot, the page's own grey (owner, 2026-10-12, with a screenshot: "there is a weird space in the
      bottom": the installed app on an iPhone can be left shorter than the screen after the keyboard has been up, app/viewport-heal.js, and the
      forest showed there as a band) */
-  html.in-app.land { background: var(--bq-page) linear-gradient(#112622, #112622) top / 100% 50% no-repeat; }
+  html.in-app.land { background: var(--bq-page) linear-gradient(var(--lk-deep), var(--lk-deep)) top / 100% 50% no-repeat; }
   html.in-app.land body { background: transparent; }
   :root.land .work { --bg: var(--bq-page); --glass: var(--bq-page-glass); background: var(--bq-page); }
 
   /* ---------- the forest block at the top: the panel, the balance and the month's row (on a phone the top bar lays its rows out on the page,
      base/responsive.css: display: contents, so each row paints the block). Inside it the theme's words and lines are light on dark. ---------- */
   :root.land .topbar {
-    --bg: #112622; --glass: #112622; --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .08);
-    --ink-strong: #FFFFFF; --ink: #F1F4EE; --ink-2: #B5C2BE; --ink-3: #8FA19C;
+    --bg: var(--lk-deep); --glass: var(--lk-deep); --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .08);
+    --ink-strong: #FFFFFF; --ink: var(--lk-on); --ink-2: var(--lk-soft); --ink-3: var(--lk-soft-2);
     --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24); --hover-line: rgba(255, 255, 255, .4);
-    --brand: #B6DD62; --brand-deep: #B6DD62; --focus: #B6DD62; --on-dark: #FFFFFF; color: #FFFFFF;
+    --brand: var(--lk-lime); --brand-deep: var(--lk-lime); --focus: var(--lk-lime); --on-dark: #FFFFFF; color: #FFFFFF;
   }
-  :root.land .topbar > .navbar, :root.land .topbar > .bar-bal, :root.land .topbar > .pagehead { background: #112622; }
-  :root.land .topbar > .navbar { border-bottom: 0; box-shadow: 0 -60vh 0 0 #112622; }      /* pulled down past the top, the same forest shows above it */
-  :root.land.scrolled .topbar > .navbar { border-radius: 0; box-shadow: 0 -60vh 0 0 #112622, 0 8px 20px -12px rgba(14, 15, 12, .45); }
+  :root.land .topbar > .navbar, :root.land .topbar > .bar-bal, :root.land .topbar > .pagehead { background: var(--lk-deep); }
+  :root.land .topbar > .navbar { border-bottom: 0; box-shadow: 0 -60vh 0 0 var(--lk-deep); }      /* pulled down past the top, the same forest shows above it */
+  :root.land.scrolled .topbar > .navbar { border-radius: 0; box-shadow: 0 -60vh 0 0 var(--lk-deep), 0 8px 20px -12px rgba(14, 15, 12, .45); }
   :root.land .topbar > .pagehead { margin: 0 0 16px; padding-bottom: 24px; border-radius: 0; }      /* square at its foot (owner, 2026-10-12: "quita los bordes de abajo de la barra superior") */
   :root.land .topbar > .pagehead.bare { height: 24px; padding: 0; }
   /* with "You can spend" first, the block goes straight on into it: the day's figure is in the block, on the block's own green, and the lime strip
@@ -64,36 +74,36 @@
   :root.land #view > .bq-free:first-child { margin-top: -4px; }      /* the page's 4 px above its first part (base/responsive.css) */
 
   /* who is using it: the photo or the first letter on lime; the round buttons light on the forest */
-  :root.land .bar-who .bw-t small { color: #B5C2BE; }
+  :root.land .bar-who .bw-t small { color: var(--lk-soft); }
   :root.land .bar-who .bw-t b { color: #FFFFFF; }
   :root.land .bar-who .avatar { width: 44px; height: 44px; box-shadow: none; }
-  :root.land .bar-who .avatar.bq-init { display: grid; place-items: center; border-radius: 50%; background: #B6DD62; color: #112622; font-size: 17px; font-weight: 700; line-height: 1; }
+  :root.land .bar-who .avatar.bq-init { display: grid; place-items: center; border-radius: 50%; background: var(--lk-lime); color: var(--lk-deep); font-size: 17px; font-weight: 700; line-height: 1; }
   :root.land .navbar .bell, :root.land .more-btn, :root.land .navbar .side-flip { width: 44px; height: 44px; border-color: rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); color: #FFFFFF; }
-  :root.land .navbar .bell .count { background: #B6DD62; color: #112622; box-shadow: 0 0 0 2px #112622; }
-  :root.land .bar-who:focus-visible, :root.land .navbar .bell:focus-visible, :root.land .more-btn:focus-visible, :root.land .navbar .side-flip:focus-visible, :root.land .bar-bal .bb-link:focus-visible, :root.land .bar-bal .bb-eye:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land .navbar .bell .count { background: var(--lk-lime); color: var(--lk-deep); box-shadow: 0 0 0 2px var(--lk-deep); }
+  :root.land .bar-who:focus-visible, :root.land .navbar .bell:focus-visible, :root.land .more-btn:focus-visible, :root.land .navbar .side-flip:focus-visible, :root.land .bar-bal .bb-link:focus-visible, :root.land .bar-bal .bb-eye:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
 
   /* the net balance: large and white, its cents quieter */
   :root.land .topbar > .bar-bal { padding-top: 24px; }      /* more room above the net balance (owner, 2026-10-12: "agrega más espacio entre el saldo neto y los elementos de encima"; it was 8 px) */
-  :root.land .bar-bal .bb-link small { color: #B5C2BE; font-size: 14px; font-weight: 500; }
+  :root.land .bar-bal .bb-link small { color: var(--lk-soft); font-size: 14px; font-weight: 500; }
   :root.land .bar-bal .bb-link b { color: #FFFFFF; font-weight: 600; letter-spacing: -.045em; }
   :root.land .bar-bal .bb-link b:not(.long) { font-size: clamp(30px, 9.6vw, 36px); line-height: 1.1; }      /* smaller (owner, 2026-10-12: "son muy grandes"; it was up to 46 px); whole on a 320 px phone too */
-  :root.land .bar-bal .bb-link b .cents { color: #B5C2BE; opacity: 1; font-size: .5em; letter-spacing: 0; }
+  :root.land .bar-bal .bb-link b .cents { color: var(--lk-soft); opacity: 1; font-size: .5em; letter-spacing: 0; }
   :root.land .bar-bal .bb-link b.neg { color: #FF8A80; }
-  :root.land .bar-bal .bb-eye { color: #B5C2BE; }
+  :root.land .bar-bal .bb-eye { color: var(--lk-soft); }
 
   /* the month and Journey: light pills on the forest */
   :root.land .pagehead .month.m-ph { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); }
-  :root.land .pagehead .m-ph button { color: #B5C2BE; }
+  :root.land .pagehead .m-ph button { color: var(--lk-soft); }
   :root.land .pagehead .m-ph button:disabled { color: rgba(255, 255, 255, .3); }
   :root.land .pagehead .m-ph button:active:not(:disabled) { background: rgba(255, 255, 255, .14); color: #FFFFFF; }
   @media (hover: hover) and (pointer: fine) { :root.land .pagehead .m-ph button:hover:not(:disabled) { background: rgba(255, 255, 255, .14); color: #FFFFFF; } }
   :root.land .pagehead .m-ph .m-slide { color: rgba(255, 255, 255, .6); }
   :root.land .pagehead .m-ph .m-slide.mid { color: #FFFFFF; font-weight: 600; }
   :root.land .jr-btn { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .14); color: #FFFFFF; font-weight: 600; }
-  :root.land .jr-btn svg { color: #B6DD62; }
-  :root.land .jr-btn b { background: rgba(182, 221, 98, .2); color: #B6DD62; }
+  :root.land .jr-btn svg { color: var(--lk-lime); }
+  :root.land .jr-btn b { background: rgba(var(--lk-lime-rgb), .2); color: var(--lk-lime); }
   @media (hover: hover) and (pointer: fine) { :root.land .jr-btn:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .3); color: #FFFFFF; } }
-  :root.land .topbar .m-back .btn.primary { background: #B6DD62; border-color: #B6DD62; color: #112622; }
+  :root.land .topbar .m-back .btn.primary { background: var(--lk-lime); border-color: var(--lk-lime); color: var(--lk-deep); }
 
   :root.land #view .bq-free { margin-left: -16px; margin-right: -16px; }      /* "You can spend": the block's whole width */
   :root.land #view > .bq-free + .bq-acts { margin-top: -8px; }      /* right under the card, 16 px, as designed */
@@ -102,18 +112,18 @@
 /* ---------- the summary's parts, on a phone and (v199) on a computer (its layout: look-land-desk.css) ---------- */
   /* ---------- "You can spend": the card half on the block ---------- */
   :root.land #view .bq-free { position: relative; z-index: 2; display: flex; flex-direction: column; color: #FFFFFF; }
-  :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px 18px; background: #112622; }
-  :root.land .bq-chip { display: inline-flex; align-items: center; gap: 7px; color: #B5C2BE; font-size: 13px; font-weight: 500; line-height: 1.2; }      /* no pill: the words and the green dot, as the net balance's label (owner, 2026-10-12: "no lo hagas un pill, quítale los bordes, deja solo la letra con el punto verde") */
-  :root.land .bq-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #B6DD62; }
-  :root.land .bq-free .fu-big { color: #B5C2BE; font-size: 14px; font-weight: 500; line-height: 1; }
+  :root.land .bq-free-top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px 18px; background: var(--lk-deep); }
+  :root.land .bq-chip { display: inline-flex; align-items: center; gap: 7px; color: var(--lk-soft); font-size: 13px; font-weight: 500; line-height: 1.2; }      /* no pill: the words and the green dot, as the net balance's label (owner, 2026-10-12: "no lo hagas un pill, quítale los bordes, deja solo la letra con el punto verde") */
+  :root.land .bq-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--lk-lime); }
+  :root.land .bq-free .fu-big { color: var(--lk-soft); font-size: 14px; font-weight: 500; line-height: 1; }
   :root.land .bq-free .fu-n { color: #FFFFFF; font-size: 28px; font-weight: 600; letter-spacing: -.03em; line-height: 1; margin-right: 3px; }      /* under the net balance's size, so the two do not compete (owner, 2026-10-12; it was 56, then 40 px) */
-  :root.land .bq-free-foot { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; margin: 0 16px; padding: 10px 10px 10px 18px; border-radius: 0 0 24px 24px; background: #B6DD62; color: #112622; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  :root.land .bq-free-foot:active { background: #A6CE52; }
-  :root.land .bq-free-foot:focus-visible { outline: 2px solid #112622; outline-offset: -4px; }
+  :root.land .bq-free-foot { all: unset; box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; margin: 0 16px; padding: 10px 10px 10px 18px; border-radius: 0 0 24px 24px; background: var(--lk-lime); color: var(--lk-deep); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  :root.land .bq-free-foot:active { background: var(--lk-lime-lo); }
+  :root.land .bq-free-foot:focus-visible { outline: 2px solid var(--lk-deep); outline-offset: -4px; }
   :root.land .bq-say { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; }
   :root.land .bq-say::first-letter { text-transform: uppercase; }
   :root.land .bq-say b { font-weight: 700; color: inherit; }      /* the strip's deep green: the app's "b" rule (--ink-strong) made the amount light on lime in the dark theme (owner, 2026-10-12) */
-  :root.land .bq-go { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #112622; color: #B6DD62; }
+  :root.land .bq-go { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--lk-deep); color: var(--lk-lime); }
   :root.land .bq-go svg { width: 18px; height: 18px; stroke-width: 2.4; }
 
   /* ---------- four round buttons in one white bar ---------- */
@@ -123,7 +133,7 @@
   :root.land .bq-acts button:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
   :root.land .bq-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--bq-circle); color: var(--bq-accent); }
   :root.land .bq-ico svg { width: 21px; height: 21px; }
-  :root.land .bq-ico.on { background: #B6DD62; color: #112622; }      /* deep green on lime in both themes (v195: in the dark one its icon was lime on lime) */
+  :root.land .bq-ico.on { background: var(--lk-pop); color: var(--lk-pop-ink); }      /* deep green on lime in both themes (v195: in the dark one its icon was lime on lime) */
 
   /* ---------- a section's heading: the name, and the way to its page ---------- */
   :root.land .bq-sec { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -161,9 +171,9 @@
   :root.land .bq-bill .bq-ico svg { width: 19px; height: 19px; }
   :root.land .bq-bill .bq-ico .inst { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; font-size: 13px; }
   :root.land .bq-bill .bq-ico .inst img { width: 40px; height: 40px; border-radius: 50%; }
-  :root.land .bq-bill.first .bq-ico { background: #112622; color: #B6DD62; }
+  :root.land .bq-bill.first .bq-ico { background: var(--lk-deep); color: var(--lk-lime); }
   :root.land .bq-due { flex: 0 1 auto; min-width: 0; overflow: hidden; padding: 4px 9px; border-radius: 999px; background: var(--bq-circle); color: var(--bq-accent); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-  :root.land .bq-bill.first .bq-due { background: #B6DD62; color: #112622; font-weight: 700; }
+  :root.land .bq-bill.first .bq-due { background: var(--lk-pop); color: var(--lk-pop-ink); font-weight: 700; }
   :root.land .bq-due.late, :root.land .bq-bill.first .bq-due.late { background: var(--bq-late-bg); color: var(--bq-late); }
   :root.land .bq-bill-n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; font-weight: 600; line-height: 1.25; }
   :root.land .bq-bill-v { color: var(--bq-ink-2); font-size: 13px; line-height: 1.3; }
@@ -201,7 +211,7 @@
 
   /* ---------- the day's fact: one quiet line with the lime dot ---------- */
   :root.land .ins-strip .ins-say { color: var(--bq-ink-2); }
-  :root.land .ins-strip .ins-say::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: #B6DD62; box-shadow: 0 0 0 3px rgba(182, 221, 98, .3); vertical-align: 1px; }
+  :root.land .ins-strip .ins-say::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: var(--lk-pop); box-shadow: 0 0 0 3px rgba(var(--lk-lime-rgb), .3); vertical-align: 1px; }
   :root.land .ins-strip .ins-m, :root.land .ins-strip .ins-ar { color: var(--bq-accent); }
   :root.land .ins-strip .ins-pg { display: none; }      /* one line, as designed; the others still come with a swipe */
 

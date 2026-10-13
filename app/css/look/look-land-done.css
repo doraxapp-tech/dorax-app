@@ -14,8 +14,8 @@
 }
 :root.land #overlay .pd-check { width: 64px; height: 64px; margin-bottom: 10px; }
 :root.land #overlay .pd-check svg { display: block; width: 100%; height: 100%; overflow: visible; }
-:root.land #overlay .pd-check circle { fill: #B6DD62; transform-origin: 32px 32px; }
-:root.land #overlay .pd-check path { fill: none; stroke: #112622; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+:root.land #overlay .pd-check circle { fill: var(--lk-lime); transform-origin: 32px 32px; }
+:root.land #overlay .pd-check path { fill: none; stroke: var(--lk-deep); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
 :root.land #overlay .pd-h { margin: 0; color: var(--bq-ink); font-size: 17px; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
 :root.land #overlay .pd-amt { margin: 2px 0 0; color: var(--bq-ink); font-size: 34px; font-weight: 600; letter-spacing: -.04em; line-height: 1.1; }
 :root.land #overlay .pd-meta { margin: 2px 0 0; color: var(--bq-ink-2); font-size: 13px; }
@@ -28,32 +28,32 @@
 :root.land #overlay .pd-left { margin: 0; color: var(--bq-ink-2); font-size: 13px; }
 :root.land #overlay .pd-left b { color: var(--bq-ink); font-weight: 600; }
 :root.land #overlay .pd-left.all { display: flex; align-items: center; gap: 6px; color: var(--bq-ink); font-weight: 600; }
-:root.land #overlay .pd-left svg { flex: none; width: 18px; height: 18px; padding: 3px; border-radius: 50%; background: #B6DD62; color: #112622; stroke-width: 3; box-sizing: border-box; }
+:root.land #overlay .pd-left svg { flex: none; width: 18px; height: 18px; padding: 3px; border-radius: 50%; background: var(--lk-lime); color: var(--lk-deep); stroke-width: 3; box-sizing: border-box; }
 :root.land #overlay .pd-acts { display: flex; flex-direction: column; gap: 4px; width: 100%; margin-top: 20px; }
 :root.land #overlay .pd-acts .btn { min-height: 52px; border-radius: 999px; font-size: 16px; font-weight: 600; }
-:root.land #overlay .pd-acts .btn.primary { border: 0; background: #B6DD62; color: #112622; }
+:root.land #overlay .pd-acts .btn.primary { border: 0; background: var(--lk-pop); color: var(--lk-pop-ink); }
 :root.land #overlay .pd-acts .btn.ghost { min-height: 44px; border: 0; background: none; color: var(--bq-accent); }
 :root.land #overlay .pd-acts .btn:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
-@media (hover: hover) and (pointer: fine) { :root.land #overlay .pd-acts .btn.primary:hover { background: #C4E57A; } :root.land #overlay .pd-acts .btn.ghost:hover { text-decoration: underline; text-underline-offset: 3px; } }
+@media (hover: hover) and (pointer: fine) { :root.land #overlay .pd-acts .btn.primary:hover { background: var(--lk-pop-hi); } :root.land #overlay .pd-acts .btn.ghost:hover { text-decoration: underline; text-underline-offset: 3px; } }
 @media (min-width: 921px) { :root.land #overlay .sheet.pd-sheet { left: calc(50% - 220px); right: auto; bottom: 28px; width: 440px; padding: 0; } }
 
 /* ---------- money in: the coin, and the card to put some aside ---------- */
-:root.land #overlay .iw-win { background: radial-gradient(70% 40% at 50% 26%, rgba(182, 221, 98, .16), transparent 72%), #112622; }
-:root.land #overlay .iw-coin { display: grid; place-items: center; width: 96px; height: 96px; margin-bottom: 18px; border-radius: 50%; background: #B6DD62; color: #112622; box-shadow: 0 0 0 10px rgba(182, 221, 98, .14), 0 0 0 22px rgba(182, 221, 98, .06); }
+:root.land #overlay .iw-win { background: radial-gradient(70% 40% at 50% 26%, rgba(var(--lk-lime-rgb), .16), transparent 72%), var(--lk-deep); }
+:root.land #overlay .iw-coin { display: grid; place-items: center; width: 96px; height: 96px; margin-bottom: 18px; border-radius: 50%; background: var(--lk-lime); color: var(--lk-deep); box-shadow: 0 0 0 10px rgba(var(--lk-lime-rgb), .14), 0 0 0 22px rgba(var(--lk-lime-rgb), .06); }
 :root.land #overlay .iw-coin svg { width: 40px; height: 40px; stroke-width: 2.4; }
 :root.land #overlay .iw-win .gw-h { margin-top: 2px; }
 :root.land #overlay .iw-save { display: flex; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; margin-top: 22px; padding: 18px; border-radius: 24px; background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); text-align: left; }
 :root.land #overlay .iw-save > b { color: #FFFFFF; font-size: 16px; font-weight: 600; }
-:root.land #overlay .iw-save p { margin: 0; color: #B5C2BE; font-size: 14px; line-height: 1.45; }
+:root.land #overlay .iw-save p { margin: 0; color: var(--lk-soft); font-size: 14px; line-height: 1.45; }
 :root.land #overlay .iw-save p b { color: #FFFFFF; font-weight: 600; }
-:root.land #overlay .iw-save .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; margin-top: 6px; border: 0; border-radius: 999px; background: #B6DD62; color: #112622; font-size: 15px; font-weight: 600; }
+:root.land #overlay .iw-save .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; margin-top: 6px; border: 0; border-radius: 999px; background: var(--lk-lime); color: var(--lk-deep); font-size: 15px; font-weight: 600; }
 :root.land #overlay .iw-save .btn svg { width: 18px; height: 18px; stroke-width: 2.2; }
-:root.land #overlay .iw-save .btn:focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; }
-@media (hover: hover) and (pointer: fine) { :root.land #overlay .iw-save .btn:hover { background: #C4E57A; } }
+:root.land #overlay .iw-save .btn:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { :root.land #overlay .iw-save .btn:hover { background: var(--lk-lime-hi); } }
 
 /* ---------- any other transaction saved: the panel's button says it ---------- */
-:root.land #overlay .btn.td-saved, :root.land #overlay .btn.primary.bq-save.td-saved { background: #B6DD62; border-color: #B6DD62; color: #112622; transition: background-color 160ms ease-out, color 160ms ease-out; }
-:root.land #overlay .bq-save.td-saved .bq-save-ico { background: #112622; color: #B6DD62; }
-:root.land #overlay .bq-save.td-saved .bq-save-amt { color: #112622; }
+:root.land #overlay .btn.td-saved, :root.land #overlay .btn.primary.bq-save.td-saved { background: var(--lk-lime); border-color: var(--lk-lime); color: var(--lk-deep); transition: background-color 160ms ease-out, color 160ms ease-out; }
+:root.land #overlay .bq-save.td-saved .bq-save-ico { background: var(--lk-deep); color: var(--lk-lime); }
+:root.land #overlay .bq-save.td-saved .bq-save-amt { color: var(--lk-deep); }
 :root.land #overlay .btn.td-saved:not(.bq-save) { display: inline-flex; align-items: center; gap: 6px; }
 :root.land #overlay .btn.td-saved:not(.bq-save) svg { width: 18px; height: 18px; stroke-width: 2.6; }

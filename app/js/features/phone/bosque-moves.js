@@ -13,10 +13,10 @@
    Styles: css/look/look-land-moves.css. The dark theme, the company's side and a computer keep the table. */
 
 /** This look on Transactions: a phone, the light theme, the household's side (the summary's test, bosque.js, on this page). */
-const bqTxOn = () => !!UI.session && UI.space !== 'business' && UI.route === 'transactions' && isPhone() && !lookOld();      // a phone; a computer has its table under a forest header (v201, features/phone/bosque-desk.js)
+const bqTxOn = () => !!UI.session && UI.route === 'transactions' && isPhone() && !lookOld();      // either side since v214      // a phone; a computer has its table under a forest header (v201, features/phone/bosque-desk.js)
 /** Any screen of the household in this look (a phone, the light theme; since v193 every screen, features/phone/bosque-frame.js): its panels wear
     it, and a new transaction has its keypad (features/transactions/transaction-form.view.js). */
-const landOn = () => !!UI.session && UI.space !== 'business' && !lookOld();      // either theme since v194; a phone or a computer since v199 (css/look/look-land-desk.css)
+const landOn = () => !!UI.session && !lookOld();      // either side since v214 (the company's in its own colours, css/look/look-land-co.css)      // either theme since v194; a phone or a computer since v199 (css/look/look-land-desk.css)
 const BQ_TX_STEP = 40;      // rows drawn at a time; "Show more" adds as many
 const BQ_LOCALE = { en: 'en-US', es: 'es-ES', pt: 'pt-BR' };
 
@@ -190,8 +190,9 @@ const BQ_HOME_OPS = 5;
 function bqHomeMoves() {
   const m = S.month, f = { q: '', month: m, account: '', category: '', type: 'expense', status: '' };
   const work = (document.querySelector('.work') || {}).clientWidth || innerWidth, W = isPhone() ? Math.max(260, Math.round(work - 32)) : bqDeskW(work, 1.75 / 2.75, 28);      // (a phone's part; a computer has its own summary, features/phone/bosque-desk.js)
-  const p = bqSumParts(f, m, 'expense', CUR, { card: true, W });
-  const latest = S.transactions.filter(x => !isBiz(x.accountId) && acct(x.accountId) && x.date <= S.today && x.status !== 'ignored').sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).slice(0, BQ_HOME_OPS);
+  const co = inCompany(), cur = co ? BCUR() : CUR, mine = co ? new Set(bookAccounts().map(a => a.id)) : null;      // the side on screen (v214): the company's in the currency its page is in
+  const p = bqSumParts(f, m, 'expense', cur, { card: true, W });
+  const latest = S.transactions.filter(x => (co ? mine.has(x.accountId) : !isBiz(x.accountId)) && acct(x.accountId) && x.date <= S.today && x.status !== 'ignored').sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).slice(0, BQ_HOME_OPS);
   const head = bqHead(t('Transactions'), `<a class="bq-more" href="#transactions" data-a="bq-home-all">${t('View all')}${icon('right')}</a>`);
   return `<section class="bq-sec" id="bq-moves-card">${head}<div class="bq-mv">
     <div class="bq-mv-sum"><span class="bq-sum-k">${esc(p.label)}</span><b class="bq-sum-v num">${p.big}</b>${p.chip}</div>${p.chart}

@@ -17,37 +17,37 @@
   :root.land #view {
     --brand: var(--bq-accent); --brand-deep: var(--bq-accent); --link: var(--bq-accent); --focus: var(--bq-accent); --select: var(--bq-mint); --select-ink: var(--bq-accent); --switch-on: var(--bq-accent);
     --line: var(--bq-line); --line-strong: var(--bq-line-2); --surface: var(--bq-card); --surface-2: var(--bq-card-2); --surface-3: var(--bq-card-3); --well: var(--bq-card); --badge: var(--bq-card-3);
-    --primary: #B6DD62; --primary-ink: #112622; --cta: #B6DD62; --cta-ink: #112622; --bg: var(--bq-page);
+    --primary: var(--lk-pop); --primary-ink: var(--lk-pop-ink); --cta: var(--lk-pop); --cta-ink: var(--lk-pop-ink); --bg: var(--bq-page);
   }
   :root.land #view .card { border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   :root.land #view .card-h h2, :root.land #view h2.sec { color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
   :root.land #view .btn { border-radius: 999px; }
-  :root.land #view .btn.primary { border-color: #B6DD62; background: #B6DD62; color: #112622; font-weight: 600; }
-  @media (hover: hover) and (pointer: fine) { :root.land #view .btn.primary:hover { border-color: #C4E57A; background: #C4E57A; } }
+  :root.land #view .btn.primary { border-color: var(--lk-pop); background: var(--lk-pop); color: var(--lk-pop-ink); font-weight: 600; }
+  @media (hover: hover) and (pointer: fine) { :root.land #view .btn.primary:hover { border-color: var(--lk-pop-hi); background: var(--lk-pop-hi); } }
 
   /* ---------- the side bar, in the forest ---------- */
   :root.land .rail {
-    --bg: #112622; --ink-strong: #FFFFFF; --ink: #F1F4EE; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .12); --line-strong: rgba(255, 255, 255, .2); --hover-line: rgba(255, 255, 255, .4);
-    --surface: rgba(255, 255, 255, .06); --surface-2: rgba(255, 255, 255, .08); --surface-3: rgba(255, 255, 255, .08); --select: rgba(255, 255, 255, .08); --badge: rgba(182, 221, 98, .18); --btn: rgba(255, 255, 255, .08);
-    --brand: #B6DD62; --brand-deep: #B6DD62; --focus: #B6DD62; --warn: #B6DD62; --field: rgba(255, 255, 255, .16);
-    border-right: 0; background: #112622; color: #F1F4EE;
+    --bg: var(--lk-deep); --ink-strong: #FFFFFF; --ink: var(--lk-on); --ink-2: var(--lk-soft); --ink-3: var(--lk-soft-2); --line: rgba(255, 255, 255, .12); --line-strong: rgba(255, 255, 255, .2); --hover-line: rgba(255, 255, 255, .4);
+    --surface: rgba(255, 255, 255, .06); --surface-2: rgba(255, 255, 255, .08); --surface-3: rgba(255, 255, 255, .08); --select: rgba(255, 255, 255, .08); --badge: rgba(var(--lk-lime-rgb), .18); --btn: rgba(255, 255, 255, .08);
+    --brand: var(--lk-lime); --brand-deep: var(--lk-lime); --focus: var(--lk-lime); --warn: var(--lk-lime); --field: rgba(255, 255, 255, .16);
+    border-right: 0; background: var(--lk-deep); color: var(--lk-on);
   }
-  :root.land .rail .nav a { min-height: 40px; border-radius: 999px; color: #B5C2BE; font-weight: 500; }
-  :root.land .rail .nav a svg { color: #B5C2BE; }
+  :root.land .rail .nav a { min-height: 40px; border-radius: 999px; color: var(--lk-soft); font-weight: 500; }
+  :root.land .rail .nav a svg { color: var(--lk-soft); }
   :root.land .rail .nav a:hover { background: rgba(255, 255, 255, .06); color: #FFFFFF; }
   :root.land .rail .nav a:hover svg { color: #FFFFFF; }
-  :root.land .rail .nav a[aria-current="page"], :root.land .rail .nav a[aria-current="page"]:hover { background: #B6DD62; color: #112622; font-weight: 600; }      /* the screen in use: a lime pill, as the switches' choice on the forest */
-  :root.land .rail .nav a[aria-current="page"] svg { color: #112622; }
-  :root.land .rail .nav .count { background: rgba(182, 221, 98, .2); color: #B6DD62; font-weight: 600; }
-  :root.land .rail .nav a[aria-current="page"] .count { background: #112622; color: #B6DD62; }
-  :root.land .rail .nav a:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
+  :root.land .rail .nav a[aria-current="page"], :root.land .rail .nav a[aria-current="page"]:hover { background: var(--lk-lime); color: var(--lk-deep); font-weight: 600; }      /* the screen in use: a lime pill, as the switches' choice on the forest */
+  :root.land .rail .nav a[aria-current="page"] svg { color: var(--lk-deep); }
+  :root.land .rail .nav .count { background: rgba(var(--lk-lime-rgb), .2); color: var(--lk-lime); font-weight: 600; }
+  :root.land .rail .nav a[aria-current="page"] .count { background: var(--lk-deep); color: var(--lk-lime); }
+  :root.land .rail .nav a:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
   :root.land .rail .nav-rule { background: var(--line); }      /* the side bar's own hairline colour, as before: on the forest */
-  :root.land .rail .findbtn { border-color: rgba(255, 255, 255, .14); border-radius: 999px; background: rgba(255, 255, 255, .06); color: #B5C2BE; }
+  :root.land .rail .findbtn { border-color: rgba(255, 255, 255, .14); border-radius: 999px; background: rgba(255, 255, 255, .06); color: var(--lk-soft); }
   :root.land .rail .findbtn:hover { border-color: rgba(255, 255, 255, .3); color: #FFFFFF; }
-  :root.land .rail .findbtn kbd { border-color: rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .08); color: #B5C2BE; }
+  :root.land .rail .findbtn kbd { border-color: rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .08); color: var(--lk-soft); }
   :root.land .rail-foot { border: 0; border-radius: 22px; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); }
   :root.land .rail .who:hover, :root.land .rail .who[aria-expanded="true"] { background: rgba(255, 255, 255, .08); }
-  :root.land .rail .who-t small { color: #8FA19C; }
+  :root.land .rail .who-t small { color: var(--lk-soft-2); }
   /* the menu beside the name stays a light card, in the page's colours */
   :root.land .rail .umenu {
     --bg: var(--bq-card); --lift: var(--bq-card); --ink-strong: var(--bq-ink); --ink: var(--bq-ink); --ink-2: var(--bq-ink-2); --ink-3: var(--bq-ink-3); --line: var(--bq-line); --line-strong: var(--bq-line-2);
@@ -55,40 +55,40 @@
     border-color: var(--bq-line); border-radius: 22px; background: var(--bq-card); color: var(--bq-ink);
   }
   :root.land .rail .umenu .seg button[aria-pressed="true"] { background: var(--bq-pick-bg); color: var(--bq-pick-ink); }
-  :root.land .rail-toggle { border-color: rgba(255, 255, 255, .2); background: #112622; color: #B5C2BE; }
+  :root.land .rail-toggle { border-color: rgba(255, 255, 255, .2); background: var(--lk-deep); color: var(--lk-soft); }
   :root.land .rail-toggle:hover { border-color: rgba(255, 255, 255, .45); color: #FFFFFF; }
-  :root.land .rail-toggle:focus-visible { outline-color: #B6DD62; }
+  :root.land .rail-toggle:focus-visible { outline-color: var(--lk-lime); }
 
   /* ---------- the top bar: one forest row, the page's grey rising under it ---------- */
   :root.land .topbar {
-    --bg: #112622; --glass: #112622; --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .08); --btn: rgba(255, 255, 255, .08);
-    --ink-strong: #FFFFFF; --ink: #F1F4EE; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24); --hover-line: rgba(255, 255, 255, .4);
-    --brand: #B6DD62; --brand-deep: #B6DD62; --focus: #B6DD62; --badge: rgba(255, 255, 255, .1); --select: rgba(182, 221, 98, .16);
-    margin-bottom: 0; padding-bottom: 42px; border-bottom: 0; background: #112622; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; color: #FFFFFF;
+    --bg: var(--lk-deep); --glass: var(--lk-deep); --surface: rgba(255, 255, 255, .08); --surface-2: rgba(255, 255, 255, .12); --surface-3: rgba(255, 255, 255, .08); --btn: rgba(255, 255, 255, .08);
+    --ink-strong: #FFFFFF; --ink: var(--lk-on); --ink-2: var(--lk-soft); --ink-3: var(--lk-soft-2); --line: rgba(255, 255, 255, .14); --line-strong: rgba(255, 255, 255, .24); --hover-line: rgba(255, 255, 255, .4);
+    --brand: var(--lk-lime); --brand-deep: var(--lk-lime); --focus: var(--lk-lime); --badge: rgba(255, 255, 255, .1); --select: rgba(var(--lk-lime-rgb), .16);
+    margin-bottom: 0; padding-bottom: 42px; border-bottom: 0; background: var(--lk-deep); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; color: #FFFFFF;
   }
   :root.land .topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); pointer-events: none; }
   :root.land .topbar h1 { color: #FFFFFF; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }      /* 20 px, as the bar's title has been since 2026-10-05 */
   :root.land .topbar .month { border-color: rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); }
-  :root.land .topbar .month button { color: #B5C2BE; } :root.land .topbar .month button:disabled { color: rgba(255, 255, 255, .3); }
+  :root.land .topbar .month button { color: var(--lk-soft); } :root.land .topbar .month button:disabled { color: rgba(255, 255, 255, .3); }
   :root.land .topbar .month span { color: #FFFFFF; font-weight: 600; }
   :root.land .topbar .jr-btn { border-color: rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); color: #FFFFFF; font-weight: 600; }
-  :root.land .topbar .jr-btn svg { color: #B6DD62; } :root.land .topbar .jr-btn b { background: rgba(182, 221, 98, .2); color: #B6DD62; }
+  :root.land .topbar .jr-btn svg { color: var(--lk-lime); } :root.land .topbar .jr-btn b { background: rgba(var(--lk-lime-rgb), .2); color: var(--lk-lime); }
   :root.land .topbar .bell { border-color: rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); color: #FFFFFF; }
-  :root.land .topbar .bell .count { background: #B6DD62; color: #112622; box-shadow: 0 0 0 2px #112622; }
-  :root.land .topbar .btn.primary { border-color: #B6DD62; background: #B6DD62; color: #112622; font-weight: 600; }
+  :root.land .topbar .bell .count { background: var(--lk-lime); color: var(--lk-deep); box-shadow: 0 0 0 2px var(--lk-deep); }
+  :root.land .topbar .btn.primary { border-color: var(--lk-lime); background: var(--lk-lime); color: var(--lk-deep); font-weight: 600; }
   :root.land .topbar .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); color: #FFFFFF; }
   @media (hover: hover) and (pointer: fine) {
-    :root.land .topbar .btn.primary:hover { border-color: #C4E57A; background: #C4E57A; }
+    :root.land .topbar .btn.primary:hover { border-color: var(--lk-lime-hi); background: var(--lk-lime-hi); }
     :root.land .topbar .month button:hover:not(:disabled), :root.land .topbar .jr-btn:hover, :root.land .topbar .bell:hover { background: rgba(255, 255, 255, .14); color: #FFFFFF; }
   }
-  :root.land .topbar :focus-visible { outline-color: #B6DD62; }
+  :root.land .topbar :focus-visible { outline-color: var(--lk-lime); }
   /* a screen with its own top on the forest: the top bar goes straight on into it, and that top carries the rounded edge */
   :root.land .work:has(#view > :is(.bq-dhero, .bq-hero, .bq-tx, .dk-hero)) .topbar { padding-bottom: 14px; }
   :root.land .work:has(#view > :is(.bq-dhero, .bq-hero, .bq-tx, .dk-hero)) .topbar::after { display: none; }
   :root.land #view > :first-child:not(.bq-dhero):not(.bq-hero):not(.bq-tx):not(.dk-hero) { margin-top: 2px; }
 
   /* ---------- the forest top of a screen: the whole width under the top bar, its content on the page's column ---------- */
-  :root.land #view > :is(.bq-dhero, .bq-hero) { position: relative; margin-inline: 0; padding: 8px var(--bq-gut) 62px; background: #112622; color: #FFFFFF; }
+  :root.land #view > :is(.bq-dhero, .bq-hero) { position: relative; margin-inline: 0; padding: 8px var(--bq-gut) 62px; background: var(--lk-deep); color: #FFFFFF; }
   :root.land #view > :is(.bq-dhero, .bq-hero)::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 30px; border-radius: 30px 30px 0 0; background: var(--bq-page); }
 
   /* ---------- the summary: a dashboard's header on the forest (v201: "una versión web", not the phone's parts enlarged) ---------- */
@@ -96,29 +96,29 @@
   :root.land .bq-dh-l { grid-area: bal; min-width: 0; }
   :root.land .bq-dh-r { grid-area: free; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; }
   :root.land .bq-dhero .hello { margin: 0 0 14px; }
-  :root.land .bq-dhero .hello h2 { margin: 0; color: #B5C2BE; font-size: 16px; font-weight: 500; letter-spacing: 0; }
+  :root.land .bq-dhero .hello h2 { margin: 0; color: var(--lk-soft); font-size: 16px; font-weight: 500; letter-spacing: 0; }
   :root.land .bq-dbal { display: flex; align-items: flex-end; gap: 6px; }
   :root.land .bq-dbal .bb-link { display: flex; flex-direction: column; gap: 6px; color: #FFFFFF; text-decoration: none; }
-  :root.land .bq-dbal .bb-link small { color: #B5C2BE; font-size: 14px; font-weight: 500; }
+  :root.land .bq-dbal .bb-link small { color: var(--lk-soft); font-size: 14px; font-weight: 500; }
   :root.land .bq-dbal .bb-link b { white-space: nowrap; color: #FFFFFF; font-family: var(--fig); font-size: 44px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
-  :root.land .bq-dbal .bb-link b .cents { color: #B5C2BE; opacity: 1; font-size: .5em; letter-spacing: 0; }
+  :root.land .bq-dbal .bb-link b .cents { color: var(--lk-soft); opacity: 1; font-size: .5em; letter-spacing: 0; }
   :root.land .bq-dbal .bb-link b.neg { color: #FF8A80; }
-  :root.land .bq-dbal .bb-link:focus-visible, :root.land .bq-dbal .bb-eye:focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; border-radius: 12px; }
-  :root.land .bq-dbal .bb-eye { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; color: #B5C2BE; cursor: pointer; }
+  :root.land .bq-dbal .bb-link:focus-visible, :root.land .bq-dbal .bb-eye:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 3px; border-radius: 12px; }
+  :root.land .bq-dbal .bb-eye { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--lk-soft); cursor: pointer; }
   :root.land .bq-dbal .bb-eye:hover { background: rgba(255, 255, 255, .08); color: #FFFFFF; }
   :root.land .bq-dbal .bb-eye svg { width: 20px; height: 20px; }
   /* the month's four figures side by side, a hairline between them; each opens how it is worked out */
   :root.land .bq-dkpis { grid-area: figs; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .12); }
   :root.land .bq-dk { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 4px 16px 4px 0; border-radius: 12px; }
   :root.land .bq-dk + .bq-dk { padding-left: 18px; border-left: 1px solid rgba(255, 255, 255, .12); border-radius: 0; }
-  :root.land .bq-dk-k { color: #B5C2BE; font-size: 13px; font-weight: 500; }
+  :root.land .bq-dk-k { color: var(--lk-soft); font-size: 13px; font-weight: 500; }
   :root.land .bq-dk b { color: #FFFFFF; font-size: 22px; font-weight: 600; letter-spacing: -.03em; white-space: nowrap; }
-  :root.land .bq-dk b .cents { color: #B5C2BE; font-size: .62em; }
+  :root.land .bq-dk b .cents { color: var(--lk-soft); font-size: .62em; }
   :root.land .bq-dk.neg b { color: #FF8A80; }
-  :root.land .bq-dk small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #8FA19C; font-size: 12px; line-height: 1.4; }
+  :root.land .bq-dk small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--lk-soft-2); font-size: 12px; line-height: 1.4; }
   :root.land .bq-dk small .pill { padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #FFFFFF; font-size: 11.5px; }
-  :root.land .bq-dk small .pill.down { background: rgba(182, 221, 98, .16); color: #B6DD62; } :root.land .bq-dk small .pill.up { background: rgba(255, 138, 128, .16); color: #FF8A80; }
-  :root.land .bq-dk:focus-visible { outline: 2px solid #B6DD62; outline-offset: 4px; }
+  :root.land .bq-dk small .pill.down { background: rgba(var(--lk-lime-rgb), .16); color: var(--lk-lime); } :root.land .bq-dk small .pill.up { background: rgba(255, 138, 128, .16); color: #FF8A80; }
+  :root.land .bq-dk:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 4px; }
   @media (hover: hover) and (pointer: fine) { :root.land .bq-dk:hover .bq-dk-k { color: #FFFFFF; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .3); text-underline-offset: 3px; } }
   /* a narrower window: the four figures under the balance and "You can spend", the whole width; narrower still, two by two */
   @media (max-width: 1240px) { :root.land #view > .bq-dhero:not(.bq-dtx) { grid-template-columns: minmax(0, 1fr) minmax(260px, 330px); grid-template-areas: "bal free" "figs figs" "acts acts"; gap: 22px 32px; } }
@@ -130,18 +130,18 @@
   :root.land .bq-dh-r .bq-free { margin: 0; }
   :root.land .bq-dh-r .bq-free-top { padding: 0 0 14px; background: none; }
   :root.land .bq-dh-r .bq-free-foot { margin: 0; border-radius: 22px; }
-  @media (hover: hover) and (pointer: fine) { :root.land .bq-free-foot:hover { background: #C4E57A; } }
+  @media (hover: hover) and (pointer: fine) { :root.land .bq-free-foot:hover { background: var(--lk-lime-hi); } }
   /* the row of buttons: pills, the expense lime, the order of the parts at the right end */
   :root.land .bq-dacts { grid-area: acts; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
   :root.land .bq-dact { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px 0 14px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #FFFFFF; font-size: 14px; font-weight: 600; transition: background-color 120ms ease-out; }
-  :root.land .bq-dact svg { width: 18px; height: 18px; color: #B6DD62; }
-  :root.land .bq-dact.main { background: #B6DD62; box-shadow: none; color: #112622; }
-  :root.land .bq-dact.main svg { color: #112622; }
-  :root.land .bq-dact:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
-  @media (hover: hover) and (pointer: fine) { :root.land .bq-dact:hover { background: rgba(255, 255, 255, .14); } :root.land .bq-dact.main:hover { background: #C4E57A; } }
-  :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #B5C2BE; font-weight: 500; }
+  :root.land .bq-dact svg { width: 18px; height: 18px; color: var(--lk-lime); }
+  :root.land .bq-dact.main { background: var(--lk-lime); box-shadow: none; color: var(--lk-deep); }
+  :root.land .bq-dact.main svg { color: var(--lk-deep); }
+  :root.land .bq-dact:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .bq-dact:hover { background: rgba(255, 255, 255, .14); } :root.land .bq-dact.main:hover { background: var(--lk-lime-hi); } }
+  :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: var(--lk-soft); font-weight: 500; }
   :root.land #view .bq-dacts .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { color: #FFFFFF; background: rgba(255, 255, 255, .06); }
-  :root.land .bq-dacts .d-order-btn svg { color: #B5C2BE; }
+  :root.land .bq-dacts .d-order-btn svg { color: var(--lk-soft); }
   /* v202: the accounts' round logos at the right of the row, beside "Reorder" (each opens its panel; its name under the pointer) */
   :root.land .bq-daccs { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 0 auto; padding: 0; }
   :root.land #view .bq-dacts .bq-daccs + .btn.d-order-btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { margin-left: 6px; }
@@ -150,8 +150,8 @@
   :root.land .bq-daccs .bq-mark .inst, :root.land .bq-daccs .bq-mark .inst img { width: 32px; height: 32px; min-width: 32px; }
   :root.land .bq-daccs .bq-mark .inst svg { width: 18px; height: 18px; }
   :root.land .bq-daccs .bq-acc-n { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  :root.land .bq-daccs .bq-acc:focus-visible { outline: 2px solid #B6DD62; outline-offset: 2px; }
-  @media (hover: hover) and (pointer: fine) { :root.land .bq-daccs .bq-acc:hover .bq-mark { box-shadow: inset 0 0 0 2px #B6DD62; } }
+  :root.land .bq-daccs .bq-acc:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { :root.land .bq-daccs .bq-acc:hover .bq-mark { box-shadow: inset 0 0 0 2px var(--lk-lime); } }
   /* what there is to pay (the phone's cards) and the goals (one card each): rows of cards across the page */
   :root.land #view .bq-sec { gap: 10px; }
   :root.land #view :is(.bq-bills, .bq-dgoals) { list-style: none; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); align-items: stretch; gap: 14px; margin: 2px 0 0; padding: 0; overflow: visible; }      /* as many to a row as fit, the rows even (bosque-desk.js: bqCols) */
@@ -160,7 +160,7 @@
   :root.land .bq-dgoal { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); color: var(--bq-ink); }
   :root.land .bq-dgoal .bq-ico { width: 40px; height: 40px; }
   :root.land .bq-dgoal .bq-ico svg { width: 19px; height: 19px; }
-  :root.land .bq-dgoal.done .bq-ico { background: #B6DD62; color: #112622; }
+  :root.land .bq-dgoal.done .bq-ico { background: var(--lk-pop); color: var(--lk-pop-ink); }
   :root.land .bq-dgoal-n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; font-size: 15px; font-weight: 600; line-height: 1.25; }
   :root.land .bq-dgoal-v { color: var(--bq-ink-2); font-size: 13px; }
   :root.land .bq-dgoal-v b { color: var(--bq-ink); font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
@@ -184,16 +184,16 @@
   :root.land #view .btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { border-color: var(--bq-line); background: var(--bq-card); color: var(--bq-ink); }
   :root.land #view .banner { border: 0; border-radius: 20px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
   /* the insight of the day as a computer has it, on the forest (it was the brand's dark green on the light page): the fact white, its name lime */
-  :root.land #view .card.ins-pc { --ink: #F1F4EE; --ink-2: #B5C2BE; --ink-3: #8FA19C; --line: rgba(255, 255, 255, .14); background: #112622; box-shadow: none; color: #D6DCCF; }
-  :root.land #view .ins-pc .card-h h2 { color: #B6DD62; }
+  :root.land #view .card.ins-pc { --ink: var(--lk-on); --ink-2: var(--lk-soft); --ink-3: var(--lk-soft-2); --line: rgba(255, 255, 255, .14); background: var(--lk-deep); box-shadow: none; color: var(--lk-on-2); }
+  :root.land #view .ins-pc .card-h h2 { color: var(--lk-lime); }
   :root.land #view .ins-pc .grow b { color: #FFFFFF; }
-  :root.land #view .ins-pc .grow small { color: #B5C2BE; }
-  :root.land #view .ins-pc .fl-ico { border-color: #B6DD62; background: #B6DD62; color: #112622; }
-  :root.land #view .ins-pc .ins-mark { color: #B6DD62; opacity: .14; }
+  :root.land #view .ins-pc .grow small { color: var(--lk-soft); }
+  :root.land #view .ins-pc .fl-ico { border-color: var(--lk-lime); background: var(--lk-lime); color: var(--lk-deep); }
+  :root.land #view .ins-pc .ins-mark { color: var(--lk-lime); opacity: .14; }
   :root.land #view .ins-pc .btn:not(.primary) { border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .08); color: #FFFFFF; }
   :root.land #view .ins-pc .btn:not(.primary):hover { background: rgba(255, 255, 255, .14); }
-  :root.land #view .ins-pc .ins-dots i { background: rgba(255, 255, 255, .22); } :root.land #view .ins-pc .ins-dots i.on { background: #B6DD62; }
-  :root.land #view .ins-pc :focus-visible { outline-color: #B6DD62; }
+  :root.land #view .ins-pc .ins-dots i { background: rgba(255, 255, 255, .22); } :root.land #view .ins-pc .ins-dots i.on { background: var(--lk-lime); }
+  :root.land #view .ins-pc :focus-visible { outline-color: var(--lk-lime); }
 
   /* ---------- Transactions: a forest header (the switch, the figure, the month; the chart wide at its right), the computer's table under it ---------- */
   :root.land #view > .bq-dtx { grid-template-columns: minmax(280px, 1fr) minmax(0, 1.7fr); grid-template-areas: none; align-items: end; gap: 24px 40px; padding-top: 6px; }

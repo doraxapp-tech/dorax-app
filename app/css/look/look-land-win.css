@@ -4,53 +4,53 @@
 /* (v199: on a phone and on a computer; look-land-desk.css fits them to a computer) */
   /* ---------- the slide: a deep green track, the lime coin at its left, the goal's flag at its right end ---------- */
   :root.land #overlay footer.gw-foot { display: block; padding: 10px 16px calc(14px + var(--safe-b)); }
-  :root.land #overlay .gw-slide { position: relative; height: 64px; border-radius: 999px; background: #112622; overflow: hidden; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+  :root.land #overlay .gw-slide { position: relative; height: 64px; border-radius: 999px; background: var(--lk-deep); overflow: hidden; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
   :root.land.land-dark #overlay .gw-slide { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); }      /* dark: the track keeps an edge on the dark panel */
-  :root.land #overlay .gw-fill { position: absolute; inset: 0; border-radius: 999px; background: rgba(182, 221, 98, .2); transform: translateX(calc(-100% + 64px)); will-change: transform; }      /* the trail behind the coin */
+  :root.land #overlay .gw-fill { position: absolute; inset: 0; border-radius: 999px; background: rgba(var(--lk-lime-rgb), .2); transform: translateX(calc(-100% + 64px)); will-change: transform; }      /* the trail behind the coin */
   :root.land #overlay .gw-say { position: absolute; top: 0; bottom: 0; left: 64px; right: 64px; display: grid; place-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 600;
-    color: transparent; background: linear-gradient(90deg, #B5C2BE 0%, #B5C2BE 38%, #FFFFFF 50%, #B5C2BE 62%, #B5C2BE 100%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; animation: gw-shine 2.8s linear infinite; }
-  :root.land #overlay .gw-goal { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 1.5px dashed rgba(182, 221, 98, .55); color: #B6DD62; transition: transform 160ms var(--ease), background-color 160ms var(--ease), border-color 160ms var(--ease); }
+    color: transparent; background: linear-gradient(90deg, var(--lk-soft) 0%, var(--lk-soft) 38%, #FFFFFF 50%, var(--lk-soft) 62%, var(--lk-soft) 100%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; animation: gw-shine 2.8s linear infinite; }
+  :root.land #overlay .gw-goal { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 1.5px dashed rgba(var(--lk-lime-rgb), .55); color: var(--lk-lime); transition: transform 160ms var(--ease), background-color 160ms var(--ease), border-color 160ms var(--ease); }
   :root.land #overlay .gw-goal svg { width: 22px; height: 22px; stroke-width: 2; }
-  :root.land #overlay .gw-slide.ready .gw-goal { border-style: solid; border-color: #B6DD62; background: rgba(182, 221, 98, .18); transform: scale(1.06); }      /* near the end: the goal opens to take it */
+  :root.land #overlay .gw-slide.ready .gw-goal { border-style: solid; border-color: var(--lk-lime); background: rgba(var(--lk-lime-rgb), .18); transform: scale(1.06); }      /* near the end: the goal opens to take it */
   :root.land #overlay .gw-slide.in .gw-goal { animation: gw-gulp 320ms var(--ease) both; }
-  :root.land #overlay .gw-knob { all: unset; box-sizing: border-box; position: absolute; top: 6px; left: 6px; z-index: 1; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #B6DD62; color: #112622;
+  :root.land #overlay .gw-knob { all: unset; box-sizing: border-box; position: absolute; top: 6px; left: 6px; z-index: 1; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--lk-lime); color: var(--lk-deep);
     box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .5); cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; will-change: transform; transition: box-shadow 160ms var(--ease); }
   :root.land #overlay .gw-knob svg { width: 24px; height: 24px; stroke-width: 2.2; }
-  :root.land #overlay .gw-slide.held .gw-knob { cursor: grabbing; box-shadow: 0 0 0 6px rgba(182, 221, 98, .2), 0 6px 16px -6px rgba(0, 0, 0, .5); }      /* held: a halo, the coin under the finger */
+  :root.land #overlay .gw-slide.held .gw-knob { cursor: grabbing; box-shadow: 0 0 0 6px rgba(var(--lk-lime-rgb), .2), 0 6px 16px -6px rgba(0, 0, 0, .5); }      /* held: a halo, the coin under the finger */
   :root.land #overlay .gw-slide.in .gw-knob { animation: gw-drop 170ms var(--ease) both; }      /* into the goal */
-  :root.land #overlay .gw-knob:focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; }
+  :root.land #overlay .gw-knob:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 3px; }
 
   /* ---------- the success screen, on the forest ---------- */
   :root.land #overlay .gw-win { position: fixed; inset: 0; z-index: 62; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; padding: calc(var(--safe-t) + 36px) 24px calc(var(--safe-b) + 18px); text-align: center; color: #FFFFFF;
-    background: radial-gradient(70% 42% at 50% 36%, rgba(182, 221, 98, .13), transparent 72%), #112622; }
+    background: radial-gradient(70% 42% at 50% 36%, rgba(var(--lk-lime-rgb), .13), transparent 72%), var(--lk-deep); }
   :root.land #overlay .gw-in { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: auto 0; }
-  :root.land #overlay .gw-kick { margin: 0; color: #B5C2BE; font-size: 15px; font-weight: 500; }
-  :root.land #overlay .gw-amt { margin: 0 0 20px; color: #B6DD62; font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1.1; }
+  :root.land #overlay .gw-kick { margin: 0; color: var(--lk-soft); font-size: 15px; font-weight: 500; }
+  :root.land #overlay .gw-amt { margin: 0 0 20px; color: var(--lk-lime); font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1.1; }
   :root.land #overlay .gw-ring { position: relative; width: min(200px, 54vw); aspect-ratio: 1; margin-bottom: 20px; }
   :root.land #overlay .gw-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   :root.land #overlay .gw-track { fill: none; stroke: rgba(255, 255, 255, .12); stroke-width: 12; }
-  :root.land #overlay .gw-arc { fill: none; stroke: #B6DD62; stroke-width: 12; stroke-linecap: round; }
+  :root.land #overlay .gw-arc { fill: none; stroke: var(--lk-lime); stroke-width: 12; stroke-linecap: round; }
   :root.land #overlay .gw-pct { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
   :root.land #overlay .gw-pct b, :root.land #overlay .gw-total b { color: #FFFFFF; font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1.1; font-variant-numeric: tabular-nums; }
-  :root.land #overlay .gw-pct small, :root.land #overlay .gw-total small { color: #B5C2BE; font-size: 13px; }
+  :root.land #overlay .gw-pct small, :root.land #overlay .gw-total small { color: var(--lk-soft); font-size: 13px; }
   :root.land #overlay .gw-total { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 20px; }
   :root.land #overlay .gw-h { margin: 4px 0 0; color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
-  :root.land #overlay .gw-say2 { max-width: 32ch; margin: 0; color: #B5C2BE; font-size: 15px; line-height: 1.45; text-wrap: balance; }
+  :root.land #overlay .gw-say2 { max-width: 32ch; margin: 0; color: var(--lk-soft); font-size: 15px; line-height: 1.45; text-wrap: balance; }
   :root.land #overlay .gw-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
   :root.land #overlay .gw-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); color: #FFFFFF; font-size: 13px; font-weight: 600; }
-  :root.land #overlay .gw-chip svg { width: 16px; height: 16px; color: #B6DD62; }
+  :root.land #overlay .gw-chip svg { width: 16px; height: 16px; color: var(--lk-lime); }
   :root.land #overlay .gw-acts { display: flex; flex-direction: column; gap: 10px; }
   /* (the panels' own button rules are long chains: these say .btn twice to stand over them) */
   :root.land #overlay .gw-win .gw-acts .btn.btn { min-height: 56px; border: 0; border-radius: 999px; font-size: 16px; font-weight: 600; }
-  :root.land #overlay .gw-win .gw-acts .btn.btn.primary { background: #B6DD62; box-shadow: none; color: #112622; }
+  :root.land #overlay .gw-win .gw-acts .btn.btn.primary { background: var(--lk-lime); box-shadow: none; color: var(--lk-deep); }
   :root.land #overlay .gw-win .gw-acts .btn.btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn) { background: rgba(255, 255, 255, .1); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16); color: #FFFFFF; }
-  :root.land #overlay .gw-win .gw-acts .btn.btn:focus-visible { outline: 2px solid #B6DD62; outline-offset: 3px; }
-  @media (hover: hover) and (pointer: fine) { :root.land #overlay .gw-win .gw-acts .btn.btn.primary:hover { background: #C4E57A; } :root.land #overlay .gw-win .gw-acts .btn.btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { background: rgba(255, 255, 255, .16); } }
+  :root.land #overlay .gw-win .gw-acts .btn.btn:focus-visible { outline: 2px solid var(--lk-lime); outline-offset: 3px; }
+  @media (hover: hover) and (pointer: fine) { :root.land #overlay .gw-win .gw-acts .btn.btn.primary:hover { background: var(--lk-lime-hi); } :root.land #overlay .gw-win .gw-acts .btn.btn:not(.primary):not(.danger):not(.ghost):not(.linkbtn):hover { background: rgba(255, 255, 255, .16); } }
   :root.land #overlay.out .gw-win { animation: fade-out 180ms var(--ease) both; }
   /* its confetti in the summary's colours (app/motion.js: confetti) */
-  #confetti.gw .c0 { background: #B6DD62; } #confetti.gw .c1 { background: #FFFFFF; } #confetti.gw .c2 { background: #9FD182; } #confetti.gw .c3 { background: #C4E57A; } #confetti.gw .c4 { background: #DDE3E1; }
+  #confetti.gw .c0 { background: var(--lk-lime); } #confetti.gw .c1 { background: #FFFFFF; } #confetti.gw .c2 { background: var(--lk-lime-2); } #confetti.gw .c3 { background: var(--lk-lime-hi); } #confetti.gw .c4 { background: #DDE3E1; }
   @media (prefers-reduced-motion: reduce) { :root.land #overlay .gw-say { animation: none; } :root.land #overlay .gw-slide.in .gw-goal, :root.land #overlay .gw-slide.in .gw-knob { animation: none; } }
 
 @keyframes gw-shine { from { background-position: 100% 0; } to { background-position: -120% 0; } }      /* the words on the track: a light passing along them, toward the goal */
-@keyframes gw-gulp { 0% { transform: scale(1.06); } 45% { transform: scale(1.16); background-color: rgba(182, 221, 98, .4); } 100% { transform: scale(1); background-color: rgba(182, 221, 98, .18); } }
+@keyframes gw-gulp { 0% { transform: scale(1.06); } 45% { transform: scale(1.16); background-color: rgba(var(--lk-lime-rgb), .4); } 100% { transform: scale(1); background-color: rgba(var(--lk-lime-rgb), .18); } }
 @keyframes gw-drop { to { scale: .5; opacity: 0; } }
