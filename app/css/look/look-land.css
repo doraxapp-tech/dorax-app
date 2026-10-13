@@ -112,7 +112,7 @@
   :root.land .bq-free-foot:focus-visible { outline: 2px solid #112622; outline-offset: -4px; }
   :root.land .bq-say { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; }
   :root.land .bq-say::first-letter { text-transform: uppercase; }
-  :root.land .bq-say b { font-weight: 700; }
+  :root.land .bq-say b { font-weight: 700; color: inherit; }      /* the strip's deep green: the app's "b" rule (--ink-strong) made the amount light on lime in the dark theme (owner, 2026-10-12) */
   :root.land .bq-go { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #112622; color: #B6DD62; }
   :root.land .bq-go svg { width: 18px; height: 18px; stroke-width: 2.4; }
 

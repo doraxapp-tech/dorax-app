@@ -15,6 +15,9 @@
     --select: var(--bq-mint); --select-ink: var(--bq-accent); --soft-hover: var(--bq-mint); --good-bg: var(--bq-mint); --switch-on: var(--bq-accent); --spark-ink: #B6DD62;
     --btn: var(--bq-card); --btn-hover: var(--bq-card); --btn-line: var(--bq-line); --side-tint: var(--bq-circle); --side-line: var(--bq-circle);
   }
+  /* the dark version: the accent is the lime, so what sits on it is the deep green (owner, 2026-10-12: "la racha, el círculo no se ve el check mark":
+     the day marked in the Journey, and the count on the filters' button, were lime on lime) */
+  :root.land-dark #overlay { --on-brand: #112622; }
   :root.land #overlay .drawer, :root.land #overlay .sheet { border: 0; background: var(--bq-page); }
   :root.land #overlay .drawer > header { border-bottom: 0; padding-bottom: 8px; }
   :root.land #overlay .drawer > header h2, :root.land #overlay .sheet > h2 { color: var(--bq-ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
