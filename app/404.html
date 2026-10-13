@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Página não encontrada · Dorax Finance</title>
+<!-- Dorax Finance — the page for an address that does not exist (v211; owner, 2026-10-13: the pages before launch). Vercel answers any address
+     that is no file and no page with this file and the status 404 (tools/serve.js does the same here). It stands alone, in the home page's look
+     (css/public/landing-v2.css: sage page, the centred title with its second line in forest, the eyebrow with the lime dot, the lime and white
+     buttons), so it shows whatever the address. Its links start at the root. Portuguese first; 404.js puts it in the visitor's language. -->
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap">
+<style>
+  :root { --forest: #163300; --lime: #9FD182; --soft: #F2F4EE; --ink: #0E0F0C; --ink-2: #454745; --ink-3: #5F625D; --line: #E1E5DC; --font: Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--soft); }
+  body { display: flex; flex-direction: column; min-height: 100vh; color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+  .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 32px; }
+  header .wrap { display: flex; align-items: center; min-height: calc(84px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); }
+  .brand { display: inline-flex; color: var(--forest); border-radius: 8px; }
+  .brand svg { height: 28px; width: auto; } .brand .ac { stroke: var(--lime); }
+  main { flex: 1; display: flex; align-items: center; }
+  .copy { display: flex; flex-direction: column; align-items: center; gap: 24px; padding-block: 48px 96px; text-align: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 14px 0 12px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--line); font-size: 13px; font-weight: 600; color: var(--forest); }
+  .eyebrow i { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px rgba(159, 209, 130, .3); }
+  h1 { margin: 0; font-size: clamp(42px, 6.6vw, 92px); font-weight: 600; letter-spacing: -.045em; line-height: .98; text-wrap: balance; }
+  h1 .hl { display: block; color: var(--forest); }
+  p { margin: 0; max-width: 560px; font-size: 20px; line-height: 1.5; color: var(--ink-2); }
+  .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 6px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; border-radius: 999px; font: 600 16px/1 var(--font); text-decoration: none; transition: transform 160ms cubic-bezier(.2, .8, .2, 1); }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:focus-visible, .brand:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
+  .lime { background: var(--lime); color: var(--forest); }
+  .white { background: #FFFFFF; color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+  footer { padding-block: 24px 32px; font-size: 13px; color: var(--ink-3); text-align: center; }
+  @media (max-width: 720px) {
+    .wrap { padding-inline: 16px; }
+    header .wrap { min-height: calc(64px + env(safe-area-inset-top, 0px)); } .brand svg { height: 24px; }
+    h1 { font-size: 11vw; letter-spacing: -.04em; } p { font-size: 17px; }
+    .copy { gap: 18px; padding-block: 24px 64px; }
+    .cta { flex-direction: column; align-self: stretch; } .btn { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="/" aria-label="Dorax Finance"><svg class="logo" viewBox="0 10 306 90" role="img" aria-label="Dorax Finance"><g fill="none" stroke="currentColor" stroke-width="15"><circle cx="30" cy="70" r="22.5"/><circle cx="97" cy="70" r="22.5"/><circle cx="214" cy="70" r="22.5"/><path d="M141.5 70a22.5 22.5 0 0 1 33.75-19.49"/><path class="ac" d="M7.5 70a22.5 22.5 0 0 1 22.5-22.5"/></g><g fill="currentColor"><rect x="45" y="10" width="15" height="90"/><rect x="134" y="40" width="15" height="60"/><rect x="229" y="40" width="15" height="60"/><polygon points="288,40 306,40 268,100 250,100"/><polygon points="250,40 268,40 306,100 288,100"/></g></svg></a></div></header>
+<main><div class="wrap"><div class="copy">
+  <span class="eyebrow"><i></i><span data-t="eyebrow">Erro 404</span></span>
+  <h1><span data-t="h1a">Esta página não existe.</span> <span class="hl" data-t="h1b">Mas o caminho de volta, sim.</span></h1>
+  <p data-t="lead">O endereço pode estar errado, ou a página mudou de lugar.</p>
+  <div class="cta"><a class="btn lime" href="/" data-t="home">Ir para o início</a><a class="btn white" href="/ajuda" data-t="help">Central de ajuda</a><a class="btn white" href="/blog" data-t="blog">Blog</a></div>
+</div></div></main>
+<footer>© 2026 Dorax Finance</footer>
+<script src="/404.js"></script>
+</body>
+</html>

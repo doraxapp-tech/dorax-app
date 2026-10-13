@@ -8,6 +8,7 @@
        /termos             terms of use
        /contato            contact form
        /ajuda              the Help center (v209)
+       /para-pj, /conversor-de-extrato-ofx, /sobre   for PJ and MEI, the statement converter, about Dorax (v211)
        /blog               the blog, and each post at /blog/<post> (v210): the files a post's page asks for from there (css/…, js/…) are
                            answered from the root (vercel.json)
    It is still one app: every address is answered with the same index.html (vercel.json "rewrites"; tools/serve.js does the same here), and
@@ -16,7 +17,9 @@
    The screens that are a moment and not a page keep the address they happened on: "check your email", the new password (opened from an
    email), the short wait, "your account could not be opened".
    Where there is no web server (the app opened from disk, the one-file preview) there are no addresses: the pages work as they did before. */
-const PAGE_PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog' };      // ajuda: the Help center (v209); blog: the blog (v210)
+const PAGE_PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog', pj: 'para-pj', converter: 'conversor-de-extrato-ofx', about: 'sobre' };      // ajuda: the Help center (v209); blog: the blog (v210); the pages before launch (v211)
+/** The pages that are a screen of their own before login, each at its address (the others: the home page, the login and the account's forms). */
+const SITE_PAGES = ['privacy', 'terms', 'contact', 'help', 'blog', 'pj', 'converter', 'about'];
 /** A post of the blog has an address of its own under the blog's: blog/<post> (features/blog/blog-posts.js). */
 const POST_PATH = /^blog\/([a-z0-9-]+)$/;
 const PAGES = (() => {
@@ -35,12 +38,12 @@ const PAGES = (() => {
   const state = v => {
     if (v === 'help') { let st = null; try { st = history.state; } catch (e) { } UI.hcTopic = (st && st.hc) || ''; }      // reloaded on a topic of the Help center: that topic
     if (v === 'blog') { const id = post(); UI.blogPost = typeof blogPost === 'function' && blogPost(id) ? id : ''; }      // a post's address: that post (an unknown one: the list)
-    return v === 'login' || v === 'signup' ? { screen: 'auth', mode: v } : v === 'forgot' ? { screen: 'forgot', mode: 'login' } : v === 'privacy' || v === 'terms' || v === 'contact' || v === 'help' || v === 'blog' ? { screen: v } : {};
+    return v === 'login' || v === 'signup' ? { screen: 'auth', mode: v } : v === 'forgot' ? { screen: 'forgot', mode: 'login' } : SITE_PAGES.includes(v) ? { screen: v } : {};
   };
   /** The page on screen, or null for a screen that keeps whatever address it happened on. The app itself, and the first-time setup, are at the root. */
   const shown = () => { if (UI.session) return UI.webBlog ? 'blog' : UI.webHelp ? 'help' : 'landing';      // the Help center and the blog opened from the app have their addresses too (v209, v210)
     const p = UI.pub || {}, sc = p.screen; return sc === 'landing' || sc === 'onboard' ? 'landing' : sc === 'auth' ? (p.mode === 'login' ? 'login' : 'signup') : PAGE_PATHS[sc] != null ? sc : null; };
-  const names = { login: 'Log in', signup: 'Create account', forgot: 'Choose a new password', privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact', help: 'Help center', blog: 'Blog' };
+  const names = { login: 'Log in', signup: 'Create account', forgot: 'Choose a new password', privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact', help: 'Help center', blog: 'Blog', pj: 'For PJ and MEI', converter: 'Statement converter', about: 'About Dorax' };
   const api = {
     on, arrived: 'landing', arrivedPost: '', push: false, homeY: 0,
     read, post, state, shown,

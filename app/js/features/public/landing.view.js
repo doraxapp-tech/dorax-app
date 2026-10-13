@@ -152,14 +152,14 @@ function calcCarry() {
     three big true numbers > "your money, with a date" (the calculator) > the moments of the month > what's inside > for entrepreneurs (PJ) >
     how it works > your data > questions > closing call to action > footer. No two sections share a layout (owner, 2026-10-05). */
 /** The bar of the website's own pages, the Help center and the blog (owner, 2026-10-13): the name; the capsule with the home page's sections, the
-    blog and Help, the one on screen marked (pressed, it goes back to its own first page); the way in. Opened from the app, the name and "Back to
+    page for PJ and MEI, the blog and Help, the one on screen marked (pressed, it goes back to its own top); the way in. Opened from the app, the name and "Back to
     Dorax" only. Its own rules: css/public/web-pages.css. */
 function l2Bar(cur) {
   if (UI.session) return `<div class="l2-nav web-nav web-in-app">${brandMark()}<div class="lp-actions l2-actions"><button type="button" class="l2-btn lime sm" data-a="${cur === 'blog' ? 'blog-close' : 'help-close'}">${icon('left')}${t('Back to Dorax')}</button></div></div>`;
   const go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   const page = (v, label, home) => `<a class="l2-link" href="${PAGES.href(v)}" ${cur === v ? `data-a="${home}" aria-current="page"` : `data-a="pub-go" data-v="${v}"`}>${label}</a>`;
   return `<div class="l2-nav web-nav"><a class="web-brand" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing" aria-label="${esc(t('Home'))}">${brandMark()}</a>
-    <nav class="l2-links" aria-label="${t('Sections')}">${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${go('lp-pj', t('For PJ'))}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}</nav>
+    <nav class="l2-links" aria-label="${t('Sections')}">${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${page('pj', t('For PJ'), 'web-top')}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}</nav>
     <div class="lp-actions l2-actions">${langPill('web-lang')}<a class="l2-in" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>${l2Go('lime sm')}</div></div>`;
 }
 /** The website's footer: the home page's, the Help center's and the blog's. Opened from the app (app), only what is there for someone already
@@ -172,22 +172,33 @@ function l2Foot(app) {
       <div class="l2-ft-brand">${brandMark(true)}<p>${t('Your money, organized clearly enough to make better decisions yourself.')}</p>
         ${app ? '' : `<div class="l2-ft-lang">${icon('globe')}${langSelect('ft-lang', true)}</div>`}</div>
       <nav class="l2-ft-cols" aria-label="${t('Footer')}">
-        ${app ? '' : `<div><h3>${t('Product')}</h3><ul><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${go('lp-pj', t('For entrepreneurs'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
+        ${app ? '' : `<div><h3>${t('Product')}</h3><ul><li>${go('lp-how', t('How it works'))}</li><li>${go('lp-what', t('What’s inside'))}</li><li>${page('pj', t('For PJ and MEI'))}</li><li>${page('converter', t('Statement converter'))}</li><li>${go('lp-faq', t('Questions'))}</li></ul></div>
         <div><h3>${t('Account')}</h3><ul><li>${page('signup', t('Create account'))}</li><li>${page('login', t('Log in'))}</li></ul></div>`}
         <div><h3>${t('Legal')}</h3><ul><li>${page('privacy', t('Privacy policy'))}</li><li>${page('terms', t('Terms of use'))}</li></ul></div>
-        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('blog', t('Blog'))}</li><li>${page('contact', t('Contact form'))}</li></ul></div>
+        <div><h3>${t('Help')}</h3><ul><li>${page('help', t('Help center'))}</li><li>${page('blog', t('Blog'))}</li>${app ? '' : `<li>${page('about', t('About Dorax'))}</li>`}<li>${page('contact', t('Contact form'))}</li></ul></div>
       </nav></div>
     <div class="l2-ft-bottom"><p>© 2026 Dorax Finance</p>
       <p>${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></div></footer>`;
 }
-function viewLanding() {
-  const co = UI.lpSide === 'co', go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
+/** The two sides, home and company, side by side: the home page's PJ section and the page for PJ and MEI (features/site/site-pages.view.js). */
+const l2Sides = () => `<div class="l2-sides" aria-hidden="true">
+        <div class="l2-side co"><span class="l2-stag">${icon('briefcase')}${t('Company')}</span><span class="l2-slbl">${t('Company reserve')}</span><b class="l2-samt">${l2Amt(8400)}</b>
+          <div class="l2-srows"><span>${t('Accountant')} · ${t('day {d}', { d: 10 })}<em>${l2Money(189)}</em></span><span>Software · ${t('day {d}', { d: 28 })}<em>${fmt.money(2400, 'USD')}</em></span></div><span class="l2-sfoot">${t('Each cost in its own currency: reais or dollars.')}</span></div>
+        <div class="l2-join"><i>${icon('right')}</i>${t('You pay yourself')}</div>
+        <div class="l2-side home"><span class="l2-stag">${icon('home')}${t('Household')}</span><span class="l2-slbl">${t('Left this month')}</span><b class="l2-samt">${l2Amt(1240)}</b>
+          <div class="l2-srows"><span>${t('Rent')} · ${t('day {d}', { d: 5 })}<em>${l2Money(1600)}</em></span><span>${t('Groceries')}<em>${l2Money(980)}</em></span></div><span class="l2-sfoot">${t('Household totals, the plan and the reports count only household money.')}</span></div></div>`;
+/** What a company's side gives: the home page's PJ section and the page for PJ and MEI. */
+function l2PjList() {
   const pj = [
     [t('Company and home, never mixed'), t('Household totals, the plan and the reports count only household money.')],
     [t('A plan for income that changes'), t('Set your income month by month and see what is left.')],
     [t('Home bills do not wait for invoices'), t('Due days and reminders, whatever day a client pays.')],
     [t('The month-end your accountant asks for'), t('The list of statements to send, and the bank’s file turned into OFX.')],
   ];
+  return `<ul class="l2-pj-list">${pj.map(([title, text], i) => `<li data-reveal="pj-${i}">${l2Check()}<span><b>${title}</b> ${text}</span></li>`).join('')}</ul>`;
+}
+function viewLanding() {
+  const co = UI.lpSide === 'co', go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   const steps = [
     ['upload', t('Add your financial information'), t('Accounts, income, fixed costs and goals. Type or import.')],
     ['calendar', t('Build your monthly plan'), t('What you expect to earn, pay and save.')],
@@ -236,14 +247,9 @@ function viewLanding() {
       <div class="l2-sec-h">${l2Eyebrow(t('What’s inside'))}<h2 class="l2-h2">${t('Your whole month, in one place.')}</h2></div>${l2Bento()}</div></section>
     <section class="l2-pj" id="lp-pj"><div class="l2-wrap">
       <div class="l2-sec-h light">${l2Eyebrow(t('For people with a company (PJ or MEI)'), true)}<h2 class="l2-h2">${t('Company pays you. Home needs a plan.')}</h2><p class="l2-sub">${t('When you pay yourself from your own company, home money and company money blur. In Dorax each one has its own side.')}</p></div>
-      <div class="l2-sides" aria-hidden="true">
-        <div class="l2-side co"><span class="l2-stag">${icon('briefcase')}${t('Company')}</span><span class="l2-slbl">${t('Company reserve')}</span><b class="l2-samt">${l2Amt(8400)}</b>
-          <div class="l2-srows"><span>${t('Accountant')} · ${t('day {d}', { d: 10 })}<em>${l2Money(189)}</em></span><span>Software · ${t('day {d}', { d: 28 })}<em>${fmt.money(2400, 'USD')}</em></span></div><span class="l2-sfoot">${t('Each cost in its own currency: reais or dollars.')}</span></div>
-        <div class="l2-join"><i>${icon('right')}</i>${t('You pay yourself')}</div>
-        <div class="l2-side home"><span class="l2-stag">${icon('home')}${t('Household')}</span><span class="l2-slbl">${t('Left this month')}</span><b class="l2-samt">${l2Amt(1240)}</b>
-          <div class="l2-srows"><span>${t('Rent')} · ${t('day {d}', { d: 5 })}<em>${l2Money(1600)}</em></span><span>${t('Groceries')}<em>${l2Money(980)}</em></span></div><span class="l2-sfoot">${t('Household totals, the plan and the reports count only household money.')}</span></div></div>
-      <ul class="l2-pj-list">${pj.map(([title, text], i) => `<li data-reveal="pj-${i}">${l2Check()}<span><b>${title}</b> ${text}</span></li>`).join('')}</ul>
-      <div class="l2-pj-go">${l2Go('lime lg')}</div></div></section>
+      ${l2Sides()}
+      ${l2PjList()}
+      <div class="l2-pj-go">${l2Go('lime lg')}<a class="l2-btn white lg" href="${PAGES.href('pj')}" data-a="pub-go" data-v="pj">${t('See the company’s side')}${icon('right')}</a></div></div></section>
     <section class="l2-sec" id="lp-how"><div class="l2-wrap"><div class="l2-steps">
       <div class="l2-steps-l">${l2Eyebrow(t('How it works'))}<h2 class="l2-h2">${t('Four steps, no detours.')}</h2><p class="l2-sub">${t('A clear path from raw transactions to a usable picture of your month.')}</p></div>
       <ol class="l2-steps-r">${steps.map(([ic, title, text], i) => `<li class="l2-st s${i + 1}" data-reveal="st-${i}"><span class="l2-st-c">${icon(ic)}</span><span class="l2-st-p"><b>${i + 1}. ${title}</b><span>${text}</span></span></li>`).join('')}</ol></div></div></section>

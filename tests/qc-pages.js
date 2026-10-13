@@ -14,9 +14,9 @@ const { chromium } = require('playwright');
 const { open, ok, eq, done, fixture } = require('./pw.js');
 const { createServer, rewriteFor } = require('../tools/serve.js');
 
-const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog' };      // help: the Help center (v209); blog: the blog (v210)
-const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q', blog: '.bl-page .bl-grid' };
-const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance', blog: 'Blog · Dorax Finance' };
+const PATHS = { landing: '', login: 'entrar', signup: 'criar-conta', forgot: 'recuperar-senha', privacy: 'privacidade', terms: 'termos', contact: 'contato', help: 'ajuda', blog: 'blog', pj: 'para-pj', converter: 'conversor-de-extrato-ofx', about: 'sobre' };      // help: the Help center (v209); blog: the blog (v210); the pages before launch (v211)
+const MARK = { landing: '.l2-hero', login: '#au-pass', signup: '#au-name', forgot: '[data-a="auth-forgot-send"]', privacy: '#legal-title', terms: '#legal-title', contact: '#contact-title', help: '.hc-pub #hc-q', blog: '.bl-page .bl-grid', pj: '.st-page #st-title', converter: '.st-page #st-title', about: '.st-page #st-title' };
+const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', signup: 'Create account · Dorax Finance', forgot: 'Choose a new password · Dorax Finance', privacy: 'Privacy policy · Dorax Finance', terms: 'Terms of use · Dorax Finance', contact: 'Contact · Dorax Finance', help: 'Help center · Dorax Finance', blog: 'Blog · Dorax Finance', pj: 'For PJ and MEI · Dorax Finance', converter: 'Statement converter · Dorax Finance', about: 'About Dorax · Dorax Finance' };
 
 (async () => {
   // ---------- 1. the hosting rules ----------
@@ -36,6 +36,10 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
   let ctx = await context();
   let { page, errors } = await open({ browser, ctx, url: BASE + '/', noServer: true, lang: 'en' });
   const miss = await page.request.get(BASE + '/nao-existe'); eq(miss.status(), 404, 'an address that is no page: not found');
+  const nf = await ctx.newPage(); await nf.goto(BASE + '/nao-existe/de-todo'); await nf.waitForSelector('h1');      // a tab of its own: the browser reports the 404 itself in the console
+  eq(await nf.evaluate(() => [document.title, document.querySelector('h1').textContent, [...document.querySelectorAll('.cta a')].map(a => a.getAttribute('href')), getComputedStyle(document.body).backgroundColor, document.documentElement.scrollWidth <= innerWidth]),
+    ['Page not found · Dorax Finance', 'This page does not exist. But the way back does.', ['/', '/ajuda', '/blog'], 'rgb(242, 244, 238)', true], 'the 404 page: in the home page’s look and the browser’s language, whatever the depth of the address, with the way home, to help and to the blog (v211)');
+  await nf.close();
 
   // ---------- 2. each address is its page ----------
   for (const [v, p] of Object.entries(PATHS)) {

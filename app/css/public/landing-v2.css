@@ -284,7 +284,7 @@ html:has(#public:not([hidden]) > .lp2), body:has(#public:not([hidden]) > .lp2) {
 .l2-pj-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; color: #C9D2C0; }
 .l2-pj-list b { display: block; margin-bottom: 2px; color: #FFFFFF; font-weight: 600; }
 .l2-pj-list .l2-ck { background: rgba(159, 209, 130, .16); color: var(--l2-lime); }
-.l2-pj-go { display: flex; justify-content: center; margin-top: 56px; }
+.l2-pj-go { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 56px; }      /* the way in, and the page for PJ and MEI */
 
 /* how it works */
 .l2-steps { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: center; gap: 48px; padding: 64px; border-radius: 40px; background: var(--l2-mint); }
@@ -426,7 +426,7 @@ html:has(#public:not([hidden]) > .lp2), body:has(#public:not([hidden]) > .lp2) {
   .l2-join { flex-direction: row; justify-content: center; } .l2-join i { width: 44px; height: 44px; transform: rotate(90deg); }
   .l2-samt { font-size: 40px; }
   .l2-pj-list { grid-template-columns: minmax(0, 1fr); margin-top: 40px; }
-  .l2-pj-go .l2-btn { width: 100%; }
+  .l2-pj-go { flex-direction: column; } .l2-pj-go .l2-btn { width: 100%; }
   .l2-steps { padding: 28px 18px; border-radius: 28px; gap: 28px; }
   .l2-st-c { width: 56px; height: 56px; } .l2-st-c svg { width: 22px; height: 22px; }
   .l2-st-p { min-height: 56px; padding: 14px 20px; border-radius: 28px; } .l2-st-p b { font-size: 16px; }

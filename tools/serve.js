@@ -28,7 +28,9 @@ function createServer(opts) {
     if (files[url] != null) { res.writeHead(200, { ...head, 'Content-Type': TYPES[url.split('.').pop()] || TYPES.html }); return res.end(files[url]); }
     if (o.preview && url === '/config.js') { res.writeHead(200, { ...head, 'Content-Type': TYPES.js }); return res.end(fs.readFileSync(path.join(__dirname, 'preview-backend.js'))); }       // the stand-in takes the place of the project's address
     const file = path.join(DIR, url === '/' ? 'index.html' : url);
-    if (!file.startsWith(DIR) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) { res.writeHead(404, head); return res.end('Not found'); }
+    if (!file.startsWith(DIR) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {      // an address that is no file and no page: the site's own 404 page, as Vercel answers
+      const nf = path.join(DIR, '404.html'); res.writeHead(404, { ...head, 'Content-Type': TYPES.html }); return res.end(fs.existsSync(nf) ? fs.readFileSync(nf) : 'Not found');
+    }
     res.writeHead(200, { ...head, 'Content-Type': TYPES[file.split('.').pop()] || 'application/octet-stream' }); fs.createReadStream(file).pipe(res);
   });
 }
