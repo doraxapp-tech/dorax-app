@@ -41,6 +41,31 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => UI.pub.screen), 'pj', 'the bar of the blog (and of help) leads to the PJ page');
   eq(errors, [], 'no error'); await browser.close();
 
+  // ---------- the home page's bar: the website's (owner, 2026-10-13: "el menú principal es el viejo, no me lleva a ningún lugar") ----------
+  ({ browser, page, errors } = await open({ lang: 'es', viewport: { width: 1440, height: 900 } }));
+  await page.waitForTimeout(300);
+  eq(await page.evaluate(() => [[...document.querySelectorAll('.l2-top .l2-links > *')].map(x => [x.textContent.trim(), x.tagName]), getComputedStyle(document.querySelector('.web-menu-btn')).display]),
+    [[['Cómo funciona', 'BUTTON'], ['Qué trae', 'BUTTON'], ['Para PJ', 'A'], ['Blog', 'A'], ['Ayuda', 'A']], 'none'], 'the home page: the website’s bar, its sections and the pages (Para PJ, Blog, Ayuda); no menu button on a computer');
+  await page.click('.l2-top .l2-links [data-id="lp-what"]'); await page.waitForTimeout(900);
+  ok(await page.evaluate(() => Math.abs(document.querySelector('#lp-what').getBoundingClientRect().top) < 40), '“Qué trae”: down to its section');
+  await page.evaluate(() => scrollTo(0, 0)); await page.click('.l2-top .l2-links a[data-v="help"]'); await page.waitForSelector('.hc-pub');
+  eq(await page.evaluate(() => UI.pub.screen), 'help', '“Ayuda”: the Help center');
+  eq(errors, [], 'the bar: no error'); await browser.close();
+  ({ browser, page, errors } = await open({ lang: 'es', viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
+  await page.waitForTimeout(300);
+  eq(await page.evaluate(() => { const b = document.querySelector('.web-menu-btn').getBoundingClientRect(); return [getComputedStyle(document.querySelector('.l2-top .l2-links')).display, getComputedStyle(document.querySelector('.l2-top .l2-in')).display, b.width >= 44 && b.height >= 44, b.right <= innerWidth, document.querySelector('#web-menu').hidden]; }),
+    ['none', 'none', true, true, true], 'a phone: the menu button (a thumb high, inside the screen) instead of the capsule and the login');
+  await page.tap('.web-menu-btn'); await page.waitForTimeout(150);
+  eq(await page.evaluate(() => [document.querySelector('#web-menu').hidden, document.querySelector('.web-menu-btn').getAttribute('aria-expanded'), [...document.querySelectorAll('#web-menu .l2-link')].map(x => x.textContent.trim()), [...document.querySelectorAll('#web-menu .l2-link, #web-menu .l2-btn')].every(x => x.getBoundingClientRect().height >= 44), !!document.querySelector('#web-menu a[data-v="login"]') && !!document.querySelector('#web-menu-lang'), document.documentElement.scrollWidth <= innerWidth]),
+    [false, 'true', ['Cómo funciona', 'Qué trae', 'Para PJ', 'Blog', 'Ayuda', 'Preguntas'], true, true, true], 'its menu: the sections, the pages and the questions, the login and the language, every row a thumb high');
+  await page.tap('#web-menu [data-id="lp-faq"]'); await page.waitForTimeout(900);
+  eq(await page.evaluate(() => [document.querySelector('#web-menu').hidden, Math.abs(document.querySelector('#lp-faq').getBoundingClientRect().top) < 80]), [true, true], '“Preguntas” in the menu: down to the questions, the menu closed');
+  await page.evaluate(() => scrollTo(0, 0)); await page.tap('.web-menu-btn'); await page.keyboard.press('Escape');
+  eq(await page.evaluate(() => [document.querySelector('#web-menu').hidden, document.activeElement.classList.contains('web-menu-btn')]), [true, true], 'Escape closes it, the focus back on its button');
+  await page.tap('.web-menu-btn'); await page.tap('#web-menu a[data-v="blog"]'); await page.waitForSelector('.bl-page');
+  eq(await page.evaluate(() => [UI.pub.screen, !!document.querySelector('.bl-page .web-menu-btn')]), ['blog', true], '“Blog” in the menu: the blog, with the same bar');
+  eq(errors, [], 'the phone’s menu: no error'); await browser.close();
+
   // ---------- 3. a phone, in Portuguese ----------
   ({ browser, page, errors } = await open({ lang: 'pt', viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
   for (const v of ['pj', 'converter', 'about']) {

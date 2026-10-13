@@ -1,8 +1,30 @@
-/* Dorax Finance — the website's own pages beyond the home page: the Help center (/ajuda) and the blog (/blog). Both are made of the home page's
-   parts (.lp2, landing-v2.css); this is their shared bar (landing.view.js, l2Bar): the page on screen marked in the capsule, the name as the way
-   home, and, opened from the app, the name and "Back to Dorax" only. */
-.web-page .l2-links .l2-link[aria-current] { background: var(--l2-forest); color: var(--l2-lime); font-weight: 600; }
-.web-page .l2-links a.l2-link { text-decoration: none; }
+/* Dorax Finance — the website's bar, the same on every page of the website (landing.view.js, l2Bar): the home page, the Help center, the blog,
+   the pages for PJ, the converter and about. The page on screen marked in the capsule, the name as the way home; on a narrower screen a menu button
+   and its panel (owner, 2026-10-13: "el menú principal es el viejo, no me lleva a ningún lugar"); opened from the app, the name and "Back to Dorax"
+   only. */
+.l2-links .l2-link[aria-current], .web-menu .l2-link[aria-current] { background: var(--l2-forest); color: var(--l2-lime); font-weight: 600; }
+.l2-links a.l2-link, .web-menu a.l2-link { text-decoration: none; }
 .web-page .web-nav.web-in-app { grid-template-columns: auto minmax(0, 1fr); }
 .web-brand { justify-self: start; display: inline-flex; border-radius: 8px; color: var(--l2-forest); text-decoration: none; }
 .web-brand:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 4px; }
+
+/* the menu on a narrower screen: a button at the end of the bar, and the same links in a panel under it (on a phone with the login and the language) */
+.web-nav { position: relative; }
+.web-menu-btn { all: unset; box-sizing: border-box; display: none; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line); color: var(--l2-ink); cursor: pointer; transition: background-color 150ms ease-out, color 150ms ease-out; }
+.web-menu-btn svg { width: 20px; height: 20px; }
+.web-menu-btn[aria-expanded="true"] { background: var(--l2-forest); box-shadow: none; color: var(--l2-lime); }
+.web-menu-btn:focus-visible { outline: 2px solid var(--l2-forest); outline-offset: 2px; }
+.web-menu { position: absolute; z-index: 40; top: calc(100% - 6px); left: 0; right: 0; display: flex; flex-direction: column; padding: 8px; border-radius: 24px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--l2-line), 0 28px 56px -28px rgba(22, 51, 0, .45); }
+.web-menu[hidden] { display: none; }
+.web-menu-links { display: flex; flex-direction: column; }
+.web-menu .l2-link { justify-content: flex-start; min-height: 52px; padding: 0 16px; border-radius: 16px; font-size: 16px; color: var(--l2-ink); }
+.web-menu-foot { display: none; align-items: center; gap: 10px; margin-top: 6px; padding: 12px 8px 4px; border-top: 1px solid var(--l2-line); }
+.web-menu-foot .l2-btn { flex: 1; }
+.web-menu-lang { display: inline-flex; align-items: center; gap: 8px; color: var(--l2-ink-3); } .web-menu-lang svg { width: 16px; height: 16px; }
+.web-menu-lang select.lang { min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--l2-line-strong); background: #FFFFFF; color: var(--l2-ink); font: 500 15px var(--font); }
+@media (prefers-reduced-motion: reduce) { .web-menu-btn { transition: none; } }
+@media (max-width: 920px) { .web-menu-btn { display: grid; } }
+@media (max-width: 720px) {
+  .web-nav .l2-actions .l2-in, .web-nav .l2-actions .lang-pill { display: none; }      /* on a phone they are in the menu */
+  .web-menu-foot { display: flex; }
+}

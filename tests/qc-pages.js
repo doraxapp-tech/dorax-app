@@ -75,7 +75,7 @@ const TITLE = { landing: 'Dorax Finance', login: 'Log in · Dorax Finance', sign
   await page.click('.l2-foot [data-v="privacy"]'); await page.waitForSelector(MARK.privacy); eq([await at(page), await page.evaluate(() => window.scrollY)], ['/privacidade', 0], 'the footer → Privacy policy, from its top');
   await page.goBack(); await page.waitForSelector(MARK.landing); ok(y > 500 && Math.abs(await page.evaluate(() => window.scrollY) - y) < 4, 'Back: the home page, where it was being read', [y, await page.evaluate(() => window.scrollY)]);
   // a section of the home page is still a section, not a page
-  await page.click('.l2-nav [data-id="lp-faq"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');
+  await page.click('.l2-nav .l2-links [data-id="lp-how"]'); eq(await at(page), '/', 'a section of the home page keeps the home page\'s address');
   // the Help center: a topic is a step of the same address (v209)
   await page.click('.l2-foot [data-v="help"]'); await page.waitForSelector(MARK.help);
   await page.click('.hc-bx[data-v="import"]'); await page.waitForSelector('.hc-topic-qs');

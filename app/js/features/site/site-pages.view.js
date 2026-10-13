@@ -120,7 +120,17 @@ function viewAbout() {
       ${siteEnd(t('Make sense of the numbers you have.'))}</main>
     ${l2Foot()}</div>`;
 }
+/** The bar's menu on a narrower screen (landing.view.js, l2Bar): opened and closed in place, nothing else drawn again. */
+function webMenu(open) {
+  const m = $('web-menu'), b = document.querySelector('.web-menu-btn'); if (!m || !b) return;
+  m.hidden = !open; b.setAttribute('aria-expanded', String(open));
+  if (open) { const f = m.querySelector('.l2-link'); if (f) f.focus({ preventScroll: true }); }
+}
+// a press anywhere else, or Escape, closes it; a choice in it closes it too (pub-go draws the page again; pub-scroll stays on the page)
+document.addEventListener('click', e => { const m = $('web-menu'); if (m && !m.hidden && (!e.target.closest('.web-nav') || e.target.closest('.web-menu [data-a="pub-scroll"]'))) webMenu(false); });
+document.addEventListener('keydown', e => { const m = $('web-menu'); if (e.key === 'Escape' && m && !m.hidden) { webMenu(false); const b = document.querySelector('.web-menu-btn'); if (b) b.focus(); } });
 const SITE_ACTIONS = {
+  'web-menu'() { const m = $('web-menu'); webMenu(!!m && m.hidden); },
   /** The page on screen pressed in the bar: back to its top. */
   'web-top'() { window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }); const h = $('st-title'); if (h) h.focus({ preventScroll: true }); },
 };

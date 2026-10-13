@@ -151,16 +151,23 @@ function calcCarry() {
 /** The home page. Order since 2026-10-11 (the design canvas the owner approved): hero with the phone and its Household | Company choice >
     three big true numbers > "your money, with a date" (the calculator) > the moments of the month > what's inside > for entrepreneurs (PJ) >
     how it works > your data > questions > closing call to action > footer. No two sections share a layout (owner, 2026-10-05). */
-/** The bar of the website's own pages, the Help center and the blog (owner, 2026-10-13): the name; the capsule with the home page's sections, the
-    page for PJ and MEI, the blog and Help, the one on screen marked (pressed, it goes back to its own top); the way in. Opened from the app, the name and "Back to
-    Dorax" only. Its own rules: css/public/web-pages.css. */
-function l2Bar(cur) {
+/** The website's bar, the same on every page of the website: the home page, the Help center, the blog, the pages for PJ, the converter and about
+    (owner, 2026-10-13: "el menú principal es el viejo, no me lleva a ningún lugar"). The name; the capsule: the home page's sections (How it works,
+    What's inside), the page for PJ and MEI, the blog and Help, the one on screen marked (pressed, it goes back to its own top); the language and the
+    way in. On a narrower screen the capsule gives way to a menu button that opens the same links in a panel (with the language and the login on a
+    phone). Opened from the app, the name and "Back to Dorax" only. Its own rules: css/public/web-pages.css. */
+function l2Bar(cur, langId) {
   if (UI.session) return `<div class="l2-nav web-nav web-in-app">${brandMark()}<div class="lp-actions l2-actions"><button type="button" class="l2-btn lime sm" data-a="${cur === 'blog' ? 'blog-close' : 'help-close'}">${icon('left')}${t('Back to Dorax')}</button></div></div>`;
-  const go = (id, label) => `<button class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
+  const go = (id, label) => `<button type="button" class="l2-link" data-a="pub-scroll" data-id="${id}">${label}</button>`;
   const page = (v, label, home) => `<a class="l2-link" href="${PAGES.href(v)}" ${cur === v ? `data-a="${home}" aria-current="page"` : `data-a="pub-go" data-v="${v}"`}>${label}</a>`;
+  const links = () => `${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${page('pj', t('For PJ'), 'web-top')}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}`;
+  const burger = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
   return `<div class="l2-nav web-nav"><a class="web-brand" href="${PAGES.href('landing')}" data-a="pub-go" data-v="landing" aria-label="${esc(t('Home'))}">${brandMark()}</a>
-    <nav class="l2-links" aria-label="${t('Sections')}">${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${page('pj', t('For PJ'), 'web-top')}${page('blog', t('Blog'), 'blog-home')}${page('help', t('Help'), 'hc-home')}</nav>
-    <div class="lp-actions l2-actions">${langPill('web-lang')}<a class="l2-in" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>${l2Go('lime sm')}</div></div>`;
+    <nav class="l2-links" aria-label="${t('Sections')}">${links()}</nav>
+    <div class="lp-actions l2-actions">${langPill(langId || 'web-lang')}<a class="l2-in" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>${l2Go('lime sm')}
+      <button type="button" class="web-menu-btn" data-a="web-menu" aria-expanded="false" aria-controls="web-menu" aria-label="${esc(t('Menu'))}">${burger}</button></div>
+    <div class="web-menu" id="web-menu" hidden><nav class="web-menu-links" aria-label="${t('Sections')}">${links()}${go('lp-faq', t('Questions'))}</nav>
+      <div class="web-menu-foot"><a class="l2-btn white sm" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a><span class="web-menu-lang">${icon('globe')}${langSelect('web-menu-lang', true)}</span></div></div></div>`;
 }
 /** The website's footer: the home page's, the Help center's and the blog's. Opened from the app (app), only what is there for someone already
     in: the legal texts in a panel, the Help center, the blog and the form to write. */
@@ -222,9 +229,7 @@ function viewLanding() {
   const contact = `<a class="linkbtn" href="${PAGES.href('contact')}" data-a="pub-go" data-v="contact">${t('contact form')}</a>`;
   return `<div class="lp2">
   <header class="l2-top"><div class="l2-wrap">
-    <div class="l2-nav">${brandMark()}
-      <nav class="l2-links" aria-label="${t('Sections')}">${go('lp-how', t('How it works'))}${go('lp-what', t('What’s inside'))}${go('lp-pj', t('For PJ'))}${go('lp-faq', t('Questions'))}</nav>
-      <div class="lp-actions l2-actions">${langPill('lp-lang')}<a class="l2-in" href="${PAGES.href('login')}" data-a="pub-go" data-v="login">${t('Log in')}</a>${l2Go('lime sm')}</div></div>
+    ${l2Bar('landing', 'lp-lang')}
     <section class="l2-hero"><div class="l2-copy">${l2Eyebrow(t('For your home, and for your PJ or MEI'))}
         <h1 class="l2-h1">${t('Home & company.')} <span class="hl">${t('One plan.')}</span></h1>
         <p class="l2-lead">${t('Home money and company money in one place, never mixed.')} ${t('And with a date for what you want.')}</p>
