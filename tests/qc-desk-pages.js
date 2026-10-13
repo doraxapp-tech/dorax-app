@@ -8,7 +8,8 @@
 //   4. Investments: what they pay against the person's own costs, the year's bars with this month to record, a day's distributions in one row;
 //   5. Reports: the month against the same days of the one before, the average kept, the months as bars that open, the year as a table in a panel;
 //   6. Accounts & savings: the net balance, how long the savings last, the table (what goes out and what is left), the savings and the card;
-//   7. dark, Portuguese and English, the amounts hidden; a phone keeps its own pages.
+//   7. dark, Portuguese and English, the amounts hidden; a phone keeps its own pages;
+//   8. Reports from the first month: each part shows what there is (the month's balance, the months to come as outlines, the categories against the plan).
 const { open, ok, eq, done } = require('./pw.js');
 const go = async (page, route, theme) => { await page.evaluate(([r, th]) => { S.user.greeted = true; S.settings.theme = th || 'light'; window.DORAX_BETA = true; UI.drawer = null; UI.sheet = false; renderOverlay(); navigate(r); render(); }, [route, theme]); await page.waitForTimeout(350); };
 const txt = (page, sel) => page.evaluate(s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; }, sel);
@@ -123,6 +124,28 @@ const wide = page => page.evaluate(() => document.documentElement.scrollWidth - 
     for (const r of ['goals', 'investments', 'reports', 'accounts']) { await go(o.page, r); ok(await o.page.evaluate(() => !!document.querySelector('.dk-hero .dk-big')), `${lang}: ${r} drawn`); }
     eq(await wide(o.page) <= 0, true, `${lang}: nothing wider than a 1280 px screen`);
     eq(o.errors, [], `${lang}: no error`); await o.browser.close();
+  }
+  // ---------- Reports from the first month (owner, 2026-10-12, his account starting in October: "no se parece al artefacto") ----------
+  {
+    const o = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 1280, height: 860 } }), p = o.page;
+    const first = async income => { await p.evaluate(inc => { S.user.greeted = true; S.settings.theme = 'light'; S.today = '2026-10-12'; S.month = '2026-10'; S.transactions = [];
+      const add = (id, date, accountId, type, amount, merchant, categoryId) => S.transactions.push({ id, date, accountId, type, amount, currency: 'BRL', merchant, description: merchant, categoryId, subcategoryId: null, status: 'confirmed', notes: '' });
+      if (inc) add('f0', '2026-10-05', 'nu-conta', 'income', 650000, 'Sueldo', 'income');
+      add('f1', '2026-10-01', 'nu-card', 'expense', -12330, 'Claude', 'suscripciones'); add('f2', '2026-10-03', 'nu-card', 'expense', -10990, 'TotalPass', 'suscripciones'); add('f3', '2026-10-11', 'nu-conta', 'expense', -50000, 'Envio', 'other');
+      navigate('reports'); render(); }, income); await p.waitForTimeout(400); };
+    await first(true);
+    eq(await p.evaluate(() => ['#rep-daily', '#rep-cats', '#rep-balance', '#rep-pay', '#rep-vsplan', '#rep-matrix'].map(s => !!document.querySelector(s))), [true, true, true, true, true, false], 'first month: the day by day, where it went, the balance, how it was paid, and the categories against the plan (nothing to compare months with yet)');
+    eq(await txt(p, '#dk-keep-h'), 'Lo que te queda en octubre, hasta hoy', 'first month: the forest says what is left of this month');
+    ok(/R\$ 5\.767/.test(await txt(p, '.dk-side .dk-mid')) && /88,7%/.test(await txt(p, '.dk-side .dk-mid')) && /Desde noviembre/.test(await txt(p, '.dk-side')), 'first month: what came in less what went out, its share, and when the average takes its place');
+    eq(await p.evaluate(() => [document.querySelectorAll('.dk-grp').length, [...document.querySelectorAll('.dk-gx .dk-grp-m')].map(e => e.textContent)]), [1, ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr']], 'first month: the band has this month and the six to come as outlines');
+    eq(await p.evaluate(() => [document.querySelector('#rep-balance h2').textContent, document.querySelector('#rep-balance .dk-pill').textContent]), ['Tu saldo neto, día a día', '+R$ 5.767 en octubre'], 'first month: the net balance day by day, and how far it moved');
+    eq(await p.evaluate(() => { const r = [...document.querySelectorAll('#rep-vsplan-tbl tbody tr')].find(tr => /Suscripciones/.test(tr.textContent)); return r && [...r.querySelectorAll('td')].slice(1, 4).map(td => td.textContent.trim()); }),
+      await p.evaluate(() => { const ym = '2026-10', pl = sum(linesLive(S, ym).filter(l => l.categoryId === 'suscripciones').map(l => planValue(S, l, ym))), n = v => fmt.money(v, null, { bare: true, round: true }); return ['233', n(pl), n(pl - 23320)]; }), 'first month: a category’s cost, what the plan gives it, and what is left of it');
+    eq(await txt(p, '#rep-daily .dk-sub'), 'Lo que salió, sumado día a día, frente al plan', 'first month: the day by day does not promise a month before');
+    eq(await p.evaluate(() => [...document.querySelectorAll('.dk-axl')].filter(e => parseFloat(getComputedStyle(e).fontSize) < 12).length + document.querySelectorAll('.dk-chart text').length), 0, 'the charts’ words are HTML over the drawing, 12 px and up');
+    await first(false);
+    eq(await p.evaluate(() => [!!document.querySelector('.dk-side [data-a="quick-go"][data-v="income"]'), document.querySelectorAll('.dk-side .dk-split').length]), [true, 0], 'first month without income: the forest offers to add it');
+    eq(await wide(p) <= 0, true, 'first month: nothing wider than the screen'); eq(o.errors, [], 'first month: no error'); await o.browser.close();
   }
   const ph = await open({ lang: 'es', account: 'example', plan: true, viewport: { width: 390, height: 844 }, mobile: true, touch: true });
   for (const r of ['plan', 'goals', 'investments', 'reports', 'accounts']) { await go(ph.page, r); ok(await ph.page.evaluate(() => !document.querySelector('.dk-hero')), `a phone keeps its own ${r}`); }

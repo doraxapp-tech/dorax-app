@@ -20,7 +20,7 @@ const fs = require('fs'), path = require('path');
   const before = await page.evaluate(() => { const rs = allReminders().filter(r => !snoozedNow(r)), doc = JSON.parse(JSON.stringify(S)); delete doc.today;
     return { coKeys: rs.filter(r => r.book || r.kind === 'close').map(reminderKey), has: hasCompany(), co: rs.filter(r => r.book).length, close: rs.filter(r => r.kind === 'close').length, home: rs.filter(r => !r.book && r.kind !== 'close').map(r => r.id), owed: needStatements('2026-09').length, books: companyBooks(S).length, accounts: S.accounts.filter(a => a.scope === 'business').length, tx: S.transactions.filter(x => isBiz(x.accountId)).length, lines: companyCurrencies(S).map(c => companyBook(S, c, false)).filter(Boolean).reduce((n, b) => n + b.plan.lines.length, 0), doc }; });
   ok(before.has && before.co > 0 && before.close > 0 && before.owed > 0 && before.books > 0 && before.accounts > 0, 'to start with: a company with accounts, bills of its own in the bell and statements owed', { co: before.co, close: before.close, owed: before.owed });
-  await page.evaluate(() => { render(); navigate('settings'); });
+  await page.evaluate(() => { render(); navigate('settings/data'); });
   eq(await page.evaluate(() => { const row = document.querySelector('#set-company'); return [!!row && !!row.closest('#your-data'), row.querySelector('b').innerText.trim(), document.querySelector('#set-co-off').innerText.trim(), /Nothing is deleted\./.test(row.innerText), document.querySelectorAll('#user-menu [data-a="co-close"]').length]; }), [true, 'The company’s side', 'I no longer have a company', true, 0],
     'someone with a company finds “I no longer have a company” in Settings, under “Your data”; it is not one more row of the menu everybody opens every day');
   await page.click('#set-co-off'); await page.waitForSelector('.modal');
@@ -44,7 +44,7 @@ const fs = require('fs'), path = require('path');
   // around the app: no company to choose, anywhere
   await page.evaluate(() => { navigate('transactions'); A['tx-filters'](); });
   eq(await page.evaluate(() => [document.querySelectorAll('#tx-scope').length, document.querySelectorAll('#tx-month').length]), [0, 1], 'the transaction filters no longer offer a company to filter by');
-  await page.evaluate(() => { A.close(); navigate('settings'); }); eq(await page.evaluate(() => document.querySelectorAll('#set-company').length), 0, 'Settings no longer has the row: there is no company to put away');
+  await page.evaluate(() => { A.close(); navigate('settings/data'); }); eq(await page.evaluate(() => document.querySelectorAll('#set-company').length), 0, 'Settings no longer has the row: there is no company to put away');
   await page.click('#user-menu-btn');
   eq(await page.evaluate(() => document.querySelector('#umenu-co').innerText.trim()), 'Open a company account', 'the menu offers the way back');
   await page.click('#umenu-co'); await page.waitForFunction(() => UI.space === 'business');
@@ -100,7 +100,7 @@ const fs = require('fs'), path = require('path');
     eq(await page.evaluate(() => { const gs = [...document.querySelectorAll('.sheet .mr-nav .nav-group')].map(g => [...g.querySelectorAll('a')].map(a => a.getAttribute('href').slice(1))), second = document.querySelectorAll('.sheet .mr-nav .nav-group')[1], off = document.querySelector('#sheet-co-off');
       return [gs, getComputedStyle(second).borderTopWidth, parseFloat(getComputedStyle(second).paddingTop) >= 6, document.querySelectorAll('.sheet [data-a="co-close"]').length, document.querySelector('.sheet').scrollWidth <= document.querySelector('.sheet').clientWidth]; }),
       [[['accounts', 'reports', 'investments', 'recurring', 'imports'], ['categories', 'settings']], '1px', true, 0, true], `${lang}, ${w}px: More is two groups with a line between them, the money first and the preferences after; the profile is the person at the top (owner, 2026-10-10)`);
-    await page.evaluate(() => { A.close(); navigate('settings'); }); await page.click('#set-co-off'); await page.waitForSelector('.modal');
+    await page.evaluate(() => { A.close(); navigate('settings/data'); }); await page.click('#set-co-off'); await page.waitForSelector('.modal');
     eq(await page.evaluate(() => { const bs = [...document.querySelectorAll('.modal button')]; return [bs.every(b => b.getBoundingClientRect().height >= 44), document.querySelector('.modal').getBoundingClientRect().right <= innerWidth]; }), [true, true], `${lang}, ${w}px: “I no longer have a company” is in Settings on a phone too, and asks first, in a box that fits the phone`);
     await page.click('[data-a="modal-confirm"]'); await page.waitForFunction(() => S.user.company === false);
     eq(await page.evaluate(() => [document.querySelectorAll('.navbar .side-flip').length, !!document.querySelector('.bar-bal .bb-link')]), [0, true], `${lang}, ${w}px: the top of the phone loses its button to change side, and keeps the balance`);

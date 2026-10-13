@@ -129,7 +129,7 @@ function limitDrawer(d) {
       ${covers ? `<p class="note lim-covers">${covers}</p>` : ''}
       ${avg ? `<button type="button" class="lim-avg" data-a="limit-avg" data-v="${avg.amount}">${t('Use {amount}', { amount: `<b class="num">${limMoney(avg.amount)}</b>` })}<small>${tn(avg.n, 'your average of the last {n} month with spending', 'your average of the last {n} months with spending')}</small></button>` : ''}
       <p class="note" id="lm-left" aria-live="polite">${limLeft(d)}</p>
-      <p class="note">${t('From this month on.')} ${alerts ? t('Dorax lets you know when you reach 80% and if you go over.') : t('Alerts for limits are off in your profile, under Reminders.')}</p>
+      <p class="note">${t('From this month on.')} ${alerts ? t('Dorax lets you know when you reach 80% and if you go over.') : t('Alerts for limits are off in Settings, under Notifications.')}</p>
     </div>
     <footer><button class="btn primary" data-a="limit-save">${t('Save limit')}</button>${f.has ? `<button class="btn ghost danger" data-a="limit-remove">${t('Remove limit')}</button>` : ''}<button class="btn ghost spacer" data-a="close">${t('Cancel')}</button></footer>`;
 }

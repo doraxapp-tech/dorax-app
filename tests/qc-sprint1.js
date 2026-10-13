@@ -56,7 +56,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ok(m2 && m2.keys.includes('budget:pl-supermercado:2026-10|over'), 'passing it is said once more, on the server too', m2 && m2.keys);
   await page.evaluate(() => { A.close(); S.user.notify.budgets = false; });
   eq(await page.evaluate(() => activeReminders().filter(x => x.kind === 'budget').length), 0, 'switched off in the profile: no reminder');
-  await page.evaluate(() => { S.user.notify.budgets = true; navigate('profile'); });
+  await page.evaluate(() => { S.user.notify.budgets = true; navigate('settings/notifications'); });
   ok(await page.evaluate(() => !!document.querySelector('#nf-budgets') && document.querySelector('#nf-budgets').checked), 'the profile has its switch, on by default');
   // ---------- 3. Help ----------
   await page.evaluate(() => { navigate('dashboard'); A.sheet(); }); await page.click('.sheet [data-a="help"]'); await page.waitForSelector('.hp-list');

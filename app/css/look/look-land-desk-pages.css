@@ -436,3 +436,25 @@
   :root.land :is(.dk-hero, .dk-sheet) .inst svg { width: 18px; height: 18px; }
   :root.land .dk-hero .inst:not(.bank):not(.pic) { background: rgba(255, 255, 255, .1); color: #FFFFFF; }
 }
+/* v203, from the first month (owner: "no se parece al artefacto"): the charts' words in HTML over the SVG, so they stay 12 px however narrow the card;
+   the months to come as outlines in the band; the categories against the plan */
+@media (min-width: 921px) {
+  :root.land .dk-plot { position: relative; }
+  :root.land .dk-axl { position: absolute; color: var(--bq-ink-3); font-size: 12px; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+  :root.land .dk-axl.y { transform: translate(-100%, -50%); padding-right: 8px; }
+  :root.land .dk-axl.x { transform: translateX(-50%); padding-top: 9px; }
+  :root.land .dk-axl.tag { transform: translate(-100%, -50%); color: var(--bq-ink); font-size: 13px; font-weight: 600; }
+  :root.land .dk-gx { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding-bottom: 4px; }
+  :root.land .dk-gx .dk-grp-b::after { content: ""; align-self: flex-end; width: 48px; height: 46%; border: 1.5px dashed rgba(255, 255, 255, .2); border-bottom: 0; border-radius: 6px 6px 0 0; }
+  :root.land .dk-gx .dk-grp-m { color: #8FA19C; }
+  :root.land .dk-gx small { color: #6F827D; font-size: 12px; }
+  :root.land .dk-sheet .dk-tbl .num.neg, :root.land .dk-sheet .dk-share .num.neg { color: var(--dk-neg); }
+  :root.land .dk-tbl:is(#rep-matrix-tbl, #rep-vsplan-tbl) { table-layout: auto; }      /* the previous page's rule (screens/reports.css) fixed the columns: "Oct, hasta hoy" ran into "Promedio" */
+  :root.land .dk-tbl#rep-vsplan-tbl { min-width: 640px; }      /* five columns: it fits a window of 1024 px without scrolling */
+}
+/* the card's row in the accounts' table: the invoice's date as words and how many days in the pill, the limit's bar and its share, each pair
+   wrapping (in one line they ran over the next columns at 1280 px when the invoice was late) */
+@media (min-width: 921px) {
+  :root.land .dk-tbl td small.dk-due { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px 8px; }
+  :root.land .dk-tbl td small.dk-due > span:not(.dk-pill):not(.dk-mini) { white-space: nowrap; }      /* the limit's share drops under its bar rather than over the next column */
+}

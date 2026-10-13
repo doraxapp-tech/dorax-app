@@ -24,7 +24,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 1. the card ----------
   let { browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   await page.addInitScript(BIO); await page.evaluate(BIO);
-  await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card');
+  await page.evaluate(() => navigate('settings/security')); await page.waitForSelector('#guard-card');
   eq(await page.evaluate(() => { const c = document.querySelector('#guard-card'), sets = [...c.querySelectorAll('.setting b')].map(b => b.innerText.trim()); return [c.querySelector('h2').innerText.trim(), sets, c.querySelector('[data-a="guard-pin-open"]').innerText.trim(), document.querySelector('#guard-idle').value, [...document.querySelector('#guard-idle').options].map(o => o.text), c.querySelectorAll('.chip.good').length, JSON.stringify(GUARD.of(guardUser()).pin || null), LOCK.on,
       [...document.querySelectorAll('#view .set-group > .set-head h2')].map(h => h.innerText.trim()).indexOf('Protection on this device') > -1]; }),      // a group of the profile, its heading outside its card since 2026-10-09
     ['Protection on this device', ['App lock', 'Close the session'], 'Set a PIN', '0', ['Never', 'After 1 day without use', 'After 7 days without use', 'After 30 days without use'], 0, 'null', false, true],
@@ -53,14 +53,14 @@ const { open, ok, eq, done } = require('./pw.js');
     ['dialog', 'true', 'Hi, Alex. Enter your PIN.', true, 'hidden', 'hidden', 'hidden', true, false, 10, 4, 0, true],
     '“Lock now”: a screen of its own with the name, four dots and a pad; the page under it is not drawn and cannot be reached; nothing of the account shows');
   await page.keyboard.press('f'); await page.keyboard.press('Escape');
-  eq(await page.evaluate(() => [UI.find || null, LOCK.on, UI.route]), [null, true, 'profile'], 'the app’s own keys (F for the search, Esc) do nothing behind the lock');
+  eq(await page.evaluate(() => [UI.find || null, LOCK.on, UI.route]), [null, true, 'settings'], 'the app’s own keys (F for the search, Esc) do nothing behind the lock');
   await type(page, '0000'); await page.waitForFunction(() => /Wrong PIN/.test(document.querySelector('.lock-say').innerText));
   eq(await page.evaluate(() => [LOCK.on, document.querySelector('.lock-say').innerText.trim(), document.querySelectorAll('.lock-dots i.on').length, GUARD.of(guardUser()).fails]), [true, 'Wrong PIN. 4 more tries before a wait.', 0, 1], 'a wrong PIN: said, counted, the dots empty again, still closed');
   await page.click('.lock-pad [data-v="2"]'); await page.click('.lock-pad [data-v="5"]');
   eq(await page.evaluate(() => [document.querySelectorAll('.lock-dots i.on').length, document.querySelector('.lock-say').innerText.trim(), document.querySelector('.lock .sr').innerText.trim(), document.querySelector('[data-a="lock-del"]').disabled]), [2, '', '2 of 4 digits', false], 'each digit fills a dot, takes the message away, and is said to a screen reader as a count, never as the digit');
   await page.click('[data-a="lock-del"]'); eq(await page.evaluate(() => [LOCK.entry.length, document.querySelectorAll('.lock-dots i.on').length]), [1, 1], 'the erase key takes one digit back');
   await page.keyboard.press('Backspace'); await page.keyboard.type('2580'); await page.waitForFunction(() => !LOCK.on);
-  eq(await page.evaluate(() => [LOCK.on, document.documentElement.classList.contains('locked'), getComputedStyle(document.querySelector('#view')).visibility, [...document.body.children].some(e => e.hasAttribute('inert')), UI.route, GUARD.of(guardUser()).fails || 0, document.querySelector('#lock-root').innerHTML]), [false, false, 'visible', false, 'profile', 0, ''],
+  eq(await page.evaluate(() => [LOCK.on, document.documentElement.classList.contains('locked'), getComputedStyle(document.querySelector('#view')).visibility, [...document.body.children].some(e => e.hasAttribute('inert')), UI.route, GUARD.of(guardUser()).fails || 0, document.querySelector('#lock-root').innerHTML]), [false, false, 'visible', false, 'settings', 0, ''],
     'the right PIN, typed on a keyboard: the page is back where it was, and the count of wrong tries starts again');
   // the wait from the fifth wrong try, and the tenth
   await page.evaluate(() => { GUARD.set(guardUser(), { fails: 4 }); lockNow(); }); await type(page, '0000'); await page.waitForFunction(() => /Too many wrong tries/.test(document.querySelector('.lock-say').innerText));
@@ -73,12 +73,12 @@ const { open, ok, eq, done } = require('./pw.js');
 
   // ---------- 4. when it locks ----------
   await page.reload(); await page.waitForSelector('.lock'); await page.waitForFunction(() => !!UI.session);
-  eq(await page.evaluate(() => [LOCK.on, getComputedStyle(document.querySelector('#view')).visibility, document.querySelector('#lock-h').innerText.trim(), UI.route]), [true, 'hidden', 'Hi, Alex. Enter your PIN.', 'profile'], 'opening Dorax with a session kept on the device: the lock comes first, the account opens out of sight under it, on the page it was on');
+  eq(await page.evaluate(() => [LOCK.on, getComputedStyle(document.querySelector('#view')).visibility, document.querySelector('#lock-h').innerText.trim(), UI.route]), [true, 'hidden', 'Hi, Alex. Enter your PIN.', 'settings'], 'opening Dorax with a session kept on the device: the lock comes first, the account opens out of sight under it, on the page it was on');
   await type(page, '2580'); await page.waitForFunction(() => !LOCK.on);
   await page.evaluate(BIO);
   const away = (secs, still) => page.evaluate(([secs, still]) => { LOCK.touch = Date.now() - (still || 0) * 1000; LOCK.away = secs ? Date.now() - secs * 1000 : 0; guardWatch(); const on = LOCK.on; if (on) unlock(); return on; }, [secs, still]);
   eq([await away(30), await away(61), await away(0, 200), await away(0, 301)], [false, true, false, true], 'at “1 minute away”: 30 seconds away is nothing, 61 locks; left open and untouched, it locks after 5 minutes');
-  await page.evaluate(() => navigate('profile')); await page.selectOption('#guard-after', '0');
+  await page.evaluate(() => navigate('settings/security')); await page.selectOption('#guard-after', '0');
   eq([(await guard(page)).after, await away(1), await away(0, 200)], [0, true, false], '“As soon as I leave”: coming back locks at once; staying on the page does not');
   await page.selectOption('#guard-after', '900'); eq([await away(600), await away(901), await away(0, 600), await away(0, 901)], [false, true, false, true], '“15 minutes”: for being away and for a page left alone');
   await page.selectOption('#guard-after', '60');
@@ -126,12 +126,12 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.waitForSelector('#ob-name'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0'); await page.click('[data-a="ob-next"]'); await page.click('[data-a="ob-finish"]'); await page.waitForSelector('.hello');
   const uid = await page.evaluate(() => guardUser());
   eq(await page.evaluate(() => { const g = GUARD.of(guardUser()); return [!!g.seen && Date.now() - g.seen < 60000, g.idle || 0, !!g.pin]; }), [true, 0, false], 'a new account: the device notes when it was last used; no limit and no lock by default');
-  await page.evaluate(() => navigate('profile')); await setPin(page, '2580');
+  await page.evaluate(() => navigate('settings/security')); await setPin(page, '2580');
   await page.evaluate(() => { GUARD.set(guardUser(), { fails: 9 }); lockNow(); }); await type(page, '0000'); await page.waitForFunction(() => !WHO && !SERVER.user && UI.pub.screen === 'landing');
   eq(await page.evaluate(id => [LOCK.on, JSON.stringify(GUARD.of(id).pin || null), !!SERVER.user, document.querySelector('#toast').innerText.trim()], uid), [false, 'null', false, 'Too many wrong PINs. The PIN was removed from this device: log in with your password.'], 'the tenth wrong PIN logs out and removes the PIN from the device: the password is the way back');
   await login();
   eq(await page.evaluate(() => [LOCK.on, UI.route, S.user.name]), [false, 'dashboard', 'Ana'], 'logging in with the password opens the account, with everything in it');
-  await page.evaluate(() => navigate('profile')); await setPin(page, '2580'); await page.selectOption('#guard-idle', '7');
+  await page.evaluate(() => navigate('settings/security')); await setPin(page, '2580'); await page.selectOption('#guard-idle', '7');
   eq([(await guard(page)).idle, await toast(page)], [7, 'Saved for this device.'], 'the limit without use is chosen in the profile and kept on the device');
   eq(await page.evaluate(() => { GUARD.set(guardUser(), { seen: Date.now() - 6.9 * 86400000 }); const a = guardIdleOver(guardUser()); GUARD.set(guardUser(), { seen: Date.now() - 7.1 * 86400000 }); return [a, guardIdleOver(guardUser())]; }), [false, true], 'seven days: 6.9 days without use is inside the limit, 7.1 is past it');
   // (leaving a page counts as using it, so the days are turned back as the page starts again, the way they would have passed)
@@ -143,7 +143,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [LOCK.on, !!UI.session, Date.now() - GUARD.of(guardUser()).seen < 60000, !!GUARD.of(guardUser()).pin]), [false, true, true, true], 'logged in again: no PIN is asked right after the password, the count of days starts again, and the lock is still set for later');
   await page.evaluate(() => { GUARD.set(guardUser(), { seen: Date.now() - 8 * 86400000 }); LOCK.seenAt = Date.now(); guardWatch(); }); await page.waitForFunction(() => !WHO && !SERVER.user && UI.pub.screen === 'landing');
   eq(await page.evaluate(() => [!!SERVER.user, document.querySelector('#toast').innerText.trim()]), [false, 'This session was closed after 7 days without use. Log in again.'], 'a page left open past the limit closes its session too, and says why');
-  await login(); await page.evaluate(() => navigate('profile')); await page.selectOption('#guard-idle', '1');
+  await login(); await page.evaluate(() => navigate('settings/security')); await page.selectOption('#guard-idle', '1');
   eq(await page.evaluate(() => { GUARD.set(guardUser(), { seen: Date.now() - 1.1 * 86400000 }); return guardIdleSays(guardUser()); }), 'This session was closed after a day without use. Log in again.', 'one day is said as “a day”');
   await page.evaluate(() => GUARD.set(guardUser(), { seen: Date.now() })); await page.selectOption('#guard-idle', '0');
   eq([(await guard(page)).idle || 0, await toast(page), await page.evaluate(() => { GUARD.set(guardUser(), { seen: Date.now() - 400 * 86400000 }); return guardIdleOver(guardUser()); })], [0, 'The session stays open on this device until you log out.', false], '“Never” is the way it was: the session stays until the person logs out');
@@ -154,7 +154,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 8. Spanish and Portuguese, on the narrowest phone ----------
   for (const [lang, want] of [['es', ['Hola, Alex. Escribe tu PIN.', '¿Olvidaste el PIN?', 'PIN incorrecto. Te quedan 4 intentos antes de una espera.', 'Protección en este dispositivo', 'Bloqueo de la app']], ['pt', ['Oi, Alex. Digite seu PIN.', 'Esqueceu o PIN?', 'PIN errado. Restam 4 tentativas antes de uma espera.', 'Proteção neste dispositivo', 'Bloqueio do app']]]) {
     ({ browser, page, errors } = await open({ oldLook: true, lang, account: 'example', plan: true, viewport: { width: 320, height: 568 }, touch: true, mobile: true }));
-    await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card');
+    await page.evaluate(() => navigate('settings/security')); await page.waitForSelector('#guard-card');
     eq(await page.evaluate(() => { const c = document.querySelector('#guard-card'), r = c.getBoundingClientRect(); return [c.querySelector('h2').innerText.trim(), c.querySelector('.setting b').innerText.trim(), document.documentElement.scrollWidth <= innerWidth, [...c.querySelectorAll('button:not(.hint), select')].every(e => e.getBoundingClientRect().height >= 44 && e.getBoundingClientRect().right <= innerWidth)]; }), [want[3], want[4], true, true], `${lang}, 320px: the card in the language, inside the phone, its controls a thumb high`);
     await setPin(page, '2580'); await page.evaluate(() => lockNow()); await type(page, '0000'); await page.waitForFunction(() => document.querySelector('.lock-say').innerText.trim().length > 0);
     eq(await page.evaluate(() => { const box = e => e.getBoundingClientRect(), keys = [...document.querySelectorAll('.lock-pad button')], l = document.querySelector('.lock'); return [document.querySelector('#lock-h').innerText.trim(), document.querySelector('[data-a="lock-forgot"]').innerText.trim(), document.querySelector('.lock-say').innerText.trim(),
@@ -172,7 +172,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await notice(page), ['curio nudge', 'Lock Dorax on this device?', ['Set a PIN', 'Not now']], 'a device with no lock: a moment after the app opens, a notice offers one');
   eq([await asked(page), await page.evaluate(() => [/4-digit PIN/.test(document.querySelector('#curio p').innerText), !!document.querySelector('#curio .fl-ico svg'), document.querySelector('#curio').getAttribute('role')])], ['{"pin":1}', [true, true, 'status']], 'it says what the PIN does, and that it was asked is written down on the device');
   await page.click('#curio [data-a="lock-ask-no"]');
-  eq([await page.locator('#curio').count(), await toast(page), !!(await guard(page)).pin], [0, 'Fine. If you change your mind, it is in your profile, under Protection on this device.', false], '“Not now” puts it away, says where it lives, and sets nothing');
+  eq([await page.locator('#curio').count(), await toast(page), !!(await guard(page)).pin], [0, 'Fine. If you change your mind, it is in Settings, under Security.', false], '“Not now” puts it away, says where it lives, and sets nothing');
   await page.evaluate(() => navigate('plan')); await page.waitForTimeout(3200);
   ok(!(await page.locator('#curio.nudge').count()), 'it is not asked again on the next screen');
   await page.reload(); await page.waitForFunction(() => !!UI.session); await page.waitForTimeout(3200);
@@ -180,8 +180,8 @@ const { open, ok, eq, done } = require('./pw.js');
   // "Set a PIN" goes to the form; a PIN made there brings the second notice
   await page.evaluate(() => { localStorage.removeItem('dorax-lock-asked'); UI.curio = null; renderCurio(); }); await page.reload(); await page.waitForFunction(() => !!UI.session);
   await page.waitForSelector('#curio.nudge', { timeout: 8000 }); await page.click('#curio [data-a="lock-ask-yes"]');
-  eq(await page.evaluate(() => { const el = document.querySelector('#gp-new'), r = el && el.getBoundingClientRect(); return [UI.route, UI.guard && UI.guard.mode, document.activeElement === el, !!r && r.top >= 0 && r.bottom <= innerHeight, document.querySelectorAll('#curio').length, !!GUARD.of(guardUser()).pin]; }), ['profile', 'new', true, true, 0, false],
-    '“Set a PIN” opens the profile on the form that makes one, in view and with the cursor in it; nothing is set until the person does');
+  eq(await page.evaluate(() => { const el = document.querySelector('#gp-new'), r = el && el.getBoundingClientRect(); return [UI.route, UI.guard && UI.guard.mode, document.activeElement === el, !!r && r.top >= 0 && r.bottom <= innerHeight, document.querySelectorAll('#curio').length, !!GUARD.of(guardUser()).pin]; }), ['settings', 'new', true, true, 0, false],
+    '“Set a PIN” opens Settings › Security on the form that makes one, in view and with the cursor in it; nothing is set until the person does');
   await page.fill('#gp-new', '2580'); await page.fill('#gp-again', '2580'); await page.click('[data-a="guard-pin-save"]'); await page.waitForSelector('#curio.nudge');
   eq(await notice(page), ['curio nudge', 'Open Dorax with Face ID or fingerprint?', ['Turn on', 'Not now']], 'a PIN was just made on a device that has its own check: the second notice offers it right then');
   eq([await asked(page), !!(await guard(page)).pin, (await guard(page)).bio || null], ['{"pin":1,"bio":1}', true, null], 'asked once, and nothing is on yet');
@@ -220,7 +220,7 @@ const { open, ok, eq, done } = require('./pw.js');
       return [c.querySelector('b').innerText.trim(), bs.map(b => b.innerText.trim()), r.left >= 0 && r.right <= innerWidth && r.top >= 0, r.bottom <= Math.min(bar.top, fab.top), bs.every(b => b.getBoundingClientRect().height >= 44), parseFloat(getComputedStyle(c.querySelector('p')).fontSize) >= 12, document.documentElement.scrollWidth <= innerWidth]; });
     eq(await fits(), [want[0], [want[1], want[2]], true, true, true, true, true], `${lang}, 320 px: the lock’s notice in the language, above the bar, inside the screen, with buttons a thumb can hit`);
     await page.click('#curio [data-a="lock-ask-yes"]'); await page.waitForSelector('#gp-new');
-    ok(await page.evaluate(() => { const r = document.querySelector('#gp-new').getBoundingClientRect(); return UI.route === 'profile' && r.top >= 0 && r.bottom <= innerHeight; }), `${lang}: “${want[1]}” lands on the PIN form, in view`);
+    ok(await page.evaluate(() => { const r = document.querySelector('#gp-new').getBoundingClientRect(); return UI.route === 'settings' && r.top >= 0 && r.bottom <= innerHeight; }), `${lang}: “${want[1]}” lands on the PIN form, in view`);
     await page.fill('#gp-new', '2580'); await page.fill('#gp-again', '2580'); await page.click('[data-a="guard-pin-save"]'); await page.waitForSelector('#curio.nudge');
     eq(await fits(), [want[3], [want[4], want[2]], true, true, true, true, true], `${lang}, 320 px: so does the notice about Face ID or fingerprint`);
     eq(errors, [], `${lang}: the notices, no error in the console`); await browser.close();
@@ -229,7 +229,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 10. the lock opening (owner, 2026-10-08: "create an unlock animation on entering the web app") ----------
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true, motion: true }));
   await page.addInitScript(BIO); await page.evaluate(BIO);
-  await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
+  await page.evaluate(() => navigate('settings/security')); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
   await page.evaluate(() => { navigate('dashboard'); lockNow(); }); await type(page, '2580'); await page.waitForFunction(() => !LOCK.on);
   eq(await page.evaluate(() => { const fx = document.getElementById('unlock-fx'), cs = fx && getComputedStyle(fx), l = fx && fx.querySelector('svg.un-lock'); return fx ? [fx.getAttribute('aria-hidden'), cs.position, +cs.zIndex > 400, cs.backgroundColor === getComputedStyle(document.body).backgroundColor, !!l && !!l.querySelector('.un-shackle') && !!l.querySelector('.un-body'), fx.querySelector('.un-say').innerText.trim(),
       !!fx.querySelector('.un-was .lock .logo'), fx.querySelectorAll('[data-a], [id]').length, fx.querySelector('.un-was').hasAttribute('inert'), document.documentElement.classList.contains('locked'), document.querySelectorAll('#lock-root .lock').length, document.querySelector('#view').hasAttribute('inert')] : null; }),
@@ -248,7 +248,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(errors, [], 'the opening: no error in the console'); await browser.close();
   // less motion asked for: no layer, the app is just there
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true }));
-  await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card'); await setPin(page, '2580'); await page.evaluate(() => lockNow()); await type(page, '2580'); await page.waitForFunction(() => !LOCK.on);
+  await page.evaluate(() => navigate('settings/security')); await page.waitForSelector('#guard-card'); await setPin(page, '2580'); await page.evaluate(() => lockNow()); await type(page, '2580'); await page.waitForFunction(() => !LOCK.on);
   eq([await page.locator('#unlock-fx').count(), await page.locator('.lock').count()], [0, 0], 'for someone who asked their device for less motion nothing is played: the screen opens');
   eq(errors, [], 'less motion: no error in the console'); await browser.close();
   done('qc-lock');

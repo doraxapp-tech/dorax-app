@@ -82,7 +82,7 @@ function faqToggle(d) {
   anim.onfinish = () => { if (!opening) d.open = false; d.classList.remove('closing'); d.style.overflow = ''; if (ans) ans.getAnimations().forEach(a => a.cancel()); d._anim = null; };
 }
 /** The address changed (back, forward, a typed #route). Only the app has routes: before login the address is left alone. */
-function onHash() { if (!UI.session) return; let h = ''; try { h = location.hash.slice(1); } catch (e) { } if (h !== UI.route || !$('view').innerHTML) navigate(h); }
+function onHash() { if (!UI.session) return; let h = ''; try { h = location.hash.slice(1); } catch (e) { } if (h !== routeAddr() || !$('view').innerHTML) navigate(h); }      // routeAddr: "settings/general" for a part of Settings (v205)
 /** Confetti in the air, once: small pieces in the brand's colours fall from above the page and are gone in a few seconds (owner, 2026-10-07, for the
     moment the first-time setup shows what the person's money can do). Decoration only: nothing can be pressed or read in it, and it is not played
     for someone who asked their device for less motion. */

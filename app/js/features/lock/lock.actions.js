@@ -41,10 +41,10 @@ const LOCK_ACTIONS = {
   'lock-ask-yes'() {
     const bio = !!UI.curio && UI.curio.what === 'bio'; UI.curio = null; renderCurio();
     if (bio) return LOCK_ACTIONS['guard-bio-on']();
-    UI.guard = { mode: 'new', error: null }; navigate('profile');
+    UI.guard = { mode: 'new', error: null }; navigate('settings/security');
     const card = $('guard-card'), el = $('gp-new'); if (card) card.scrollIntoView({ block: 'center' }); if (el) el.focus({ preventScroll: true });
   },
-  'lock-ask-no'() { UI.curio = null; renderCurio(); toast(t('Fine. If you change your mind, it is in your profile, under Protection on this device.')); },
+  'lock-ask-no'() { UI.curio = null; renderCurio(); toast(t('Fine. If you change your mind, it is in Settings, under Security.')); },
 };
 /** One digit more or less: only the dots and the erase key change, so the pad keeps its focus under the thumb. */
 function lockDraw(v) {

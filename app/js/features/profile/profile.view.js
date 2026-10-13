@@ -1,4 +1,5 @@
-/* Dorax Finance — the person: profile, email and login, reminders, deleting the account.
+/* Dorax Finance — the person: profile, email and login, deleting the account (the reminders, the app lock and the language moved to Settings in v205:
+   "saca de perfil todo lo que no tenga que ver con ajustes de perfil de usuario y ponlo en ajustes").
    Also the greeting on the dashboard, the first steps of a new account and the user card in the menu. */
 
 /** The picture every person starts with (owner, 2026-10-06: "a pro image inspire in the app logo and colors"): a figure drawn the way the logo
@@ -95,15 +96,12 @@ function viewProfile() {
   <div class="set-page pf-page">
     ${groupOpen('you', t('You'), hint('proYou'), '', '', 'stack', ' style="gap:14px"')}
       <div class="field"><label for="pf-name">${t('Your name')}</label><input type="text" id="pf-name" autocomplete="given-name" value="${esc(u.name)}" data-c="user-name"><small>${t('This is what I call you across the app.')}</small></div>
-      <div class="field"><label for="pf-lang">${t('Language')}</label><select id="pf-lang" data-c="setting" data-k="lang">${options(LANGS, S.settings.lang)}</select></div>
-      <p class="note">${t('Number format, backup and your data are in')} <a href="#settings">${t('Settings')}</a>.</p>${groupEnd}
+      <p class="note">${t('Language, currency, notifications, the app lock and your data are in')} <a href="#settings">${t('Settings')}</a>.</p>${groupEnd}
     ${groupOpen('login', t('Email and login'), hint('proLogin'), '', '', 'stack', ' style="gap:14px"')}
       ${loginCard()}
       ${u.pendingEmail ? banner('', `<b>${t('We sent a link to {email}.', { email: esc(u.pendingEmail) })}</b> ${t('Your login changes when you open it. Until then you keep using {email}.', { email: esc(u.email) })} ${t('If a link also arrives at your current address, open that one too.')}<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-a="email-cancel">${t('Hide this')}</button></div>`, 'mail')
         : `<div class="field"><label for="pf-email">${t('New email')}</label><div class="row" style="flex-wrap:nowrap"><input type="text" inputmode="email" id="pf-email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="${esc(u.email)}"><button class="btn" data-a="email-change">${t('Send confirmation link')}</button></div></div>`}
       <div class="setting"><div><b style="font-weight:500">${t('This device')}</b><p>${t('Logged in since {date}.', { date: fmt.date(UI.session.since, true) })} ${t('Your account is kept on the server: log in on another device and it is all there.')}</p></div></div>${groupEnd}
-  ${guardCard()}
-  ${remindersCard()}
   ${groupOpen('delete', t('Delete account'), hint('proDelete'))}<div class="setting"><div><p style="margin:0">${t('Deletes your profile and everything in this account: accounts, transactions, plan, goals and investments. This can’t be undone.')}</p></div><button class="btn danger" data-a="user-delete">${t('Delete my account')}</button></div>${groupEnd}
   </div>`;
 }

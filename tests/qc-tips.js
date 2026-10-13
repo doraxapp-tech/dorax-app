@@ -10,7 +10,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const logic = await import('file://' + path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'logic.mjs'));
   for (const lang of ['es', 'pt', 'en']) {
     const { browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: 390, height: 844 }, touch: true, mobile: true });
-    await page.evaluate(() => navigate('profile')); await page.waitForSelector('#tips-setting');
+    await page.evaluate(() => navigate('settings/notifications')); await page.waitForSelector('#tips-setting');
     const T = k => page.evaluate(k => t(k), k);
     eq(await page.evaluate(() => { const s = document.querySelector('#nf-tips'), r = s.getBoundingClientRect(); return [[...s.options].map(o => o.value), s.value, document.querySelector('#tips-setting b').innerText.trim(), r.height >= 44, r.right <= innerWidth, document.documentElement.scrollWidth <= innerWidth]; }),
       [['daily', 'three', 'weekly', 'off'], 'three', await T('Tips by notification'), true, true, true], `${lang}: the profile has “Tips by notification”, up to three a week until the person chooses; it fits a phone`);

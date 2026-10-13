@@ -1,7 +1,10 @@
 /* Dorax Finance — shared: money, dates, percentages, month names, the (i) hint. */
 /** (i): a small button beside a figure that may need explaining. Hover, keyboard focus or a tap shows the text; a screen reader reads it as the button's name. */
 const info = text => `<button type="button" class="hint" data-tip="${esc(text)}" aria-label="${esc(text)}">${icon('info')}</button>`;
-const SYMBOL = { BRL: 'R$', USD: 'US$', EUR: '€' };
+/** A currency by name, in the words of a sentence ("in reais", "en dólares") and in a list to choose from ("Real brasileño (R$)"). */
+const curName = c => t({ BRL: 'reais', USD: 'dollars', EUR: 'euros', CUP: 'Cuban pesos' }[c] || c);
+const curLong = c => `${t({ BRL: 'Brazilian real', USD: 'US dollar', EUR: 'Euro', CUP: 'Cuban peso' }[c] || c)} (${SYMBOL[c] || c})`;
+const SYMBOL = { BRL: 'R$', USD: 'US$', EUR: '€', CUP: 'CUP' };      // the Cuban peso by its code: "$" alone would read as dollars beside US$ (v205)
 const MONTH_NAMES = {
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],

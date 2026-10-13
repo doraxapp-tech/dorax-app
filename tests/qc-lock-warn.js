@@ -13,7 +13,7 @@ const { open, ok, eq, done } = require('./pw.js');
   let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });
   // ---------- 1. ----------
   eq(await leave(page, 250), false, 'no PIN: no lock, so no notice');
-  await page.evaluate(() => navigate('profile')); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
+  await page.evaluate(() => navigate('settings/security')); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
   eq([await leave(page, 200), await page.evaluate(() => !!IDLE.t)], [false, true], 'more than a minute before the lock: no notice yet, and a look planned for when it is due');
   eq(await leave(page, 241), true, 'left alone for four minutes (the lock at five): the notice');
   await page.waitForTimeout(350);      // its entrance
@@ -43,7 +43,7 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 4. a phone, Spanish and Portuguese ----------
   for (const [lang, w, want] of [['es', 390, ['Dorax se bloquea en 0:59', 'Sigo aquí']], ['pt', 320, ['O Dorax bloqueia em 0:59', 'Ainda estou aqui']]]) {
     ({ browser, page, errors } = await open({ lang, account: 'example', plan: true, viewport: { width: w, height: 760 }, touch: true, mobile: true }));
-    await page.evaluate(() => { window.DORAX_LOCK_ASK = false; navigate('profile'); }); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
+    await page.evaluate(() => { window.DORAX_LOCK_ASK = false; navigate('settings/security'); }); await page.waitForSelector('#guard-card'); await setPin(page, '2580');
     await leave(page, 241); await page.waitForTimeout(350);
     eq(await page.evaluate(() => { const r = document.querySelector('#idle-warn').getBoundingClientRect(), bar = document.querySelector('#tabbar').getBoundingClientRect(); return [document.querySelector('#idle-warn .iw-t b').innerText.trim(), document.querySelector('#idle-stay').innerText.trim(), r.bottom <= bar.top, r.left >= 15 && r.right <= innerWidth - 15, document.querySelector('#idle-stay').getBoundingClientRect().height >= 44]; }),
       [...want, true, true, true], `${lang} at ${w} px: in the language, above the tab bar, inside the screen, its button a thumb high`);

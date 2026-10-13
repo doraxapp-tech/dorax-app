@@ -243,7 +243,7 @@ async function project(route) {
     await page.waitForFunction(() => UI.conv && !UI.conv.busy && (UI.conv.csv || UI.conv.error || UI.conv.rows), null, { timeout: 20000 });
     eq(await page.evaluate(() => [UI.conv.error || null, !!(UI.conv.csv || UI.conv.rows)]), [null, true], `${f}: read in the browser (its reader is loaded from the site itself, which the policy allows)`);
   }
-  await page.evaluate(() => { UI.conv = null; navigate('settings'); });
+  await page.evaluate(() => { UI.conv = null; navigate('settings/data'); });
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-a="export-json"]')]); const bk = JSON.parse(fs.readFileSync(await dl.path(), 'utf8'));
   eq([bk.app, bk.state.user.name, /RuiTres2026|access_token|refresh/.test(JSON.stringify(bk))], ['dorax-finance', 'Rui Costa', false], 'the backup downloads, and holds no password and no login token');
   fs.rmSync(tmp, { recursive: true, force: true });

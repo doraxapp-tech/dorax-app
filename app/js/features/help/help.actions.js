@@ -10,8 +10,8 @@ const HELP_GO = {
   record: () => A['new-tx'](),
   import: () => go('imports'),
   sides: () => hasCompany() ? A.space({ v: UI.space === 'business' ? 'personal' : 'business' }) : A['co-open'](),
-  notify: () => { go('profile'); const el = $('reminders-card'); if (el) el.scrollIntoView({ block: 'start' }); },
-  safe: () => { go('profile'); const el = $('guard-card'); if (el) el.scrollIntoView({ block: 'start' }); },
+  notify: () => { go('settings/notifications'); const el = $('reminders-card'); if (el) el.scrollIntoView({ block: 'start' }); },
+  safe: () => { go('settings/security'); const el = $('guard-card'); if (el) el.scrollIntoView({ block: 'start' }); },
 };
 const HELP_ACTIONS = {
   // the menu's "Help" (beside the person's name on a computer, in More on a phone): the questions, not the contact form (owner, 2026-10-10)

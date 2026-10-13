@@ -23,7 +23,7 @@ addTexts([
   ["your average of the last {n} months with spending", "tu promedio de los últimos {n} meses con gastos", "sua média dos últimos {n} meses com gastos"],
   ["From this month on.", "Desde este mes.", "A partir deste mês."],
   ["Dorax lets you know when you reach 80% and if you go over.", "Dorax te avisa cuando llegas al 80% y si te pasas.", "O Dorax avisa quando você chega a 80% e se passar."],
-  ["Alerts for limits are off in your profile, under Reminders.", "Los avisos de límites están apagados en tu perfil, en Recordatorios.", "Os avisos de limites estão desligados no seu perfil, em Lembretes."],
+  ["Alerts for limits are off in Settings, under Notifications.", "Los avisos de límites están apagados en Ajustes, en Notificaciones.", "Os avisos de limites estão desligados em Configurações, em Notificações."],
   ["Remove limit", "Quitar límite", "Remover limite"],
   ["Enter the monthly limit.", "Escribe el límite mensual.", "Digite o limite mensal."],
   ["Limit saved: {amount} a month for {name}.", "Límite guardado: {amount} al mes para {name}.", "Limite salvo: {amount} por mês para {name}."],

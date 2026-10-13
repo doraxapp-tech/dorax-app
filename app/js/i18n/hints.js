@@ -69,7 +69,8 @@ const HINTS = {
   catAdd: () => t('Example: keyword UBER, merchant Uber, category Transport. From then on, every imported line whose text contains UBER is named Uber and filed under Transport by itself.'),
   firstSteps: () => t('The things that make the app useful, in order. Each is ticked when it is done.'),
   // settings
-  setLang: () => t('The language of the app, light or dark, and how numbers and dates are written.'),
+  setLang: () => t('The language of the app, the currency your money is counted in, and how numbers and dates are written.'),
+  setLook: () => t('Light, dark, or as your device; the computer and the phone each keep their own. And whether your accounts look like bank cards.'),
   setProfiles: () => t('What an OFX file says about each account. You only need this if your accounting platform refuses a file.'),
   setImport: () => t('Choices used when statements are imported.'),
   setConv: () => t('The platform or accountant the company’s statements go to, the day they are due, and the OFX profile a new account starts from.'),

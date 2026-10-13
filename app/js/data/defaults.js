@@ -1,7 +1,13 @@
 /* Dorax Finance — what a new account starts with, and the names the app itself writes.
    A new account is blank: a few everyday groups and nothing else. No example data ships with the app. */
 
-const BASE_CURRENCY = 'BRL';
+/** The household's main currency (v205, owner, 2026-10-12: "agrega un ajuste de monedas en ajustes (Reales por defecto, USD, EUROS, CUP (moneda
+    cubana))"): the currency its totals, its plan and its goals are in. A setting (S.settings.currency), reais when never chosen. Accounts in another
+    currency are shown apart, as before, and nothing is ever converted. BASE_CURRENCY follows the setting: in the app before every drawing and when it
+    changes (syncCurrency, ui/rows.js), on the server when the reminder job opens an account (tools/build-functions.js). */
+const CURRENCIES = ['BRL', 'USD', 'EUR', 'CUP'];
+const currencyOf = st => { const c = st && st.settings && st.settings.currency; return CURRENCIES.includes(c) ? c : 'BRL'; };
+let BASE_CURRENCY = 'BRL';
 
 // ---- Names the app itself writes, in the three languages: [English, Spanish, Portuguese]. English is the key.
 // These are the few names a new account starts with or that the app adds (a salary row, a starting balance). They follow the language

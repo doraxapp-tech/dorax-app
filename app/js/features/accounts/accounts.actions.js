@@ -4,7 +4,7 @@ const ACCOUNTS_ACTIONS = {
   /** "Add account" from a message that needed one (needAccount, ui/lookups.js) or from the quick things to do: the account form, for the side in use. */
   'account-add'() {
     const co = UI.space === 'business'; UI.sheet = false; if (UI.toast && UI.toast.action && UI.toast.action.a === 'account-add') hideToast();
-    ACCOUNTS_ACTIONS['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : 'BRL' });
+    ACCOUNTS_ACTIONS['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : BASE_CURRENCY });
     const el = $('a-name'); if (el) el.focus();
   },
   'edit-account'(ds) {
@@ -14,7 +14,7 @@ const ACCOUNTS_ACTIONS = {
     const cr = a && cardCredit(a), credit = cr ? { hasCredit: true, creditId: cr.id, creditLimitText: cr.creditLimit ? plain(cr.creditLimit) : '', creditDue: cardNextDue(cr, S.today), creditOwedText: plain(Math.max(0, -cr.opening || 0)) } : {};
     // the main account is turned on in another account, never off: there is always one (owner, 2026-10-09: "only one can be main")
     const scope = a ? a.scope : ds.scope === 'business' || (!ds.scope && UI.space === 'business') ? 'business' : 'personal', mainNow = a ? mainOf(a.scope) === a : !mainOf(scope);
-    UI.drawer = { kind: 'account', title: a ? t('Edit account') : t('Add account'), isNew: !a, mainNow, draft: a ? { ...a, main: mainNow, ...credit, ...spend, monthly: owesStatement(a), openingText: plain(a.opening || 0), limitText: a.creditLimit ? plain(a.creditLimit) : '', dueDate: cardNextDue(a, S.today) } : { id: null, name: '', institution: BANKS[0], type: ds.type === 'savings' ? 'savings' : 'checking', currency: ds.cur || 'BRL', scope: ds.scope === 'business' || (!ds.scope && UI.space === 'business') ? 'business' : 'personal', purpose: '', openingText: '', limitText: '', main: mainNow } };      // Plan and Goals ask for a company account in their currency (companyNote)
+    UI.drawer = { kind: 'account', title: a ? t('Edit account') : t('Add account'), isNew: !a, mainNow, draft: a ? { ...a, main: mainNow, ...credit, ...spend, monthly: owesStatement(a), openingText: plain(a.opening || 0), limitText: a.creditLimit ? plain(a.creditLimit) : '', dueDate: cardNextDue(a, S.today) } : { id: null, name: '', institution: BANKS[0], type: ds.type === 'savings' ? 'savings' : 'checking', currency: ds.cur || BASE_CURRENCY, scope: ds.scope === 'business' || (!ds.scope && UI.space === 'business') ? 'business' : 'personal', purpose: '', openingText: '', limitText: '', main: mainNow } };      // Plan and Goals ask for a company account in their currency (companyNote)
     renderOverlay();
   },
   'save-account'() {

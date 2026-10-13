@@ -11,9 +11,13 @@ const { open, ok, eq, done } = require('./pw.js');
     await page.evaluate(() => { S.user.greeted = true; navigate('profile'); }); await page.waitForSelector('.pf-page');
     // ---------- 1. the groups ----------
     eq(await page.evaluate(() => [...document.querySelectorAll('.pf-page > .set-group')].map(g => [g.querySelector('.set-head h2').textContent.trim(), !!g.querySelector(':scope > .card > .card-b'), !g.querySelector('.card-h')])),
-      [['You', true, true], ['Email and login', true, true], ['Protection on this device', true, true], ['Reminders', true, true], ['Delete account', true, true]], tag + 'each group of the profile has its heading outside its card, as in Settings');
+      [['You', true, true], ['Email and login', true, true], ['Delete account', true, true]], tag + 'each group of the profile has its heading outside its card, as in Settings (v205: the protection and the reminders are in Settings)');
     ok(await page.evaluate(() => { const gs = [...document.querySelectorAll('.pf-page > .set-group')].map(g => g.getBoundingClientRect()); return gs.every((r, i) => !i || r.top >= gs[i - 1].bottom) && gs.every(r => Math.abs(r.left - gs[0].left) < 1); }), tag + 'one column, read from top to bottom');
-    eq(await page.evaluate(() => [!!document.querySelector('#reminders-card .set-head [data-a="reminders"]'), !!document.querySelector('#guard-card .card-b .setting'), document.querySelector('.pf-head').getBoundingClientRect().width <= 841]), [true, true, true], tag + 'the reminders’ button sits beside their heading; the protection’s rows stay in their card; the head has the groups’ width');
+    eq(await page.evaluate(() => document.querySelector('.pf-head').getBoundingClientRect().width <= 841), true, tag + 'the head has the groups’ width');
+    await page.evaluate(() => navigate('settings/security')); await page.waitForSelector('#guard-card');
+    ok(await page.evaluate(() => !!document.querySelector('#guard-card .card-b .setting')), tag + 'Settings › Security: the protection’s rows stay in their card');
+    await page.evaluate(() => navigate('settings/notifications')); await page.waitForSelector('#reminders-card');
+    ok(await page.evaluate(() => !!document.querySelector('#reminders-card .set-head [data-a="reminders"]')), tag + 'Settings › Notifications: the reminders’ button sits beside their heading');
     // ---------- 2. when the next one is due ----------
     await page.evaluate(() => { UI.push = { status: 'on', known: true, asked: true }; render(); });
     eq(await page.evaluate(() => { const x = reminderScheduleAll(S, S.today, remindCfg().lead, 62)[0]; return [/Reminders go out at 8:00 when something is due\. The next one:/.test(document.querySelector('#push-setting p').textContent), !!x && document.querySelector('#push-setting p').textContent.includes(fmt.date(x.sendDate))]; }), [true, true], tag + 'the device’s setting says when reminders go out and when the next one is (no longer “only”: tips go too, owner 2026-10-10)');

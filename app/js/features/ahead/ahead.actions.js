@@ -43,7 +43,7 @@ const AHEAD_ACTIONS = {
   /** Another one now, on request: it is written down like any other, so the day's count stays honest. */
   'curio-next'() { const id = curioNext(S, UI.space === 'business', UI.curio && UI.curio.id); if (!id) return; curioShown(S, id, S.today, Date.now()); UI.curio = { id, open: true }; inboxAdd({ kind: 'curio', id }); renderCurio(); const b = document.querySelector('#curio [data-a="curio-next"]'); if (b) b.focus({ preventScroll: true }); },
   /** "Fewer of these": one step down, said back with where to change it again. */
-  'curio-less'() { const r = curioStep(S, 1); UI.curio = null; renderCurio(); toast(r === 'off' ? t('Done: no more curiosities. You can bring them back in your profile.') : t('Done: {rate}. You can change it in your profile.', { rate: curioRateLabel(r) })); },
+  'curio-less'() { const r = curioStep(S, 1); UI.curio = null; renderCurio(); toast(r === 'off' ? t('Done: no more curiosities. You can bring them back in Settings, under Notifications.') : t('Done: {rate}. You can change it in Settings, under Notifications.', { rate: curioRateLabel(r) })); },
 };
 /** The answer and the buttons of "What if…?" follow the sliders without the panel being redrawn under the person's fingers. */
 function wiShow() { const d = UI.drawer && UI.drawer.draft, o = $('wi-out'), f = $('wi-foot'); if (!d) return; if (o) o.innerHTML = whatIfOut(d); if (f) f.innerHTML = whatIfFoot(d); }

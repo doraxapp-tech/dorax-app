@@ -7,7 +7,7 @@
 //      the figure always whole (a long amount on the narrowest phone); the household's balance stays in the middle; a computer is unchanged.
 const { open, ok, eq, done } = require('./pw.js');
 (async () => {
-  const setPin = async p => { await p.evaluate(() => navigate('profile')); await p.waitForSelector('#guard-card'); await p.click('[data-a="guard-pin-open"][data-v="new"]'); await p.fill('#gp-new', '2580'); await p.fill('#gp-again', '2580'); await p.click('[data-a="guard-pin-save"]'); await p.waitForSelector('#guard-after'); await p.evaluate(() => lockNow()); await p.waitForSelector('.lock-pad'); };
+  const setPin = async p => { await p.evaluate(() => navigate('settings/security')); await p.waitForSelector('#guard-card'); await p.click('[data-a="guard-pin-open"][data-v="new"]'); await p.fill('#gp-new', '2580'); await p.fill('#gp-again', '2580'); await p.click('[data-a="guard-pin-save"]'); await p.waitForSelector('#guard-after'); await p.evaluate(() => lockNow()); await p.waitForSelector('.lock-pad'); };
   const tap = (p, k) => p.click(`.lock-pad [data-v="${k}"]`);
   const phone = { viewport: { width: 390, height: 844 }, touch: true, mobile: true };
   // ---------- 1. Android ----------

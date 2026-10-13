@@ -87,7 +87,7 @@ const measure = () => {
     // a question asked in the middle of the screen, a filter chip, the notice of a curiosity, the closed screen
     await page.evaluate(() => { navigate('transactions'); A['open-tx']({ id: S.transactions[0].id }); A['ask-delete'](); }); await check(page, 'a question before deleting');
     await page.evaluate(() => { A['modal-cancel'](); A.close(); UI.tx.category = S.categories[0].id; render(); }); await check(page, 'transactions with a filter on');
-    await page.evaluate(() => { navigate('profile'); }); await page.click('[data-a="guard-pin-open"][data-v="new"]'); await check(page, 'the profile, choosing a PIN');
+    await page.evaluate(() => { navigate('settings/security'); }); await page.click('[data-a="guard-pin-open"][data-v="new"]'); await check(page, 'the profile, choosing a PIN');
     await page.fill('#gp-new', '2580'); await page.fill('#gp-again', '2580'); await page.click('[data-a="guard-pin-save"]'); await page.waitForSelector('#guard-after'); await check(page, 'the profile, with the lock on');
     await page.evaluate(() => lockNow()); await check(page, 'the closed screen'); await page.evaluate(() => A['lock-forgot']()); await check(page, 'the closed screen, a forgotten PIN'); await page.evaluate(() => { A['lock-back'](); unlock(); });
 

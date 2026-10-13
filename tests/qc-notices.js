@@ -60,10 +60,10 @@ const T = '2026-10-02', MIN = 60000;
   await page.click('#curio [data-a="curio-next"]');
   ok(/Since January 2024, the interest and charges on a credit card’s revolving balance cannot add up to more than the original debt\./.test(await text(page, '#curio')) && await page.evaluate(() => S.user.curio.log.length === 2 && document.activeElement.dataset.a === 'curio-next'), '“Another” shows the next one, writes it down too, and keeps the focus');
   await page.click('#curio [data-a="curio-less"]');
-  eq(await page.evaluate(() => [S.user.curio.rate, document.querySelectorAll('#curio').length, document.querySelector('#toast').innerText.trim()]), ['less', 0, 'Done: Fewer: one a week. You can change it in your profile.'], '“Fewer of these”: one step down, said back with where to change it');
+  eq(await page.evaluate(() => [S.user.curio.rate, document.querySelectorAll('#curio').length, document.querySelector('#toast').innerText.trim()]), ['less', 0, 'Done: Fewer: one a week. You can change it in Settings, under Notifications.'], '“Fewer of these”: one step down, said back with where to change it');
   await page.evaluate(() => { navigate('plan'); navigate('dashboard'); }); await page.waitForTimeout(3300);
   eq(await page.locator('#curio').count(), 0, 'with “fewer”, no other one comes this week');
-  await page.evaluate(() => navigate('profile'));
+  await page.evaluate(() => navigate('settings/notifications'));
   eq(await page.evaluate(() => [document.querySelector('#nf-curio').value, [...document.querySelectorAll('#nf-curio option')].map(o => o.textContent)]), ['less', ['More: up to three a day', 'Normal: one a day', 'Fewer: one a week', 'None']], 'the profile has the setting, on what was chosen, with its four choices');
   await page.selectOption('#nf-curio', 'off'); eq(await page.evaluate(() => S.user.curio.rate), 'off', 'choosing “None” there switches them off');
   // the company's own facts, on the company's side

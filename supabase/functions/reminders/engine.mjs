@@ -845,7 +845,13 @@ function closeDue(ym, day) { return isoDate(addMonths(ym, 1), day || 15); }
 /* Dorax Finance — what a new account starts with, and the names the app itself writes.
    A new account is blank: a few everyday groups and nothing else. No example data ships with the app. */
 
-const BASE_CURRENCY = 'BRL';
+/** The household's main currency (v205, owner, 2026-10-12: "agrega un ajuste de monedas en ajustes (Reales por defecto, USD, EUROS, CUP (moneda
+    cubana))"): the currency its totals, its plan and its goals are in. A setting (S.settings.currency), reais when never chosen. Accounts in another
+    currency are shown apart, as before, and nothing is ever converted. BASE_CURRENCY follows the setting: in the app before every drawing and when it
+    changes (syncCurrency, ui/rows.js), on the server when the reminder job opens an account (tools/build-functions.js). */
+const CURRENCIES = ['BRL', 'USD', 'EUR', 'CUP'];
+const currencyOf = st => { const c = st && st.settings && st.settings.currency; return CURRENCIES.includes(c) ? c : 'BRL'; };
+let BASE_CURRENCY = 'BRL';
 
 // ---- Names the app itself writes, in the three languages: [English, Spanish, Portuguese]. English is the key.
 // These are the few names a new account starts with or that the app adds (a salary row, a starting balance). They follow the language
@@ -954,7 +960,10 @@ const firstName = s => String(s == null ? '' : s).trim().split(/\s+/)[0] || '';
 /* Dorax Finance — shared: money, dates, percentages, month names, the (i) hint. */
 /** (i): a small button beside a figure that may need explaining. Hover, keyboard focus or a tap shows the text; a screen reader reads it as the button's name. */
 const info = text => `<button type="button" class="hint" data-tip="${esc(text)}" aria-label="${esc(text)}">${icon('info')}</button>`;
-const SYMBOL = { BRL: 'R$', USD: 'US$', EUR: '€' };
+/** A currency by name, in the words of a sentence ("in reais", "en dólares") and in a list to choose from ("Real brasileño (R$)"). */
+const curName = c => t({ BRL: 'reais', USD: 'dollars', EUR: 'euros', CUP: 'Cuban pesos' }[c] || c);
+const curLong = c => `${t({ BRL: 'Brazilian real', USD: 'US dollar', EUR: 'Euro', CUP: 'Cuban peso' }[c] || c)} (${SYMBOL[c] || c})`;
+const SYMBOL = { BRL: 'R$', USD: 'US$', EUR: '€', CUP: 'CUP' };      // the Cuban peso by its code: "$" alone would read as dollars beside US$ (v205)
 const MONTH_NAMES = {
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
@@ -1182,7 +1191,7 @@ function tipPick(state, today, sent) {
 }
 
 // ---------------------------------------------------------------- what the job asks
-  const CUR = BASE_CURRENCY;
+  BASE_CURRENCY = currencyOf(S); const CUR = BASE_CURRENCY;      // the person's main currency (v205: a setting)
   const user = S.user || {}, snoozed = (user.remind || {}).snoozed || {};
   const due = messageReminders(remindersAll(S, today, reminderOptions(S))).filter(r => snoozed[r.id] !== today);
   return { reminders: due, key: reminderKey, digest: reminderDigest, push: reminderPush, tip: sent => tipPick(S, today, sent), lang: (S.settings || {}).lang || 'pt', name: user.name || '',

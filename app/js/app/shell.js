@@ -71,7 +71,7 @@ function spaceSwitch() {
 }
 function navLinks(list) {
   const biz = UI.space === 'business', pending = S.transactions.filter(x => x.status === 'pending' && acct(x.accountId) && isBiz(x.accountId) === biz).length, c = closeInfo(addMonths(ymOf(S.today), -1)), open = c.total - c.sent;
-  return list.map(([id, ic]) => `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}<span>${routeLabel(id)}</span>${id === 'transactions' && pending ? `<span class="count" title="${t('Pending')}">${pending}</span>` : ''}${id === 'converter' && open ? `<span class="count" title="${t('Pending')}">${open}</span>` : ''}</a>`).join('');
+  return list.map(([id, ic]) => id === 'settings' ? navSettings(ic) : `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}<span>${routeLabel(id)}</span>${id === 'transactions' && pending ? `<span class="count" title="${t('Pending')}">${pending}</span>` : ''}${id === 'converter' && open ? `<span class="count" title="${t('Pending')}">${open}</span>` : ''}</a>`).join('');
 }
 /** Light or dark, for the app only (owner, v35). The public pages (home, login, first-time setup, legal) are always dark: the choice is applied as a class on the
     page's root only while the app itself is on screen, and taken off the moment a public page is. Dark is the default; the choice is kept with the account.
@@ -113,7 +113,7 @@ function applyTheme(pub) {
     bar cluttered); where the data lives is said in Settings, under Your data. It never claims a save that did not happen. */
 function saveBadge() {
   if (savedState() !== 'failed') return '';
-  return `<a class="save-badge warn" href="#settings" title="${t('The server could not be reached. Your changes are sent again by themselves when the connection is back: keep this page open.')}">${t('Your data')}<span class="long"> · ${t('not saved yet')}</span></a>`;
+  return `<a class="save-badge warn" href="#settings/data" title="${t('The server could not be reached. Your changes are sent again by themselves when the connection is back: keep this page open.')}">${t('Your data')}<span class="long"> · ${t('not saved yet')}</span></a>`;
 }
 /** The main thing to add on a screen: [action, its data attributes, its words]. The top bar's button on a computer; the first row of the phone's quick list. */
 const routeMain = route => ({ goals: ['goal-new', '', t('New goal')], plan: ['line-new', '', t('New fixed cost')], investments: ['fii-move', 'data-kind="buy"', t('Record movement')], dashboard: ['new-tx', '', t('Add transaction')], transactions: ['new-tx', '', t('Add transaction')], accounts: ['edit-account', 'data-id=""', t('Add account')] }[route]);
@@ -130,7 +130,7 @@ function renderShell() {
   $('nav').innerHTML = navLinks(sideRoutes(ROUTES.slice(0, 7))) + '<div class="nav-rule" role="separator"></div>' + navLinks(sideRoutes(ROUTES.slice(7, 13)));
   $('rail-find').innerHTML = findField();
   $('rail-foot').innerHTML = userCard();
-  railShape();
+  railShape(); setNavInView();
   const tabs = tabsNow().map(id => ROUTES.find(r => r[0] === id)), inMore = !tabsNow().includes(UI.route);
   // 2026-10-07 (owner: "separate the mobile version too: intuitive, easy, fun in a way, with the main things in the palm of the hand").
   // The phone's bar: two screens, the round + in the middle (what a thumb reaches first: it opens the short list of things to record,
@@ -161,7 +161,7 @@ function renderShell() {
   // it belongs to Resumen"): the other screens start right under the top row
   $('topbar').innerHTML = `${installBanner()}<div class="navbar">
       <span class="bar-left">${named ? `${bqFrame ? bqBack() : ''}<span class="bar-name" aria-hidden="true">${esc(short)}</span>` : barWho()}${saveBadge()}</span>
-      <span class="bar-title" aria-hidden="true">${routeLabel(UI.route)}</span>
+      <span class="bar-title" aria-hidden="true">${full}</span>
       <div class="bar-tools">${bqFrame ? bqPageTools() : `${sideFlip()}${bellButton()}<button class="more-btn" data-a="sheet" ${inMore ? 'aria-current="page"' : ''} aria-haspopup="dialog" aria-label="${t('More')}">${icon('more')}</button>`}
         ${main ? `<button class="btn primary" data-a="${main[0]}" ${main[1]}>${icon('plus')}<span class="lbl">${main[2]}</span></button>` : ''}</div></div>
     ${UI.route === 'dashboard' ? `<div class="bar-bal${UI.space === 'business' ? ' co' : ''}">${barBalance()}</div>` : ''}
@@ -183,7 +183,7 @@ function flushDeferred() {
 const coBalRow = () => UI.route === 'dashboard' && UI.space === 'business' && isPhone();
 function render() { if (!deferring) return renderNow(); if (!renderPending && !overlayPending) setTimeout(flushDeferred, 0); renderPending = true; }
 function renderNow() {
-  syncNames();
+  syncNames(); syncCurrency();      // the main currency as Settings say (v205)
   const active = document.activeElement, id = active && active.id, pos = id && active.selectionStart != null ? [active.selectionStart, active.selectionEnd] : null, key = id ? null : focusKey(active);
   const sx = [...document.querySelectorAll('#view .tbl-wrap')].map(w => w.scrollLeft), before = UI.autoScroll || reducedMotion() ? null : snapshot();
   $('view').classList.remove('enter'); $('topbar').classList.remove('enter'); $('public').classList.remove('enter');
@@ -222,9 +222,11 @@ function focusKey(el) {
 // Clicks on such links are intercepted (see the click handler) and routed here; the address is updated only where the browser allows it.
 function navigate(route) {
   if (route === 'contabilizei') route = 'converter';      // the screen's name before v31: old links still open it
+  const part = String(route || '').split('/');      // "settings/currency": a part of Settings (v205, features/settings/settings-menu.js)
+  if (part[0] === 'settings') { route = 'settings'; UI.setSec = SET_IDS.includes(part[1]) ? part[1] : ''; }
   UI.route = ROUTES.some(r => r[0] === route) ? route : 'dashboard';
   UI.sheet = false; UI.menu = false; UI.autoScroll = true; UI.pg = {}; UI.walletAt = 0;      // another screen: every table starts on its first page, the wallet on its first card
-  try { if (UI.session && location.hash.slice(1) !== UI.route) history.replaceState(null, '', '#' + UI.route); } catch (e) { /* sandboxed frame: keep the route in memory only */ }
+  try { if (UI.session && location.hash.slice(1) !== routeAddr()) history.replaceState(null, '', '#' + routeAddr()); } catch (e) { /* sandboxed frame: keep the route in memory only */ }
   renderNow(); toTop(); enterView();
   curioMaybe();      // a curiosity, when one is due (features/ahead/curios.view.js)
   tourMaybe();      // a new person's first visit to a main screen (features/tours)

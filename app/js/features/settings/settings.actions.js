@@ -30,3 +30,16 @@ function wipeAll() {
     Object.assign(S, { accounts: [], transactions: [], imports: [], exports: [], closes: {}, recurringManual: [], recurringDismissed: [], pairsNo: [], goals: [], goalMoves: [], plan: { lines: [] }, fii: { assets: {}, moves: [], sim: {} } });
     UI.conv = UI.imp = UI.sheetImp = UI.rulePrompt = UI.sim = UI.undo = UI.dist = UI.inc = null; Object.assign(UI.fii, { ticker: '', kind: '', month: null }); toast(t('All financial data deleted.')); render();
 }
+/* Fields of Settings (v205). Joined into C in app/changes.js. */
+const SETTINGS_CHANGES = {
+  /** The main currency (owner, 2026-10-12: "agrega un ajuste de monedas en ajustes (Reales por defecto, USD, EUROS, CUP)"): at once when no household
+      account is in another currency; otherwise after saying what it changes, since those accounts leave the totals. Nothing is converted. */
+  'set-currency'(el) {
+    const c = CURRENCIES.includes(el.value) ? el.value : 'BRL', was = currencyOf(S); if (c === was) return;
+    const apart = personal().filter(a => a.currency !== c), go = () => { S.settings.currency = c; syncCurrency(); toast(t('Main currency: {name}.', { name: curLong(c) })); render(); };
+    if (!apart.length) return go();
+    el.value = was;      // until it is confirmed
+    confirmBox({ tone: 'neutral', title: t('Count your money in {name}?', { name: curLong(c) }), label: t('Change currency'), run: go,
+      text: tn(apart.length, 'Your totals are counted in {currency}, and your plan and goals keep their numbers, now in {currency}. {n} account in another currency stays as it is and is shown apart, outside the totals. Nothing is converted.', 'Your totals are counted in {currency}, and your plan and goals keep their numbers, now in {currency}. {n} accounts in another currency stay as they are and are shown apart, outside the totals. Nothing is converted.', { currency: curName(c) }) });
+  },
+};

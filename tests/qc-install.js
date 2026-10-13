@@ -33,7 +33,7 @@ const { open, ok, eq, done } = require('./pw.js');
     ['ios', 0, true, true, true, 'Add', true, 'Not now', true, true, 0], 'an iPhone in a browser tab: the banner is the very first thing, above the panel, inside the screen, with the app’s icon, a button a thumb can hit and a way to close it');
   ok(/Add Dorax to your home screen/.test(await text(page, '#install-bar')) && /It opens like an app: full screen, one tap away\./.test(await text(page, '#install-bar')), 'it says what it is for, in one line and a half', await text(page, '#install-bar'));
   const places = [];
-  for (const r of ['dashboard', 'transactions', 'plan', 'goals', 'settings']) { await page.evaluate(r => navigate(r), r); places.push(await page.evaluate(() => JSON.stringify(['#install-bar', '.bar-left', '.navbar', '#tabbar'].map(s => { const b = document.querySelector(s).getBoundingClientRect(); return [Math.round(b.top), Math.round(b.height)]; })))); }
+  for (const r of ['dashboard', 'transactions', 'plan', 'goals', 'settings/notifications']) { await page.evaluate(r => navigate(r), r); places.push(await page.evaluate(() => JSON.stringify(['#install-bar', '.bar-left', '.navbar', '#tabbar'].map(s => { const b = document.querySelector(s).getBoundingClientRect(); return [Math.round(b.top), Math.round(b.height)]; })))); }
   eq(new Set(places).size, 1, 'it is on every screen, and nothing under it moves from one screen to the next');
   await page.evaluate(() => { document.querySelector('.work').scrollTop = 400; });
   eq(await page.evaluate(() => [document.querySelector('#install-bar').getBoundingClientRect().bottom <= 0, Math.round(document.querySelector('.navbar').getBoundingClientRect().top)]), [true, 0], 'scrolling, the banner goes with the page and the panel is what stays');
@@ -85,7 +85,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ({ browser, page, errors } = await start({ push: {} }, { curio: true }));
   await page.evaluate(() => { S.isNew = true; navigate('dashboard'); }); await page.waitForSelector('#curio.nudge', { timeout: 6000 });
   await page.click('#curio .row [data-a="push-ask-no"]');
-  eq(await page.evaluate(async () => [window.__asked, !!(await window.DORAX_PUSH.current()), document.querySelectorAll('#curio').length, document.querySelector('#toast').innerText.trim()]), [0, false, 0, 'Fine. If you change your mind, the switch is in your profile, under Reminders.'], '“Not now”: the browser is never asked, nothing is switched on, and it says where the switch is');
+  eq(await page.evaluate(async () => [window.__asked, !!(await window.DORAX_PUSH.current()), document.querySelectorAll('#curio').length, document.querySelector('#toast').innerText.trim()]), [0, false, 0, 'Fine. If you change your mind, the switch is in Settings, under Notifications.'], '“Not now”: the browser is never asked, nothing is switched on, and it says where the switch is');
   await page.reload(); await page.waitForFunction(() => typeof UI !== 'undefined' && !!UI.session); await page.evaluate(() => { S.isNew = true; navigate('dashboard'); }); await page.waitForTimeout(3300);
   eq(await page.locator('#curio.nudge').count(), 0, 'and it is not asked on the next visit either');
   await browser.close();

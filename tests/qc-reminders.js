@@ -187,7 +187,7 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
   const card = async (lang, st, viewport) => {
     const o = await open({ lang, account: 'example', plan: true, viewport, mobile: viewport && viewport.width < 500, touch: viewport && viewport.width < 500 });
     if (st) { await o.page.addInitScript(standIn, { ...st, keys: KEYS }); await o.page.reload(); await o.page.waitForFunction(() => !!UI.session); }
-    await o.page.evaluate(() => navigate('profile')); await o.page.waitForFunction(() => UI.push && UI.push.known);
+    await o.page.evaluate(() => navigate('settings/notifications')); await o.page.waitForFunction(() => UI.push && UI.push.known);
     return o;
   };
   const look = p => p.evaluate(() => ({ status: UI.push.status, text: document.querySelector('#push-setting p').innerText.trim(), on: !!document.querySelector('[data-a="push-on"]'), off: !!document.querySelector('[data-a="push-off"]'), test: !!document.querySelector('[data-a="push-test"]'),

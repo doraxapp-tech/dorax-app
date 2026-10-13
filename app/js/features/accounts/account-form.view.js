@@ -23,7 +23,7 @@ function accountDrawer(d) {
     ${fld('a-inst', t('Institution'), `<select id="a-inst" data-c="draft" data-k="institution">${options(bankChoices(a.institution).map(b => [b, b]), a.institution)}</select>`)}
     ${fld('a-type', t('Type'), `<select id="a-type" data-c="draft" data-k="type" data-rerender="1">${options(ACCT_TYPES(), a.type)}</select>`)}
     ${fld('a-open', a.type === 'savings' ? t('How much have you saved?') : t('Opening balance'), inp('a-open', 'openingText', a.openingText, 'inputmode="decimal" class="num" placeholder="0,00"'))}
-    ${fld('a-cur', t('Currency'), `<select id="a-cur" data-c="draft" data-k="currency" ${n ? 'disabled' : ''}>${options([['BRL', 'BRL'], ['USD', 'USD'], ['EUR', 'EUR']], a.currency)}</select>`)}
+    ${fld('a-cur', t('Currency'), `<select id="a-cur" data-c="draft" data-k="currency" ${n ? 'disabled' : ''}>${options(CURRENCIES.map(c => [c, c]), a.currency)}</select>`)}
     ${n ? `<p class="note">${t('Currency is fixed once an account has transactions, so amounts are never mixed.')}</p>` : ''}
     ${credit ? fld('a-limit', t('Credit limit'), inp('a-limit', 'limitText', a.limitText, 'inputmode="decimal" class="num" placeholder="0,00"')) + due('a-due', 'dueDate') : ''}
     ${canCredit ? `${a.type === 'savings' ? `<div class="field a-debit">${sw('a-hasdebit', !!a.debitCard, 'draft', 'data-k="debitCard" data-rerender="always"', t('Its card has debit'))}</div>` : ''}<div class="field${a.type === 'savings' ? '' : ' full'} a-credit">${sw('a-hascredit', !!a.hasCredit, 'draft', 'data-k="hasCredit" data-rerender="always"', t('Its card has credit'))}</div>

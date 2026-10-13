@@ -79,8 +79,8 @@ function journeyDrawer() {
       ${total ? '' : `<p class="note">${list.length ? t('Everything here is paid off.') : t('Nothing owed here yet. Add what you owe, and the cards with an invoice come in by themselves.')}</p>`}
       ${mine.length > 1 ? `<p class="note">${t('What you pay above the monthly payments goes to the first debt of the list. Two common orders: the highest interest first (less interest paid), or the smallest first (one debt less, sooner). The order is yours.')}</p>` : ''}
       <button class="btn sm" data-a="debt-new">${icon('plus')}${t('Add a debt')}</button></section>
-    <section class="jr-sec"><h3>${t('Reminders')}</h3><p class="note">${notify ? t('While a sprint runs, each morning Dorax asks about the day before; and it reminds you before a debt’s payment is due. On this device and by email, as set in your profile.') : t('Journey reminders are off. Turn them on in your profile.')}</p>
-      <a class="btn sm ghost" href="#profile" data-a="remind-go" data-route="profile">${t('Reminder settings')}</a></section>
+    <section class="jr-sec"><h3>${t('Reminders')}</h3><p class="note">${notify ? t('While a sprint runs, each morning Dorax asks about the day before; and it reminds you before a debt’s payment is due. On this device and by email, as set in Settings, under Notifications.') : t('Journey reminders are off. Turn them on in Settings, under Notifications.')}</p>
+      <a class="btn sm ghost" href="#settings/notifications" data-a="remind-go" data-route="settings/notifications">${t('Reminder settings')}</a></section>
   </div>
   <footer><button class="btn ghost spacer" data-a="close">${t('Close')}</button></footer>`;
 }

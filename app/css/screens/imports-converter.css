@@ -104,3 +104,6 @@
 .rv-selbar { gap: 8px; background: var(--surface-2); }
 .rv-selbar > b { font-weight: 500; color: var(--ink-strong); margin-right: 4px; }
 .rv-why { margin: 0; padding: 12px 22px 6px; max-width: 110ch; }
+/* the line under the two files' cards, on how files are read: centred under them, inside the page's column (owner, 2026-10-12: "este texto no está
+   centrado en importaciones"; its own margin had taken it out of the column of the summary's look) */
+.imp-note { margin: 0 2px; text-align: center; text-wrap: balance; }

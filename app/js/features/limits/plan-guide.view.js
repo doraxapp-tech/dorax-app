@@ -74,7 +74,7 @@ function planGuideDrawer(d) {
   }
   return `<div class="body pg pg-end"><span class="pg-ok">${icon('check')}</span><h3 class="pg-h" id="pg-h" tabindex="-1">${t('Your month has a plan')}</h3>
       ${limMonth(mp)}
-      <p class="note">${reminderOptions(S).budgets ? t('Dorax lets you know when a category reaches 80% of its limit, and if it goes over.') : t('Alerts for limits are off in your profile, under Reminders.')}</p></div>
+      <p class="note">${reminderOptions(S).budgets ? t('Dorax lets you know when a category reaches 80% of its limit, and if it goes over.') : t('Alerts for limits are off in Settings, under Notifications.')}</p></div>
     <footer><button class="btn primary" data-a="pg-see">${t('See my limits')}</button><button class="btn ghost spacer" data-a="close">${t('Close')}</button></footer>`;
 }
 /** Step 2's line under the share: what it keeps a month. */

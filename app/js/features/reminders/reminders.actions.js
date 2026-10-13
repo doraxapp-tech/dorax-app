@@ -12,7 +12,7 @@ const REMIND_ACTIONS = {
   'remind-unsnooze'() { remindCfg().snoozed = {}; render(); },
   'remind-ask-due'(ds) { remindCfg().askDue = !!ds.v; toast(ds.v ? t('I will ask about bills without a due day again.') : t('I will not ask about due days again. You can set them in the plan whenever you want.')); render(); },
   'remind-report'(ds) { S.month = ds.ym; UI.drawer = null; navigate('reports'); },
-  'remind-go'(ds) { UI.drawer = null; navigate(ds.route); const el = ds.route === 'profile' && $('reminders-card'); if (el) el.scrollIntoView({ block: 'start' }); },
+  'remind-go'(ds) { UI.drawer = null; navigate(ds.route); const el = $('reminders-card'); if (el) el.scrollIntoView({ block: 'start' }); },      // Settings › Notifications since v205 (was the Profile)
   'remind-month'(ds) { S.month = ds.ym; UI.drawer = null; if (ds.book) setPageBook(ds.book); navigate(ds.route); },
   // notifications on this device, and the two "send a test" buttons (features/reminders/push.js; the server sends, see supabase/functions/reminders)
   async 'push-on'() {
@@ -27,10 +27,10 @@ const REMIND_ACTIONS = {
     if (ios) return A['install-add']();      // an iPhone in a browser tab: the way there is the Home Screen
     await A['push-on']();
   },
-  'push-ask-no'() { UI.curio = null; renderCurio(); toast(t('Fine. If you change your mind, the switch is in your profile, under Reminders.')); },
+  'push-ask-no'() { UI.curio = null; renderCurio(); toast(t('Fine. If you change your mind, the switch is in Settings, under Notifications.')); },
   async 'push-off'() { UI.push = { ...(UI.push || {}), busy: true }; render(); await PUSH.off(); toast(t('Notifications are off for this device.')); await pushRefresh(); },
   // owner, 2026-10-09: "notifications are not reaching my phone": the test now shows, device by device, what each push service answered
-  async 'push-test'() { const r = await SERVER.remindTest('push'); UI.pushTest = { at: Date.now(), results: r.results || [] }; if (UI.route === 'profile') render(); toast(r.ok ? t('Test sent. It should arrive in a few seconds.') : r.code === 'too_soon' ? t('A test was sent a moment ago. Give it a few seconds to arrive.') : t('The test could not be sent. Try again in a minute.')); },
+  async 'push-test'() { const r = await SERVER.remindTest('push'); UI.pushTest = { at: Date.now(), results: r.results || [] }; if (UI.route === 'settings') render(); toast(r.ok ? t('Test sent. It should arrive in a few seconds.') : r.code === 'too_soon' ? t('A test was sent a moment ago. Give it a few seconds to arrive.') : t('The test could not be sent. Try again in a minute.')); },
   /** A test that arrives 15 seconds later, so it can be seen with Dorax closed (owner, 2026-10-10: "I still get nothing on the phone with the web app
       closed"): close it, or lock the phone, and wait. The function's logs say what each device's push service answered. */
   async 'push-test-later'() {

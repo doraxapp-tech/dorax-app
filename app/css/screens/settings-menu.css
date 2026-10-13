@@ -1,0 +1,52 @@
+/* Dorax Finance — Settings in parts (v205; features/settings/settings-menu.js). On a computer, the parts open under "Settings" in the side bar; on
+   a phone, Settings is the list of its parts. Loaded after the looks, so it speaks for every one of them (the household's forest, the company's
+   blue, the previous look). */
+
+/* ---- the side bar: Settings and its parts ---- */
+.nav a.nav-parent .nav-chev { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: auto; transition: transform 220ms var(--ease); }
+.nav a.nav-parent .nav-chev svg { width: 14px; height: 14px; }
+.nav a.nav-parent[aria-expanded="true"] .nav-chev { transform: rotate(90deg); }
+.nav a.nav-parent.on { color: var(--ink-strong); font-weight: 500; }
+.nav a.nav-parent.on svg { color: var(--brand); }
+.nav-sub { position: relative; display: flex; flex-direction: column; gap: 2px; margin: 2px 0 6px; padding-left: 14px; animation: nav-sub-in 240ms var(--ease) both; }
+.nav-sub::before { content: ""; position: absolute; left: 21px; top: 6px; bottom: 6px; width: 1px; background: var(--line); }      /* a thread from Settings' icon down its parts */
+.rail .nav .nav-sub a { min-height: 34px; padding-block: 6px; padding-left: 22px; font-size: 14px; }
+/* with the parts open the side bar is taller than many screens: the person's card stays at its foot and the links scroll above it */
+.rail .rail-foot { position: sticky; bottom: 0; z-index: 2; box-shadow: 0 10px 0 14px var(--bg); }      /* the bar's own colour around the card hides the links scrolled under it */
+@media (min-width: 921px) { :root.land .rail .rail-foot { background: #1F332F; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 10px 0 14px #112622; } }      /* its glass made solid (white at 6% over the forest): nothing shows through it */
+.rail .nav .nav-sub a svg { width: 16px; height: 16px; }
+@keyframes nav-sub-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .nav-sub { animation: none; } .nav a.nav-parent .nav-chev { transition: none; } }
+/* the household's forest */
+:root.land .rail .nav a.nav-parent.on { color: #FFFFFF; }
+:root.land .rail .nav a.nav-parent.on svg { color: #B6DD62; }
+:root.land .rail .nav-sub::before { background: rgba(255, 255, 255, .14); }
+:root.land .rail .nav .nav-sub a { min-height: 34px; }      /* the look's links are 40 px; its parts a step smaller, under their parent */
+/* the side bar closed to its icons: the parts are icons too, under the gear */
+.app.rail-shut .nav a.nav-parent .nav-chev { display: none; }
+.app.rail-shut .nav-sub { padding-left: 0; align-items: center; }
+.app.rail-shut .nav-sub::before { display: none; }
+.app.rail-shut .rail .nav .nav-sub a { width: 40px; min-height: 36px; padding: 0; }
+
+/* ---- a phone: the list of the parts ---- */
+.set-list { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-mid); background: var(--surface); }
+.set-li { display: flex; align-items: center; gap: 14px; min-height: 68px; padding: 12px 16px; color: var(--ink); text-decoration: none; -webkit-tap-highlight-color: transparent; transition: background var(--t1) ease-out; }
+.set-li + .set-li { border-top: 1px solid var(--line); }
+.set-li:active { background: var(--surface-3); }
+.set-li:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.set-li-i { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--surface-3); color: var(--brand); }
+.set-li-i svg { width: 20px; height: 20px; }
+.set-li-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.set-li-t b { color: var(--ink-strong); font-size: 16px; font-weight: 600; }
+.set-li-t small { color: var(--ink-3); font-size: 13px; line-height: 1.35; }
+.set-li-go { flex: none; color: var(--ink-3); } .set-li-go svg { width: 18px; height: 18px; }
+:root.land .set-list { border: 0; border-radius: 24px; background: var(--bq-card); box-shadow: inset 0 0 0 1px var(--bq-line); }
+:root.land .set-li { color: var(--bq-ink); }
+:root.land .set-li + .set-li { border-top-color: var(--bq-line); }
+:root.land .set-li:active { background: var(--bq-card-2); }
+:root.land .set-li-i { background: var(--bq-mint); color: var(--bq-accent); }
+:root.land .set-li-t b { color: var(--bq-ink); }
+:root.land .set-li-t small, :root.land .set-li-go { color: var(--bq-ink-3); }
+/* a part, on a phone outside the summary's look: the way back to the list */
+.set-back { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; min-height: 44px; padding-right: 8px; color: var(--ink-2); font-weight: 500; text-decoration: none; }
+.set-back svg { width: 18px; height: 18px; }

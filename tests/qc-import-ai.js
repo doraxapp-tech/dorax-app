@@ -45,7 +45,7 @@ const ROOT = path.join(__dirname, '..'), FN = path.join(ROOT, 'supabase', 'funct
   await p.evaluate(() => { setMain(acct('nu-conta'), true); S.transactions = S.transactions.filter(x => x.date < '2026-10-01'); navigate('imports'); });
   await send();
   ok(await p.evaluate(() => !document.querySelector('[data-a="rv-ai"]') && !S.settings.aiSuggest), 'off by default: no button, nothing can be sent');
-  await p.evaluate(() => { navigate('settings'); document.getElementById('set-ai').click(); }); await p.waitForTimeout(150);
+  await p.evaluate(() => { navigate('settings/imports'); document.getElementById('set-ai').click(); }); await p.waitForTimeout(150);
   ok(await p.evaluate(() => S.settings.aiSuggest === true && document.querySelector('#set-ai-row').innerText.includes('Only the words of those rows are sent')), 'Settings turns it on, saying what is sent');
   await p.evaluate(() => navigate('imports')); await send();
   ok(await p.evaluate(() => document.querySelector('#imp-view, #view').innerText.includes('the words of the rows you ask about are sent for a suggestion')), 'the import page says it too');

@@ -50,7 +50,7 @@ export function openAccount(S, today) {
 // ---------------------------------------------------------------- the app's files
 ${[...sorted(CORE), ...sorted(TEXT)].map(f => '// ---- ' + f + '\n' + read(f)).join('\n')}
 // ---------------------------------------------------------------- what the job asks
-  const CUR = BASE_CURRENCY;
+  BASE_CURRENCY = currencyOf(S); const CUR = BASE_CURRENCY;      // the person's main currency (v205: a setting)
   const user = S.user || {}, snoozed = (user.remind || {}).snoozed || {};
   const due = messageReminders(remindersAll(S, today, reminderOptions(S))).filter(r => snoozed[r.id] !== today);
   return { reminders: due, key: reminderKey, digest: reminderDigest, push: reminderPush, tip: sent => tipPick(S, today, sent), lang: (S.settings || {}).lang || 'pt', name: user.name || '',

@@ -28,7 +28,7 @@ addTexts([
   ["How do I choose my reminders and notifications?", "¿Cómo elijo mis recordatorios y notificaciones?", "Como escolho meus lembretes e notificações?"],
   ["In your profile, under Reminders: what, how early, and the tips.", "En tu perfil, en Recordatorios: qué, con cuánta anticipación y los consejos.", "No seu perfil, em Lembretes: o quê, com quanta antecedência e as dicas."],
   ["Is my data safe?", "¿Mis datos están seguros?", "Meus dados estão seguros?"],
-  ["No ads and no data sold. Add a PIN, Face ID or fingerprint in your profile; hide the amounts with the eye.", "Sin anuncios y sin venta de datos. Pon un PIN, Face ID o huella en tu perfil; oculta los montos con el ojo.", "Sem anúncios e sem venda de dados. Coloque um PIN, Face ID ou digital no seu perfil; esconda os valores com o olho."],
+  ["No ads and no data sold. Add a PIN, Face ID or fingerprint in Settings, under Security; hide the amounts with the eye.", "Sin anuncios y sin venta de datos. Pon un PIN, Face ID o huella en Ajustes, en Seguridad; oculta los montos con el ojo.", "Sem anúncios e sem venda de dados. Coloque um PIN, Face ID ou digital em Configurações, em Segurança; esconda os valores com o olho."],
   ["See this screen’s introduction again", "Ver de nuevo la introducción de esta pantalla", "Ver de novo a introdução desta tela"],
   ["The questions people ask most, and where Dorax answers them.", "Las preguntas que más se hace la gente, y dónde las responde Dorax.", "As perguntas que as pessoas mais fazem, e onde o Dorax responde."],
   ["Didn’t find your answer?", "¿No encontraste tu respuesta?", "Não encontrou sua resposta?"],

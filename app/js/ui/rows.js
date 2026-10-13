@@ -1,5 +1,7 @@
 /* Dorax Finance — shared: a transaction row and a plan row, used by several screens. */
-const CUR = BASE_CURRENCY;
+let CUR = BASE_CURRENCY;
+/** The main currency follows its setting (data/defaults.js: currencyOf): before every drawing, and the moment it is changed in Settings. */
+function syncCurrency() { const c = currencyOf(S); if (c !== BASE_CURRENCY || c !== CUR) { BASE_CURRENCY = c; CUR = c; } }
 /** Transactions, on a computer (owner, 2026-10-09: "in the account column put the account's name beside the logo"): the bank's mark and the account's
     whole name (a card's credit named after its card), cut short with an ellipsis when the column is narrow. */
 const txAcctTag = id => { const a = acct(id); return a ? acctTag({ ...a, name: acctName(a) }, true) : ''; };

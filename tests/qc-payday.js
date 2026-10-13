@@ -101,7 +101,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [S.user.payAsk, activeReminders().filter(r => r.kind === 'pay').length, [...document.querySelectorAll('.drawer .rem-group h3')].some(h => h.textContent.trim() === 'Pay day'), !!UI.drawer && UI.drawer.kind]), [{ 'sueldo|1': '2026-10' }, 0, false, 'reminders'], '“I’ll do it” in the bell is kept for the month: the reminder leaves the list, which stays open');
   eq(await page.evaluate(() => { delete S.user.payAsk; S.user.notify.pay = false; const off = activeReminders().filter(r => r.kind === 'pay').length; delete S.user.notify.pay; const on = activeReminders().filter(r => r.kind === 'pay').length;
     return [off, on, allReminders().filter(r => r.kind === 'pay').map(r => r.book || 'personal')]; }), [0, 1, ['personal']], 'it is on unless the person switches “Pay day” off in the profile, and only the household has it');
-  await page.evaluate(() => { A.close(); navigate('profile'); });
+  await page.evaluate(() => { A.close(); navigate('settings/notifications'); });
   eq(await page.evaluate(() => { const row = [...document.querySelectorAll('#view .setting, #view .li, #view label')].find(e => /Pay day/.test(e.innerText) && e.querySelector('input[type="checkbox"], [role="switch"]')); const sw = row && row.querySelector('input[type="checkbox"], [role="switch"]'); return [!!row, sw ? (sw.checked === true || sw.getAttribute('aria-checked') === 'true') : null]; }), [true, true], 'the profile has a “Pay day” switch among the reminders, on by default');
   eq(errors, [], 'reminder: no error in the console'); await browser.close();
   {

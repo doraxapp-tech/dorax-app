@@ -273,7 +273,7 @@ const WALLET_ACTIONS = {
   'wallet-step'(ds) { const row = $('wallet-row'); if (!row) return; const n = row.querySelectorAll('.w-slide').length, i = Math.max(0, Math.min(n - 1, (UI.walletAt || 0) + (+ds.d))); UI.walletAt = i; walletGo(row, i, true); },
   // what is done from an opened card: the panel gives way to the expense or income (in that account), its transactions or its own form
   /** From the savings, when there is no savings account: the account form, set to savings. */
-  'acct-add-savings'() { const co = UI.space === 'business'; A['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : 'BRL', type: 'savings' }); const el = $('a-name'); if (el) el.focus(); },
+  'acct-add-savings'() { const co = UI.space === 'business'; A['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : BASE_CURRENCY, type: 'savings' }); const el = $('a-name'); if (el) el.focus(); },
 
   'card-do'(ds) {
     const a = acct(ds.id); if (!a) return; UI.drawer = null; UI.sheet = false;

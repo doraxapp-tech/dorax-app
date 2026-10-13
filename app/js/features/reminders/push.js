@@ -59,7 +59,7 @@ const PUSH = (() => {
 /** What the profile shows for this device. Read once when the profile is first drawn, and again after every change. */
 async function pushRefresh() {
   const st = await PUSH.status(); UI.push = { ...(UI.push || {}), status: st, busy: false, known: true };
-  if (UI.session && UI.route === 'profile' && !UI.drawer) render();
+  if (UI.session && UI.route === 'settings' && !UI.drawer) render();
 }
 /** A notification was tapped: open the reminders. From the background script when the app was already open, from the address when it was not. */
 function pushArrival() {

@@ -94,7 +94,7 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   const before = await page.evaluate(() => JSON.stringify(S));
   const backup = await page.evaluate(() => JSON.stringify({ app: 'dorax-finance', version: BACKUP_VERSION, exportedAt: S.today, state: S }));
   ok(!/BiaSenha2026/.test(backup) && !/"hash"/.test(backup), 'backup: holds no password and no password digest');
-  await page.evaluate(() => { S.plan.lines = []; S.accounts[0].opening = 1; render(); navigate('settings'); });
+  await page.evaluate(() => { S.plan.lines = []; S.accounts[0].opening = 1; render(); navigate('settings/data'); });
   const bfile = file('backup.json', backup);
   const restoreInput = page.locator('#view input[type="file"]').first();
   if (await restoreInput.count()) {

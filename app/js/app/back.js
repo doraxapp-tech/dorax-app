@@ -20,13 +20,13 @@ const backKey = d => d ? [d.kind, d.id || (d.draft && d.draft.id) || '', d.isNew
 const backY = () => { const w = scroller(); return (w && w.scrollTop) || window.scrollY || 0; };
 /** Where the person is now. */
 function backPlace() {
-  return { route: UI.route, drawer: UI.drawer || null, key: backKey(UI.drawer), month: S.month, space: UI.space, spaceCur: UI.spaceCur, tx: { ...UI.tx }, repView: UI.repView, repDrill: UI.repDrill, y: backY() };
+  return { route: UI.route, setSec: UI.setSec || '', drawer: UI.drawer || null, key: backKey(UI.drawer), month: S.month, space: UI.space, spaceCur: UI.spaceCur, tx: { ...UI.tx }, repView: UI.repView, repDrill: UI.repDrill, y: backY() };
 }
-const backSame = (a, b) => a.route === b.route && a.space === b.space && a.key === b.key;
+const backSame = (a, b) => a.route === b.route && (a.setSec || '') === (b.setSec || '') && a.space === b.space && a.key === b.key;
 /** Somewhere else: another screen, or another panel in place of the one open. Changing side is not a step: its own switch, two arrows beside the
     bell, is the way back to the other side, and the top bar must not move when it is pressed (owner, 2026-10-07). A step back still lands on the
     side its place was on. */
-const backMoved = (b, a) => b.route !== a.route || (!!b.key && !!a.key && b.key !== a.key);
+const backMoved = (b, a) => b.route !== a.route || (b.route === 'settings' && (b.setSec || '') !== (a.setSec || '')) || (!!b.key && !!a.key && b.key !== a.key);      // a part of Settings is a place (v205)
 function backPush(p) {
   const top = BACK.stack[BACK.stack.length - 1]; if (top && backSame(top, p)) return;
   BACK.stack.push(p); if (BACK.stack.length > BACK.max) BACK.stack.shift();
@@ -43,7 +43,7 @@ function backAfter(b) {
 const backTop = () => BACK.stack[BACK.stack.length - 1] || null;
 /** What the way back is called: the panel it reopens, or the screen. The side it returns to, when it is the other one, is said to a screen reader
     and in the tip, not on the button: changing side must not move the title beside it (owner, 2026-10-07). */
-const backName = p => p.drawer && p.drawer.title && p.route !== UI.route ? p.drawer.title : routeLabel(p.route);
+const backName = p => p.drawer && p.drawer.title && p.route !== UI.route ? p.drawer.title : p.route === 'settings' && p.setSec ? setSecName(p.setSec) : routeLabel(p.route);
 const backSay = p => t('Back to {name}', { name: backName(p) + (p.space !== UI.space ? ` · ${p.space === 'business' ? t('Company') : t('Household')}` : '') });
 /** The way back of a screen: only toward another screen or side (a panel behind the open one is the panel's own way back). */
 const backForPage = () => { const p = backTop(); return !p || (UI.drawer && p.drawer && p.route === UI.route && p.space === UI.space) ? null : p; };
@@ -76,7 +76,7 @@ function backStep() {
   BACK.stack.pop();
   Object.assign(UI, { space: p.space, spaceCur: p.spaceCur, repView: p.repView, repDrill: p.repDrill, tx: { ...p.tx }, sheet: false, drawer: null });
   S.month = p.month;
-  if (p.route !== UI.route) navigate(p.route); else renderNow();
+  if (p.route !== UI.route || (p.setSec || '') !== (UI.setSec || '')) navigate(p.route === 'settings' && p.setSec ? 'settings/' + p.setSec : p.route); else renderNow();
   if (p.drawer) { UI.drawer = p.drawer; try { renderOverlay(); } catch (e) { UI.drawer = null; renderOverlay(); } }      // a panel whose thing was deleted since: the screen alone
   else if (UI.overlayOpen) renderOverlay();
   const w = scroller(); window.scrollTo(0, p.y); if (w) w.scrollTop = p.y;
@@ -91,7 +91,7 @@ function backGuard() {
     else if (!backCan() && BACK.guard && UI.session) { BACK.guard = false; BACK.skip = true; history.back(); }
   } catch (e) { /* a frame that may not change its history: the buttons still work */ }
 }
-const backHash = () => { try { if (UI.session) history.replaceState(history.state, '', '#' + UI.route); } catch (e) { /* the address stays as it was */ } };
+const backHash = () => { try { if (UI.session) history.replaceState(history.state, '', '#' + routeAddr()); } catch (e) { /* the address stays as it was */ } };
 window.addEventListener('popstate', () => {
   if (!UI.session) { BACK.guard = false; return; }      // the pages before login have their own (ui/pages.js)
   if (BACK.skip) { BACK.skip = false; backHash(); return; }

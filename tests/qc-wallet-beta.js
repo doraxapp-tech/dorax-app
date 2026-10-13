@@ -99,7 +99,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => [...document.querySelectorAll('#ac-card .w-slide')].map(w => w.dataset.id).join() === [...cardsOf(business()).filter(a => a.type !== 'credit'), ...cardsOf(business()).filter(a => a.type === 'credit')].map(a => a.id).join()), true, 'the company’s side: its own wallet');
   await page.evaluate(() => A.space({ v: 'personal' }));
   // ---------- 4. back to the previous design ----------
-  await page.evaluate(() => { window.DORAX_BETA = undefined; navigate('settings'); });
+  await page.evaluate(() => { window.DORAX_BETA = undefined; navigate('settings/appearance'); });
   eq(await page.evaluate(() => { const b = document.querySelector('#set-beta'); return [b.querySelector('b').innerText.trim(), !!b.querySelector('.chip'), /beta/i.test(b.innerText)]; }), ['Accounts as cards', false, false], 'Settings: “Accounts as cards”, no word of a beta');
   await page.click('label.switch:has(#set-wallet)'); await page.waitForFunction(() => S.settings.wallet === false);
   await page.evaluate(() => navigate('accounts'));
@@ -107,7 +107,7 @@ const { open, ok, eq, done } = require('./pw.js');
     'switched off: the previous bar; a phone’s Accounts keeps its rows (since 2026-10-11 they are not cards either way)');
   await page.evaluate(() => navigate('dashboard'));
   ok(await page.evaluate(() => !!document.querySelector('#ac-card .ac-list') && !document.querySelector('.wallet')), 'and the list of accounts on the dashboard');
-  await page.evaluate(() => navigate('settings')); await page.click('label.switch:has(#set-wallet)'); await page.waitForFunction(() => S.settings.wallet === true);
+  await page.evaluate(() => navigate('settings/appearance')); await page.click('label.switch:has(#set-wallet)'); await page.waitForFunction(() => S.settings.wallet === true);
   eq(await page.evaluate(() => [S.settings.wallet, walletOn()]), [true, true], 'switched on again: the cards');
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 

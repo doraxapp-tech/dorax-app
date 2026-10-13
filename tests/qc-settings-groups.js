@@ -35,21 +35,22 @@ const PHONE = { viewport: { width: 390, height: 844 }, touch: true, mobile: true
   await page.evaluate(() => { A.close(); navigate('converter'); A.space({ v: 'personal' }); }); await page.waitForTimeout(250);
   eq(await page.evaluate(() => [UI.route, UI.space]), ['dashboard', 'personal'], 'back to the household from the converter: its dashboard');
   // ---------- 3. Settings ----------
-  await page.evaluate(() => navigate('settings')); await page.waitForTimeout(150);
+  // v205: Settings in parts (qc-settings-parts.js); each part keeps the shape: its headings outside their cards, one column
   const set = () => page.evaluate(() => { const gs = [...document.querySelectorAll('#view .set-group')];
     return [gs.map(g => g.querySelector('.set-head h2').innerText.trim()), gs.every(g => !g.querySelector('.card h2') && g.querySelector('.set-head').nextElementSibling.classList.contains('card')),
       gs.every((g, i) => i === 0 || g.getBoundingClientRect().top > gs[i - 1].getBoundingClientRect().bottom), getComputedStyle(gs[0].querySelector('h2')).fontSize]; });
-  eq(await set(), [['Idioma y visualización', 'Preferencias de importación', 'Tus datos'], true, true, '17px'], 'household Settings: the headings outside their cards, one column; no converter choices');
+  const parts = async () => { const out = []; for (const x of ['general', 'appearance', 'imports', 'data']) { await page.evaluate(x => navigate('settings/' + x), x); await page.waitForTimeout(120); const r = await set(); out.push(r[0], r[1] && r[2] && r[3] === '17px'); } return out; };
+  eq(await parts(), [['General'], true, ['Apariencia'], true, ['Preferencias de importación'], true, ['Tus datos'], true], 'household Settings: in each part the headings outside their cards, one column; no converter choices');
   ok(await page.evaluate(() => /Guardado en el servidor|Not saved/.test(document.querySelector('#your-data .set-head').innerText) && !!document.querySelector('#your-data #set-company')), 'Your data: its chip beside its heading, its rows in its card');
-  await page.evaluate(() => A.space({ v: 'business' })); await page.waitForTimeout(250); await page.evaluate(() => navigate('settings')); await page.waitForTimeout(150);
-  eq((await set())[0], ['Idioma y visualización', 'Preferencias de importación', 'Conversor de extractos', 'Perfiles de exportación OFX', 'Tus datos'], 'company Settings: the converter’s choices and its OFX profiles');
+  await page.evaluate(() => A.space({ v: 'business' })); await page.waitForTimeout(250); await page.evaluate(() => navigate('settings/imports')); await page.waitForTimeout(150);
+  eq((await set())[0], ['Preferencias de importación', 'Conversor de extractos', 'Perfiles de exportación OFX'], 'company Settings, Imports: the converter’s choices and its OFX profiles');
   ok(await page.evaluate(() => !!document.querySelector('#set-h-profiles').parentElement.querySelector('[data-a="edit-profile"][data-id=""]') && !!document.querySelector('#set-platform') && !!document.querySelector('#set-close')), 'company: "New profile" beside its heading; the platform and the due day');
   eq(errors, [], 'computer: no error in the console'); await browser.close();
   // ---------- a phone; and someone with no company ----------
   ({ browser, page, errors } = await open({ lang: 'pt', account: 'example', plan: true, beta: true, ...PHONE }));
   await page.evaluate(() => { A.sheet && A.sheet(); }); await page.waitForTimeout(200);
   ok(await page.evaluate(() => !document.querySelector('#sheet-desk') || !/Conversor/.test(document.querySelector('#sheet-desk').innerText)), 'phone, household: More does not name the converter');
-  await page.evaluate(() => { UI.sheet = false; navigate('settings'); }); await page.waitForTimeout(200);
+  await page.evaluate(() => { UI.sheet = false; navigate('settings/general'); }); await page.waitForTimeout(200);
   ok(await page.evaluate(() => { const g = document.querySelector('.set-group'), h = g.querySelector('.set-head').getBoundingClientRect(), c = g.querySelector('.card').getBoundingClientRect(); return h.bottom <= c.top && document.documentElement.scrollWidth <= innerWidth; }), 'phone: the heading above its card; nothing wider than the page');
   await page.evaluate(() => { S.user.company = false; S.accounts = S.accounts.filter(a => a.scope !== 'business'); navigate('converter'); }); await page.waitForTimeout(200);
   eq(await page.evaluate(() => [UI.route, UI.space]), ['imports', 'personal'], 'with no company, the converter’s address opens Imports');

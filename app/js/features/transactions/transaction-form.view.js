@@ -3,7 +3,7 @@
    buttons, the groups used most at a touch, and what is needed once in a while (status, split, recurring, notes) folded under "More options".
    A new transaction can also be written as one sentence, "taxi 15 ayer" (core/say.js): the sentence fills these same fields while it is typed,
    and nothing is saved until the person presses Save. */
-const TX_SYM = c => c === 'BRL' ? 'R$' : c === 'USD' ? 'US$' : c;
+const TX_SYM = c => SYMBOL[c] || c;
 /** The groups offered at a touch: the one chosen, then the ones this person uses most for this kind of movement, then the first of their list. */
 function txQuickCats(x, biz) {
   const income = x.type === 'income', tree = (biz ? companyCats() : S.categories).filter(c => !!c.income === income), count = {}, keys = [];

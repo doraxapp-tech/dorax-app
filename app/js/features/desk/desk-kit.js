@@ -53,6 +53,10 @@ const dkSec = (id, title, sub, right, body, tip) => `<section class="dk-sec" id=
 const dkCard = (inner, cls, attrs) => `<div class="dk-card${cls ? ' ' + cls : ''}"${attrs ? ' ' + attrs : ''}>${inner}</div>`;
 /** Cards across the sheet, as many to a row as fit (at least `min` px each). */
 const dkGrid = (inner, min) => `<div class="dk-grid" style="--dk-min:${min || 300}px">${inner}</div>`;
+/** A chart drawn to scale in an SVG of W×H user units, with its words (the axes' marks, a value's tag) laid over it in HTML, so they stay 12 px and
+    up however narrow the card (inside the SVG they shrank with it, to 8 px in a card of three to a row). labels: [x, y, text, kind]: 'y' ends at x,
+    centred on y (a value on the left axis); 'x' is centred under x, from y down (a day or a month); 'tag' ends at x, centred on y (the last value). */
+const dkPlot = (W, H, aria, inner, labels) => `<div class="dk-plot"><svg class="dk-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(aria)}">${inner}</svg>${labels.map(([x, y, text, kind]) => `<span class="dk-axl ${kind}${kind === 'tag' ? ' num' : ''}" style="left:${(x * 100 / W).toFixed(2)}%;top:${(y * 100 / H).toFixed(2)}%" aria-hidden="true">${esc(text)}</span>`).join('')}</div>`;
 /** A short line at the foot of a page, for what makes a figure trustworthy. */
 const dkFoot = text => `<p class="dk-foot">${text}</p>`;
 /** Scrolls the sheet to one of the page's parts and gives it the focus (the forest's buttons that lead to the work: "Hand it out now"…). */

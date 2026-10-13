@@ -216,7 +216,7 @@ let LIVE = null;
   await page.evaluate(() => navigate('profile')); await page.evaluate(() => DORAX_PREVIEW.failNext('network', 50));
   await page.fill('#pf-name', 'Marta sem rede'); await page.locator('#pf-name').blur(); await page.evaluate(() => saveNow());
   await page.waitForSelector('.save-badge.warn'); ok(/not saved yet/.test(await txt('.save-badge')), 'top bar: not saved yet');
-  await page.evaluate(() => navigate('settings')); ok(/Not saved yet/.test(await txt('#your-data')) && /have not reached the server/.test(await txt('#your-data')), 'Settings says the same');
+  await page.evaluate(() => navigate('settings/data')); ok(/Not saved yet/.test(await txt('#your-data')) && /have not reached the server/.test(await txt('#your-data')), 'Settings says the same');
   eq((await db()).rows[me].data.user.name, 'Marta Lima', 'the server still has the last saved version');
   // logging out now would lose the change: the person is asked
   await page.click('#rail-foot [data-a="user-menu"]'); await page.click('#rail-foot [data-a="logout"]'); await page.waitForSelector('#modal-root .modal');
@@ -343,7 +343,7 @@ let LIVE = null;
   await page.fill('#pf-name', 'Ana Tres'); await page.locator('#pf-name').blur(); await page.waitForFunction(() => !SYNC.timer && !SYNC.busy && savedState() === 'saved', null, { timeout: 5000 });
   eq((await row()).data.user.name, 'Ana Tres', 'after a delete that failed, changes are still saved by themselves');
   // a backup edited to carry markup where the app writes its own ids is refused; typed text with any characters is not
-  await page.evaluate(() => navigate('settings'));
+  await page.evaluate(() => navigate('settings/data'));      // v205: Settings in parts
   const backupOf = edit => page.evaluate(e => { const st = JSON.parse(JSON.stringify(S)); st.accounts.push({ id: e === 'id' ? 'a1" onmouseover="x' : 'a1', name: e === 'name' ? '<b>"Zé" & filhos</b>' : 'Conta', institution: '', type: 'checking', currency: 'BRL', scope: 'personal', purpose: '', opening: 0 }); return JSON.stringify({ app: 'dorax-finance', version: BACKUP_VERSION, exportedAt: S.today, state: st }); }, edit);
   await page.setInputFiles('#backup-file', { name: 'edited.json', mimeType: 'application/json', buffer: Buffer.from(await backupOf('id')) }); await page.waitForFunction(() => UI.backupError);
   ok(/never writes in a backup/.test(await txt('#your-data')) && !(await page.evaluate(() => !!UI.modal)), 'a backup with markup in an id is refused before anything is asked');

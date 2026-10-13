@@ -100,7 +100,7 @@ const pushRefresh_wait = page => page.evaluate(() => pushRefresh());      // thi
   ok(await page.evaluate(() => allReminders().some(r => r.kind === 'sprint' && !r.done && r.days === 0 && /^Your sprint ends today: R\$ [\d,.]+ to go\.$/.test(reminderLine(r)))), 'the sprint’s last day, short of its amount: said');
   await page.evaluate(() => { S.user.notify.journey = false; render(); });
   eq(await page.evaluate(() => allReminders().filter(r => ['jmark', 'debt', 'sprint'].includes(r.kind)).length), 0, 'the switch off: no journey reminder');
-  await page.evaluate(() => { S.user.notify.journey = true; navigate('profile'); });
+  await page.evaluate(() => { S.user.notify.journey = true; navigate('settings/notifications'); });
   ok(await page.evaluate(() => !!document.querySelector('#nf-journey') && document.querySelector('#nf-journey').checked), 'the profile has the journey’s switch, on by default');
   // ---------- 7. each side its own ----------
   await page.evaluate(() => { A.space({ v: 'business' }); navigate('dashboard'); A['journey-open'](); });
