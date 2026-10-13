@@ -20,7 +20,7 @@ const backKey = d => d ? [d.kind, d.id || (d.draft && d.draft.id) || '', d.isNew
 const backY = () => { const w = scroller(); return (w && w.scrollTop) || window.scrollY || 0; };
 /** Where the person is now. */
 function backPlace() {
-  return { route: UI.route, setSec: UI.setSec || '', drawer: UI.drawer || null, key: backKey(UI.drawer), month: S.month, space: UI.space, spaceCur: UI.spaceCur, tx: { ...UI.tx }, repView: UI.repView, repDrill: UI.repDrill, y: backY() };
+  return { route: UI.route, setSec: UI.setSec || '', more: UI.sheet === true, drawer: UI.drawer || null, key: backKey(UI.drawer), month: S.month, space: UI.space, spaceCur: UI.spaceCur, tx: { ...UI.tx }, repView: UI.repView, repDrill: UI.repDrill, y: backY() };
 }
 const backSame = (a, b) => a.route === b.route && (a.setSec || '') === (b.setSec || '') && a.space === b.space && a.key === b.key;
 /** Somewhere else: another screen, or another panel in place of the one open. Changing side is not a step: its own switch, two arrows beside the
@@ -78,6 +78,7 @@ function backStep() {
   S.month = p.month;
   if (p.route !== UI.route || (p.setSec || '') !== (UI.setSec || '')) navigate(p.route === 'settings' && p.setSec ? 'settings/' + p.setSec : p.route); else renderNow();
   if (p.drawer) { UI.drawer = p.drawer; try { renderOverlay(); } catch (e) { UI.drawer = null; renderOverlay(); } }      // a panel whose thing was deleted since: the screen alone
+  else if (p.more && isPhone()) { UI.sheet = true; renderOverlay(); }      // it was opened from a phone's More: back is that menu, open again (v208, owner: "el botón de atrás no sale al menú anterior")
   else if (UI.overlayOpen) renderOverlay();
   const w = scroller(); window.scrollTo(0, p.y); if (w) w.scrollTop = p.y;
   return true;

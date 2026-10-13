@@ -38,7 +38,7 @@ function setList() {
   return `<nav class="set-list" aria-label="${esc(routeLabel('settings'))}">${SET_SECS().map(([id, i, name, say]) => `<a class="set-li" href="#settings/${id}"><span class="set-li-i" aria-hidden="true">${icon(i)}</span><span class="set-li-t"><b>${esc(name)}</b><small>${esc(say)}</small></span><span class="set-li-go" aria-hidden="true">${icon('right')}</span></a>`).join('')}</nav>`;
 }
 /** A part on a phone outside the summary's look (whose top bar has its own ‹): the way back to the list, at the top of the page. */
-const setBackRow = () => isPhone() && !(typeof landOn === 'function' && landOn()) ? `<a class="set-back" href="#settings">${icon('left')}<span>${esc(routeLabel('settings'))}</span></a>` : '';
+const setBackRow = () => isPhone() && !(typeof landOn === 'function' && landOn()) ? `<button type="button" class="set-back" data-a="set-up">${icon('left')}<span>${esc(routeLabel('settings'))}</span></button>` : '';
 /** The part on screen stays in sight in the side bar: on a short screen the bar scrolls, and the person's card covers its foot. */
 function setNavInView() {
   const r = $('rail'), el = r && UI.route === 'settings' && r.querySelector('#nav-sub-settings a[aria-current]'); if (!el || r.scrollHeight <= r.clientHeight) return;

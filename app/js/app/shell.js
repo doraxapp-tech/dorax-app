@@ -69,9 +69,10 @@ function spaceSwitch() {
   const cs = companyCurrencies(S); if (UI.space !== 'business' || !SPACE_ROUTES.includes(UI.route) || UI.route === 'categories' || cs.length < 2) return '';
   return `<div class="space">${seg('space-cur', cs.map(c => [c, c]), pageBookKey().slice(9), t('Currency'))}${info(t('The company’s money is planned one currency at a time: fixed costs and goals count only its accounts in the currency chosen here, and nothing is converted.'))}</div>`;
 }
-function navLinks(list) {
+function navLinks(list, rail) {
   const biz = UI.space === 'business', pending = S.transactions.filter(x => x.status === 'pending' && acct(x.accountId) && isBiz(x.accountId) === biz).length, c = closeInfo(addMonths(ymOf(S.today), -1)), open = c.total - c.sent;
-  return list.map(([id, ic]) => id === 'settings' ? navSettings(ic) : `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}<span>${routeLabel(id)}</span>${id === 'transactions' && pending ? `<span class="count" title="${t('Pending')}">${pending}</span>` : ''}${id === 'converter' && open ? `<span class="count" title="${t('Pending')}">${open}</span>` : ''}</a>`).join('');
+  return list.map(([id, ic]) => id === 'settings' && rail ? navSettings(ic) :      // Settings opens its parts under it in the side bar only: a phone's More has its row and one arrow (owner, 2026-10-13: "tiene dos flechas")
+     `<a href="#${id}" ${UI.route === id ? 'aria-current="page"' : ''}>${icon(ic)}<span>${routeLabel(id)}</span>${id === 'transactions' && pending ? `<span class="count" title="${t('Pending')}">${pending}</span>` : ''}${id === 'converter' && open ? `<span class="count" title="${t('Pending')}">${open}</span>` : ''}</a>`).join('');
 }
 /** Light or dark, for the app only (owner, v35). The public pages (home, login, first-time setup, legal) are always dark: the choice is applied as a class on the
     page's root only while the app itself is on screen, and taken off the moment a public page is. Dark is the default; the choice is kept with the account.
@@ -127,7 +128,7 @@ function renderShell() {
   // the word "Company" sits beside the logo while the company's side is on screen (owner, 2026-10-07: "put the blue bullet that says company next to the Dorax logo in the sidebar")
   const tag = $('brand-tag'); if (tag) { tag.hidden = UI.space !== 'business'; tag.textContent = t('Company'); }
   const eye = $('rail-eye'); if (eye) eye.innerHTML = numsButton();      // a computer's eye, in the logo's row (a phone has it in its balance)
-  $('nav').innerHTML = navLinks(sideRoutes(ROUTES.slice(0, 7))) + '<div class="nav-rule" role="separator"></div>' + navLinks(sideRoutes(ROUTES.slice(7, 13)));
+  $('nav').innerHTML = navLinks(sideRoutes(ROUTES.slice(0, 7)), true) + '<div class="nav-rule" role="separator"></div>' + navLinks(sideRoutes(ROUTES.slice(7, 13)), true);
   $('rail-find').innerHTML = findField();
   $('rail-foot').innerHTML = userCard();
   railShape(); setNavInView();

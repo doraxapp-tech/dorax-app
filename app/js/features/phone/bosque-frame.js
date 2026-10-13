@@ -27,7 +27,7 @@ function bqPageTools() {
 /** Before the name of a screen reached from More: the way back to where the person was (the summary when there is nothing to go back to). */
 function bqBack() {
   if (tabsNow().includes(UI.route)) return '';
-  if (UI.route === 'settings' && setSecNow()) { const say = t('Back to {name}', { name: routeLabel('settings') }); return `<a class="bq-tool bq-back" href="#settings" aria-label="${esc(say)}">${icon('left')}</a>`; }      // a part of Settings: back to the list of its parts (v205)
+  if (UI.route === 'settings' && setSecNow()) { const say = t('Back to {name}', { name: routeLabel('settings') }); return `<button class="bq-tool bq-back" data-a="set-up" aria-label="${esc(say)}">${icon('left')}</button>`; }      // a part of Settings: back to the list of its parts (v205), as a step back (v208)
   const p = typeof backForPage === 'function' ? backForPage() : null, say = p ? backSay(p) : t('Back to {name}', { name: routeLabel('dashboard') });
   return p ? `<button class="bq-tool bq-back" data-a="back" aria-label="${esc(say)}">${icon('left')}</button>` : `<a class="bq-tool bq-back" href="#dashboard" aria-label="${esc(say)}">${icon('left')}</a>`;
 }

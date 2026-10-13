@@ -95,6 +95,21 @@ const PARTS = ['general', 'appearance', 'notifications', 'security', 'imports', 
     eq(await page.evaluate(() => [location.hash, !!document.querySelector('#set-currency'), !!document.querySelector('.set-list')]), ['#settings/general', true, false], `${lang}, phone: a row opens its part`);
     await page.click('.bq-back'); await page.waitForTimeout(250);
     eq(await page.evaluate(() => [UI.route, setSecNow(), !!document.querySelector('.set-list')]), ['settings', '', true], `${lang}, phone: the top's ‹ goes back to the list`);
+    // v208 (owner, 2026-10-13: "el botón de ajustes en el móvil tiene dos flechas y cuando le das y quieres ir atrás no puedes, el botón de atrás no sale
+    // al menú anterior"): from More, Settings has one arrow; its parts and the list go back step by step, and the list's ‹ opens More again
+    await page.evaluate(() => { BACK.stack = []; navigate('dashboard'); }); await page.waitForTimeout(250);
+    await page.click('.more-btn'); await page.waitForTimeout(400);
+    eq(await page.evaluate(() => { const a = document.querySelector('#overlay a[href="#settings"]'); return [a.querySelectorAll('svg').length, !!a.querySelector('.nav-chev, .nav-sub')]; }), [2, false], `${lang}, phone: in More, Settings has its icon and one arrow`);
+    await page.click('#overlay a[href="#settings"]'); await page.waitForTimeout(400);
+    for (const part of ['general', 'notifications']) {
+      await page.click(`.set-li[href="#settings/${part}"]`); await page.waitForTimeout(250); await page.click('.bq-back'); await page.waitForTimeout(300);
+    }
+    eq(await page.evaluate(() => [UI.route, setSecNow(), BACK.stack.length]), ['settings', '', 1], `${lang}, phone: part, back, part, back: the list, with one step behind it (no loop between the list and a part)`);
+    await page.click('.bq-back'); await page.waitForTimeout(450);
+    eq(await page.evaluate(() => [UI.route, UI.sheet, !!document.querySelector('#overlay a[href="#settings"]')]), ['dashboard', true, true], `${lang}, phone: the list's ‹ goes back to More, open, where Settings was chosen`);
+    await page.evaluate(() => { UI.sheet = false; renderOverlay(); BACK.stack = []; navigate('settings/security'); }); await page.waitForTimeout(250);
+    await page.click('.bq-back'); await page.waitForTimeout(300);
+    eq(await page.evaluate(() => [UI.route, setSecNow(), BACK.stack.length]), ['settings', '', 0], `${lang}, phone: a part opened from its address: ‹ shows the list, without a step that would lead back to the part`);
     eq(errors, [], `${lang}, phone: no error`); await browser.close();
   }
   done('qc-settings-parts');

@@ -1,5 +1,13 @@
 /* Dorax Finance — clicks: settings: OFX profiles, backup, deleting data. Joined into A in app/actions.js. */
 const SETTINGS_ACTIONS = {
+  /** A part of Settings, back to the list of its parts (v208, owner, 2026-10-13: "cuando le das y quieres ir atrás no puedes, el botón de atrás no
+      sale al menú anterior": the ‹ was a link, so each press was one more step and the list's own ‹ led to the part again). Coming from the list,
+      it is a step back; opened straight on a part, the list comes without a step, so its ‹ is where Settings was opened from. */
+  'set-up'() {
+    const top = backTop();
+    if (top && top.route === 'settings' && !top.setSec && top.space === UI.space) return A.back();
+    BACK.busy = true; navigate('settings');
+  },
   // settings
   'edit-profile'(ds) {
     const p = S.ofxProfiles.find(x => x.id === ds.id);
