@@ -47,7 +47,7 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
     const m = mail.reminderEmail({ title: EVIL, lines: [EVIL + ': R$ 10,00', 'second'], texts: { open: 'Open <b>', why: 'Why & how' }, site: 'https://dorax.app', link: 'https://dorax.app/?open=reminders', lang: 'pt' });
     ok(!/<img src=x|<b>/.test(m.html) && m.html.includes('&lt;img src=x onerror=alert(1)&gt; &amp; &quot;Rent&quot;'), 'what a person typed is shown as text in the email, never as a piece of the page');
     eq([(m.html.match(/<a /g) || []).length, (m.html.match(/href="([^"]+)"/) || [])[1], (m.html.match(/<img [^>]*src="([^"]+)"/) || [])[1], /<script|javascript:|onerror=|onload=/i.test(m.html.replace(/&lt;.*?&gt;/g, ''))],
-      [1, 'https://dorax.app/?open=reminders', 'https://dorax.app/assets/email/dorax-logo.png', false], 'the email has one link (the app), one picture (the logo) and no script');
+      [1, 'https://dorax.app/?open=reminders', 'https://dorax.app/assets/email/dorax-finance.png', false], 'the email has one link (the app) when it has no footer links, the logo first and no script');
     eq(m.text.split('\n'), [EVIL, '', EVIL + ': R$ 10,00', 'second', '', 'Open <b>: https://dorax.app/?open=reminders', '', 'Why & how'], 'and a plain-text version with the same lines and the link');
   }
   const gen = spawnSync(process.execPath, [path.join(ROOT, 'tools', 'build-functions.js'), '--check'], { encoding: 'utf8' });
@@ -114,8 +114,8 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
       'a notification is encrypted for its device, signed, and opens to the first three reminders and a count of the rest');
     eq(to(O.day1net), ['ana@example.org', 'eli@example.org', 'fay@example.org'], 'emails go to people who left them on and confirmed their address: not to who switched them off, not to an unconfirmed address');
     const ana = O.day1net.mails[0], eli = O.day1net.mails[1];
-    eq([ana.from, ana.subject, ana.auth, ana.unsub, (ana.html.match(/<html lang="(\w+)"/) || [])[1], (ana.html.match(/<tr><td style="padding:12px 0;/g) || []).length], ['Dorax Finance <no-reply@mail.dorax.app>', '5 coisas para ver hoje', 'Bearer re_test_key', '<https://dorax.app/#profile>', 'pt', 5],
-      'the email comes from the Dorax address, in the person’s language, one line per reminder');
+    eq([ana.from, ana.subject, ana.auth, ana.unsub, (ana.html.match(/<html lang="(\w+)"/) || [])[1], (ana.html.match(/\/assets\/email\/art\/[a-z-]+\.png" width="44"/g) || []).length], ['Dorax Finance <no-reply@mail.dorax.app>', '5 coisas para ver hoje', 'Bearer re_test_key', '<https://dorax.app/#profile>', 'pt', 5],
+      'the email comes from the Dorax address, in the person’s language, one line per reminder, each with its thing (v229)');
     ok(ana.text.includes('Contabilidade: os extratos de Setembro 2026 vencem em 15/10/2026 (em 10 dias). 0 de 2 enviados.') && ana.text.includes('Para parar, desative lá, em Lembretes.'), 'it carries all five lines and says how to stop it');
     ok(eli.html.includes('&lt;img src=x onerror=alert(1)&gt; &amp; &quot;Rent&quot;: R$ 1.800,00') && !eli.html.includes('<img src=x'), 'a bill named like a piece of a web page arrives as text');
     eq([O.day1net.other, O.day1subs], [[], ['fay-phone', 'ana-phone', 'ana-laptop', 'caio-phone']], 'a "device" whose address is not a push service is never called, and is forgotten');

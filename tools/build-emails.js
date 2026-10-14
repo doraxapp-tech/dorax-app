@@ -3,26 +3,34 @@
    Run: node tools/build-emails.js. It writes one HTML file per email into supabase/email-templates/, plus subjects.txt.
    Nothing sends these from here: each file is pasted into Supabase > Authentication > Emails > Templates (see supabase/email-templates/README.md).
 
-   Why they look the way they do (owner, 2026-10-05: "I want the logo to be visible, and a better email structure, this looks like a spam email"):
-   - The logo at the top, on the site's own dark canvas, as an image the site serves (LOGO_URL). Email programs do not draw SVG, so it is a PNG.
-     If a program blocks images, the alt text "Dorax Finance" shows in white on the same band.
-   - One heading, one short paragraph, one green button (the site's green), the same address again as plain text, and a line saying what to do
-     if the person did not ask for this. No marketing, no second link, no pictures besides the logo: account emails that sell something are the
-     ones mail programs treat as spam.
-   - Tables and inline styles only. That is how email has to be written: Gmail and Outlook drop most stylesheets.
+   Why they look the way they do (owner, 2026-10-05: "I want the logo to be visible, and a better email structure, this looks like a spam email";
+   2026-10-14: "la plantilla de correo necesita un update, tenemos nuevo estilo y visuales, colores"):
+   - They are drawn in the same frame as the reminders and the invitations (supabase/functions/reminders/email.mjs, which says how it looks and
+     why), so every Dorax email looks alike and changes in one place: the website's language, as the sign-in pages that come just before them
+     (the logo with FINANCE, a drawing of what the email is about, the pill saying what kind it is: "Your account", or "Security" for the two
+     notices, a large heading, the paragraph, the lime button; what to do if it was not you, in a white card; the small print on the sage).
+   - The drawing says what the email is about: the person who waves for a new account (with the envelope), the one who holds the key for a new
+     password, the two arrows for an address that changes, the shield for a changed password, the envelope for a changed email.
+   - One heading, one short paragraph, one button, the same address again as plain text, and a line saying what to do if the person did not ask
+     for this. No marketing, no second link, no pictures besides the logo: account emails that sell something are the ones mail programs treat as
+     spam.
    - Three languages in one template. Supabase fills in {{ .Data.lang }} with the language the person chose when signing up (the app sends it),
      and the template picks the text. Anything else, or nothing, gets Portuguese, the app's own fallback. */
-const fs = require('fs'), path = require('path');
+const fs = require('fs'), path = require('path'), { pathToFileURL } = require('url');
 const OUT = path.join(__dirname, '..', 'supabase', 'email-templates');
-const LOGO_URL = 'https://dorax.app/assets/email/dorax-logo.png'; // the site's own address since 2026-10-05; the old vercel.app address forwards to it
-const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+const SITE = 'https://dorax.app'; // the logo comes from the site's own address (since 2026-10-05; the old vercel.app address forwards to it)
+/** A text the website already has, in its three languages (js/i18n/text/*.js: [English, Español, Português]): the emails say it the same way. */
+const I18N = (() => { const vm = require('vm'), dir = path.join(__dirname, '..', 'app', 'js', 'i18n'), ctx = vm.createContext({});
+  const files = [path.join(dir, 'translations.js'), ...fs.readdirSync(path.join(dir, 'text')).sort().map(n => path.join(dir, 'text', n))].filter(p => fs.existsSync(p));
+  vm.runInContext(files.map(p => fs.readFileSync(p, 'utf8')).join('\n') + '\n;globalThis.out = I18N;', ctx); return ctx.out; })();
+const I = en => { if (!(en in I18N.es) || !(en in I18N.pt)) throw new Error('build-emails: no translation for ' + en); return L(en, I18N.es[en], I18N.pt[en]); };
 
 /** One text in three languages, chosen by Supabase when it sends the email. */
 const L = (en, es, pt) => `{{ if eq .Data.lang "es" }}${es}{{ else if eq .Data.lang "en" }}${en}{{ else }}${pt}{{ end }}`;
 
 const EMAILS = {
   'confirm-signup': {
-    where: 'Confirm sign up',
+    where: 'Confirm sign up', art: 'hi',
     subject: L('Confirm your email', 'Confirma tu correo', 'Confirme o seu e-mail'),
     title: L('Confirm your email', 'Confirma tu correo', 'Confirme o seu e-mail'),
     text: L('One step left to create your Dorax Finance account: confirm that this email address is yours.',
@@ -37,7 +45,7 @@ const EMAILS = {
       'Este e-mail foi enviado para {{ .Email }} porque o endereço foi usado para criar uma conta no Dorax Finance.'),
   },
   'reset-password': {
-    where: 'Reset password',
+    where: 'Reset password', art: 'key',
     subject: L('Choose a new password', 'Elige una contraseña nueva', 'Escolha uma nova senha'),
     title: L('Choose a new password', 'Elige una contraseña nueva', 'Escolha uma nova senha'),
     text: L('Someone asked to change the password of your Dorax Finance account. The button opens the page where you choose a new one.',
@@ -56,7 +64,7 @@ const EMAILS = {
   // another address without being able to read the owner's inbox. That is what makes this safe without anyone having to step in by hand
   // (owner, 2026-10-05: "fix the email change to not depend on me"). The text therefore has to make sense in either inbox.
   'change-email': {
-    where: 'Change email address',
+    where: 'Change email address', art: 'arrows-left-right',
     subject: L('Confirm the change of email', 'Confirma el cambio de correo', 'Confirme a troca de e-mail'),
     title: L('Confirm the change of email', 'Confirma el cambio de correo', 'Confirme a troca de e-mail'),
     text: L('A change of the email of your Dorax Finance account was asked for: from {{ .Email }} to {{ .NewEmail }}. For your safety it only happens after the button is pressed in the two emails, the one sent to each address.',
@@ -73,7 +81,7 @@ const EMAILS = {
   // The two security notices (owner, 2026-10-05, on Supabase's "Security" list: "is this useful?" Yes, these two). No link to confirm: they tell
   // the owner of the account that something was changed, and what to do if it was somebody else. The button only opens the site.
   'password-changed': {
-    where: 'Password changed (under Security)', notice: true,
+    where: 'Password changed (under Security)', notice: true, art: 'shield-check',
     subject: L('Your password was changed', 'Tu contraseña cambió', 'A sua senha foi alterada'),
     title: L('Your password was changed', 'Tu contraseña cambió', 'A sua senha foi alterada'),
     text: L('The password of your Dorax Finance account was just changed. If it was you, there is nothing to do.',
@@ -90,7 +98,7 @@ const EMAILS = {
   // A receipt. It does not send the person to a contact form: the change could only happen with a click from the old address (see
   // 'change-email' above), so what is left to say to someone who did not make it is that somebody else can read that inbox.
   'email-changed': {
-    where: 'Email address changed (under Security)', notice: true,
+    where: 'Email address changed (under Security)', notice: true, art: 'envelope-simple',
     subject: L('Your email was changed', 'Tu correo cambió', 'O seu e-mail foi alterado'),
     title: L('Your email was changed', 'Tu correo cambió', 'O seu e-mail foi alterado'),
     text: L('The email of your Dorax Finance account was changed from {{ .OldEmail }} to {{ .Email }}, after it was confirmed from both addresses. From now on you log in with {{ .Email }}.',
@@ -109,66 +117,47 @@ const OPEN = L('Open Dorax Finance', 'Abrir Dorax Finance', 'Abrir o Dorax Finan
 const PASTE = L('If the button does not work, copy this address into your browser:',
   'Si el botón no funciona, copia esta dirección en tu navegador:',
   'Se o botão não funcionar, copie este endereço no navegador:');
+const KICKER = { account: I('Your account'), security: I('Security') };
+const LANG = '{{ if eq .Data.lang "es" }}es{{ else if eq .Data.lang "en" }}en{{ else }}pt{{ end }}';
+/** The footer's texts: the website's own (js/i18n/text/). */
+const FOOT = { tagline: I('Your money, organized clearly enough to make better decisions yourself.'), disclaimer: I('Dorax organises information about your own money. It is not financial, tax or accounting advice.'),
+  help: I('Help center'), blog: I('Blog'), contact: I('Contact form'), privacy: I('Privacy policy') };
+/** The band after the white one, in the home page's words: what Dorax does on the days that matter, for someone who is just creating an account;
+    whose the money and the data are, for the four emails about the account's safety. */
+const WELCOME = { tone: 'sage', title: I('Your money, on the days that matter.'), items: [
+  { thing: 'coins', title: I('Payday'), text: I('Income in one or two payments a month, and what is left of each payment.') },
+  { thing: 'bell-ringing', title: I('Before it is due'), text: I('Every bill in one list with its due day, and a reminder before it is due.') },
+  { thing: 'flag-banner', title: I('Your goal, with a date'), text: I('Each goal with its plan, its progress and the month you get there.') }] };
+const SAFE = { tone: 'forest', title: I('Your money is yours. Your data too.'), items: [
+  { thing: 'key', title: I('You hold the key.'), text: I('Download a backup of everything whenever you want.') },
+  { thing: 'shield-check', title: I('No ads'), text: I('Your data is not sold or used for advertising.') },
+  { thing: 'bank', title: I('No bank password'), text: I('Dorax organises what you type or import. Nothing more.') }] };
 
-/** A button: a table cell with the colour, so that Outlook draws it too. */
-const button = (href, label) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td bgcolor="#006239" style="background-color:#006239; border-radius:8px;">
-          <a href="${href}" target="_blank" style="display:inline-block; padding:13px 24px; font-family:${FONT}; font-size:15px; line-height:1.2; font-weight:600; color:#ffffff; text-decoration:none; border-radius:8px;">${label}</a>
-        </td></tr></table>`;
-/** An email that asks for one thing: the button, the same address as text, and what to do if the person did not ask for it. */
-const action = e => `    <tr><td style="padding:24px 32px 0;">
-      ${button('{{ .ConfirmationURL }}', e.button)}
-    </td></tr>
-    <tr><td style="padding:24px 32px 32px; font-family:${FONT};">
-      <p style="margin:0 0 6px; font-size:13px; line-height:1.5; color:#6b7280;">${PASTE}</p>
-      <p style="margin:0 0 20px; font-size:13px; line-height:1.5; word-break:break-all;"><a href="{{ .ConfirmationURL }}" target="_blank" style="color:#006239; text-decoration:underline;">{{ .ConfirmationURL }}</a></p>
-      <p style="margin:0; font-size:14px; line-height:1.5; color:#3c4149;">${e.ignore}</p>
-    </td></tr>`;
-/** An email that only tells: what to do if it was somebody else, in a quiet box, and a button that opens the site. */
-const notice = e => `    <tr><td style="padding:20px 32px 0; font-family:${FONT};">
-      <p style="margin:0; padding:14px 16px; background-color:#f6f7f8; border:1px solid #e3e5e8; border-radius:8px; font-size:14px; line-height:1.55; color:#3c4149;"><strong style="color:#0b0c0d;">${e.notYou[0]}</strong> ${e.notYou[1]}</p>
-    </td></tr>
-    <tr><td style="padding:24px 32px 32px;">
-      ${button('{{ .SiteURL }}', OPEN)}
-    </td></tr>`;
-
-const page = e => `<!doctype html>
-<html lang="{{ if eq .Data.lang "es" }}es{{ else if eq .Data.lang "en" }}en{{ else }}pt{{ end }}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
-<title>Dorax Finance</title>
-</head>
-<body style="margin:0; padding:0; background-color:#f3f4f5;">
-<div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">${e.text}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f5;">
-<tr><td align="center" style="padding:32px 16px;">
-  <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:560px; background-color:#ffffff; border:1px solid #e3e5e8; border-radius:12px; overflow:hidden;">
-    <tr><td bgcolor="#08090a" style="background-color:#08090a; padding:26px 32px;">
-      <img src="${LOGO_URL}" width="124" height="36" alt="Dorax Finance" style="display:block; border:0; outline:none; text-decoration:none; height:36px; width:124px; color:#f7f8f8; font-family:${FONT}; font-size:20px; font-weight:600;">
-    </td></tr>
-    <tr><td style="padding:36px 32px 0; font-family:${FONT};">
-      <h1 style="margin:0 0 12px; font-size:22px; line-height:1.3; font-weight:600; color:#0b0c0d; letter-spacing:-0.01em;">${e.title}</h1>
-      <p style="margin:0; font-size:15px; line-height:1.6; color:#3c4149;">${e.text}</p>
-    </td></tr>
-${e.notice ? notice(e) : action(e)}
-    <tr><td style="padding:18px 32px; border-top:1px solid #eceef0; background-color:#fafafa; font-family:${FONT};">
-      <p style="margin:0; font-size:12px; line-height:1.5; color:#6b7280;">${e.why}</p>
-    </td></tr>
-  </table>
-</td></tr>
-</table>
-</body>
-</html>
-`;
-
-fs.mkdirSync(OUT, { recursive: true });
-const subjects = [];
-for (const [name, e] of Object.entries(EMAILS)) {
-  fs.writeFileSync(path.join(OUT, name + '.html'), page(e));
-  subjects.push(`${e.where}\n  file:    ${name}.html\n  subject: ${e.subject}\n`);
+/** One email, as a page of the website (M: email.mjs): the top with its button; on white, what to do if the button does not work and if the person
+    did not ask (or, for a notice, what to do if it was somebody else); the band in the home page's words; the footer. */
+function draw(M, e) {
+  const centre = (html, size, colour) => `<p style="margin:0 auto; max-width:480px; font-size:${size}px; line-height:${Math.round(size * 1.55)}px; color:${colour}; text-align:center;">${html}</p>`;
+  const white = e.notice
+    ? M.list({ site: SITE, title: e.notYou[0], after: centre(e.notYou[1], 16, M.C.ink2) })
+    : M.list({ site: SITE, after: centre(e.ignore, 16, M.C.ink2) + `
+      <div style="margin:22px auto 0; max-width:480px; border-top:1px solid ${M.C.line}; padding:20px 0 0;">${centre(PASTE, 13, M.C.ink3)}
+      <p style="margin:4px auto 0; max-width:480px; font-size:13px; line-height:20px; text-align:center; word-break:break-all;"><a href="{{ .ConfirmationURL }}" target="_blank" style="color:${M.C.forest}; text-decoration:underline;">{{ .ConfirmationURL }}</a></p></div>` });
+  return M.page({ lang: LANG, pre: e.text, sections: [
+    M.top({ site: SITE, kicker: e.notice ? KICKER.security : KICKER.account, title: e.title, lead: e.text, art: e.art,
+      action: M.button(e.notice ? '{{ .SiteURL }}' : '{{ .ConfirmationURL }}', e.notice ? OPEN : e.button) }),
+    white,
+    M.explain({ site: SITE, ...(e.name === 'confirm-signup' ? WELCOME : SAFE) }),
+    M.footer({ site: SITE, f: FOOT, why: e.why }),
+  ] });
 }
-fs.writeFileSync(path.join(OUT, 'subjects.txt'), 'One block per email. Paste the "subject" line (all of it, with the curly braces) into the Subject field of that template in Supabase.\n\n' + subjects.join('\n'));
-console.log('emails:', Object.keys(EMAILS).join(', '), '->', path.relative(process.cwd(), OUT));
+
+import(pathToFileURL(path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'email.mjs')).href).then(M => {
+  fs.mkdirSync(OUT, { recursive: true });
+  const subjects = [];
+  for (const [name, e] of Object.entries(EMAILS)) {
+    fs.writeFileSync(path.join(OUT, name + '.html'), draw(M, { ...e, name }));
+    subjects.push(`${e.where}\n  file:    ${name}.html\n  subject: ${e.subject}\n`);
+  }
+  fs.writeFileSync(path.join(OUT, 'subjects.txt'), 'One block per email. Paste the "subject" line (all of it, with the curly braces) into the Subject field of that template in Supabase.\n\n' + subjects.join('\n'));
+  console.log('emails:', Object.keys(EMAILS).join(', '), '->', path.relative(process.cwd(), OUT));
+}, err => { console.error('build-emails: ' + err.message); process.exit(1); });

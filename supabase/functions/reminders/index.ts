@@ -114,7 +114,7 @@ async function test(req: Request, admin: Any, channel: string, delay = 0) {
   const done = () => admin.from('reminder_log').upsert({ user_id: user.id, key, sent_at: new Date().toISOString() }, { onConflict: 'user_id,key' });
   if (channel === 'email') {
     if (!user.email) return answer(req, { ok: false, code: 'no_email' });
-    const r = await sendEmail(user.email, texts.testMailSubject, reminderEmail({ title: texts.testMailSubject, lines: [texts.testMailLine], texts, site: SITE, lang }));
+    const r = await sendEmail(user.email, texts.testMailSubject, reminderEmail({ title: texts.testMailSubject, lines: [], hero: 'envelope-simple', band: texts.testBand, texts: { ...texts, kicker: texts.testKicker, cta: null }, lead: texts.testMailLine, site: SITE, lang }));
     if (r.ok) await done();
     return answer(req, { ok: r.ok, code: r.ok ? '' : r.reason });
   }
@@ -151,7 +151,7 @@ const contactTo = () => (Deno.env.get('CONTACT_TO') || '').trim();
 const looksLikeEmail = (s: unknown) => typeof s === 'string' && s.length <= 254 && /^[A-Za-z0-9._+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(s);
 const tableLink = () => `https://supabase.com/dashboard/project/${new URL(Deno.env.get('SUPABASE_URL')!).hostname.split('.')[0]}/editor`;
 const SEE_ALL = () => ({ text: 'See all messages in Supabase', link: tableLink() });
-const CONTACT_TEXTS = { open: 'Open the messages in Supabase',
+const CONTACT_TEXTS = { open: 'Open the messages in Supabase', kicker: 'Contact form',
   why: 'You get this email because someone used the contact form of Dorax Finance. In the table contact_messages, tick "handled" when a message is answered.' };
 /** A new email to the person who wrote, started for the owner: their address, a subject in their language, their message quoted below.
     The address goes in encoded, so nothing typed into the form's email field can add a second recipient or a field of its own. */
@@ -176,9 +176,9 @@ async function contact(req: Request, admin: Any, body: Any) {
   // the button answers the person; when what they typed is not an address there is nobody to answer, and the email says so
   const can = looksLikeEmail(m.email);
   const mail = can ? reminderEmail({ title: 'New message from the contact form', lines, site: SITE, lang: 'en', link: replyLink(m), more: SEE_ALL(),
-      texts: { open: `Reply to ${from}`, why: `The button starts an email to ${from}. Replying to this email does the same. You get it because someone used the contact form of Dorax Finance.` } })
+      texts: { kicker: 'Contact form', open: `Reply to ${from}`, why: `The button starts an email to ${from}. Replying to this email does the same. You get it because someone used the contact form of Dorax Finance.` } })
     : reminderEmail({ title: 'New message from the contact form', lines: [...lines, 'The address they gave does not look like an email address, so there is no reply button.'], site: SITE, lang: 'en', more: SEE_ALL(),
-      texts: { open: '', why: 'You get this email because someone used the contact form of Dorax Finance.' } });
+      texts: { kicker: 'Contact form', open: '', why: 'You get this email because someone used the contact form of Dorax Finance.' } });
   const r = await sendEmail(to, subject, mail, can ? { reply_to: m.email } : {});
   if (r.ok) await admin.from('contact_messages').update({ notified_at: new Date().toISOString() }).eq('id', id);
   return answer(req, { ok: r.ok, sent: r.ok ? 1 : 0, code: r.ok ? '' : r.reason });
@@ -231,7 +231,7 @@ async function run(req: Request, admin: Any, body: Any) {
         const person = u && u.user;
         if (person && person.email && person.email_confirmed_at) {
           const subject = clip(msg.subject, 150, true), lines = msg.lines.slice(0, 40).map((l: string) => clip(l, 300, true));
-          const r = await sendEmail(person.email, subject, reminderEmail({ title: subject, lines, figure: msg.figure, texts: msg.texts, site: SITE, link: SITE + '/' + msg.link, lang: msg.lang }));
+          const r = await sendEmail(person.email, subject, reminderEmail({ title: subject, lines, marks: msg.marks, hero: msg.hero, chips: msg.chips, cta: msg.cta, figure: msg.figure, texts: msg.texts, site: SITE, link: SITE + '/' + msg.link, lang: msg.lang }));
           if (r.ok) { out.emails++; reached = true; } else out.problems++;
         }
       }

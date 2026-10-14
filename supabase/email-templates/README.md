@@ -1,6 +1,6 @@
 # Account emails
 
-The five emails Supabase sends for an account, with the Dorax logo and the text in Portuguese, Spanish or English.
+The five emails Supabase sends for an account, in Portuguese, Spanish or English. Since v229 each looks like a page of the website without its menu: the top with the logo, a drawing, the heading and the button; what to do if the button does not work or it was not you; a band in the home page's words; the website's footer. The reminders function draws its emails from the same parts (`supabase/functions/reminders/email.mjs`).
 
 Three ask the person to do something (one button):
 
@@ -38,7 +38,7 @@ What it cannot cover: someone who is inside a person's account and can also read
 
 ## What has to be true for them to look right
 
-- **The logo is a picture the site serves**: `https://dorax.app/assets/email/dorax-logo.png` (the file `app/assets/email/dorax-logo.png`). It shows once the site has been deployed with that file. Until then, and in mail programs that block pictures, the words "Dorax Finance" show in its place.
+- **The pictures are files the site serves**: `https://dorax.app/assets/email/…` (the folder `app/assets/email/`: the logos, and the drawings in `art/`). They show once the site has been deployed with them, so push the site before pasting these files. In mail programs that block pictures, the words "Dorax Finance" show in place of the logo and the drawings leave their room empty. `dorax-logo.png` is the old logo, still used by the old templates until these are pasted; it can go after.
 - **Sender name**: in Supabase > Authentication > Emails > SMTP Settings, "Sender name" must say `Dorax Finance`. If it is empty the inbox shows the address instead of the name.
 - **The language** is the one the person had chosen when they created the account (the app sends it to Supabase as `lang`). Changing the language later inside the app does not change it for emails yet. No language, or another one, gets Portuguese.
 
@@ -46,4 +46,4 @@ What it cannot cover: someone who is inside a person's account and can also read
 
 Edit `tools/build-emails.js` (each text is there once, in the three languages), run `npm run emails`, then paste the changed files into Supabase again. Do not edit the `.html` files by hand: the next run overwrites them.
 
-Keep `{{ .ConfirmationURL }}` in the three emails that have it: it is the link. The two notices have none on purpose; their button opens the site (`{{ .SiteURL }}`, the Site URL set under Authentication > URL Configuration). Keep them plain: one button, no offers, no extra pictures. Account emails that look like advertising are the ones that land in spam.
+Keep `{{ .ConfirmationURL }}` in the three emails that have it: it is the link. The two notices have none on purpose; their button opens the site (`{{ .SiteURL }}`, the Site URL set under Authentication > URL Configuration). Keep them to one button and no offers: the footer's links are the website's own pages (Help, Blog, Contact, Privacy). Account emails that look like advertising are the ones that land in spam.

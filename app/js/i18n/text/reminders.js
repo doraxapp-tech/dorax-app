@@ -220,4 +220,16 @@ addTexts([
   ["A pause to see where the day-to-day money goes.", "Una pausa para ver a dónde se va el dinero del día a día.", "Uma pausa para ver para onde vai o dinheiro do dia a dia."],
   ["days without spending: you choose how many", "días sin gastar: tú eliges cuántos", "dias sem gastar: você escolhe quantos"],
   ["Are you in for 7 days paying only what is fixed? Each day you manage it, you mark it.", "¿Te animas a 7 días pagando solo lo fijo? Cada día que lo logras, lo marcas.", "Topa 7 dias pagando só o fixo? Cada dia que você consegue, marca."],
+  // v229: the pill at the top of an email, saying what kind it is (supabase/functions/reminders/email.mjs)
+  ["Invitation", "Invitación", "Convite"],
+  ["Test email", "Correo de prueba", "E-mail de teste"],
+  // v229: the email as a page of the website: its sections around the reminders and the invitations
+  ["When Dorax writes to you", "Cuándo te escribe Dorax", "Quando o Dorax escreve para você"],
+  ["Each one arrives once, in the morning.", "Cada aviso llega una sola vez, por la mañana.", "Cada aviso chega uma vez só, de manhã."],
+  ["When a bill is coming up", "Cuando una cuenta se acerca", "Quando uma conta se aproxima"],
+  ["On its due day", "El día que vence", "No dia do vencimento"],
+  ["If it is late", "Si se atrasa", "Se atrasar"],
+  ["One day at a time. Starting today?", "Un día a la vez. ¿Empiezas hoy?", "Um dia de cada vez. Começa hoje?"],
+  ["Week 1 is {a}. Start this week?", "La semana 1 son {a}. ¿Empiezas esta semana?", "A semana 1 é {a}. Começa esta semana?"],
+  ["7, 14 or 30 days. You choose.", "7, 14 o 30 días. Tú eliges.", "7, 14 ou 30 dias. Você escolhe."],
 ]);

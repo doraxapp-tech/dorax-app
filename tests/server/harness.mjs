@@ -211,7 +211,7 @@ OUT.tipOff = await tipsAt('2026-11-17', 22 * 60 + 45);
 // place to start it, the email shows its figure; once a week at most; the server keeps their keys past its four months
 const J = '66666666-6666-4666-8666-666666666666'; person(J, 'joa@example.org', quiet(input.accounts.en), { invites: true });
 const j1 = await device('joa-phone'); T.push_subscriptions.push({ user_id: J, endpoint: j1.endpoint, p256dh: j1.p256dh, auth: j1.auth });
-NOW = '2026-11-17T11:00:00Z'; await runAll(); { const n = flush(), m = n.mails.find(x => x.to[0] === 'joa@example.org'); OUT.invite = { push: mine(n, 'joa-phone'), mail: m ? { subject: m.subject, link: m.html.includes('href="https://dorax.app/?do=s52"'), figure: /font-size:34px[^>]*>R\$ 1\.378</.test(m.html), why: m.html.includes('switch off Invitations') } : null, log: T.reminder_log.filter(l => l.user_id === J).map(l => l.key) }; }
+NOW = '2026-11-17T11:00:00Z'; await runAll(); { const n = flush(), m = n.mails.find(x => x.to[0] === 'joa@example.org'); OUT.invite = { push: mine(n, 'joa-phone'), mail: m ? { subject: m.subject, link: m.html.includes('href="https://dorax.app/?do=s52"'), figure: /font-size:24px[^>]*>R\$\s1\.378</.test(m.html), why: m.html.includes('switch off Invitations') } : null, log: T.reminder_log.filter(l => l.user_id === J).map(l => l.key) }; }
 NOW = '2026-11-18T11:00:00Z'; await runAll(); { const n = flush(); OUT.inviteNextDay = mine(n, 'joa-phone').length + n.mails.filter(x => x.to[0] === 'joa@example.org').length; }
 T.reminder_log.push({ user_id: J, key: 'invite|s52|2026-01-02', sent_at: '2026-01-02T11:00:00Z' }); NOW = '2026-11-19T11:00:00Z'; await runAll(); flush(); OUT.inviteKeptOld = T.reminder_log.some(l => l.key === 'invite|s52|2026-01-02');
 OUT.logs = logs;

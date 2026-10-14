@@ -35,11 +35,18 @@ function reminderSentence(r, CUR) {
       : r.saved >= 0 ? t('{month} closed with {amount} left over.', { month: fmt.month(r.ym), amount: fmt.money(r.saved, CUR) }) : t('{month} closed with spending {amount} above income.', { month: fmt.month(r.ym), amount: fmt.money(-r.saved, CUR) });
 }
 
+/** The thing drawn beside each line of the email (v229: the site's drawings, js/ui/art.js; the email draws them as pictures,
+    supabase/functions/reminders/email.mjs): what the line is about, as the bell shows it in the app. */
+const REMINDER_THINGS = { bill: 'calendar-dots', card: 'receipt', debt: 'currency-circle-dollar', past: 'list-checks', pay: 'hand-coins', handout: 'coins',
+  s52: 'piggy-bank', ns: 'calendar-check', nsmark: 'calendar-check', jmark: 'fire', sprint: 'flag-banner', budget: 'gauge', close: 'file-text', summary: 'chart-bar' };
+
 /** The email: its subject and one line per reminder. One bill says its own name in the subject, pay day says itself; several are counted. */
 function reminderDigest(rs) {
   rs = messageReminders(rs); if (!rs.length) return null;
   const bills = rs.filter(r => r.kind === 'bill' || r.kind === 'card');
-  return { subject: rs.length === 1 && rs[0].kind === 'pay' ? payTitle(rs[0]) : rs.length === 1 && bills.length ? `${ofCompany(bills[0])}${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today'), lines: rs.map(reminderLine) };
+  return { subject: rs.length === 1 && rs[0].kind === 'pay' ? payTitle(rs[0]) : rs.length === 1 && bills.length ? `${ofCompany(bills[0])}${bills[0].name}: ${whenText(bills[0])}` : tn(rs.length, '{n} thing to look at today', '{n} things to look at today'), lines: rs.map(reminderLine), marks: rs.map(r => REMINDER_THINGS[r.kind] || 'bell-ringing'),
+    // the two first amounts to pay, as the home page's chips over the drawing at the top: the name and when, then the amount
+    chips: rs.filter(r => r.kind === 'bill' || r.kind === 'card' || r.kind === 'debt').slice(0, 2).map(r => ({ label: ofCompany(r) + r.name + ' · ' + whenText(r), value: (r.pay === 'variable' || r.estimate ? '≈ ' : '') + fmt.money(r.amount, r.cur || BASE_CURRENCY) })) };
 }
 
 /** The notification: a title and a short body. One bill shows its name and amount, then when it is due; several are counted, the first three named. */
@@ -65,9 +72,18 @@ const reminderOptions = state => { const u = state.user || {}, n = u.notify || {
 /** The few texts of a reminder email that are not reminders themselves, and the ones of the "send me a test" messages. */
 const reminderTexts = () => ({
   open: t('Open Dorax Finance'),
+  kicker: t('Reminders'),
+  testKicker: t('Test email'),
   why: t('You get this email because reminders by email are switched on in your Dorax Finance profile. To stop them, switch them off there, under Reminders.'),
   testTitle: t('Notifications are on'),
   testBody: t('This device will get your Dorax Finance reminders.'),
   testMailSubject: t('Reminder emails are on'),
   testMailLine: t('This is where your Dorax Finance reminders arrive: one message when a bill is coming up, one on its day, and one if it is late.'),
+  // v229: the parts of the email around the reminders, in the website's words (supabase/functions/reminders/email.mjs)
+  listKicker: t('Today'),
+  cta: { title: t('Your whole month, in one place.'), text: t('Every bill in one list with its due day, and a reminder before it is due.') },
+  testBand: { title: t('When Dorax writes to you'), lead: t('Each one arrives once, in the morning.'),
+    items: [['bell-ringing', t('When a bill is coming up')], ['calendar-dots', t('On its due day')], ['hourglass-medium', t('If it is late')]] },
+  foot: { tagline: t('Your money, organized clearly enough to make better decisions yourself.'), disclaimer: t('Dorax organises information about your own money. It is not financial, tax or accounting advice.'),
+    help: t('Help center'), blog: t('Blog'), contact: t('Contact form'), privacy: t('Privacy policy'), notifications: t('Notifications') },
 });

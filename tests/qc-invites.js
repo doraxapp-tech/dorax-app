@@ -48,11 +48,13 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(run(empty).length, 0, 'nothing recorded yet: none (the first steps come first)');
 
   // ---------- 3. the email ----------
-  const m = all[1], e = reminderEmail({ title: m.subject, lines: m.lines, figure: m.figure, texts: m.texts, site: 'https://dorax.app', link: 'https://dorax.app/' + m.link, lang: m.lang });
-  ok(/font-size:34px[^>]*>R\$ 1\.378<\/div>/.test(e.html) && /en 52 semanas, empezando con R\$ 1/.test(e.html) && /href="https:\/\/dorax\.app\/\?do=s52"/.test(e.html) && />Empezar el desafío</.test(e.html), 'the email: the figure under the heading, the button to the place to start it');
+  const m = all[1], e = reminderEmail({ title: m.subject, lines: m.lines, marks: m.marks, hero: m.hero, cta: m.cta, figure: m.figure, texts: m.texts, site: 'https://dorax.app', link: 'https://dorax.app/' + m.link, lang: m.lang });
+  ok(/font-size:24px[^>]*>R\$\s1\.378<\/div>/.test(e.html) && /en 52 semanas, empezando con R\$\s1/.test(e.html) && /href="https:\/\/dorax\.app\/\?do=s52"/.test(e.html) && />Empezar el desafío</.test(e.html), 'the email: the figure in its chip beside the drawing, the button to the place to start it');
   ok(/apaga Invitaciones en tu perfil, en Notificaciones/.test(e.html) && /^¿Juntamos R\$ 1\.378 en un año\?\n\nR\$ 1\.378 — en 52 semanas, empezando con R\$ 1\n/.test(e.text), 'its small print says why and how to stop; the plain text has the figure too');
+  ok(/art\/piggy-bank\.png" width="88"/.test(e.html) && ['calendar-dots', 'coins', 'bell-ringing'].every(t => e.html.includes('/assets/email/art/' + t + '.png" width="44"')) && /La semana 1 son R\$\s1\. ¿Empiezas esta semana\?/.test(e.html) && /href="https:\/\/dorax\.app\/ajuda"/.test(e.html) && /© \d{4} Dorax Finance/.test(e.html),
+    'the email as a page of the website (v229): the piggy bank at the top, a thing beside each line, the lime band with its question, the footer with the website’s links');
   const plain = reminderEmail({ title: 'T', lines: ['a'], texts: { open: 'Open', why: 'w' }, site: 'https://dorax.app', lang: 'es' });
-  ok(!/font-size:34px/.test(plain.html), 'a reminder email without a figure is as before');
+  ok(!/font-size:24px/.test(plain.html), 'a reminder email without a figure has no chip');
   const ts = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'reminders', 'index.ts'), 'utf8');
   ok(/\.not\('key', 'like', 'invite\|%'\)/.test(ts) && /url: SITE \+ '\/' \+ msg\.link/.test(ts) && /figure: msg\.figure/.test(ts), 'the server: the invitations’ keys kept past 120 days; the notification and the email open their place; the figure goes in');
 

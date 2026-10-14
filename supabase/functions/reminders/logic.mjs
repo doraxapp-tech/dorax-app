@@ -13,10 +13,10 @@ export const todayIn = (timeZone, now = new Date()) => new Intl.DateTimeFormat('
 export function messageFor(account, today, sent) {
   const acc = openAccount(account, today), fresh = acc.reminders.filter(r => !sent.has(acc.key(r)));
   // a morning with nothing due: maybe an invitation to what the person has not started (v228, core/invites.js: once a week at most, each three times)
-  if (!fresh.length) { const inv = acc.invite(sent); return inv ? { kind: 'invite', keys: inv.keys, subject: inv.subject, lines: inv.lines, figure: inv.figure, push: inv.push, lang: acc.lang, emailOn: acc.emailOn, texts: inv.texts, link: inv.link } : null; }
+  if (!fresh.length) { const inv = acc.invite(sent); return inv ? { kind: 'invite', keys: inv.keys, subject: inv.subject, lines: inv.lines, marks: inv.marks, hero: inv.hero, cta: inv.cta, figure: inv.figure, push: inv.push, lang: acc.lang, emailOn: acc.emailOn, texts: { ...inv.texts, foot: acc.texts.foot }, link: inv.link } : null; }
   const digest = acc.digest(fresh), push = acc.push(fresh);
   if (!digest || !push) return null;
-  return { kind: 'reminders', keys: fresh.map(acc.key), subject: digest.subject, lines: digest.lines, push, lang: acc.lang, emailOn: acc.emailOn, texts: acc.texts, link: '?open=reminders' };
+  return { kind: 'reminders', keys: fresh.map(acc.key), subject: digest.subject, lines: digest.lines, marks: digest.marks, chips: digest.chips, hero: 'phone', push, lang: acc.lang, emailOn: acc.emailOn, texts: acc.texts, link: '?open=reminders' };
 }
 
 /** The minutes since midnight in a time zone (8:30 is 510). */

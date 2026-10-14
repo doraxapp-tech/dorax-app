@@ -10,7 +10,8 @@
     "emails": "node tools/build-emails.js",
     "functions": "node tools/build-functions.js",
     "banks": "node tools/build-banks.js",
-    "test": "node tools/build.js && node tests/run-all.js"
+    "test": "node tools/build.js && node tests/run-all.js",
+    "email-art": "node tools/build-email-art.js"
   },
   "devDependencies": {
     "playwright": "^1.56.0"
