@@ -113,14 +113,14 @@ function dkGoalSide(ym) {
 function dkGoals() {
   const bk = B(), ym = bk.month, cur = BCUR(), nowYm = ymOf(bk.today);
   const live = bk.goals.filter(g => g.status === 'active' || g.status === 'paused'), closed = bk.goals.filter(g => g.status === 'done' || g.status === 'archived');
-  const goals = live.filter(g => !isYearly(g)), years = live.filter(g => isYearly(g));
+  const goals = live.filter(g => !isYearly(g) && g.id !== s52GoalId(S)), years = live.filter(g => isYearly(g));      // the 52 weeks' goal is its challenge's card (features/challenges)
   // the total each currency apart; the month's plan is the book's own currency's (v224)
   const total = goalSumsBig(bk.goals.filter(g => g.status !== 'archived'), g => goalSaved(bk, g.id)), planned = sum(goalsHere(bk).filter(goalLive).map(g => goalPlan(g, nowYm)));
   const nGoal = goals.filter(g => g.kind === 'goal').length, nFund = goals.filter(g => g.kind !== 'goal').length;
   const chips = bk.goals.length ? `${planned ? dkChip(esc(t('+{amount} a month, as planned', { amount: fmt.money(planned, cur) })), 'go', 'goal-plan') : ''}${dkChip(esc(`${tn(nGoal, '{n} goal', '{n} goals')} · ${tn(nFund, '{n} fund', '{n} funds')}`))}` : dkChip(t('No goals yet'));
   const side = bk.goals.length ? dkGoalSide(ym) : `${dkSideHead('dk-pay-h', t('Your first goal'))}<p class="dk-say">${t('Create a goal with a target, or a fund for money you set aside every month.')}</p><div class="dk-acts"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div>`;
   const hero = dkHero({ label: t('Set aside in goals and funds'), big: total, k: bk.goals.length ? 'goal-saved' : '', chips, side, sideId: 'dk-pay-h', band: dkGoalTimes(goals) });
-  const cards = `${goals.filter(g => g.kind === 'goal').map(dkGoalCard).join('')}${goals.filter(g => g.kind !== 'goal').map(dkGoalCard).join('')}${years.map(dkYearlyCard).join('')}${UI.showClosed ? closed.map(dkGoalCard).join('') : ''}${dkGoalAdd()}`;
+  const cards = `${goals.filter(g => g.kind === 'goal').map(dkGoalCard).join('')}${goals.filter(g => g.kind !== 'goal').map(dkGoalCard).join('')}${dkS52Card()}${years.map(dkYearlyCard).join('')}${UI.showClosed ? closed.map(dkGoalCard).join('') : ''}${dkGoalAdd()}`;
   const more = closed.length ? `<button class="btn ghost" data-a="toggle-closed">${UI.showClosed ? t('Hide completed and archived') : t('Show completed and archived ({n})', { n: closed.length })}</button>` : '';
   const sec = dkSec('goal-cards', t('Goals and funds'), esc(t('A goal has an amount and a date; a fund grows with no date')), more, dkGrid(cards, 300), hint('goalCards'));
   return `${companyNote()}${hero}${dkSheet(`${sec}${dkGoalDist(ym)}${dkFoot(`${t('Your goals are plans; the real money is in your savings accounts.')} <a href="#accounts">${t('See Accounts & savings')}</a>`)}`)}`;

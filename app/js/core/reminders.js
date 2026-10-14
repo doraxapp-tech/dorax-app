@@ -41,6 +41,8 @@ function reminders(state, today, currency, opt) {
   }
   // the journey out of debt (core/journey.js, owner 2026-10-10): yesterday to mark while a sprint runs, a debt's payment coming due, a sprint ending
   if (opt.journey) out.push(...journeyReminders(state, today, currency, lead));
+  // the saving challenges (core/challenges.js, v227): the household's, so a company's book says none
+  if (opt.challenges) out.push(...challengeReminders(state, today));
   // spending limits at 80% and past them (core/budget-alerts.js, owner 2026-10-10)
   if (opt.budgets) out.push(...budgetReminders(state, today, currency));
   return out;

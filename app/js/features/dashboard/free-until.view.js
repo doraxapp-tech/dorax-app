@@ -66,7 +66,7 @@ function freeCard() {
 /** A phone's details: the figure again, then everything behind it; the way to the pay day when there is none. */
 function freeDrawer() {
   const r = freeUntil(S, S.today, CUR); if (!r) return `<div class="body"><p class="note">${t('Add a checking account to see how much you can spend.')}</p></div>`;
-  return `<div class="body fu-view">${fuBig(r)}<p class="fu-say">${fuSay(r)}</p>${fuBar(r)}${bqSheet(`<h3 class="fu-h">${t('How we worked it out')}</h3>${fuSteps(r)}${fuNote()}`)}</div>
+  return `<div class="body fu-view">${fuBig(r)}<p class="fu-say">${fuSay(r)}</p>${fuBar(r)}${bqSheet(`<h3 class="fu-h">${t('How we worked it out')}</h3>${fuSteps(r)}${fuNote()}${nsInvite()}`)}</div>
     ${r.pay ? '' : `<footer><button class="btn primary" data-a="free-pay">${t('Set your pay day')}</button></footer>`}`;
 }
 const FREE_ACTIONS = {

@@ -20,8 +20,9 @@ function phoneGoalsTop(open, closed, ym) {
     <button class="btn primary" data-a="goal-pick" data-dir="in">${icon('coins')}${t('Contribute')}</button>
     <button class="btn" data-a="goal-pick" data-dir="out">${icon('wallet')}${t('Withdraw')}</button></div>`) + `
   <h2 class="sec">${t('Goals and funds')}</h2>
-  <div class="g-list">${open.filter(g => !isYearly(g)).map(goalItem).join('') || `<div class="card"><div class="empty">${t('No active goals.')}</div></div>`}</div>
+  <div class="g-list">${open.filter(g => !isYearly(g) && g.id !== s52GoalId(S)).map(goalItem).join('') || `<div class="card"><div class="empty">${t('No active goals.')}</div></div>`}</div>
   ${closed.length ? `<div><button class="btn sm ghost" data-a="toggle-closed">${UI.showClosed ? t('Hide completed and archived') : t('Show completed and archived ({n})', { n: closed.length })}</button></div>${UI.showClosed ? `<div class="g-list">${closed.map(goalItem).join('')}</div>` : ''}` : ''}
+  ${s52Section()}
   ${yearlySection()}`;
 }
 /** A goal as a card to tap: its name and how it stands against the plan, what is saved (of the target), the bar and how much is left. The date

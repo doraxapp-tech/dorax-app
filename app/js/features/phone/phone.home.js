@@ -8,7 +8,7 @@ function phoneHomeDashboard(d) {
   if (bosqueOn()) return bqHome(d);      // the light theme: the summary "Bosque" (features/phone/bosque.js)
   const { ym, inProgress, fresh } = d;
   return `${firstSteps()}${inProgress ? monthCloseCard() : ''}${inProgress ? '' : d.pastNote}${companyAsk()}${d.openNote}` + phoneParts({
-    free: inProgress ? freeCard() : '', runway: inProgress ? runwayCard() : '', quick: inProgress ? quickRow() : '', insight: inProgress ? phoneInsight() : '', accounts: phoneAccountsCard(),
+    free: inProgress ? freeCard() + nsStrip() : '', runway: inProgress ? runwayCard() : '', quick: inProgress ? quickRow() : '', insight: inProgress ? phoneInsight() : '', accounts: phoneAccountsCard(),
     todo: inProgress ? todoCard(true) : '', goals: inProgress ? goalsDashCard() : '', planned: fresh ? plannedMonthCard(ym) : '',
     categories: fresh ? '' : d.catCard, trend: fresh ? '' : d.trendCard, fii: fresh ? '' : d.fii, recent: fresh ? '' : d.recentCard });
 }

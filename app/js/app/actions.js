@@ -23,6 +23,7 @@ const A = {
   ...SITE_ACTIONS,      // the website's pages before launch: PJ and MEI, the converter, about (features/site, v211)
   ...LIMIT_ACTIONS,      // spending limits by category (features/limits)
   ...YEARLY_ACTIONS,      // what is paid once a year (features/yearly)
+  ...CHALLENGE_ACTIONS,      // the saving challenges: the 52 weeks in Goals, the days without spending on the summary (features/challenges, v227)
   ...MONTH_CLOSE_ACTIONS,      // the close of the month, guided (features/month-close)
   ...PLAN_DESK_ACTIONS,
   ...DESK_ACTIONS,      // the computer's own pages in the summary's look: folds, the year and the plan one click away (features/desk, v203)      // the Plan on a computer: the income and the year one click away (features/plan)

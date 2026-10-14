@@ -14,7 +14,7 @@ const APP = path.join(__dirname, '..', 'app'), OUT = path.join(__dirname, '..', 
 const read = f => fs.readFileSync(path.join(APP, f), 'utf8');
 
 // the calculations a reminder needs, in the order index.html loads them; the readers of files (statements, spreadsheets) are left out
-const CORE = ['js/core/dates.js', 'js/core/reporting.js', 'js/core/books.js', 'js/core/plan.js', 'js/core/payday.js', 'js/core/cards.js', 'js/core/budget-alerts.js', 'js/core/reminders.js', 'js/core/goals.js', 'js/core/runway.js', 'js/core/whatif.js', 'js/core/insights.js', 'js/core/curios.js', 'js/core/journey.js', 'js/core/statements-owed.js', 'js/data/defaults.js'];
+const CORE = ['js/core/dates.js', 'js/core/reporting.js', 'js/core/books.js', 'js/core/plan.js', 'js/core/payday.js', 'js/core/cards.js', 'js/core/budget-alerts.js', 'js/core/reminders.js', 'js/core/goals.js', 'js/core/runway.js', 'js/core/whatif.js', 'js/core/insights.js', 'js/core/curios.js', 'js/core/journey.js', 'js/core/challenges.js', 'js/core/statements-owed.js', 'js/data/defaults.js'];
 const TEXT = ['js/ui/translate.js', 'js/ui/format.js', 'js/features/reminders/reminder-messages.js', 'js/features/reminders/tip-messages.js'];      // tip-messages: the tips by notification (owner, 2026-10-10)
 const order = [...read('index.html').matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
 for (const f of [...CORE, ...TEXT]) if (!order.includes(f)) throw new Error('build-functions: ' + f + ' is not a script of the app (index.html)');

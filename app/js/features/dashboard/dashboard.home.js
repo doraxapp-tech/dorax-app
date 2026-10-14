@@ -28,7 +28,7 @@ function homeTiles(d) {
 // A person who has not finished the first steps sees them before anything else (owner, 2026-10-07: "nothing is more important than that").
 function homeDashboard(d) {
   const { ym, inProgress, fresh } = d;
-  const body = pcParts({ accounts: inProgress && walletOn() ? walletStack() : '', free: inProgress ? freeCard() : '', runway: inProgress ? runwayCard() : '', insight: inProgress ? insightCard() : '', todo: inProgress ? todoCard(true, 4) : '',
+  const body = pcParts({ accounts: inProgress && walletOn() ? walletStack() : '', free: inProgress ? freeCard() + nsStrip() : '', runway: inProgress ? runwayCard() : '', insight: inProgress ? insightCard() : '', todo: inProgress ? todoCard(true, 4) : '',
     goals: inProgress ? goalsDashCard() : '', planned: fresh ? plannedMonthCard(ym) : '', categories: fresh ? '' : d.catCard, trend: fresh ? '' : d.trendCard, fii: fresh ? '' : d.fii, recent: fresh ? '' : d.recentCard });
   return `${greeting(dashOrderBtn())}${firstSteps()}${inProgress ? monthCloseCard() : ''}${homeTiles(d)}${inProgress ? '' : d.pastNote}${companyAsk()}${d.openNote}${body}`;      // the close of last month, in its first days (features/month-close)
 }

@@ -149,7 +149,7 @@ function bqHome(d) {
   const notes = `${firstSteps()}${d.inProgress ? monthCloseCard() : ''}${companyAsk()}${d.openNote}`;
   UI.dashShown = [];      // no "Reorder the dashboard" in this look
   if (!d.inProgress) return `${d.pastNote}${bqAccounts()}${bqHomeMoves()}${notes}`;
-  return `${bqFree()}${bqActions()}${bqAccounts()}${bqTodo()}${bqPair()}${bqHomeMoves()}${phoneInsight()}${notes}`;      // the month's spending and the latest transactions (v195, features/phone/bosque-moves.js)
+  return `${bqFree()}${nsStrip()}${bqActions()}${bqAccounts()}${bqTodo()}${bqPair()}${bqHomeMoves()}${phoneInsight()}${notes}`;      // the month's spending and the latest transactions (v195, features/phone/bosque-moves.js)
 }
 
 // ---------- the bar at the foot: smaller while the page goes down (owner, 2026-10-12: "quiero que esa barra se reduzca en tamaño al hacer scroll

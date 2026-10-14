@@ -64,7 +64,7 @@ function bqDeskHero(d) {
     + stat('spending', t('Spending'), fmt.money(m.expenses, CUR), versus(m.expenses, p.expenses, vsLabel, false))
     + stat('left', t('Left over'), m.income ? fmt.money(m.saved, CUR) : '—', m.income ? (m.rate === null ? t('Income minus spending') : t('{pct} of income', { pct: fmt.pct(m.rate) })) : t('No income recorded yet'), m.income && m.saved < 0 ? 'neg' : '')
     + stat('unpaid', t('Still to pay'), unpaid.length ? fmt.money(sum(unpaid.map(x => x.toPay)), CUR) : '—', unpaid.length ? tn(unpaid.length, '{n} bill', '{n} bills') + (nextDue ? ' · ' + t('next on {date}', { date: fmt.date(nextDue.dueDate) }) : '') : prog.some(x => x.bill && x.planned) ? t('Every bill of the month is paid') : '');
-  return `<section class="bq-dhero"><div class="bq-dh-l">${UI.hello ? bqHello() : ''}<div class="bq-dbal">${barBalance()}</div></div>${inProgress ? `<div class="bq-dh-r">${bqFree()}</div>` : ''}
+  return `<section class="bq-dhero"><div class="bq-dh-l">${UI.hello ? bqHello() : ''}<div class="bq-dbal">${barBalance()}</div></div>${inProgress ? `<div class="bq-dh-r">${bqFree()}${nsStrip()}</div>` : ''}
     <div class="bq-dkpis" role="group" aria-label="${esc(fmt.month(ym))}">${figs}</div>${inProgress ? bqDeskActs() : dashOrderBtn() ? `<div class="bq-dacts">${dashOrderBtn()}</div>` : ''}</section>`;
 }
 /** The greeting, once (v202, owner, 2026-10-12: "el saludo en ordenador quítalo y muéstralo una sola vez cuando el usuario entra a la webapp;

@@ -50,6 +50,7 @@ button.jr-day:active { transform: scale(.93); }
 .jr-sprint { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .jr-sprint.none p { margin: 6px 0 12px; font-size: 14px; color: var(--ink-2); }
 .jr-sh { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.jr-sh .linkbtn { display: inline-flex; align-items: center; min-height: 44px; margin-block: -12px; }      /* “Edit”: a whole tap, the row as low as before (v227) */
 .jr-fig { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; }
 .jr-fig b { font-size: 30px; font-weight: 600; color: var(--ink-strong, #FFFFFF); }
 .jr-fig span { font-size: 16px; color: var(--ink-2); }
@@ -79,23 +80,6 @@ button.jr-day:active { transform: scale(.93); }
 .jr-acts .btn.ico { width: 32px; padding: 0; justify-content: center; }
 .jr-acts .btn.ico svg { width: 15px; height: 15px; }
 :root.app-light .jr-day.on, :root.app-light .jr-day { color: var(--on-dark); }
-
-/* ---------- the saving challenges (v227): two parts of one section, parted by a line ----------
-   Not running: its picture, its name, one line of what it is, its button. Running: the sprint's figure and bar, the one thing to do now. */
-.jr-ch:not(.on) { display: flex; align-items: flex-start; gap: 14px; }
-.jr-ch .grow { min-width: 0; }
-.jr-sh .linkbtn { display: inline-flex; align-items: center; min-height: 44px; margin-block: -12px; }      /* “Leave it”, “Edit”: a whole tap, the row as low as before */
-.jr-ch h4 { margin: 2px 0 4px; font-size: 15px; font-weight: 600; color: var(--ink-strong, var(--ink)); }
-.jr-ch .note { margin: 0 0 10px; }
-.jr-ch + .jr-ch { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
-.jr-ch.on .btn.primary { width: 100%; min-height: 48px; }
-.jr-ch .note.jr-ch-where { margin: 10px 0 0; }
-.jr-ch .jr-ch-where b { font-weight: 500; color: var(--ink); }
-.jr-seen { margin: 0; font-size: 13px; color: var(--ink-2); }
-.jr-pre { margin: 4px 0 14px; font-size: 14px; color: var(--ink-2); }
-.jr-pre b { color: var(--ink-strong, var(--ink)); font-weight: 600; white-space: nowrap; }
-.jr-n-ok { display: flex; align-items: center; gap: 6px; color: var(--brand); }
-.jr-n-ok svg { width: 16px; height: 16px; flex: none; }
 
 /* ---------- the flame lights up on arriving at the summary (owner, 2026-10-10) ----------
    It catches (small, low), flares, sways once each way and settles, its glow rising and easing; about a second. The bar drawn again on the

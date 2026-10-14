@@ -94,6 +94,7 @@ function adoptState(data, rev) {
   anchorCards(S, now);      // a card's day given before its month was kept: from its next due date, whichever way the account arrives (core/cards.js)
   dropLeftLedgers(S);      // what deleting an account left behind before deleting took its whole card (features/accounts/wallet.js)
   if (alignMainCur()) save();      // an account from before v224: the main currency follows its main account when nothing would read differently (ui/lookups.js)
+  if (challengesAdopt(S)) save();      // the challenges of v227's first build, out of the Journey to their own place (core/challenges.js)
   if (SERVER.user && SERVER.user.email) { if (S.user.pendingEmail === SERVER.user.email) S.user.pendingEmail = null; S.user.email = SERVER.user.email; }       // the login's address is the server's to say
 }
 /** Whether the account is saved changed: the top bar says so, and so does Settings if it is the screen in view. Nothing else is drawn

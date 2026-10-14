@@ -1,0 +1,78 @@
+/* Dorax Finance — the saving challenges (features/challenges, v227): the 52 weeks in Goals, the days without spending under "You can spend". */
+
+/* ---------- the 52 weeks, in Goals (a phone and the classic page; a computer's card: goals.desk.js) ---------- */
+.ch-sec { display: flex; flex-direction: column; gap: 10px; }
+.ch-sec .sec { margin-bottom: 0; }
+.ch-card { display: flex; flex-direction: column; gap: 0; padding: 16px; }
+.ch-card.ch-off { flex-direction: row; align-items: flex-start; gap: 14px; }
+.ch-card .grow { min-width: 0; }
+.ch-card .note { margin: 0 0 10px; }
+.ch-art { flex: none; display: block; width: 48px; height: 48px; }
+.ch-art .obj { width: 100%; height: 100%; }
+.ch-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ch-h .linkbtn { display: inline-flex; align-items: center; min-height: 44px; margin-block: -12px; }
+.ch-lab { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.ch-fig { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; }
+.ch-fig b { font-size: 28px; font-weight: 600; color: var(--ink-strong); }
+.ch-fig span { font-size: 15px; color: var(--ink-2); }
+.ch-fig .ch-pct { margin-left: auto; }
+.ch-bar { height: 10px; margin: 10px 0 10px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.ch-bar i { display: block; height: 100%; border-radius: 999px; background: var(--brand); transition: width .5s var(--ease, ease-out); }
+.ch-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ch-acts .btn { min-height: 44px; }
+.ch-acts .btn.primary { flex: 1 1 160px; }
+.ch-pre { margin: 4px 0 14px; font-size: 14px; color: var(--ink-2); }
+.ch-pre b { color: var(--ink-strong); font-weight: 600; white-space: nowrap; }
+.ch-n-ok { display: flex; align-items: center; gap: 6px; color: var(--brand); }
+.ch-n-ok svg { width: 16px; height: 16px; flex: none; }
+.ch-n { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ch-n .note { margin: 0; }
+.ch-n .btn { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .ch-bar i, .ns-bar i { transition: none; } }
+
+/* ---------- the days without spending: a strip under "You can spend" ---------- */
+.ns-strip { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 16px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
+.ns-open { all: unset; box-sizing: border-box; cursor: pointer; flex: 1; min-width: 0; min-height: 44px; display: flex; flex-direction: column; justify-content: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
+.ns-open:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 12px; }
+.ns-t { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.ns-t small { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+.ns-t b { font-size: 14px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.ns-t b .num { font-size: 17px; font-weight: 600; color: var(--ink-strong); }
+.ns-bar { display: block; height: 6px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.ns-bar i { display: block; height: 100%; border-radius: 999px; background: var(--brand); transition: width .5s var(--ease, ease-out); }
+.ns-strip .btn { flex: none; min-height: 44px; }
+.ns-done { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px; font-size: 14px; font-weight: 500; color: var(--brand); }
+.ns-done svg { width: 16px; height: 16px; }
+@media (max-width: 380px) { .ns-strip .ns-mark { padding-inline: 12px; } }
+/* in the summary's look: a card on the page, as the round buttons' bar under it */
+:root.land .ns-strip { background: var(--bq-card); border: 0; box-shadow: inset 0 0 0 1px var(--bq-line); }
+:root.land .ns-t small { color: var(--bq-ink-2); }
+:root.land .ns-t b { color: var(--bq-ink); }
+:root.land .ns-t b .num { color: var(--bq-ink); }
+:root.land .ns-bar, :root.land .ch-bar { background: var(--bq-bar-track); }
+:root.land .ns-bar i, :root.land .ch-bar i { background: var(--bq-accent); }      /* as the goals' bars of this look */
+:root.land .ns-done { color: var(--bq-accent); }
+:root.land #view > .bq-free + .ns-strip { margin-top: -8px; }      /* right under the card, as the buttons were */
+:root.land .bq-dh-r .ns-strip { margin-top: 12px; }      /* a computer: under the lime strip, in the block's right column */
+
+/* ---------- its start, in the details of "You can spend" ---------- */
+.ns-invite { display: flex; align-items: flex-start; gap: 14px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.ns-invite .grow { min-width: 0; }
+.ns-invite h3 { margin: 2px 0 4px; font-size: 15px; font-weight: 600; }
+.ns-invite .note { margin: 0 0 10px; }
+.ns-invite .btn { min-height: 44px; }
+
+/* ---------- its details: every day of it ---------- */
+.ns-view .note { margin: 0 0 12px; }
+.ns-days { list-style: none; margin: 4px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px 4px; justify-items: center; }
+.ns-day { all: unset; box-sizing: border-box; position: relative; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--track); color: var(--ink-2); font-size: 13px; }
+.ns-day svg { width: 18px; height: 18px; stroke-width: 2.6; }
+.ns-day.on { background: var(--brand); color: var(--on-brand); }
+.ns-day.now { background: transparent; box-shadow: inset 0 0 0 2.5px var(--brand); color: var(--ink-strong); }
+.ns-day.past { opacity: .6; }
+.ns-day.next { opacity: .75; }
+button.ns-day { cursor: pointer; }
+button.ns-day::after { content: ""; position: absolute; inset: -4px; }
+button.ns-day:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ns-seen { font-size: 13px; color: var(--ink-2); }
+.ns-go { width: 100%; min-height: 48px; }

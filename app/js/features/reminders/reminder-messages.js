@@ -24,9 +24,9 @@ function reminderSentence(r, CUR) {
     : r.kind === 'past' ? tn(r.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(r.ym) }) + ': ' + r.lines.map(x => x.name).join(', ') + '.'
     : r.kind === 'pay' ? payTitle(r) + ' ' + t('{name}: {amount}. Open Dorax to record it.', { name: r.name, amount: fmt.money(r.amount, CUR) })
     : r.kind === 'handout' ? t('Savings for {month}: {amount} still to hand out.', { month: fmt.month(r.ym), amount: fmt.money(r.amount, CUR) })
-    : r.kind === 'jmark' && r.ns ? (r.streak ? tn(r.streak, 'Days without spending: if you spent nothing yesterday, mark it and keep your {n} day streak.', 'Days without spending: if you spent nothing yesterday, mark it and keep your {n} days streak.') : t('Days without spending: if you spent nothing yesterday, mark it.'))
     : r.kind === 's52' ? (r.behind ? t('52 weeks: put aside {amount} to be up to date (week {n}).', { amount: fmt.money(r.amount, CUR, { trim: true }), n: r.week }) : t('52 weeks, week {n}: put aside {amount}.', { amount: fmt.money(r.amount, CUR, { trim: true }), n: r.week }))
     : r.kind === 'ns' ? t('Your days without spending ended: {a} of {b} days.', { a: r.marked, b: r.length })
+    : r.kind === 'nsmark' ? t('Days without spending: if you spent nothing yesterday, mark it ({a} of {b} days so far).', { a: r.marked, b: r.length })
     : r.kind === 'jmark' ? (r.streak ? tn(r.streak, 'Journey: if you added no debt yesterday, mark it and keep your {n} day streak.', 'Journey: if you added no debt yesterday, mark it and keep your {n} days streak.') : t('Journey: if you added no debt yesterday, mark it.'))
     : r.kind === 'budget' ? (r.when === 'over' ? t('{name}: {amount} over this month’s limit.', { name: r.name, amount: fmt.money(r.amount, CUR) }) : tn(r.daysLeft, '{name}: {pct}% of this month’s limit used; {amount} left for {n} day.', '{name}: {pct}% of this month’s limit used; {amount} left for {n} days.', { name: r.name, pct: r.pct, amount: fmt.money(r.amount, CUR) }))
     : r.kind === 'debt' ? t('{name}: payment of {amount}, due {date} ({when}).', { name: r.name, amount: fmt.money(r.amount, CUR), date: fmt.date(r.date), when: whenText(r) })
@@ -60,7 +60,7 @@ function reminderPush(rs) {
 const reminderKey = r => r.id + '|' + (r.when || r.kind);
 
 /** What the person asked to hear about, read from the account the way the app reads it. */
-const reminderOptions = state => { const u = state.user || {}, n = u.notify || {}, cfg = u.remind || {}; return { ...n, goals: n.goals !== false, pay: n.pay !== false, journey: n.journey !== false, budgets: n.budgets !== false, lead: cfg.lead == null ? 3 : cfg.lead, askDue: cfg.askDue !== false, closeDay: (state.settings || {}).closeDay }; };
+const reminderOptions = state => { const u = state.user || {}, n = u.notify || {}, cfg = u.remind || {}; return { ...n, goals: n.goals !== false, pay: n.pay !== false, journey: n.journey !== false, budgets: n.budgets !== false, challenges: n.challenges !== false, lead: cfg.lead == null ? 3 : cfg.lead, askDue: cfg.askDue !== false, closeDay: (state.settings || {}).closeDay }; };
 
 /** The few texts of a reminder email that are not reminders themselves, and the ones of the "send me a test" messages. */
 const reminderTexts = () => ({
