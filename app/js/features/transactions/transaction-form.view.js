@@ -42,7 +42,7 @@ function cardDebitAcct(card) {
 function cardDebitEnsure(card) {
   const have = cardDebitAcct(card); if (have || !card || card.debitAccountId === 'none') return have;
   const made = { id: newId('a'), name: t('{name} (debit)', { name: card.institution && card.institution !== t('Other') ? card.institution : card.name }), institution: card.institution, type: 'checking', currency: card.currency, scope: card.scope, purpose: '', opening: 0 };
-  S.accounts.push(made); card.debitAccountId = made.id; save(); return made;
+  const snap = mainSnap(); S.accounts.push(made); card.debitAccountId = made.id; if (made.scope !== 'business') followMainCur(snap, 'quiet'); save(); return made;
 }
 /** Credit or debit, under the account, whenever an expense or a payment is on a card (unless the card was set to have no debit). */
 // 2026-10-09 (owner: "if I have a savings account and record an expense, the system takes the money out of my savings: how does it know it was not

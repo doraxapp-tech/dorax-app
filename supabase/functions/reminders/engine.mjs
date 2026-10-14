@@ -118,7 +118,9 @@ function companyCurrencies(state) {
   const books = (state.company || {}).books || {}, used = c => { const b = books[c] || {}; return !!((b.goals || []).length || ((b.plan || {}).lines || []).length || Object.values(b.pay || {}).some(rows => (rows || []).length)); };
   const cs = [...new Set([...state.accounts.filter(a => a.scope === 'business').map(a => a.currency), ...Object.keys(books).filter(used)])];
   if (!cs.length) cs.push(BASE_CURRENCY);
-  return cs.sort((a, b) => a === BASE_CURRENCY ? -1 : b === BASE_CURRENCY ? 1 : a < b ? -1 : a > b ? 1 : 0);
+  // first the company's main account's currency (v224: a side's money is counted in its main account's), else the household's as before
+  const pays = state.accounts.filter(a => a.scope === 'business' && !a.savingsOf && (a.type === 'checking' || a.type === 'cash' || (a.type === 'savings' && a.debitCard))), m = pays.find(a => a.main) || pays[0], first = m ? m.currency : BASE_CURRENCY;
+  return cs.sort((a, b) => a === first ? -1 : b === first ? 1 : a < b ? -1 : a > b ? 1 : 0);
 }
 /** What is kept for the company in one currency. With make, it is started when it is not there yet (the app, on first use); without, the
     answer is null (the server's reminder job reads, it never writes). */
@@ -435,7 +437,23 @@ function reminderScheduleAll(state, today, lead, days) {
 // A goal has a target (and optionally a deadline); a fund is an open-ended envelope. Both carry a monthly plan per year and are filled by
 // recorded movements (contributions > 0, withdrawals < 0). "Saved" is always the sum of movements, never a typed-in number.
 const monthDiff = (a, b) => (+a.slice(0, 4) - +b.slice(0, 4)) * 12 + (+a.slice(5, 7) - +b.slice(5, 7));
-const goalLive = g => g.status === 'active';          // paused, completed and archived goals take no money from the plan
+const goalLive = g => g.status === 'active';
+// ---------- a goal's currency (v224, owner, 2026-10-14: "las metas deben mantenerse en la moneda de la cuenta de ahorro elegida en el dropdown de 'se
+// guarda en'") ----------
+// Each goal is in its savings account's currency, stamped on it (goal.currency) when it is saved, so a change of the main currency leaves it as it is.
+// A book counts with its money only the goals in its own currency: the plan's savings and what is handed out on payday, the free money, the what-if,
+// the month's close, the limits, the reminders. A goal in another currency keeps its own numbers, shown apart, as an account in another currency is.
+// Nothing is converted. A goal saved before v224 is in its book's currency (stampGoalCurrencies, when an account is opened).
+/** The currency a book counts in: a company book's own, the household's main currency. */
+const bookCur = state => state.currency || currencyOf(state);
+const goalCur = (state, g) => (g && CURRENCIES.includes(g.currency) && g.currency) || bookCur(state);
+/** The book's goals in its own currency: the ones its sums count. */
+const goalsHere = state => state.goals.filter(g => goalCur(state, g) === bookCur(state));
+/** Stamps every goal with the currency its numbers were written in, once: the household's then main currency, a company book's own. */
+function stampGoalCurrencies(state) {
+  for (const g of state.goals || []) if (!CURRENCIES.includes(g.currency)) g.currency = currencyOf(state);
+  for (const [cur, b] of Object.entries((state.company || {}).books || {})) for (const g of b.goals || []) if (!CURRENCIES.includes(g.currency)) g.currency = cur;
+}          // paused, completed and archived goals take no money from the plan
 /** Every year the plan covers: income, goals and fixed costs share one list. */
 function goalYears(state) { return [...new Set([...Object.keys(state.pay || {}), ...state.goals.flatMap(g => Object.keys(g.plan)), ...state.plan.lines.flatMap(l => Object.keys(l.plan))])].map(Number).sort((a, b) => a - b); }
 /** A year nobody has planned yet: no goal plan and no fixed costs. */
@@ -449,11 +467,11 @@ const isStartMove = m => !!(m.start || (m.k && m.k.note === 'Starting balance'))
 function goalMonth(state, goalId, ym) { let total = 0; for (const m of state.goalMoves) if (m.goalId === goalId && !isStartMove(m) && ymOf(m.date) === ym) total += m.amount; return total; }
 /** What is left of the income routed to savings after every live goal's plan (the "queda" row of the sheet). */
 function allocRemainder(state, year) {
-  return Array.from({ length: 12 }, (_, m) => sum(payRows(state, year, 'savings').map(r => r.values[m] || 0)) - sum(state.goals.filter(goalLive).map(g => (g.plan[year] || [])[m] || 0)));
+  return Array.from({ length: 12 }, (_, m) => sum(payRows(state, year, 'savings').map(r => r.values[m] || 0)) - sum(goalsHere(state).filter(goalLive).map(g => (g.plan[year] || [])[m] || 0)));
 }
 /** One month's hand-out of the savings payment: plan and what has already been recorded, per goal. */
 function distribution(state, ym) {
-  const rows = state.goals.filter(goalLive).map(g => { const planned = goalPlan(g, ym), done = goalMonth(state, g.id, ym); return { goal: g, planned, done, pending: Math.max(0, planned - done) }; });
+  const rows = goalsHere(state).filter(goalLive).map(g => { const planned = goalPlan(g, ym), done = goalMonth(state, g.id, ym); return { goal: g, planned, done, pending: Math.max(0, planned - done) }; });
   const income = payTotal(state, ym, 'savings'), planned = sum(rows.map(r => r.planned)), done = sum(rows.map(r => r.done));
   return { income, rows, planned, done, pending: sum(rows.map(r => r.pending)), remainder: income - planned };
 }
@@ -672,7 +690,7 @@ function monthlyBurn(state, today, currency) {
 function cushion(state, currency, upTo) {
   const accts = state.accounts.filter(a => (a.scope === 'business') === (state.scope === 'business') && a.currency === currency && a.type === 'savings');
   const inAccounts = Math.max(0, sum(accts.map(a => accountBalance(state, a.id, upTo))));
-  const inGoals = Math.max(0, sum(state.goals.filter(g => g.status !== 'archived').map(g => goalSaved(state, g.id, upTo ? ymOf(upTo) : null))));
+  const inGoals = Math.max(0, sum(goalsHere(state).filter(g => g.status !== 'archived').map(g => goalSaved(state, g.id, upTo ? ymOf(upTo) : null))));
   return inAccounts >= inGoals ? { amount: inAccounts, basis: 'accounts' } : { amount: inGoals, basis: 'goals' };
 }
 /** Days of freedom today: how long what is put aside lasts at the pace money goes out.
@@ -730,7 +748,8 @@ const INSIGHT_MIN = 1000;        // a difference under R$ 10 is not worth a sent
 const INSIGHT_MOVE = 3000;       // a category has to move R$ 30 and 10% to be "the one that moved" (the report's rule, core/observations.js)
 
 /** What was put into goals and funds in a month, withdrawals taken off. A starting balance is no contribution. */
-function asideIn(state, ym) { return sum(state.goalMoves.filter(m => !isStartMove(m) && ymOf(m.date) === ym).map(m => m.amount)); }
+// only the goals in the book's currency, as what came in it is counted in (v224: core/goals.js, goalsHere)
+function asideIn(state, ym) { const here = new Set(goalsHere(state).map(g => g.id)); return sum(state.goalMoves.filter(m => here.has(m.goalId) && !isStartMove(m) && ymOf(m.date) === ym).map(m => m.amount)); }
 
 /** Every insight that is true today, in the order of INSIGHT_KINDS: [{ kind, ...figures }]. */
 function insights(state, today, currency) {
@@ -756,7 +775,7 @@ function insights(state, today, currency) {
 
   // the goal reached first
   let near = null;
-  for (const g of state.goals) {
+  for (const g of goalsHere(state)) {
     const a = goalArrival(state, g, today); if (!a) continue;
     if (!near || a.ym < near.a.ym) near = { g, a };
   }
@@ -849,7 +868,8 @@ function closeDue(ym, day) { return isoDate(addMonths(ym, 1), day || 15); }
     cubana))"): the currency its totals, its plan and its goals are in. A setting (S.settings.currency), reais when never chosen. Accounts in another
     currency are shown apart, as before, and nothing is ever converted. BASE_CURRENCY follows the setting: in the app before every drawing and when it
     changes (syncCurrency, ui/rows.js), on the server when the reminder job opens an account (tools/build-functions.js). */
-const CURRENCIES = ['BRL', 'USD', 'EUR', 'CUP'];
+// v224 (owner, 2026-10-14: "sí" to MLC): the Cuban freely convertible currency, an account's own, since a Cuban bank keeps accounts in CUP and in MLC
+const CURRENCIES = ['BRL', 'USD', 'EUR', 'CUP', 'MLC'];
 const currencyOf = st => { const c = st && st.settings && st.settings.currency; return CURRENCIES.includes(c) ? c : 'BRL'; };
 let BASE_CURRENCY = 'BRL';
 
@@ -920,6 +940,24 @@ const BANK_CODES = { 'Banco do Brasil': '001', 'Santander': '033', 'Inter': '077
   'PicPay': '380', 'BTG Pactual': '208', 'XP': '348', 'Sicredi': '748', 'Agibank': '121', 'Banco BV': '655',
   // Spain: each bank's entity code (Banco de España). The three Cuban banks have none here: the file names them by their own name.
   'Unicaja': '2103', 'Deutsche Bank': '0019', 'Banco Sabadell': '0081', 'BBVA': '0182', 'CaixaBank': '2100', 'Abanca': '2080' };
+/** A bank's code in a country other than its first: Santander in Spain (Banco de España). */
+const BANK_CODES_AT = { 'Santander@ES': '0049' };
+/** Where each bank in the list is (v224, owner, 2026-10-14: "la lista de bancos separa la lista de los dropdowns en toda la app por continente o país
+    y una línea al lado para que no se mezclen"): the bank lists are grouped by it, and a new account takes its country's currency ("si el usuario
+    selecciona un banco cubano al crear la cuenta pues la moneda de ese banco es CUP"). Wise works in many currencies: it proposes none. */
+const BANK_PLACES = { 'Nubank': 'BR', 'Banco do Brasil': 'BR', 'Mercado Pago': 'BR', 'Santander': ['BR', 'ES'], 'Itaú': 'BR', 'Bradesco': 'BR', 'Caixa': 'BR', 'Inter': 'BR', 'C6 Bank': 'BR',
+  'PicPay': 'BR', 'BTG Pactual': 'BR', 'XP': 'BR', 'Sicredi': 'BR', 'Agibank': 'BR', 'Banco BV': 'BR', 'Banco Metropolitano': 'CU', 'BPA': 'CU', 'BANDEC': 'CU',
+  'Unicaja': 'ES', 'Banco Sabadell': 'ES', 'BBVA': 'ES', 'CaixaBank': 'ES', 'Abanca': 'ES', 'Deutsche Bank': 'DE', 'Wise': 'INT' };
+// A bank in more than one country is in each one's group (owner, 2026-10-14: "Santander también está en España, Europa"); the account keeps the
+// country it was chosen in (account.place: its currency, its code in a file), the first one when it was made before v224.
+const PLACE_ORDER = ['BR', 'CU', 'ES', 'DE', 'INT'];
+const PLACE_CUR = { BR: 'BRL', CU: 'CUP', ES: 'EUR', DE: 'EUR' };
+const bankPlaces = name => [].concat(BANK_PLACES[name] || []);
+/** The currency a bank's new account starts in: the country's it was chosen in (else the bank's first), or none (Wise, a bank the app does not know). */
+const bankCur = (name, place) => PLACE_CUR[bankPlaces(name).includes(place) ? place : bankPlaces(name)[0]] || null;
+/** A bank and its country as one value, in a list where the bank is in more than one ("Santander@ES"); a bank's first country is its name alone. */
+const bankPick = (name, place) => place && bankPlaces(name).length > 1 && place !== bankPlaces(name)[0] ? name + '@' + place : name;
+const bankUnpick = v => { const [name, place] = String(v || '').split('@'); return { name, place: bankPlaces(name).includes(place) ? place : bankPlaces(name)[0] || null }; };
 const BANKS = ['Nubank', 'Banco do Brasil', 'Mercado Pago', 'Santander', 'Wise', 'Itaú', 'Bradesco', 'Caixa', 'Inter', 'C6 Bank', 'PicPay', 'BTG Pactual', 'XP', 'Sicredi', 'Agibank', 'Banco BV', 'Banco Metropolitano', 'BPA', 'BANDEC', 'Unicaja', 'Deutsche Bank', 'Banco Sabadell', 'BBVA', 'CaixaBank', 'Abanca'];
 
 /** A new account: a few everyday groups in the person's language, no accounts, no fixed costs, no income, no goals, no investments.
@@ -963,9 +1001,9 @@ const firstName = s => String(s == null ? '' : s).trim().split(/\s+/)[0] || '';
 /** (i): a small button beside a figure that may need explaining. Hover, keyboard focus or a tap shows the text; a screen reader reads it as the button's name. */
 const info = text => `<button type="button" class="hint" data-tip="${esc(text)}" aria-label="${esc(text)}">${icon('info')}</button>`;
 /** A currency by name, in the words of a sentence ("in reais", "en dólares") and in a list to choose from ("Real brasileño (R$)"). */
-const curName = c => t({ BRL: 'reais', USD: 'dollars', EUR: 'euros', CUP: 'Cuban pesos' }[c] || c);
-const curLong = c => `${t({ BRL: 'Brazilian real', USD: 'US dollar', EUR: 'Euro', CUP: 'Cuban peso' }[c] || c)} (${SYMBOL[c] || c})`;
-const SYMBOL = { BRL: 'R$', USD: 'US$', EUR: '€', CUP: 'CUP' };      // the Cuban peso by its code: "$" alone would read as dollars beside US$ (v205)
+const curName = c => t({ BRL: 'reais', USD: 'dollars', EUR: 'euros', CUP: 'Cuban pesos', MLC: 'MLC' }[c] || c);
+const curLong = c => `${t({ BRL: 'Brazilian real', USD: 'US dollar', EUR: 'Euro', CUP: 'Cuban peso', MLC: 'Freely convertible currency' }[c] || c)} (${SYMBOL[c] || c})`;
+const SYMBOL = { BRL: 'R$', USD: 'US$', EUR: '€', CUP: 'CUP', MLC: 'MLC' };      // the Cuban peso by its code: "$" alone would read as dollars beside US$ (v205)
 const MONTH_NAMES = {
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],

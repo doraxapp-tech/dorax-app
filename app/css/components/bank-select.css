@@ -1,0 +1,37 @@
+/* Dorax Finance — the bank lists grouped by country (v224, owner, 2026-10-14: "la lista de bancos separa la lista de los dropdowns en toda la app por
+   continente o país y una línea al lado para que no se mezclen y sean más fácil de seleccionar"; js/ui/lookups.js: bankOptions).
+   Where the browser lets a page draw a dropdown's list (Chrome and Edge since 2025), the list is the app's: a card, each country's name small with
+   a line beside it, the banks under it, the chosen one in the main button's colour. Elsewhere (an iPhone, Firefox) the system's own list shows the
+   countries as its sections; nothing below applies there. */
+@supports (appearance: base-select) {
+  select.bank-sel, select.bank-sel::picker(select) { appearance: base-select; }
+  select.bank-sel { display: flex; align-items: center; gap: 8px; }
+  /* the same chevron as the other dropdowns, turned up while the list is open */
+  select.bank-sel::picker-icon { content: ""; width: 6px; height: 6px; margin: -4px 0 0 auto; border: solid currentColor; border-width: 0 2.2px 2.2px 0; rotate: 45deg; color: var(--ink); transition: rotate var(--t1, .15s) ease-out, margin var(--t1, .15s) ease-out; }
+  select.bank-sel:open::picker-icon { rotate: 225deg; margin-top: 4px; }
+  select.bank-sel::picker(select) { max-height: min(420px, 60dvh); margin-top: 6px; padding: 6px; border: 0; border-radius: 18px; overflow-y: auto;
+    background: var(--bq-card, var(--surface)); color: var(--bq-ink, var(--ink)); box-shadow: 0 0 0 1px var(--bq-line, var(--line)), 0 14px 36px rgba(0, 0, 0, .22); }
+  /* a country: its name, a line beside it */
+  select.bank-sel optgroup { font-weight: 400; }
+  select.bank-sel optgroup legend { display: flex; align-items: center; gap: 10px; padding: 12px 10px 4px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--bq-ink-2, var(--ink-2)); }
+  select.bank-sel optgroup legend::after { content: ""; flex: 1; height: 1px; background: var(--bq-line, var(--line-strong)); }
+  select.bank-sel optgroup:first-of-type legend { padding-top: 6px; }
+  select.bank-sel hr { display: none; }      /* the line beside each name parts the countries */
+  select.bank-sel hr.bk-end { display: block; margin: 8px 10px; border: 0; border-top: 1px solid var(--bq-line, var(--line-strong)); }
+  /* a bank: a row to tap, the chosen one marked */
+  select.bank-sel option { min-height: 44px; padding: 0 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 15px; }
+  select.bank-sel option:hover, select.bank-sel option:focus-visible { background: var(--bq-card-2, var(--surface-2)); outline: none; }
+  select.bank-sel option:checked { background: var(--lk-pop, var(--select)); color: var(--lk-pop-ink, var(--select-ink)); font-weight: 600; }
+  select.bank-sel option::checkmark { color: inherit; }
+}
+@media (prefers-reduced-motion: reduce) { select.bank-sel::picker-icon { transition: none; } }
+/* the logos (owner, 2026-10-14: "agrega los logos de los bancos a los dropdowns para que sean más escaneables"): round, as on the accounts */
+@supports (appearance: base-select) {
+  select.bank-sel .bk-logo { flex: none; width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(128, 128, 128, .28); }
+  select.bank-sel .bk-logo.none { display: inline-block; background: var(--bq-card-2, var(--surface-2)); }
+  select.bank-sel option { gap: 12px; }
+  /* the closed field: the chosen bank's logo and name, and the chevron */
+  select.bank-sel > button.bk-now { all: unset; display: flex; align-items: center; flex: 1; min-width: 0; }
+  select.bank-sel selectedcontent { display: flex; align-items: center; gap: 10px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  select.bank-sel selectedcontent .bk-logo { width: 22px; height: 22px; }
+}

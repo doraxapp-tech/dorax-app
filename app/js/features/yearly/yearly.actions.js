@@ -34,7 +34,9 @@ const YEARLY_ACTIONS = {
     const nowYm = ymOf(B().today);
     const g = d.isNew ? { id: newId('g'), status: 'active', kind: 'goal', plan: {}, note: '', yearly: { idea: x.idea || null } } : goalById(x.id);
     const moved = !d.isNew && g.yearly.month !== m;
-    Object.assign(g, { name: x.name.trim(), target: cost, accountId: x.accountId }); g.yearly.month = m;
+    // its currency: its savings account's, kept once there is money in it (v224, as a goal's: goals.actions.js)
+    const keeps = !d.isNew && B().goalMoves.some(k => k.goalId === g.id), ac = acct(x.accountId).currency;
+    Object.assign(g, { name: x.name.trim(), target: cost, accountId: x.accountId, currency: keeps ? gCur(g) : CURRENCIES.includes(ac) ? ac : bookCur(B()) }); g.yearly.month = m;
     if (d.isNew || moved) g.deadline = yearlyDueFrom(m, B().today);
     if (d.isNew) {
       B().goals.push(g);
@@ -73,14 +75,14 @@ const YEARLY_ACTIONS = {
     tx.fingerprint = fingerprint(tx.accountId, tx.date, tx.merchant, tx.amount); S.transactions.push(tx); S.transactions.sort((p, q) => p.date < q.date ? 1 : p.date > q.date ? -1 : 0);
     // 3. next year's
     g.yearly.cat = x.cat || null; yearlyRoll(g, paid, B().today);
-    flash(g.id); toast(t('{name} paid. Next year’s has started: {amount} a month.', { name: g.name, amount: fmt.money(goalPlan(g, addMonths(ymOf(B().today), 1)), BCUR(), { trim: true }) }));
+    flash(g.id); toast(t('{name} paid. Next year’s has started: {amount} a month.', { name: g.name, amount: fmt.money(goalPlan(g, addMonths(ymOf(B().today), 1)), gCur(g), { trim: true }) }));
     UI.drawer = { kind: 'yearly-view', title: g.name, id: g.id }; UI.dist = null; render();
   },
   'yearly-delete'() {
     const g = goalById(UI.drawer.draft.id); if (!g) return;
     const saved = goalSaved(B(), g.id);
     confirmBox({ title: t('Delete {name}?', { name: g.name }), label: t('Delete'),
-      text: saved > 0 ? t('Dorax stops planning it. The {amount} you set aside stay in your savings account.', { amount: fmt.money(saved, BCUR(), { trim: true }) }) : t('Dorax stops planning it.'),
+      text: saved > 0 ? t('Dorax stops planning it. The {amount} you set aside stay in your savings account.', { amount: fmt.money(saved, gCur(g), { trim: true }) }) : t('Dorax stops planning it.'),
       run() { const gone = new Set(B().goalMoves.filter(m => m.goalId === g.id).map(m => m.id)); S.transactions.forEach(k => { if (gone.has(k.goalMoveId)) delete k.goalMoveId; });
         B().goals = B().goals.filter(k => k !== g); B().goalMoves = B().goalMoves.filter(m => m.goalId !== g.id); UI.drawer = null; UI.dist = null; toast(t('{name} deleted.', { name: g.name })); render(); } });
   },

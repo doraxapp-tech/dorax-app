@@ -3,7 +3,23 @@
 // A goal has a target (and optionally a deadline); a fund is an open-ended envelope. Both carry a monthly plan per year and are filled by
 // recorded movements (contributions > 0, withdrawals < 0). "Saved" is always the sum of movements, never a typed-in number.
 const monthDiff = (a, b) => (+a.slice(0, 4) - +b.slice(0, 4)) * 12 + (+a.slice(5, 7) - +b.slice(5, 7));
-const goalLive = g => g.status === 'active';          // paused, completed and archived goals take no money from the plan
+const goalLive = g => g.status === 'active';
+// ---------- a goal's currency (v224, owner, 2026-10-14: "las metas deben mantenerse en la moneda de la cuenta de ahorro elegida en el dropdown de 'se
+// guarda en'") ----------
+// Each goal is in its savings account's currency, stamped on it (goal.currency) when it is saved, so a change of the main currency leaves it as it is.
+// A book counts with its money only the goals in its own currency: the plan's savings and what is handed out on payday, the free money, the what-if,
+// the month's close, the limits, the reminders. A goal in another currency keeps its own numbers, shown apart, as an account in another currency is.
+// Nothing is converted. A goal saved before v224 is in its book's currency (stampGoalCurrencies, when an account is opened).
+/** The currency a book counts in: a company book's own, the household's main currency. */
+const bookCur = state => state.currency || currencyOf(state);
+const goalCur = (state, g) => (g && CURRENCIES.includes(g.currency) && g.currency) || bookCur(state);
+/** The book's goals in its own currency: the ones its sums count. */
+const goalsHere = state => state.goals.filter(g => goalCur(state, g) === bookCur(state));
+/** Stamps every goal with the currency its numbers were written in, once: the household's then main currency, a company book's own. */
+function stampGoalCurrencies(state) {
+  for (const g of state.goals || []) if (!CURRENCIES.includes(g.currency)) g.currency = currencyOf(state);
+  for (const [cur, b] of Object.entries((state.company || {}).books || {})) for (const g of b.goals || []) if (!CURRENCIES.includes(g.currency)) g.currency = cur;
+}          // paused, completed and archived goals take no money from the plan
 /** Every year the plan covers: income, goals and fixed costs share one list. */
 function goalYears(state) { return [...new Set([...Object.keys(state.pay || {}), ...state.goals.flatMap(g => Object.keys(g.plan)), ...state.plan.lines.flatMap(l => Object.keys(l.plan))])].map(Number).sort((a, b) => a - b); }
 /** A year nobody has planned yet: no goal plan and no fixed costs. */
@@ -17,11 +33,11 @@ const isStartMove = m => !!(m.start || (m.k && m.k.note === 'Starting balance'))
 function goalMonth(state, goalId, ym) { let total = 0; for (const m of state.goalMoves) if (m.goalId === goalId && !isStartMove(m) && ymOf(m.date) === ym) total += m.amount; return total; }
 /** What is left of the income routed to savings after every live goal's plan (the "queda" row of the sheet). */
 function allocRemainder(state, year) {
-  return Array.from({ length: 12 }, (_, m) => sum(payRows(state, year, 'savings').map(r => r.values[m] || 0)) - sum(state.goals.filter(goalLive).map(g => (g.plan[year] || [])[m] || 0)));
+  return Array.from({ length: 12 }, (_, m) => sum(payRows(state, year, 'savings').map(r => r.values[m] || 0)) - sum(goalsHere(state).filter(goalLive).map(g => (g.plan[year] || [])[m] || 0)));
 }
 /** One month's hand-out of the savings payment: plan and what has already been recorded, per goal. */
 function distribution(state, ym) {
-  const rows = state.goals.filter(goalLive).map(g => { const planned = goalPlan(g, ym), done = goalMonth(state, g.id, ym); return { goal: g, planned, done, pending: Math.max(0, planned - done) }; });
+  const rows = goalsHere(state).filter(goalLive).map(g => { const planned = goalPlan(g, ym), done = goalMonth(state, g.id, ym); return { goal: g, planned, done, pending: Math.max(0, planned - done) }; });
   const income = payTotal(state, ym, 'savings'), planned = sum(rows.map(r => r.planned)), done = sum(rows.map(r => r.done));
   return { income, rows, planned, done, pending: sum(rows.map(r => r.pending)), remainder: income - planned };
 }

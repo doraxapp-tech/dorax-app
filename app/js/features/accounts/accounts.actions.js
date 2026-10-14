@@ -4,7 +4,7 @@ const ACCOUNTS_ACTIONS = {
   /** "Add account" from a message that needed one (needAccount, ui/lookups.js) or from the quick things to do: the account form, for the side in use. */
   'account-add'() {
     const co = UI.space === 'business'; UI.sheet = false; if (UI.toast && UI.toast.action && UI.toast.action.a === 'account-add') hideToast();
-    ACCOUNTS_ACTIONS['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : BASE_CURRENCY });
+    ACCOUNTS_ACTIONS['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : undefined });      // the household's new account takes its bank's currency (v224)
     const el = $('a-name'); if (el) el.focus();
   },
   'edit-account'(ds) {
@@ -14,7 +14,7 @@ const ACCOUNTS_ACTIONS = {
     const cr = a && cardCredit(a), credit = cr ? { hasCredit: true, creditId: cr.id, creditLimitText: cr.creditLimit ? plain(cr.creditLimit) : '', creditDue: cardNextDue(cr, S.today), creditOwedText: plain(Math.max(0, -cr.opening || 0)) } : {};
     // the main account is turned on in another account, never off: there is always one (owner, 2026-10-09: "only one can be main")
     const scope = a ? a.scope : ds.scope === 'business' || (!ds.scope && UI.space === 'business') ? 'business' : 'personal', mainNow = a ? mainOf(a.scope) === a : !mainOf(scope);
-    UI.drawer = { kind: 'account', title: a ? t('Edit account') : t('Add account'), isNew: !a, mainNow, draft: a ? { ...a, main: mainNow, ...credit, ...spend, monthly: owesStatement(a), openingText: plain(a.opening || 0), limitText: a.creditLimit ? plain(a.creditLimit) : '', dueDate: cardNextDue(a, S.today) } : { id: null, name: '', institution: BANKS[0], type: ds.type === 'savings' ? 'savings' : 'checking', currency: ds.cur || BASE_CURRENCY, scope: ds.scope === 'business' || (!ds.scope && UI.space === 'business') ? 'business' : 'personal', purpose: '', openingText: '', limitText: '', main: mainNow } };      // Plan and Goals ask for a company account in their currency (companyNote)
+    UI.drawer = { kind: 'account', title: a ? t('Edit account') : t('Add account'), isNew: !a, mainNow, draft: a ? { ...a, main: mainNow, ...credit, ...spend, monthly: owesStatement(a), openingText: plain(a.opening || 0), limitText: a.creditLimit ? plain(a.creditLimit) : '', dueDate: cardNextDue(a, S.today) } : { id: null, name: '', institution: BANKS[0], type: ds.type === 'savings' ? 'savings' : 'checking', currency: ds.cur || bankCur(BANKS[0]) || BASE_CURRENCY, curSet: !!ds.cur, scope: ds.scope === 'business' || (!ds.scope && UI.space === 'business') ? 'business' : 'personal', purpose: '', openingText: '', limitText: '', main: mainNow } };      // Plan and Goals ask for a company account in their currency (companyNote)
     renderOverlay();
   },
   'save-account'() {
@@ -49,10 +49,13 @@ const ACCOUNTS_ACTIONS = {
     if (withSpend && spendOpen === null) return fail(t('Enter the opening balance as a number, for example 1500,00.'), 'a-sopen');
     if (!withSpend && oldSp && S.transactions.some(x => x.accountId === oldSp.id)) return fail(t('The card’s debit has transactions: delete or move them first.'));
     const was = S.accounts.find(x => x.id === a.id);      // switched on here, the account counts from last month, the one due now; one already on the list keeps its first month
-    const next = { id: a.id || newId('a'), dueDay: a.type === 'credit' && due ? due : undefined, dueFrom: a.type === 'credit' && due ? ymOf(dd) : undefined, debitAccountId: debit, name: a.name.trim(), institution: a.institution, type: a.type, currency: a.currency, scope: a.scope, monthly: !!a.monthly, monthlySince: a.monthly ? (was && owesStatement(was) ? was.monthlySince : addMonths(ymOf(S.today), -1)) : undefined, monthlyAsked: a.monthlyAsked || !!a.monthly || undefined, purpose: (a.purpose || '').trim(), opening, creditLimit: a.type === 'credit' ? typedAmount(a.limitText || '') || 0 : undefined, debitCard: a.type === 'savings' ? !!a.debitCard : undefined };
+    const next = { id: a.id || newId('a'), dueDay: a.type === 'credit' && due ? due : undefined, dueFrom: a.type === 'credit' && due ? ymOf(dd) : undefined, debitAccountId: debit, name: a.name.trim(), institution: a.institution, place: bankPlaces(a.institution).length > 1 ? a.place || bankPlaces(a.institution)[0] : undefined, type: a.type, currency: a.currency, scope: a.scope, monthly: !!a.monthly, monthlySince: a.monthly ? (was && owesStatement(was) ? was.monthlySince : addMonths(ymOf(S.today), -1)) : undefined, monthlyAsked: a.monthlyAsked || !!a.monthly || undefined, purpose: (a.purpose || '').trim(), opening, creditLimit: a.type === 'credit' ? typedAmount(a.limitText || '') || 0 : undefined, debitCard: a.type === 'savings' ? !!a.debitCard : undefined };
+    // the main currency follows the main account (v224): told in the form when it is this one; otherwise it follows only while the plan is empty
+    const snap = mainSnap(), told = a.scope !== 'business' && a.main && canBeMain({ type: a.type, debitCard: a.debitCard }) && CURRENCIES.includes(a.currency) && a.currency !== currencyOf(S);
     const prev = S.accounts.find(x => x.id === next.id);
     if (prev) Object.assign(prev, next); else S.accounts.push(next);
     const saved = prev || next; if (a.main && canBeMain(saved)) setMain(saved, true); else if (saved.main) delete saved.main;      // one main account per side
+    const curNow = told ? followMainCur(snap) : followMainCur(snap, 'quiet'), curStill = !curNow && mainSnap() !== snap && homeMainCur() && homeMainCur() !== currencyOf(S);
     if (cr) {      // the invoice's ledger: named after the account, at its bank, side and currency, linked to it
       const base = { name: t('{name} (credit)', { name: next.name }), institution: next.institution, type: 'credit', currency: next.currency, scope: next.scope, debitAccountId: next.id, purpose: '' };
       if (oldCr) Object.assign(oldCr, { debitAccountId: next.id }, cr); else S.accounts.push({ id: newId('a'), ...base, ...cr });      // one already there keeps its name
@@ -64,7 +67,7 @@ const ACCOUNTS_ACTIONS = {
     if (next.scope === 'business' && S.user.company !== true) S.user.company = true;      // adding the company's account answers the dashboard's question (features/ahead)
     const back = UI.drawer.back; UI.drawer = back || null;      // opened from the goal form: back to it, with the new savings account chosen
     if (back && back.draft && next.type === 'savings') back.draft.accountId = next.id;
-    toast(prev ? t('Account saved.') : t('Account added.')); render();
+    toast((prev ? t('Account saved.') : t('Account added.')) + (curNow ? ' ' + t('Your money is counted in {currency}.', { currency: curName(curNow) }) : curStill ? ' ' + t('Your money is still counted in {currency}: you can change it in Settings.', { currency: curName(currencyOf(S)) }) : '')); render();
   },
   'acct-back'() { UI.drawer = UI.drawer.back; renderOverlay(); },
   'delete-account'() {

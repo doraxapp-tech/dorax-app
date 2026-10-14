@@ -11,6 +11,15 @@ const C = {
     if (!UI.drawer || !UI.drawer.draft) return;      // a field whose panel was just closed (saved with Enter): its last change has nowhere to go
     const d = UI.drawer.draft; d[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value;
     if (UI.drawer.kind === 'tx') { txTouched(el.dataset.k); if (el.dataset.k === 'type') txKind(d); if (el.dataset.k === 'accountId') { delete d.viaCard; txKind(d); } }      // an account chosen by hand: no card behind it any more
+    // an account's bank gives it its country's currency (v224, owner: "si el usuario selecciona un banco cubano al crear la cuenta pues la moneda de ese
+    // banco es CUP"), unless the currency was chosen by hand in this form or is fixed by the account's transactions
+    if (UI.drawer.kind === 'account' && el.dataset.k === 'currency') d.curSet = true;
+    if (UI.drawer.kind === 'account' && el.dataset.k === 'institution') {      // the bank and the country it was chosen in ("Santander@ES": a bank in two)
+      const b = bankUnpick(el.value); d.institution = b.name; d.place = b.place || undefined;
+      // only a new account: an account already kept keeps its currency (its card's ledgers and goals are in it); a bank with no country (Wise,
+      // "Other", one typed in a file) gives the household's main currency
+      if (UI.drawer.isNew && !d.curSet) d.currency = bankCur(b.name, b.place) || (d.scope === 'business' ? d.currency : BASE_CURRENCY);
+    }
     if (el.dataset.k === 'accountId' && d.transferAccountId === el.value) d.transferAccountId = null;
     if (el.dataset.k === 'accountId' && UI.drawer.kind === 'line-pay') delete d.viaCard;      // a payment's account chosen by hand: no card behind it any more
     if (el.dataset.rerender && (el.tagName === 'SELECT' || d.splits || el.dataset.rerender === 'always')) renderOverlayKeepFocus();
@@ -36,7 +45,7 @@ const C = {
   'dist-val'(el) { distDraft(S.month).vals[el.dataset.id] = el.value; render(); },
   'dist-date'(el) { distDraft(S.month).date = el.value; },
   'dist-from'(el) { distDraft(S.month).fromId = el.value; },
-  'acct-main'(el) { const a = acct(el.dataset.id); if (!a || !el.checked) return; setMain(a, true); toast(t('{name} is now the main account.', { name: a.name })); render(); },      // features/accounts
+  'acct-main'(el) { const a = acct(el.dataset.id); if (!a || !el.checked) return; makeMain(a); },      // the main currency follows it (v224, ui/lookups.js)      // features/accounts
   'draft-ym'(el) {
     const d = UI.drawer.draft, k = el.dataset.k, cur = d[k] || '', m = el.dataset.part === 'm' ? el.value : cur.slice(5, 7), y = el.dataset.part === 'y' ? el.value : (cur.slice(0, 4) || S.today.slice(0, 4));
     d[k] = m ? y + '-' + m : ''; renderOverlayKeepFocus();

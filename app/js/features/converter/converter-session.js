@@ -6,7 +6,7 @@ function profileFor(accountId) {
   const own = S.ofxProfiles.find(p => p.forAccount === accountId); if (own) return own.id;
   const a = acct(accountId), base = S.ofxProfiles.find(p => p.id === S.settings.defaultProfile) || S.ofxProfiles[0] || OFX_BASE, ver = OFX_VERSIONS.find(v => v.id === base.version) || OFX_VERSIONS[0];
   const slug = s => normalizeText(s || '').toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const p = { id: 'p-' + accountId, name: a.name, version: ver.id, currency: a.currency, bankId: BANK_CODES[a.institution] || slug(a.institution) || 'BANK', branchId: '', accountId: slug(a.name) || 'ACCOUNT',
+  const p = { id: 'p-' + accountId, name: a.name, version: ver.id, currency: a.currency, bankId: BANK_CODES_AT[a.institution + '@' + a.place] || BANK_CODES[a.institution] || slug(a.institution) || 'BANK', branchId: '', accountId: slug(a.name) || 'ACCOUNT',
     accountType: a.type === 'credit' ? 'CREDITCARD' : a.type === 'savings' ? 'SAVINGS' : 'CHECKING', institutionName: a.institution && a.institution !== t('Other') ? a.institution : '', institutionId: '', language: base.language || 'POR', transferMapping: base.transferMapping || 'SIGN', forAccount: accountId };
   S.ofxProfiles.push(p); if (!S.settings.defaultProfile) S.settings.defaultProfile = p.id;
   return p.id;

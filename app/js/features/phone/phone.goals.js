@@ -8,8 +8,9 @@
 
 /** The top of the screen: the total, the month's three figures as a row to swipe, the three actions, the goals as cards to tap. */
 function phoneGoalsTop(open, closed, ym) {
-  const d = distribution(B(), ym), total = sum(B().goals.filter(g => g.status !== 'archived').map(g => goalSaved(B(), g.id))), bare = fmt.month(ym, 'bare');
-  return bqHero(`<section class="card g-total tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<span class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</span><span class="value num">${fmt.money(total, BCUR())}</span></section>
+  const d = distribution(B(), ym), total = goalSumsBig(B().goals.filter(g => g.status !== 'archived'), g => goalSaved(B(), g.id)),      // each currency apart (v224)
+    bare = fmt.month(ym, 'bare');
+  return bqHero(`<section class="card g-total tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<span class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</span><span class="value num">${total}</span></section>
   <section class="kpis g-mini" aria-label="${fmt.month(ym)}">
     ${statTile(t('Plan for {month}', { month: bare }), fmt.money(d.planned, BCUR()), '', '', '', 'goal-plan')}
     ${statTile(t('Recorded in {month}', { month: bare }), fmt.money(d.done, BCUR()), '', '', '', 'goal-done')}
@@ -29,8 +30,8 @@ function goalItem(g) {
   const st = goalStatus(B(), g, B().today), live = g.status === 'active';
   return `<button class="card g-item${live ? '' : ' off'}${flashed(g.id)}" data-a="goal-open" data-id="${g.id}">
     <span class="g-top"><b>${esc(g.name)}</b>${goalChip(g, st)}${icon('right')}</span>
-    <span class="g-amt num">${fmt.money(st.saved, BCUR())}${st.target !== null ? ` <span class="muted">/ ${fmt.money(st.target, BCUR(), { trim: true })}</span>` : ''}</span>
-    ${st.target !== null ? `${meter(st.pct, 'go')}<span class="note">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, BCUR()) }) : ''}</span>` : ''}
+    <span class="g-amt num">${fmt.money(st.saved, gCur(g))}${st.target !== null ? ` <span class="muted">/ ${fmt.money(st.target, gCur(g), { trim: true })}</span>` : ''}</span>
+    ${st.target !== null ? `${meter(st.pct, 'go')}<span class="note">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, gCur(g)) }) : ''}</span>` : ''}
     ${g.accountId && acct(g.accountId) ? '' : `<span class="note g-no-acct">${t('Choose where it is kept')}</span>`}</button>`;      // a goal with no account yet: said on its card, chosen in its details
 }
 /** Which goal a contribution or a withdrawal is for: the goals that can take one (a withdrawal only from one with money in it). */
@@ -39,7 +40,7 @@ function goalPickSheet() {
   const dir = UI.goalPick === 'out' ? 'out' : 'in';
   return `<div class="scrim" data-a="close"></div><div class="sheet g-pick" role="dialog" aria-label="${dir === 'out' ? t('Withdraw from which one?') : t('Contribute to which one?')}"><div class="grab" aria-hidden="true"></div>
     <h2>${dir === 'out' ? t('Withdraw from which one?') : t('Contribute to which one?')}</h2>
-    <div class="g-pick-list">${goalPickList(dir).map(g => { const st = goalStatus(B(), g, B().today); return `<button data-a="goal-pick-go" data-id="${g.id}" data-dir="${dir}"><span class="grow"><b>${esc(g.name)}</b><small class="num">${fmt.money(st.saved, BCUR())}${st.target !== null ? ' / ' + fmt.money(st.target, BCUR(), { trim: true }) : ''}</small></span>${icon('right')}</button>`; }).join('')}</div></div>`;
+    <div class="g-pick-list">${goalPickList(dir).map(g => { const st = goalStatus(B(), g, B().today); return `<button data-a="goal-pick-go" data-id="${g.id}" data-dir="${dir}"><span class="grow"><b>${esc(g.name)}</b><small class="num">${fmt.money(st.saved, gCur(g))}${st.target !== null ? ' / ' + fmt.money(st.target, gCur(g), { trim: true }) : ''}</small></span>${icon('right')}</button>`; }).join('')}</div></div>`;
 }
 const PHONE_GOAL_ACTIONS = {
   /** Contribute or Withdraw: one goal to choose goes straight to its panel; more open the list; none says why. */

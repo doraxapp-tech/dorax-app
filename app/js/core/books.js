@@ -20,7 +20,9 @@ function companyCurrencies(state) {
   const books = (state.company || {}).books || {}, used = c => { const b = books[c] || {}; return !!((b.goals || []).length || ((b.plan || {}).lines || []).length || Object.values(b.pay || {}).some(rows => (rows || []).length)); };
   const cs = [...new Set([...state.accounts.filter(a => a.scope === 'business').map(a => a.currency), ...Object.keys(books).filter(used)])];
   if (!cs.length) cs.push(BASE_CURRENCY);
-  return cs.sort((a, b) => a === BASE_CURRENCY ? -1 : b === BASE_CURRENCY ? 1 : a < b ? -1 : a > b ? 1 : 0);
+  // first the company's main account's currency (v224: a side's money is counted in its main account's), else the household's as before
+  const pays = state.accounts.filter(a => a.scope === 'business' && !a.savingsOf && (a.type === 'checking' || a.type === 'cash' || (a.type === 'savings' && a.debitCard))), m = pays.find(a => a.main) || pays[0], first = m ? m.currency : BASE_CURRENCY;
+  return cs.sort((a, b) => a === first ? -1 : b === first ? 1 : a < b ? -1 : a > b ? 1 : 0);
 }
 /** What is kept for the company in one currency. With make, it is started when it is not there yet (the app, on first use); without, the
     answer is null (the server's reminder job reads, it never writes). */

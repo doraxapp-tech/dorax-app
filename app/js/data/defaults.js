@@ -5,7 +5,8 @@
     cubana))"): the currency its totals, its plan and its goals are in. A setting (S.settings.currency), reais when never chosen. Accounts in another
     currency are shown apart, as before, and nothing is ever converted. BASE_CURRENCY follows the setting: in the app before every drawing and when it
     changes (syncCurrency, ui/rows.js), on the server when the reminder job opens an account (tools/build-functions.js). */
-const CURRENCIES = ['BRL', 'USD', 'EUR', 'CUP'];
+// v224 (owner, 2026-10-14: "sí" to MLC): the Cuban freely convertible currency, an account's own, since a Cuban bank keeps accounts in CUP and in MLC
+const CURRENCIES = ['BRL', 'USD', 'EUR', 'CUP', 'MLC'];
 const currencyOf = st => { const c = st && st.settings && st.settings.currency; return CURRENCIES.includes(c) ? c : 'BRL'; };
 let BASE_CURRENCY = 'BRL';
 
@@ -76,6 +77,24 @@ const BANK_CODES = { 'Banco do Brasil': '001', 'Santander': '033', 'Inter': '077
   'PicPay': '380', 'BTG Pactual': '208', 'XP': '348', 'Sicredi': '748', 'Agibank': '121', 'Banco BV': '655',
   // Spain: each bank's entity code (Banco de España). The three Cuban banks have none here: the file names them by their own name.
   'Unicaja': '2103', 'Deutsche Bank': '0019', 'Banco Sabadell': '0081', 'BBVA': '0182', 'CaixaBank': '2100', 'Abanca': '2080' };
+/** A bank's code in a country other than its first: Santander in Spain (Banco de España). */
+const BANK_CODES_AT = { 'Santander@ES': '0049' };
+/** Where each bank in the list is (v224, owner, 2026-10-14: "la lista de bancos separa la lista de los dropdowns en toda la app por continente o país
+    y una línea al lado para que no se mezclen"): the bank lists are grouped by it, and a new account takes its country's currency ("si el usuario
+    selecciona un banco cubano al crear la cuenta pues la moneda de ese banco es CUP"). Wise works in many currencies: it proposes none. */
+const BANK_PLACES = { 'Nubank': 'BR', 'Banco do Brasil': 'BR', 'Mercado Pago': 'BR', 'Santander': ['BR', 'ES'], 'Itaú': 'BR', 'Bradesco': 'BR', 'Caixa': 'BR', 'Inter': 'BR', 'C6 Bank': 'BR',
+  'PicPay': 'BR', 'BTG Pactual': 'BR', 'XP': 'BR', 'Sicredi': 'BR', 'Agibank': 'BR', 'Banco BV': 'BR', 'Banco Metropolitano': 'CU', 'BPA': 'CU', 'BANDEC': 'CU',
+  'Unicaja': 'ES', 'Banco Sabadell': 'ES', 'BBVA': 'ES', 'CaixaBank': 'ES', 'Abanca': 'ES', 'Deutsche Bank': 'DE', 'Wise': 'INT' };
+// A bank in more than one country is in each one's group (owner, 2026-10-14: "Santander también está en España, Europa"); the account keeps the
+// country it was chosen in (account.place: its currency, its code in a file), the first one when it was made before v224.
+const PLACE_ORDER = ['BR', 'CU', 'ES', 'DE', 'INT'];
+const PLACE_CUR = { BR: 'BRL', CU: 'CUP', ES: 'EUR', DE: 'EUR' };
+const bankPlaces = name => [].concat(BANK_PLACES[name] || []);
+/** The currency a bank's new account starts in: the country's it was chosen in (else the bank's first), or none (Wise, a bank the app does not know). */
+const bankCur = (name, place) => PLACE_CUR[bankPlaces(name).includes(place) ? place : bankPlaces(name)[0]] || null;
+/** A bank and its country as one value, in a list where the bank is in more than one ("Santander@ES"); a bank's first country is its name alone. */
+const bankPick = (name, place) => place && bankPlaces(name).length > 1 && place !== bankPlaces(name)[0] ? name + '@' + place : name;
+const bankUnpick = v => { const [name, place] = String(v || '').split('@'); return { name, place: bankPlaces(name).includes(place) ? place : bankPlaces(name)[0] || null }; };
 const BANKS = ['Nubank', 'Banco do Brasil', 'Mercado Pago', 'Santander', 'Wise', 'Itaú', 'Bradesco', 'Caixa', 'Inter', 'C6 Bank', 'PicPay', 'BTG Pactual', 'XP', 'Sicredi', 'Agibank', 'Banco BV', 'Banco Metropolitano', 'BPA', 'BANDEC', 'Unicaja', 'Deutsche Bank', 'Banco Sabadell', 'BBVA', 'CaixaBank', 'Abanca'];
 
 /** A new account: a few everyday groups in the person's language, no accounts, no fixed costs, no income, no goals, no investments.

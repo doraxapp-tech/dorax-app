@@ -42,16 +42,16 @@ const bqDeskTodo = () => { const h = bqTodo(), n = (h.match(/<li>/g) || []).leng
     its bar, what is still to go and when it gets there at the planned pace; a fund, what it keeps and where. Each opens the goal. The yearly costs
     stay on Goals. */
 function bqDeskGoals() {
-  const bk = B(), cur = BCUR(), live = bk.goals.filter(g => g.status === 'active' && !isYearly(g)), m = v => fmt.money(v, cur, { trim: true });
-  const total = sum(bk.goals.map(g => goalSaved(bk, g.id))), head = bqHead(t('Goals'), bqLink('#goals', t('Open goals')), live.length ? `${fmt.money(total, cur)} ${t('set aside in goals and funds')}` : '');
+  const bk = B(), live = bk.goals.filter(g => g.status === 'active' && !isYearly(g)), m = (v, g) => fmt.money(v, gCur(g), { trim: true });      // each goal in its own currency (v224)
+  const total = goalSums(bk.goals, g => goalSaved(bk, g.id)), head = bqHead(t('Goals'), bqLink('#goals', t('Open goals')), live.length ? `${total} ${t('set aside in goals and funds')}` : '');
   if (!live.length) return `<section class="bq-sec bq-dgoals-sec" id="goals-card">${head}<div class="bq-empty bq-with-art">${artObj('flag-banner', 'bq-empty-art')}<span>${t('No goals yet')}</span><button class="btn" data-a="goal-new">${icon('plus')}${t('Start a goal')}</button></div></section>`;
   const one = g => {
     const st = goalStatus(bk, g, bk.today), fund = !st.target, a = fund ? null : goalArrival(bk, g, bk.today), where = g.accountId && acct(g.accountId);
     const when = st.state === 'reached' ? t('Reached') : a ? t('by {month}', { month: fmt.month(a.ym, true) }) : st.saved <= 0 ? t('Not started') : '';
-    const sub = fund ? (where ? where.name : t('No account linked')) : [st.remaining > 0 ? t('{amount} to go', { amount: m(st.remaining) }) : '', when].filter(Boolean).join(' · ');
+    const sub = fund ? (where ? where.name : t('No account linked')) : [st.remaining > 0 ? t('{amount} to go', { amount: m(st.remaining, g) }) : '', when].filter(Boolean).join(' · ');
     return `<li><button class="bq-dgoal${st.state === 'reached' ? ' done' : ''}" data-a="goal-open" data-id="${g.id}" aria-haspopup="dialog">
       <span class="bq-bill-t"><span class="bq-ico" aria-hidden="true">${icon(fund ? 'wallet' : 'flag')}</span><span class="bq-due">${fund ? t('Fund') : fmt.pct(Math.floor(st.pct))}</span></span>
-      <span class="bq-dgoal-n">${esc(g.name)}</span><span class="bq-dgoal-v num"><b>${m(st.saved)}</b>${fund ? '' : `<small> / ${m(st.target)}</small>`}</span>
+      <span class="bq-dgoal-n">${esc(g.name)}</span><span class="bq-dgoal-v num"><b>${m(st.saved, g)}</b>${fund ? '' : `<small> / ${m(st.target, g)}</small>`}</span>
       ${fund ? '' : `<span class="bq-bar" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, st.pct))}%"></i></span>`}<span class="bq-dgoal-s">${esc(sub)}</span></button></li>`;
   };
   return `<section class="bq-sec bq-dgoals-sec" id="goals-card">${head}<ul class="bq-dgoals" style="--cols:${bqCols(live.length, 200, 14)}">${live.map(one).join('')}</ul></section>`;

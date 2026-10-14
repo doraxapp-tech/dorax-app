@@ -96,4 +96,15 @@ addTexts([
   ["US dollar", "Dólar estadounidense", "Dólar americano"],
   ["Euro", "Euro", "Euro"],
   ["Cuban peso", "Peso cubano", "Peso cubano"],
+  // v224: MLC, a Cuban bank's account in freely convertible currency
+  ["MLC", "MLC", "MLC"],
+  ["Freely convertible currency", "Moneda libremente convertible", "Moeda livremente conversível"],
+  // v224: the main currency follows the main account; each goal in its account’s currency
+  ["The currency of your totals and your plan. Once you add an account, it is your main account’s.", "La moneda de tus totales y tu plan. Cuando agregues una cuenta, será la de tu cuenta principal.", "A moeda dos seus totais e do seu plano. Quando você adicionar uma conta, será a da sua conta principal."],
+  ["Your main account’s, {name}: your totals and your plan are counted in it. Each goal is in its own account’s currency. Accounts in another currency are shown apart; nothing is converted.", "La de tu cuenta principal, {name}: en ella se cuentan tus totales y tu plan. Cada meta va en la moneda de su cuenta. Las cuentas en otra moneda se muestran aparte; no se convierte nada.", "A da sua conta principal, {name}: nela são contados seus totais e seu plano. Cada meta fica na moeda da conta dela. Contas em outra moeda aparecem à parte; nada é convertido."],
+  ["Your money is still counted in {currency}, as it was before.", "Tu dinero todavía se cuenta en {currency}, como antes.", "Seu dinheiro ainda é contado em {currency}, como antes."],
+  ["Count in {currency}", "Contar en {currency}", "Contar em {currency}"],
+  ["Change the main account", "Cambiar la cuenta principal", "Trocar a conta principal"],
+  ["Your currencies", "Tus monedas", "Suas moedas"],
+  ["The ones your accounts are in. To keep money in another currency, add an account in it.", "Las de tus cuentas. Para tener dinero en otra moneda, agrega una cuenta en ella.", "As das suas contas. Para ter dinheiro em outra moeda, adicione uma conta nela."],
 ]);

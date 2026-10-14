@@ -59,18 +59,19 @@ function dkAccSavings(list) {
   const bk = B(), sv = list.filter(a => a.type === 'savings'); if (!sv.length) return '';
   const goals = bk.goals.filter(g => g.status !== 'archived'), g = ['var(--dk-g1)', 'var(--dk-g2)', 'var(--dk-g3)', 'var(--dk-g4)'], m = v => fmt.money(v, CUR, { trim: true });
   const one = a => {
+    const m = v => fmt.money(v, a.currency, { trim: true });      // each savings account in its own currency (v224)
     const bal = accountBalance(S, a.id, S.today), in_ = goals.filter(x => x.accountId === a.id).map(x => ({ x, v: goalSaved(bk, x.id) })), set = sum(in_.map(r => r.v)), free = bal - set;
     const parts = in_.filter(r => r.v > 0), n = parts.length + (free > 0 ? 1 : 0);
     const bar = n ? `<div class="dk-split dk-onsheet" aria-hidden="true">${parts.map((r, i) => `<span class="${i === 0 ? 'first' : ''}${i === n - 1 ? ' last' : ''}" style="flex:${r.v} 1 0;background:${g[i % 4]}"></span>`).join('')}${free > 0 ? `<span class="ring${parts.length ? '' : ' first'} last" style="flex:${free} 1 0"></span>` : ''}</div>` : '';
     const state = free === 0 && set > 0 ? `<li class="dk-sv-st ok">${t('All set aside')}</li>` : free > 0 ? `<li class="dk-sv-st">${esc(t('{amount} with no goal', { amount: m(free) }))}</li>` : free < 0 ? `<li class="dk-sv-st warn">${esc(t('The goals add up to {amount} more than there is', { amount: m(-free) }))}</li>` : '';
-    return `<div class="dk-sv"><div class="dk-sv-h">${dkMark(a)}<b>${esc(a.name)}</b><b class="num">${fmt.money(bal, CUR)}</b></div>${bar}
+    return `<div class="dk-sv"><div class="dk-sv-h">${dkMark(a)}<b>${esc(a.name)}</b><b class="num">${fmt.money(bal, a.currency)}</b></div>${bar}
       <ul class="dk-sv-l">${in_.map((r, i) => `<li><i class="dk-dot" style="background:${r.v > 0 ? g[parts.indexOf(r) % 4] : 'var(--dk-g4)'}"></i>${esc(r.x.name)} <b class="num">${m(r.v)}</b></li>`).join('')}${state}</ul></div>`;
   };
   const lost = goals.filter(x => (!x.accountId || !acct(x.accountId)) && goalSaved(bk, x.id) > 0);
-  const total = sum(sv.map(a => accountBalance(S, a.id, S.today)));
-  return `<section class="dk-tile dk-box" id="acc-savings" aria-labelledby="acc-savings-h"><div class="dk-box-h"><div class="dk-sec-t"><div class="dk-h2"><h2 id="acc-savings-h">${t('Where your savings are')}</h2>${hint('accSavings')}</div><span class="dk-sub num">${esc(tn(sv.length, '{amount} in {n} account, shared between your goals', '{amount} in {n} accounts, shared between your goals', { amount: m(total) }))}</span></div></div>
+  const total = [...new Set(sv.map(a => a.currency))].map(c => fmt.money(sum(sv.filter(a => a.currency === c).map(a => accountBalance(S, a.id, S.today))), c, { trim: true })).join(' · ');      // each currency apart (v224)
+  return `<section class="dk-tile dk-box" id="acc-savings" aria-labelledby="acc-savings-h"><div class="dk-box-h"><div class="dk-sec-t"><div class="dk-h2"><h2 id="acc-savings-h">${t('Where your savings are')}</h2>${hint('accSavings')}</div><span class="dk-sub num">${esc(tn(sv.length, '{amount} in {n} account, shared between your goals', '{amount} in {n} accounts, shared between your goals', { amount: total }))}</span></div></div>
     <div class="dk-svs">${sv.map(one).join('<span class="dk-rule"></span>')}</div>
-    ${lost.map(x => `<div class="dk-lost">${icon('alert')}<span>${t('{name} ({amount}) does not say which account it is in.', { name: `<b>${esc(x.name)}</b>`, amount: m(goalSaved(bk, x.id)) })}</span><button class="btn" data-a="goal-edit" data-id="${x.id}">${t('Choose account')}</button></div>`).join('')}</section>`;
+    ${lost.map(x => `<div class="dk-lost">${icon('alert')}<span>${t('{name} ({amount}) does not say which account it is in.', { name: `<b>${esc(x.name)}</b>`, amount: fmt.money(goalSaved(bk, x.id), gCur(x), { trim: true }) })}</span><button class="btn" data-a="goal-edit" data-id="${x.id}">${t('Choose account')}</button></div>`).join('')}</section>`;
 }
 /** A credit card: its invoice of the month with the button to pay it, how much of its limit is used, the next invoice as estimated. */
 function dkAccCard(a) {

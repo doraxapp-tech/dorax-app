@@ -21,19 +21,19 @@ const gwBuzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch
 const gwPct = p => p > 0 && p < 1 ? '<1%' : fmt.pct(Math.round(p));
 
 // ---------- 1. the slide ----------
-const gwSay = amt => amt > 0 ? t('Slide to save {amount}', { amount: fmt.money(amt, BCUR()) }) : t('Slide to save');
-const gwLabel = (name, amt) => amt > 0 ? t('Save {amount} in {name}', { amount: fmt.money(amt, BCUR()), name }) : t('Save in {name}', { name });
+const gwSay = (amt, cur) => amt > 0 ? t('Slide to save {amount}', { amount: fmt.money(amt, cur || BCUR()) }) : t('Slide to save');      // cur: the goal's (v224)
+const gwLabel = (name, amt, cur) => amt > 0 ? t('Save {amount} in {name}', { amount: fmt.money(amt, cur || BCUR()), name }) : t('Save in {name}', { name });
 function gwSlide(d) {
   const g = goalById(d.draft.goalId), amt = typedAmount(d.draft.amountText || '') || 0;
-  return `<div class="gw-slide" id="gw-slide"><span class="gw-fill" id="gw-fill" aria-hidden="true"></span><span class="gw-say" id="gw-say" aria-hidden="true">${esc(gwSay(amt))}</span>
+  return `<div class="gw-slide" id="gw-slide"><span class="gw-fill" id="gw-fill" aria-hidden="true"></span><span class="gw-say" id="gw-say" aria-hidden="true">${esc(gwSay(amt, gCur(g)))}</span>
     <span class="gw-goal" id="gw-goal" aria-hidden="true">${icon('flag')}</span>
-    <button type="button" class="gw-knob" id="gw-knob" data-a="gw-go" aria-label="${esc(gwLabel(g.name, amt))}">${icon('coins')}</button></div>`;
+    <button type="button" class="gw-knob" id="gw-knob" data-a="gw-go" aria-label="${esc(gwLabel(g.name, amt, gCur(g)))}">${icon('coins')}</button></div>`;
 }
 // the amount as it is typed: in the track's words and in the coin's name
 document.addEventListener('input', e => {
   if (e.target.id !== 'm-amount' || !gwOn(UI.drawer)) return;
   const amt = typedAmount(e.target.value || '') || 0, s = $('gw-say'), k = $('gw-knob'), g = goalById(UI.drawer.draft.goalId);
-  if (s) s.textContent = gwSay(amt); if (k && g) k.setAttribute('aria-label', gwLabel(g.name, amt));
+  if (s) s.textContent = gwSay(amt, g && gCur(g)); if (k && g) k.setAttribute('aria-label', gwLabel(g.name, amt, gCur(g)));
 });
 /** The track's parts and how far the coin can go (its rest position and the end are the same distance from the track's edges). */
 function gwParts() { const s = $('gw-slide'), k = $('gw-knob'); if (!s || !k) return null; const pad = k.offsetLeft; return { s, k, f: $('gw-fill'), say: $('gw-say'), w: s.clientWidth, kw: k.offsetWidth, pad, max: s.clientWidth - k.offsetWidth - 2 * pad }; }
@@ -103,14 +103,14 @@ function gwWin(g, amt, before, next, date) {
     const c = S.user.cheer; if (c) { c.goals = c.goals || []; if (!c.goals.includes(g.id)) c.goals.push(g.id); }
     inboxAdd({ kind: 'cheer', cheer: 'goal', name: g.name });
   }
-  UI.win = { id: g.id, name: g.name, amt, fund: !target, yearly, crossed, streak, planDone, plan, done, deadline: g.deadline || null, next, from: GW.from,
+  UI.win = { id: g.id, name: g.name, cur: gCur(g), amt, fund: !target, yearly, crossed, streak, planDone, plan, done, deadline: g.deadline || null, next, from: GW.from,
     before: { saved: before.saved, pct: before.pct || 0 }, after: { saved: after.saved, pct: after.pct || 0, target, remaining: after.remaining, projected: after.projected, required: after.required } };
   GW.from = null; UI.drawer = null; UI.sheet = 'goal-win';
   render(); gwPlay();
 }
 /** What it means, in one sentence. */
 function gwSentence(w) {
-  const m = v => fmt.money(v, BCUR(), { trim: true });
+  const m = v => fmt.money(v, w.cur || BCUR(), { trim: true });
   if (w.fund) return t('You now have {total} set aside.', { total: m(w.after.saved) });      // v217 (owner: "demasiados números aquí"): the total in words, not a third figure
   if (w.after.remaining <= 0) return t('All {target} are saved. Time to enjoy it.', { target: m(w.after.target) });
   if (w.after.projected) return t('{left} to go · at the planned pace you get there in {month}.', { left: m(w.after.remaining), month: fmt.month(w.after.projected, true) });
@@ -128,14 +128,14 @@ function gwWinSheet() {
   // it and the bank at the ring's top: "elijo la opción B ... tanto en ordenador como en móvil"). Money set aside with no amount to reach: the bank
   // alone, the total said in the sentence ("demasiados números aquí").
   const pig = cls => `<span class="gw-pig${cls ? ' ' + cls : ''}" aria-hidden="true">${artObj('piggy-bank', 'bold')}<i class="gw-coin"></i></span>`;
-  const of = t('of {amount}', { amount: fmt.money(w.after.target, BCUR(), { trim: true }) });
-  const fig = reached ? `<div class="gw-fig gw-reached" role="img" aria-label="${esc(t('{pct} of {amount}', { pct: gwPct(100), amount: fmt.money(w.after.target, BCUR(), { trim: true }) }))}">${artFig('win', 'flag-banner', 'shadow')}</div>`
+  const of = t('of {amount}', { amount: fmt.money(w.after.target, (w.cur || BCUR()), { trim: true }) });
+  const fig = reached ? `<div class="gw-fig gw-reached" role="img" aria-label="${esc(t('{pct} of {amount}', { pct: gwPct(100), amount: fmt.money(w.after.target, (w.cur || BCUR()), { trim: true }) }))}">${artFig('win', 'flag-banner', 'shadow')}</div>`
     : w.fund ? `<div class="gw-fig gw-total">${pig('gw-pig-top')}</div>`      // money set aside: the bank alone, larger; what was put in above it, the total in the sentence
-    : `<div class="gw-fig gw-ring" role="img" aria-label="${esc(t('{pct} of {amount}', { pct: gwPct(w.after.pct), amount: fmt.money(w.after.target, BCUR(), { trim: true }) }))}"><svg viewBox="0 0 180 180" aria-hidden="true">`
+    : `<div class="gw-fig gw-ring" role="img" aria-label="${esc(t('{pct} of {amount}', { pct: gwPct(w.after.pct), amount: fmt.money(w.after.target, (w.cur || BCUR()), { trim: true }) }))}"><svg viewBox="0 0 180 180" aria-hidden="true">`
       + `<circle class="gw-track" cx="90" cy="90" r="${R}"/><circle class="gw-arc" id="gw-arc" cx="90" cy="90" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${(C * (1 - Math.min(100, w.after.pct) / 100)).toFixed(2)}"/></svg>`
       + `${pig('gw-pig-mid')}</div><p class="gw-pct-under" aria-hidden="true"><b class="num" id="gw-num">${gwPct(w.after.pct)}</b> <small>${of}</small></p>`;
   return `<div class="scrim"></div><div class="gw-win" role="dialog" aria-modal="true" aria-labelledby="gw-h" aria-describedby="gw-say2">
-    <div class="gw-in"><p class="gw-kick">${esc(t('Saved in {name}', { name: w.name }))}</p><p class="gw-amt num">+${fmt.money(w.amt, BCUR())}</p>${fig}
+    <div class="gw-in"><p class="gw-kick">${esc(t('Saved in {name}', { name: w.name }))}</p><p class="gw-amt num">+${fmt.money(w.amt, (w.cur || BCUR()))}</p>${fig}
       <h2 class="gw-h" id="gw-h">${head}${w.crossed && !reached ? `<span class="gw-conf" aria-hidden="true">${artObj('confetti', 'on-dark')}</span>` : ''}</h2>${say ? `<p class="gw-say2" id="gw-say2">${say}</p>` : ''}${chips ? `<div class="gw-chips">${chips}</div>` : ''}</div>
     <div class="gw-acts"><button class="btn primary" data-a="gw-done">${t('Done')}</button>${w.yearly ? '' : `<button class="btn" data-a="gw-see">${t('See goal')}</button>`}</div></div>`;
 }
@@ -158,7 +158,7 @@ function gwPlay() {
     { opacity: 1, transform: 'translate(-50%, 0)', offset: .8 }, { opacity: 0, transform: 'translate(-50%, 35%)' }], { duration: 620, delay: 480, fill: 'both' });      // into the slot
   if (pig) pig.animate([{ transform: 'none' }, { transform: 'scale(1.1, .92)' }, { transform: 'none' }], { duration: 300, delay: 1040, easing: 'cubic-bezier(.77, 0, .175, 1)' });
   // the ring fills from where it was to where it is now, and its figure counts with it (one animation drives both)
-  const arc = $('gw-arc'), num = $('gw-num'), from = w.fund ? w.before.saved : w.before.pct, to = w.fund ? w.after.saved : Math.min(100, w.after.pct), show = v => w.fund ? fmt.money(Math.round(v), BCUR()) : gwPct(v);
+  const arc = $('gw-arc'), num = $('gw-num'), from = w.fund ? w.before.saved : w.before.pct, to = w.fund ? w.after.saved : Math.min(100, w.after.pct), show = v => w.fund ? fmt.money(Math.round(v), (w.cur || BCUR())) : gwPct(v);
   const C = arc ? +arc.getAttribute('stroke-dasharray') : 0, timing = { duration: 1000, delay: 380, easing: GW_EASE, fill: 'backwards' };
   const drive = arc ? arc.animate([{ strokeDashoffset: C * (1 - Math.min(100, w.before.pct) / 100) }, { strokeDashoffset: C * (1 - to / 100) }], timing) : num ? num.animate([{ opacity: 1 }, { opacity: 1 }], timing) : null;
   const cheer = () => { if (fig) fig.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }], { duration: 420, easing: 'cubic-bezier(.77, 0, .175, 1)' });

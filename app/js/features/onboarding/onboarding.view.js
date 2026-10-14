@@ -29,7 +29,7 @@ const obMoney = 'inputmode="decimal" class="num" placeholder="0,00" autocomplete
     screen reader). The two follow each other without redrawing the screen (onboarding.actions.js). max and step are in reais. */
 const obPct = (n, max) => max ? Math.round(Math.min(n, max) * 1000 / max) / 10 : 0;
 function obSlide(id, label, path, val, max, step, who, sym, art) {      // who: whose field it is (data-c): the setup's by default. sym: the currency's sign, R$ by default. art: the thing beside its name (v214)
-  who = who || 'ob'; sym = sym || 'R$'; const cur = sym === 'US$' ? 'USD' : CUR;
+  who = who || 'ob'; sym = sym || 'R$'; const cur = Object.keys(SYMBOL).find(c => SYMBOL[c] === sym) || CUR;      // the currency of the sign (v224: a company's can be any of the five)
   const c = typedAmount(val), n = c === null || c < 0 ? 0 : Math.min(max, Math.round(c / 100));
   return `<div class="field ob-slide${art ? ' with-art' : ''}"><div class="ob-slide-h">${art ? obArt(art) : ''}<label for="${id}">${label}</label><span class="ob-val"><span aria-hidden="true">${sym}</span><input type="text" id="${id}" value="${esc(val)}" ${obMoney} aria-label="${label} (${sym})" data-c="${who}" data-k="${path}" data-live="1" data-range="${id}-r"></span></div>
     <input type="range" id="${id}-r" min="0" max="${max}" step="${step}" value="${n}" aria-label="${label}" aria-valuetext="${esc(fmt.money(n * 100, cur, { trim: true }))}" data-cur="${cur}" data-c="${who}-range" data-k="${path}" data-live="1" data-text="${id}" style="--p:${obPct(n, max)}%"></div>`;

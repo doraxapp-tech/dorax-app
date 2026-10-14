@@ -35,6 +35,14 @@ textarea { resize: vertical; min-height: 64px; }
 .setting:last-child { border-bottom: 0; padding-bottom: 0; }
 .setting:first-child { padding-top: 0; }
 .setting p { color: var(--ink-3); font-size: 12.5px; max-width: 60ch; margin-top: 2px; }
+/* the main currency, the main account's (v224): its name and the way to change it; the currencies the accounts are in, one line each */
+.set-cur-now { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 190px; text-align: right; }
+.setting p.set-cur-off { color: var(--warn); }
+.set-curs { flex: 1 1 260px; display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.set-curs li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; font-size: 14px; }
+.set-curs-c { display: inline-flex; align-items: center; gap: 8px; } .set-curs-c b { font-weight: 500; }
+.set-curs-n { color: var(--ink-2); } .set-curs-n b { color: var(--ink); font-weight: 600; }
+@media (max-width: 560px) { .set-cur-now { align-items: flex-start; text-align: left; } }
 
 /* what the app needs (owner, 2026-10-09): a red * beside the label; the field a form could not save without is outlined until it is fixed */
 .field label .req, .tx-amount label .req { color: var(--neg); margin-left: 3px; font-weight: 600; }
@@ -43,3 +51,5 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 /* the reason a form was refused, under the field it is about (app/overlay.js fail): across the whole row of a two-column form */
 .banner.at-field { margin-top: -4px; }
 .form-grid > .banner.at-field { grid-column: 1 / -1; }
+/* a big figure in more than one currency (v224, ui/lookups.js: goalSumsBig): the first one large, the others small under it */
+.sums-rest { display: block; margin-top: 4px; font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.3; opacity: .78; white-space: normal; }

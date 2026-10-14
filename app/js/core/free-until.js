@@ -27,7 +27,7 @@ function freeUntil(state, today, currency) {
   // bills: those with a due day before the pay day, late ones included; one with no due day is this month's and could fall any day, so it counts
   const bills = upcomingBills(state, today, currency, 62).filter(p => !onCard(state, p) && (!p.dueDate || p.dueDate < until));
   const cards = cardInvoices(state, today, currency).filter(c => !c.paid && c.amount > 0 && c.date < until);
-  const goals = state.goals.filter(g => g.status === 'active').map(g => ({ g, left: Math.max(0, goalPlan(g, ym) - goalMonth(state, g.id, ym)) })).filter(x => x.left > 0);
+  const goals = goalsHere(state).filter(g => g.status === 'active').map(g => ({ g, left: Math.max(0, goalPlan(g, ym) - goalMonth(state, g.id, ym)) })).filter(x => x.left > 0);
   const owed = { bills: sum(bills.map(p => p.toPay || p.planned)), cards: sum(cards.map(c => c.amount)), goals: sum(goals.map(x => x.left)) };
   const free = cash - owed.bills - owed.cards - owed.goals, days = Math.max(1, dayDiff(until, today));
   // a day's share in whole reais; under R$ 10 a day, with its cents, so a small positive figure never reads as nothing

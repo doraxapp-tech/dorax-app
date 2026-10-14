@@ -42,7 +42,7 @@ function moveCheck(d) {
   if (amt === null || amt <= 0) return [t('Enter an amount greater than zero, for example 185,42.'), 'm-amount'];
   if (!parseDate(m.date)) return [t('Enter a valid date.'), 'm-date'];
   if (m.date > B().today) return [t('The date cannot be in the future.'), 'm-date'];
-  if (m.dir === 'out' && amt > goalSaved(B(), g.id)) return [t('You cannot withdraw more than is saved ({amount}).', { amount: fmt.money(goalSaved(B(), g.id), BCUR()) })];
+  if (m.dir === 'out' && amt > goalSaved(B(), g.id)) return [t('You cannot withdraw more than is saved ({amount}).', { amount: fmt.money(goalSaved(B(), g.id), gCur(g)) })];
   return null;
 }
 const GOALS_ACTIONS = {
@@ -62,9 +62,13 @@ const GOALS_ACTIONS = {
     renderOverlay();
   },
   'goal-add-savings'() {      // from the goal form: the account form for a savings account, and back to the goal with it chosen
-    const back = UI.drawer; ACCOUNTS_ACTIONS['edit-account']({ id: '', scope: inCompany() ? 'business' : 'personal', cur: BCUR() });
+    // a goal with money in it asks for an account in its currency; a new one takes the bank's (v224)
+    const back = UI.drawer, was = back.draft && back.draft.id && goalById(back.draft.id), cur = inCompany() ? BCUR() : was && B().goalMoves.some(m => m.goalId === was.id) ? gCur(was) : undefined;
+    ACCOUNTS_ACTIONS['edit-account']({ id: '', scope: inCompany() ? 'business' : 'personal', cur });
     UI.drawer.draft.type = 'savings'; UI.drawer.back = back; renderOverlay(); const el = $('a-name'); if (el) el.focus();
   },
+  /** A goal from before v224 whose numbers are in another currency than its account: counted in its account's, with the same numbers (v224). */
+  'goal-cur-fix'(ds) { const g = goalById(ds.id), a = g && acct(g.accountId); if (!a) return; g.currency = a.currency; UI.dist = null; toast(t('{name} is counted in {currency}.', { name: g.name, currency: curName(a.currency) })); render(); },
   'goal-suggest'(ds) { UI.drawer.draft.monthlyText = plain(+ds.v); renderOverlay(); },
   'goal-save'() {
     const d = UI.drawer, g = d.draft, target = typedAmount(g.targetText || ''), monthly = typedAmount(g.monthlyText || '0'), initial = typedAmount(g.initialText || '0');
@@ -77,7 +81,9 @@ const GOALS_ACTIONS = {
     const starts = d.isNew ? [] : B().goalMoves.filter(m => m.goalId === g.id && isStartMove(m)), startWas = sum(starts.map(m => m.amount));
     if (!d.isNew && goalSaved(B(), g.id) - startWas + initial < 0) return fail(t('With that amount already saved the goal would go below zero. Delete a withdrawal first.'));
     const goal = d.isNew ? { id: newId('g'), status: 'active', plan: {} } : goalById(g.id);
-    Object.assign(goal, { name: g.name.trim(), kind: g.kind, target: g.kind === 'goal' ? target : null, deadline: g.kind === 'goal' && g.deadline ? g.deadline : null, accountId: g.accountId || null, note: (g.note || '').trim() });
+    // its currency: its account's (v224); one with money in it keeps its own, the form offered only accounts in it
+    const keeps = !d.isNew && B().goalMoves.some(m => m.goalId === goal.id), ac = acct(g.accountId).currency;
+    Object.assign(goal, { name: g.name.trim(), kind: g.kind, target: g.kind === 'goal' ? target : null, deadline: g.kind === 'goal' && g.deadline ? g.deadline : null, accountId: g.accountId || null, note: (g.note || '').trim(), currency: keeps ? gCur(goal) : CURRENCIES.includes(ac) ? ac : bookCur(B()) });
     if (replan) {
       const lastYear = Math.max(+g.from.slice(0, 4), ...goalYears(B())), to = goal.deadline || lastYear + '-12';
       for (const y in goal.plan) goal.plan[y] = goal.plan[y].map((v, i) => y + '-' + String(i + 1).padStart(2, '0') >= g.from ? 0 : v);
@@ -103,7 +109,7 @@ const GOALS_ACTIONS = {
     UI.goalMenu = false; const g = goalById(UI.drawer.id); if (!g) return;
     const n = B().goalMoves.filter(m => m.goalId === g.id).length;
     confirmBox({ critical: n > 0, title: t('Delete {name}?', { name: g.name }), label: t('Delete goal'),
-      text: n ? tn(n, 'The goal, its plan and its {n} movement ({amount} saved) are deleted. Money in your accounts is not touched. This can’t be undone.', 'The goal, its plan and its {n} movements ({amount} saved) are deleted. Money in your accounts is not touched. This can’t be undone.', { amount: fmt.money(goalSaved(B(), g.id), BCUR()) }) : t('The goal and its plan are deleted. This can’t be undone.'),
+      text: n ? tn(n, 'The goal, its plan and its {n} movement ({amount} saved) are deleted. Money in your accounts is not touched. This can’t be undone.', 'The goal, its plan and its {n} movements ({amount} saved) are deleted. Money in your accounts is not touched. This can’t be undone.', { amount: fmt.money(goalSaved(B(), g.id), gCur(g)) }) : t('The goal and its plan are deleted. This can’t be undone.'),
       run() { const gone = new Set(B().goalMoves.filter(m => m.goalId === g.id).map(m => m.id)); S.transactions.forEach(x => { if (gone.has(x.goalMoveId)) delete x.goalMoveId; });      // the money stays where it went
         B().goals = B().goals.filter(k => k !== g); B().goalMoves = B().goalMoves.filter(m => m.goalId !== g.id); UI.drawer = null; UI.dist = null; toast(t('Goal deleted.')); render(); } });
   },
@@ -130,7 +136,7 @@ const GOALS_ACTIONS = {
     const m = B().goalMoves.find(x => x.id === ds.id); if (!m) return;
     if (m.amount > 0 && goalSaved(B(), m.goalId) - m.amount < 0) return toast(t('Deleting this contribution would leave the goal below zero. Delete the withdrawal first.'));
     const linked = S.transactions.some(x => x.goalMoveId === m.id), book = bookKey();
-    confirmBox({ title: t('Delete this movement?'), text: t('{kind} of {amount} on {date} in {name}. What is saved changes by that amount.', { kind: m.amount < 0 ? t('Withdrawal') : t('Contribution'), amount: fmt.money(Math.abs(m.amount), BCUR()), date: fmt.date(m.date, true), name: goalById(m.goalId).name }) + (linked ? ' ' + t('Its transfer between the two accounts is deleted too.') : ''), label: t('Delete movement'),
+    confirmBox({ title: t('Delete this movement?'), text: t('{kind} of {amount} on {date} in {name}. What is saved changes by that amount.', { kind: m.amount < 0 ? t('Withdrawal') : t('Contribution'), amount: fmt.money(Math.abs(m.amount), gCur(goalById(m.goalId))), date: fmt.date(m.date, true), name: goalById(m.goalId).name }) + (linked ? ' ' + t('Its transfer between the two accounts is deleted too.') : ''), label: t('Delete movement'),
       run() { goalMoveGone(m, book); UI.dist = null; toast(t('Movement deleted.')); render(); } });
   },
   'dist-register'() {

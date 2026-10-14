@@ -1,5 +1,9 @@
 /* Dorax Finance — clicks: settings: OFX profiles, backup, deleting data. Joined into A in app/actions.js. */
 const SETTINGS_ACTIONS = {
+  /** The main currency, from Settings (v224): to the accounts, where a card's panel makes it the main one; or, for an account from before v224 whose
+      money was counted in another currency than its main account's, counting it in that one (ui/lookups.js: makeMain asks first when the plan has numbers). */
+  'cur-main-pick'() { setPageBook('personal'); navigate('accounts'); },
+  'cur-follow-main'() { const m = mainOf('personal'); if (m) makeMain(m); },
   /** A part of Settings, back to the list of its parts (v208, owner, 2026-10-13: "cuando le das y quieres ir atrás no puedes, el botón de atrás no
       sale al menú anterior": the ‹ was a link, so each press was one more step and the list's own ‹ led to the part again). Coming from the list,
       it is a step back; opened straight on a part, the list comes without a step, so its ‹ is where Settings was opened from. */
@@ -44,7 +48,7 @@ const SETTINGS_CHANGES = {
       account is in another currency; otherwise after saying what it changes, since those accounts leave the totals. Nothing is converted. */
   'set-currency'(el) {
     const c = CURRENCIES.includes(el.value) ? el.value : 'BRL', was = currencyOf(S); if (c === was) return;
-    const apart = personal().filter(a => a.currency !== c), go = () => { S.settings.currency = c; syncCurrency(); toast(t('Main currency: {name}.', { name: curLong(c) })); render(); };
+    const apart = personal().filter(a => a.currency !== c), go = () => { stampGoalCurrencies(S); S.settings.currency = c; syncCurrency(); toast(t('Main currency: {name}.', { name: curLong(c) })); render(); };
     if (!apart.length) return go();
     el.value = was;      // until it is confirmed
     confirmBox({ tone: 'neutral', title: t('Count your money in {name}?', { name: curLong(c) }), label: t('Change currency'), run: go,

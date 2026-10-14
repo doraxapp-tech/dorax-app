@@ -129,11 +129,11 @@ function bqRunway() {
 }
 function bqGoals() {
   if (!B().goals.length) return `<section class="bq-goals" id="goals-card"><a class="bq-tile" href="#goals"><span class="bq-tile-h">${t('Goals')}</span>${artObj('flag-banner', 'bq-goals-art')}<span class="bq-goals-none">${t('No goals yet')}</span><span class="bq-more">${t('Start a goal')}${icon('right')}</span></a></section>`;
-  const total = sum(B().goals.map(g => goalSaved(B(), g.id)));
+  const total = goalSumsBig(B().goals, g => goalSaved(B(), g.id), { trim: true }), said = goalSums(B().goals, g => goalSaved(B(), g.id));      // each currency apart (v224)
   const top = B().goals.filter(g => g.status === 'active' && g.kind === 'goal' && !isYearly(g)).map(g => [g, goalStatus(B(), g, B().today)]).filter(([, st]) => st.target).slice(0, 2);
   const bar = ([g, st]) => `<span class="bq-g"><span class="bq-g-t"><span>${esc(g.name)}</span><span class="num">${fmt.pct(Math.round(st.pct))}</span></span><span class="bq-bar"><i style="width:${Math.max(0, Math.min(100, st.pct))}%"></i></span></span>`;
-  return `<section class="bq-goals" id="goals-card"><a class="bq-tile" href="#goals" aria-label="${esc(`${t('Goals')}: ${fmt.money(total, BCUR())} ${t('set aside in goals and funds')}`)}">
-    <span class="bq-tile-h" aria-hidden="true">${t('Goals')}</span><span class="bq-goals-v" aria-hidden="true"><b class="num">${fmt.money(total, BCUR(), { trim: true })}</b><small>${t('Set aside')}</small></span>${top.map(bar).join('')}</a></section>`;
+  return `<section class="bq-goals" id="goals-card"><a class="bq-tile" href="#goals" aria-label="${esc(`${t('Goals')}: ${said} ${t('set aside in goals and funds')}`)}">
+    <span class="bq-tile-h" aria-hidden="true">${t('Goals')}</span><span class="bq-goals-v" aria-hidden="true"><b class="num">${total}</b><small>${t('Set aside')}</small></span>${top.map(bar).join('')}</a></section>`;
 }
 
 // ---------- the page ----------

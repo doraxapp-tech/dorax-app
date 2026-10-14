@@ -15,7 +15,7 @@ function dkGoalNext(g, nowYm) {
 }
 /** One goal or fund as a card. */
 function dkGoalCard(g) {
-  const bk = B(), cur = BCUR(), nowYm = ymOf(bk.today), st = goalStatus(bk, g, bk.today), fund = st.target === null, live = g.status === 'active';
+  const bk = B(), cur = gCur(g), nowYm = ymOf(bk.today), st = goalStatus(bk, g, bk.today), fund = st.target === null, live = g.status === 'active';      // in its own currency (v224)
   const a = fund || !live ? null : goalArrival(bk, g, bk.today), where = g.accountId && acct(g.accountId), next = dkGoalNext(g, nowYm), m = v => fmt.money(v, cur, { trim: true });
   const later = next && next.ym > nowYm && st.saved <= 0;
   const chip = g.status === 'paused' ? dkPill(t('Paused')) : g.status === 'done' ? dkPill(t('Completed'), 'mint') : g.status === 'archived' ? dkPill(t('Archived'))
@@ -51,9 +51,9 @@ function dkGoalCover(days) {
 function dkYearlyCard(g) {
   const st = yearlyState(B(), g, B().today), kept = g.accountId && acct(g.accountId);
   const chip = st.late ? dkPill(t('Not paid yet'), 'crit') : st.now ? dkPill(t('Due this month'), 'warn') : st.ready ? dkPill(t('All set aside'), 'mint') : dkPill(esc(t('In {month}', { month: yrMonth(st.due) })));
-  const act = yrDue(st) ? `<button class="btn primary" data-a="yearly-pay" data-id="${g.id}">${icon('check')}${t('I paid it')}</button>` : !st.ready && st.toDo > 0 && kept ? `<button class="btn" data-a="yearly-put" data-id="${g.id}">${icon('plus')}${esc(t('Set aside {amount}', { amount: yrMoney(st.toDo) }))}</button>` : '';
+  const act = yrDue(st) ? `<button class="btn primary" data-a="yearly-pay" data-id="${g.id}">${icon('check')}${t('I paid it')}</button>` : !st.ready && st.toDo > 0 && kept ? `<button class="btn" data-a="yearly-put" data-id="${g.id}">${icon('plus')}${esc(t('Set aside {amount}', { amount: yrMoney(st.toDo, gCur(g)) }))}</button>` : '';
   return `<article class="dk-tile dk-goal${flashed(g.id)}"><div class="dk-tile-h"><span class="dk-ico ti" aria-hidden="true">${artOr('calendar-dots', 'calendar')}</span><span class="dk-tile-n"><b>${esc(g.name)}</b><small>${t('Yearly expense')}${kept ? ' · ' + esc(kept.name) : ''}</small></span>${chip}</div>
-    <div class="dk-tile-v"><b class="num">${yrMoney(st.saved)}</b> <span class="num">${esc(t('of {amount}', { amount: yrMoney(st.target) }))}</span></div>${dkBar(st.pct || 0, st.late ? 'crit' : '')}
+    <div class="dk-tile-v"><b class="num">${yrMoney(st.saved, gCur(g))}</b> <span class="num">${esc(t('of {amount}', { amount: yrMoney(st.target, gCur(g)) }))}</span></div>${dkBar(st.pct || 0, st.late ? 'crit' : '')}
     <div class="dk-tile-s"><span>${esc(yrSay(g, st))}</span></div><div class="dk-tile-a">${act}<button class="btn ghost" data-a="yearly-open" data-id="${g.id}">${t('Details')}</button></div></article>`;
 }
 /** The dashed card: a new goal or fund, and the yearly expenses not added yet, a tap each. */
@@ -68,12 +68,12 @@ function dkGoalTimes(goals) {
   const lanes = goals.filter(g => g.status === 'active' && g.kind === 'goal' && g.target > 0).map(g => ({ g, st: goalStatus(bk, g, bk.today), a: goalArrival(bk, g, bk.today) })).filter(x => x.a && x.st.state !== 'reached');
   if (!lanes.length) return '';
   const span = Math.max(3, Math.min(60, Math.max(...lanes.map(x => monthDiff(x.a.ym, nowYm)), ...lanes.map(x => x.g.deadline ? monthDiff(x.g.deadline, nowYm) : 0))));
-  const pos = ym => Math.max(0, Math.min(100, Math.round(monthDiff(ym, nowYm) * 1000 / span) / 10)), cur = BCUR(), m = v => fmt.money(v, cur, { trim: true });
+  const pos = ym => Math.max(0, Math.min(100, Math.round(monthDiff(ym, nowYm) * 1000 / span) / 10)), m = (v, g) => fmt.money(v, gCur(g), { trim: true });      // each goal in its own currency (v224)
   const step = span <= 18 ? 3 : span <= 36 ? 6 : 12, ticks = [];
   for (let i = step; i < span; i += step) { const ym = addMonths(nowYm, i); ticks.push(`<span style="left:${pos(ym)}%">${esc(+ym.slice(5) === 1 || i === step ? fmt.month(ym, true) : mon(+ym.slice(5) - 1))}</span>`); }
   const lane = ({ g, st, a }) => {
     const next = dkGoalNext(g, nowYm), start = next && next.ym > nowYm && st.saved <= 0 ? next.ym : nowYm, p0 = pos(start), p1 = pos(a.ym), late = a.late !== null && a.late > 0, edge = p1 > 20;
-    return `<div class="dk-lane"><div class="dk-lane-n"><b>${esc(g.name)}</b><small class="num">${esc(t('{saved} of {target}', { saved: m(st.saved), target: m(st.target) }))}${start > nowYm ? ' · ' + esc(t('starts in {month}', { month: yrMonth(start) })) : ''}</small></div>
+    return `<div class="dk-lane"><div class="dk-lane-n"><b>${esc(g.name)}</b><small class="num">${esc(t('{saved} of {target}', { saved: m(st.saved, g), target: m(st.target, g) }))}${start > nowYm ? ' · ' + esc(t('starts in {month}', { month: yrMonth(start) })) : ''}</small></div>
       <div class="dk-lane-t"><span class="dk-lane-line"></span><span class="dk-lane-bar" style="left:${p0}%;width:${Math.max(1, p1 - p0)}%"></span>${late && g.deadline ? `<span class="dk-lane-due" style="left:${pos(g.deadline)}%" title="${esc(t('Your date: {month}', { month: fmt.month(g.deadline, true) }))}"></span>` : ''}<span class="dk-lane-dot${late ? ' late' : ''}" style="left:${p1}%"></span>
         <span class="dk-lane-l num${edge ? ' end' : ''}${late ? ' late' : ''}" style="${edge ? `right:calc(${100 - p1}% - 7px)` : `left:calc(${p1}% - 7px)`}">${esc(fmt.month(a.ym, true))}${late ? ` · ${esc(tn(a.late, '{n} month late', '{n} months late'))}` : icon('check')}</span></div></div>`;
   };
@@ -114,11 +114,12 @@ function dkGoals() {
   const bk = B(), ym = bk.month, cur = BCUR(), nowYm = ymOf(bk.today);
   const live = bk.goals.filter(g => g.status === 'active' || g.status === 'paused'), closed = bk.goals.filter(g => g.status === 'done' || g.status === 'archived');
   const goals = live.filter(g => !isYearly(g)), years = live.filter(g => isYearly(g));
-  const total = sum(bk.goals.filter(g => g.status !== 'archived').map(g => goalSaved(bk, g.id))), planned = sum(live.filter(goalLive).map(g => goalPlan(g, nowYm)));
+  // the total each currency apart; the month's plan is the book's own currency's (v224)
+  const total = goalSumsBig(bk.goals.filter(g => g.status !== 'archived'), g => goalSaved(bk, g.id)), planned = sum(goalsHere(bk).filter(goalLive).map(g => goalPlan(g, nowYm)));
   const nGoal = goals.filter(g => g.kind === 'goal').length, nFund = goals.filter(g => g.kind !== 'goal').length;
   const chips = bk.goals.length ? `${planned ? dkChip(esc(t('+{amount} a month, as planned', { amount: fmt.money(planned, cur) })), 'go', 'goal-plan') : ''}${dkChip(esc(`${tn(nGoal, '{n} goal', '{n} goals')} · ${tn(nFund, '{n} fund', '{n} funds')}`))}` : dkChip(t('No goals yet'));
   const side = bk.goals.length ? dkGoalSide(ym) : `${dkSideHead('dk-pay-h', t('Your first goal'))}<p class="dk-say">${t('Create a goal with a target, or a fund for money you set aside every month.')}</p><div class="dk-acts"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div>`;
-  const hero = dkHero({ label: t('Set aside in goals and funds'), big: fmt.money(total, cur), k: bk.goals.length ? 'goal-saved' : '', chips, side, sideId: 'dk-pay-h', band: dkGoalTimes(goals) });
+  const hero = dkHero({ label: t('Set aside in goals and funds'), big: total, k: bk.goals.length ? 'goal-saved' : '', chips, side, sideId: 'dk-pay-h', band: dkGoalTimes(goals) });
   const cards = `${goals.filter(g => g.kind === 'goal').map(dkGoalCard).join('')}${goals.filter(g => g.kind !== 'goal').map(dkGoalCard).join('')}${years.map(dkYearlyCard).join('')}${UI.showClosed ? closed.map(dkGoalCard).join('') : ''}${dkGoalAdd()}`;
   const more = closed.length ? `<button class="btn ghost" data-a="toggle-closed">${UI.showClosed ? t('Hide completed and archived') : t('Show completed and archived ({n})', { n: closed.length })}</button>` : '';
   const sec = dkSec('goal-cards', t('Goals and funds'), esc(t('A goal has an amount and a date; a fund grows with no date')), more, dkGrid(cards, 300), hint('goalCards'));

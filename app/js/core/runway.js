@@ -64,7 +64,7 @@ function monthlyBurn(state, today, currency) {
 function cushion(state, currency, upTo) {
   const accts = state.accounts.filter(a => (a.scope === 'business') === (state.scope === 'business') && a.currency === currency && a.type === 'savings');
   const inAccounts = Math.max(0, sum(accts.map(a => accountBalance(state, a.id, upTo))));
-  const inGoals = Math.max(0, sum(state.goals.filter(g => g.status !== 'archived').map(g => goalSaved(state, g.id, upTo ? ymOf(upTo) : null))));
+  const inGoals = Math.max(0, sum(goalsHere(state).filter(g => g.status !== 'archived').map(g => goalSaved(state, g.id, upTo ? ymOf(upTo) : null))));
   return inAccounts >= inGoals ? { amount: inAccounts, basis: 'accounts' } : { amount: inGoals, basis: 'goals' };
 }
 /** Days of freedom today: how long what is put aside lasts at the pace money goes out.

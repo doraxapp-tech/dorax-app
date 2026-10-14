@@ -17,7 +17,7 @@ function raiseGoalPlan(goal, nowYm, extra) {
   return last;
 }
 /** The goals a change can move the date of: active, with a target that is not reached yet. */
-function whatIfGoals(state, today) { return state.goals.filter(g => g.status === 'active' && g.kind === 'goal' && g.target > 0 && goalSaved(state, g.id) < g.target); }
+function whatIfGoals(state, today) { return goalsHere(state).filter(g => g.status === 'active' && g.kind === 'goal' && g.target > 0 && goalSaved(state, g.id) < g.target); }
 
 /** { extra, aside, burn, burnTo, year: { from, to } | null, goal: { id, name, from, to, reached, sooner } | null }
     year: days of freedom twelve months from now, as things are and with the change; null while nothing says what goes out in a month.
@@ -26,7 +26,7 @@ function whatIf(state, today, currency, goalId, change) {
   const pos = v => { const n = Math.round(+v); return n > 0 ? n : 0; },      // a negative or unreadable change counts as nothing
      less = pos(change.less), more = pos(change.more), once = pos(change.once), extra = less + more;
   const nowYm = ymOf(today), r = runway(state, today, currency), burn = r.burn.amount, burnTo = Math.max(0, burn - less);
-  const aside = sum(state.goals.filter(g => g.status === 'active').map(g => goalPlan(g, nowYm)));
+  const aside = sum(goalsHere(state).filter(g => g.status === 'active').map(g => goalPlan(g, nowYm)));
   const out = { extra, once, aside, burn, burnTo, goal: null,
     year: burn > 0 ? { from: runwayDays(r.cushion.amount + 12 * aside, burn), to: burnTo > 0 ? runwayDays(r.cushion.amount + once + 12 * (aside + extra), burnTo) : null } : null };
   const g = whatIfGoals(state, today).find(x => x.id === goalId);
@@ -35,7 +35,7 @@ function whatIf(state, today, currency, goalId, change) {
     const g2 = { ...g, plan: Object.fromEntries(Object.entries(g.plan).map(([y, a]) => [y, a.slice()])) };
     if (extra) raiseGoalPlan(g2, nowYm, extra);
     // the amount put aside once is money already in the goal, like a starting balance: it is not this month's planned contribution
-    const s2 = { ...state, goals: state.goals.map(x => x === g ? g2 : x), goalMoves: once ? state.goalMoves.concat({ id: 'whatif', goalId: g.id, date: today, amount: once, start: true }) : state.goalMoves };
+    const s2 = { ...state, currency: bookCur(state), goals: state.goals.map(x => x === g ? g2 : x), goalMoves: once ? state.goalMoves.concat({ id: 'whatif', goalId: g.id, date: today, amount: once, start: true }) : state.goalMoves };
     const a1 = reached ? null : goalArrival(s2, g2, today), to = reached ? nowYm : a1 ? a1.ym : null;
     out.goal = { id: g.id, name: g.name, target: st.target, remaining: st.remaining, from: a0 ? a0.ym : null, to, reached, sooner: a0 && to ? monthDiff(a0.ym, to) : null };
   }

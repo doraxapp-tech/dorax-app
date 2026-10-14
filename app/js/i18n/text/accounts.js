@@ -142,4 +142,19 @@ addTexts([
   ["{amount} in {n} accounts, shared between your goals", "{amount} en {n} cuentas, repartidos entre tus metas", "{amount} em {n} contas, divididos entre suas metas"],
   ["{n} day of freedom", "{n} día de libertad", "{n} dia de liberdade"],
   ["{n} days of freedom", "{n} días de libertad", "{n} dias de liberdade"],
+  // v224: the bank lists grouped by country
+  ["Brazil", "Brasil", "Brasil"],
+  ["Cuba", "Cuba", "Cuba"],
+  ["Spain", "España", "Espanha"],
+  ["Germany", "Alemania", "Alemanha"],
+  ["International", "Internacional", "Internacional"],
+  // v224: the main currency follows the main account; each goal in its account’s currency
+  ["It is your main account: when you save, your totals and your plan are counted in {currency}, with the same numbers. Each goal stays in its own account’s currency. Nothing is converted.", "Es tu cuenta principal: al guardar, tus totales y tu plan se cuentan en {currency}, con los mismos números. Cada meta sigue en la moneda de su cuenta. No se convierte nada.", "É sua conta principal: ao salvar, seus totais e seu plano passam a ser contados em {currency}, com os mesmos números. Cada meta continua na moeda da conta dela. Nada é convertido."],
+  ["When you save, it becomes your main account: your totals and your plan are counted in {currency}, with the same numbers. Each goal stays in its own account’s currency. Nothing is converted.", "Al guardar, pasa a ser tu cuenta principal: tus totales y tu plan se cuentan en {currency}, con los mismos números. Cada meta sigue en la moneda de su cuenta. No se convierte nada.", "Ao salvar, ela passa a ser sua conta principal: seus totais e seu plano são contados em {currency}, com os mesmos números. Cada meta continua na moeda da conta dela. Nada é convertido."],
+  ["Your money is still counted in {currency}: you can change it in Settings.", "Tu dinero todavía se cuenta en {currency}: puedes cambiarlo en Ajustes.", "Seu dinheiro ainda é contado em {currency}: você pode mudar isso em Configurações."],
+  ["Your money is counted in {currency}.", "Tu dinero se cuenta en {currency}.", "Seu dinheiro é contado em {currency}."],
+  ["{name} becomes your main account.", "{name} pasa a ser tu cuenta principal.", "{name} passa a ser sua conta principal."],
+  ["Your totals and your plan are counted in {currency} from now on, with the same numbers: check your pay and your fixed costs. Each goal stays in its own account’s currency. Nothing is converted.", "Desde ahora tus totales y tu plan se cuentan en {currency}, con los mismos números: revisa tu sueldo y tus costos fijos. Cada meta sigue en la moneda de su cuenta. No se convierte nada.", "A partir de agora seus totais e seu plano são contados em {currency}, com os mesmos números: revise seu salário e seus custos fixos. Cada meta continua na moeda da conta dela. Nada é convertido."],
+  ["{name} is now the main account. Your money is counted in {currency}.", "{name} ahora es la cuenta principal. Tu dinero se cuenta en {currency}.", "{name} agora é a conta principal. Seu dinheiro é contado em {currency}."],
+  ["Make it the main account", "Hacerla principal", "Tornar principal"],
 ]);

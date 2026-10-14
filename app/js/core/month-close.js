@@ -8,7 +8,7 @@ function monthClose(state, ym, currency) {
   const m = monthSummary(state, ym, currency), before = monthSummary(state, addMonths(ym, -1), currency), nowYm = addMonths(ym, 1);
   const lims = planProgress(state, ym, currency, isoDate(nowYm, 1)).filter(p => p.pay === 'budget' && p.planned > 0);
   const over = lims.filter(p => p.spent > p.planned).map(p => ({ name: p.name, amount: p.spent - p.planned }));
-  const goals = state.goals.filter(g => g.status !== 'archived').map(g => ({ id: g.id, name: g.name, yearly: !!g.yearly, planned: goalPlan(g, ym), done: goalMonth(state, g.id, ym),
+  const goals = goalsHere(state).filter(g => g.status !== 'archived').map(g => ({ id: g.id, name: g.name, yearly: !!g.yearly, planned: goalPlan(g, ym), done: goalMonth(state, g.id, ym),
     saved: goalSaved(state, g.id, ym), target: g.kind === 'goal' && g.target > 0 ? g.target : null })).filter(x => x.planned > 0 || x.done !== 0);
   const planned = sum(goals.map(x => x.planned)), done = sum(goals.map(x => Math.max(0, x.done)));
   return { ym, income: m.income, expenses: m.expenses, saved: m.saved, count: m.count, before: before.count ? before.saved : null,

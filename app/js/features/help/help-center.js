@@ -70,8 +70,8 @@ function helpTopics() {
     ]],
     ['account', 'user', t('Your account'), [
       [t('How do I change my email or my password?'), t('In your Profile: a new email gets a confirmation link before it changes; the password is changed there too.'), 'profile'],
-      [t('How do I change the language or the currency?'), t('In Settings, under General. The currency is the one your totals, plan and goals are counted in; accounts in another currency are shown apart and nothing is converted.'), 'general'],
-      [t('Does it work outside Brazil?'), t('The plan, the fixed costs and the goals work anywhere, and the main currency can be reais, dollars, euros or Cuban pesos. Investments are built for Brazilian FIIs and the converter for Brazilian accounting.'), ''],
+      [t('How do I change the language or the currency?'), t('The language is in Settings, under General. The currency is your main account’s: make another account the main one, in its panel in Accounts, and your totals and plan are counted in its currency. Each goal is in the currency of the savings account it is kept in. Accounts in another currency are shown apart; nothing is converted.'), 'general'],
+      [t('Does it work outside Brazil?'), t('The plan, the fixed costs and the goals work anywhere. Accounts can be in reais, dollars, euros, Cuban pesos or MLC, and the list of banks has banks from Brazil, Cuba and Spain, each with its logo. Investments are built for Brazilian FIIs and the converter for Brazilian accounting.'), ''],
       [t('How do I delete my account?'), t('In your Profile, “Delete my account” removes it with everything in it, and it cannot be undone: download a backup first, in Settings, under Your data.'), 'profile'],
     ]],
   ];

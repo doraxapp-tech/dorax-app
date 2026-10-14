@@ -64,9 +64,12 @@ const KPI_MORE = {
   'goal-saved': {
     title: () => t('Set aside in goals and funds'),
     draw() {
-      const cur = BCUR(), gs = B().goals.filter(g => g.status !== 'archived').map(g => ({ g, v: goalSaved(B(), g.id) })).filter(x => x.v).sort((a, c) => c.v - a.v), total = sum(gs.map(x => x.v));
-      return { big: fmt.money(total, cur), say: t('Everything put into your goals and funds so far, less what was taken out. Archived goals are not in it.'),
-        body: kpiSec(t('By goal'), kxSum(gs.map(x => kpiRow(esc(x.g.name) + kxMuted(x.g.kind === 'fund' ? t('Fund') : x.g.target ? t('of {amount}', { amount: fmt.money(x.g.target, cur) }) : t('Goal')), x.v, cur)), total, cur) || kxNote(t('Nothing set aside yet.'))) };
+      // each currency apart, the book's own first (v224: a goal is in its account's currency; nothing is converted)
+      const live = B().goals.filter(g => g.status !== 'archived'), all = live.map(g => ({ g, v: goalSaved(B(), g.id), c: gCur(g) })).filter(x => x.v), own = bookCur(B());
+      const cs = [...new Set(all.map(x => x.c))].sort((a, b) => (b === own) - (a === own));
+      const part = c => { const gs = all.filter(x => x.c === c).sort((a, k) => k.v - a.v); return kpiSec(cs.length > 1 ? t('By goal, in {currency}', { currency: curName(c) }) : t('By goal'), kxSum(gs.map(x => kpiRow(esc(x.g.name) + kxMuted(x.g.kind === 'fund' ? t('Fund') : x.g.target ? t('of {amount}', { amount: fmt.money(x.g.target, c) }) : t('Goal')), x.v, c)), sum(gs.map(x => x.v)), c)); };
+      return { big: goalSumsBig(live, g => goalSaved(B(), g.id)), say: t('Everything put into your goals and funds so far, less what was taken out. Archived goals are not in it.'),
+        body: cs.map(part).join('') || kxNote(t('Nothing set aside yet.')) };
     },
   },
   'goal-plan': {

@@ -8,12 +8,15 @@ const goalAcctName = a => { const n = String(a.name || ''), i = String(a.institu
 const goalAcctTag = g => g.accountId && acct(g.accountId) ? goalAcctName(acct(g.accountId)) : esc(t('No account linked'));
 /** On a goal's card and in its details: its account, or, for a goal with none (made at sign-up, or before an account was asked for), the way to choose it
     (owner, 2026-10-09: a goal is kept in a savings account; the form asks for it). */
+/** A goal from before v224 whose numbers are in another currency than the account it is kept in: said in its details, with the two ways out. */
+const goalCurOff = g => { const a = g.accountId && acct(g.accountId); return !!a && CURRENCIES.includes(a.currency) && a.currency !== gCur(g); };
 const goalKept = g => g.accountId && acct(g.accountId) ? goalAcctTag(g) : `<button type="button" class="linkbtn g-pick-acct" data-a="goal-edit" data-id="${g.id}">${t('Choose where it is kept')}</button>`;
 const goalKinds = () => [['goal', t('Goal with a target')], ['fund', t('Fund without a target')]];
 // 2026-10-09 (owner: "'kept in' should only show the savings accounts, and a contribution to the goal is kept in that savings account, added to what
 // is already there"). A goal's money sits in a savings account; a contribution is a transfer into it from an account with debit (the one picked last
 // time, or the first), a withdrawal the way back. A goal kept elsewhere before then keeps its account in the list, so editing it changes nothing by itself.
-const goalSavings = keep => { const list = goalAccounts().filter(a => a.type === 'savings'), k = keep && acct(keep); return k && !list.includes(k) ? [...list, k] : list; };
+// cur: only the savings accounts in a currency (v224: a goal with money in it keeps its currency, so it moves only between accounts in it)
+const goalSavings = (keep, cur) => { const list = goalAccounts().filter(a => a.type === 'savings' && (!cur || a.currency === cur)), k = keep && acct(keep); return k && !list.includes(k) ? [...list, k] : list; };
 /** The accounts a contribution comes out of, or a withdrawal goes back to: this side's accounts with debit (or cash) in the savings account's currency. */
 const goalPayFrom = savingsId => { const s = acct(savingsId); return s ? cardsOf(goalAccounts()).filter(a => a !== s && a.currency === s.currency && (cardHasDebit(a) || a.type === 'cash')) : []; };
 /** The account the money of a movement comes from (or goes back to); none when it moves nothing: a starting balance, or no savings account. */
@@ -33,17 +36,17 @@ function goalChip(g, st) {
 function goalFacts(g, st) {
   const out = [];
   if (g.status !== 'active') return out;
-  if (st.state === 'behind') out.push(t('{amount} behind the plan to date.', { amount: fmt.money(-st.diff, BCUR()) }));
-  if (st.state === 'ahead') out.push(t('{amount} ahead of the plan to date.', { amount: fmt.money(st.diff, BCUR()) }));
+  if (st.state === 'behind') out.push(t('{amount} behind the plan to date.', { amount: fmt.money(-st.diff, gCur(g)) }));
+  if (st.state === 'ahead') out.push(t('{amount} ahead of the plan to date.', { amount: fmt.money(st.diff, gCur(g)) }));
   if (st.target !== null && st.state !== 'reached') {
     if (st.projected) out.push(t('At the planned pace it is reached in {month}.', { month: fmt.month(st.projected) }));
     else {
-      out.push(t('The plan reaches {a}; {b} is not planned yet.', { a: fmt.money(st.planTotal, BCUR()), b: fmt.money(st.unplanned, BCUR()) }));
+      out.push(t('The plan reaches {a}; {b} is not planned yet.', { a: fmt.money(st.planTotal, gCur(g)), b: fmt.money(st.unplanned, gCur(g)) }));
       const a = goalArrival(B(), g, B().today);      // the plan stops short: the date its last planned amount leads to, if it is kept up
-      if (a) out.push(t('Keeping {amount} a month after the plan ends, it is reached in {month}.', { amount: fmt.money(a.pace, BCUR(), { trim: true }), month: fmt.month(a.ym) }));
+      if (a) out.push(t('Keeping {amount} a month after the plan ends, it is reached in {month}.', { amount: fmt.money(a.pace, gCur(g), { trim: true }), month: fmt.month(a.ym) }));
     }
     if (st.overdue) out.push(t('The target date ({month}) has passed.', { month: fmt.month(g.deadline) }));
-    else if (st.required !== null) out.push(t('To arrive by {month}: {amount} a month.', { month: fmt.month(g.deadline), amount: fmt.money(st.required, BCUR()) }));
+    else if (st.required !== null) out.push(t('To arrive by {month}: {amount} a month.', { month: fmt.month(g.deadline), amount: fmt.money(st.required, gCur(g)) }));
   }
   return out;
 }
@@ -54,8 +57,8 @@ function goalCard(g) {
   const st = goalStatus(B(), g, B().today), live = g.status === 'active';
   return `<section class="card acct goal ${live ? '' : 'off'}${flashed(g.id)}"><div class="row" style="align-items:flex-start;flex-wrap:nowrap"><div class="grow" style="flex:1;min-width:0"><b style="font-weight:500;font-size:15px">${esc(g.name)}</b>
       <div class="note">${g.kind === 'goal' ? t('Goal') : t('Fund')} · ${goalKept(g)}</div></div>${goalChip(g, st)}</div>
-    <div><div class="note">${t('Set aside')}</div><div class="bal num">${fmt.money(st.saved, BCUR())}${st.target !== null ? ` <span class="muted" style="font-size:13px;font-weight:500">/ ${fmt.money(st.target, BCUR(), { trim: true })}</span>` : ''}</div></div>
-    ${st.target !== null ? `<div>${meter(st.pct, 'go')}<div class="note" style="margin-top:4px">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, BCUR()) }) : ''}${g.deadline ? ' · ' + t('by {month}', { month: fmt.month(g.deadline, true) }) : ''}</div></div>` : ''}
+    <div><div class="note">${t('Set aside')}</div><div class="bal num">${fmt.money(st.saved, gCur(g))}${st.target !== null ? ` <span class="muted" style="font-size:13px;font-weight:500">/ ${fmt.money(st.target, gCur(g), { trim: true })}</span>` : ''}</div></div>
+    ${st.target !== null ? `<div>${meter(st.pct, 'go')}<div class="note" style="margin-top:4px">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, gCur(g)) }) : ''}${g.deadline ? ' · ' + t('by {month}', { month: fmt.month(g.deadline, true) }) : ''}</div></div>` : ''}
     <div class="row g-foot">${live ? `<button class="btn sm later" data-a="goal-move" data-id="${g.id}" data-dir="in">${icon('plus')}${t('Contribute')}</button>` : ''}<button class="btn sm ghost" data-a="goal-open" data-id="${g.id}">${t('Details')}</button></div></section>`;
 }
 
@@ -89,9 +92,9 @@ function viewGoals() {
   const ym = B().month, nowYm = ymOf(B().today);
   const open = B().goals.filter(g => g.status === 'active' || g.status === 'paused'), closed = B().goals.filter(g => g.status === 'done' || g.status === 'archived');
   if (!B().goals.length) return `${companyNote()}<div class="card"><div class="empty">${artObj('flag-banner', 'empty-art')}<b>${t('No goals yet')}</b>${t('Create a goal with a target, or a fund for money you set aside every month.')}<div style="margin-top:12px"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div></div></div>${yearlySection()}`;
-  const d = distribution(B(), ym), totalSaved = sum(B().goals.filter(g => g.status !== 'archived').map(g => goalSaved(B(), g.id)));
+  const d = distribution(B(), ym), totalSaved = goalSumsBig(B().goals.filter(g => g.status !== 'archived'), g => goalSaved(B(), g.id));      // each currency apart (v224)
   const top = isPhone() ? phoneGoalsTop(open, closed, ym) : `<section class="tiles">
-      <div class="card tile tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<div class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</div><div class="value num">${fmt.money(totalSaved, BCUR())}</div></div>
+      <div class="card tile tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<div class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</div><div class="value num">${totalSaved}</div></div>
       <div class="card tile tap">${kpiTap('goal-plan', t('Plan for {month}', { month: fmt.month(ym, 'bare') }))}<div class="label"><span>${t('Plan for {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('goalPlan')}</div><div class="value num">${fmt.money(d.planned, BCUR())}</div></div>
       <div class="card tile tap">${kpiTap('goal-done', t('Recorded in {month}', { month: fmt.month(ym, 'bare') }))}<div class="label"><span>${t('Recorded in {month}', { month: fmt.month(ym, 'bare') })}</span>${hint('goalDone')}</div><div class="value num">${fmt.money(d.done, BCUR())}</div></div>
       <div class="card tile tap">${kpiTap('goal-rest', B().remainderLabel)}<div class="label"><span>${esc(B().remainderLabel)}</span>${hint('goalRest')}</div><div class="value num ${d.remainder < 0 ? 'neg' : ''}">${fmt.money(d.remainder, BCUR())}</div></div></section>
@@ -109,16 +112,18 @@ function viewGoals() {
     summary's look it opens as a wide panel (asPanel; "Edit the plan month by month" on Goals, v203). */
 function goalYearSection(asPanel) {
   const ym = B().month, nowYm = ymOf(B().today), years = goalYears(B()), year = years.includes(UI.goalYear) ? UI.goalYear : (years.includes(+nowYm.slice(0, 4)) ? +nowYm.slice(0, 4) : years[0]), mode = UI.goalMode;
-  const open = B().goals.filter(g => g.status === 'active' || g.status === 'paused');
+  // the goals in the book's currency are the grid's sums; one in another currency (v224) has its own rows under its currency's name, outside the sums
+  const live = B().goals.filter(g => g.status === 'active' || g.status === 'paused'), open = live.filter(g => gCur(g) === bookCur(B())), apart = live.filter(g => gCur(g) !== bookCur(B()));
   // year grid
   const months = Array.from({ length: 12 }, (_, i) => year + '-' + String(i + 1).padStart(2, '0')), rem = allocRemainder(B(), year), pays = payRows(B(), year, 'savings');
   const cur = i => months[i] === ym ? ' cur' : '', past = i => months[i] <= nowYm;
   const show = v => v === null ? '<span class="z">—</span>' : mode === 'diff' ? (v === 0 ? '<span class="z">0</span>' : `<span class="${v > 0 ? 'pos' : 'neg'}">${fmt.money(v, null, { bare: true, trim: true, sign: true })}</span>`) : v === 0 ? '<span class="z">0</span>' : plain(v);
   const lastYear = years[years.length - 1], thisYear = +nowYm.slice(0, 4), lastEmpty = yearEmpty(B(), lastYear);
   const gval = (g, i) => { const p = (g.plan[year] || [])[i] || 0; return mode === 'plan' ? p : past(i) ? (mode === 'actual' ? goalMonth(B(), g.id, months[i]) : goalMonth(B(), g.id, months[i]) - p) : null; };
-  const gridRows = open.map(g => `<tr class="${g.status === 'paused' ? 'muted-row' : ''}"><th scope="row"><button class="linkbtn" data-a="goal-open" data-id="${g.id}">${esc(g.name)}</button>${g.status === 'paused' ? ` <span class="chip">${t('Paused')}</span>` : ''}</th>
+  const gRow = g => `<tr class="${g.status === 'paused' ? 'muted-row' : ''}"><th scope="row"><button class="linkbtn" data-a="goal-open" data-id="${g.id}">${esc(g.name)}</button>${g.status === 'paused' ? ` <span class="chip">${t('Paused')}</span>` : ''}</th>
     ${months.map((m, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${(g.plan[year] || [])[i] ? '' : 'z'}" id="gp-${year}-${g.id}-${i}" aria-label="${esc(g.name)}, ${mon(i, true)}" value="${plain((g.plan[year] || [])[i] || 0)}" data-c="goal-cell" data-id="${g.id}" data-y="${year}" data-m="${i}">` : show(gval(g, i))}</td>`).join('')}
-    <td class="c tot">${show(sum(months.map((m, i) => gval(g, i))))}</td></tr>`).join('');
+    <td class="c tot">${show(sum(months.map((m, i) => gval(g, i))))}</td></tr>`;
+  const gridRows = open.map(gRow).join(''), apartRows = [...new Set(apart.map(gCur))].map(c => `<tr class="grp"><th scope="rowgroup" colspan="14">${t('Goals and funds in {currency}', { currency: curName(c) })}</th></tr>${apart.filter(g => gCur(g) === c).map(gRow).join('')}`).join('');
   const payCells = r => r.values.map((v, i) => `<td class="c${cur(i)}">${mode === 'plan' ? `<input type="text" inputmode="decimal" class="${v ? '' : 'z'}" id="ap-${year}-${r.id}-${i}" aria-label="${esc(r.name)}, ${mon(i, true)}" value="${plain(v)}" data-c="pay-cell" data-id="${r.id}" data-y="${year}" data-m="${i}">` : show(v)}</td>`).join('');
   return `<section class="${asPanel ? 'py-panel' : 'card'}" id="goal-year"><div class="card-h"><h2>${t('Monthly plan')}</h2>${hint('goalGrid')}${yearStepper('goal-year', years, year)}
       ${year !== lastYear ? '' : lastEmpty && lastYear > thisYear && years.length > 1 ? `<button class="btn sm ghost" data-a="goal-remove-year" data-v="${lastYear}">${t('Remove {year}', { year: lastYear })}</button>` : `<button class="btn sm ghost" data-a="goal-add-year">${icon('plus')}${t('Add {year}', { year: lastYear + 1 })}</button>`}<div class="right">${seg('goal-mode', [['plan', t('Plan')], ['actual', t('Actual')], ['diff', t('Difference')]], mode, t('Show'))}</div></div>
@@ -127,6 +132,7 @@ function goalYearSection(asPanel) {
       <tr class="grp"><th scope="rowgroup" colspan="14">${t('Goals and funds')}</th></tr>${gridRows}
       ${mode === 'plan' ? `<tr class="sumrow grand"><th scope="row">${esc(B().remainderLabel)}</th>${rem.map((v, i) => `<td class="c${cur(i)}">${v < 0 ? `<span class="neg">${fmt.money(v, null, { bare: true, trim: true })}</span>` : plain(v)}</td>`).join('')}<td class="c tot">${fmt.money(sum(rem), null, { bare: true, trim: true })}</td></tr>`
         : `<tr class="sumrow grand"><th scope="row">${t('Total')}</th>${months.map((m, i) => { const vs = open.map(g => gval(g, i)); return `<td class="c${cur(i)}">${show(vs.some(v => v === null) ? null : sum(vs))}</td>`; }).join('')}<td class="c tot">${show(sum(open.flatMap(g => months.map((m, i) => gval(g, i)))))}</td></tr>`}
+      ${apartRows}
     </tbody></table></div></div>
     <div class="toolbar" style="border-top:1px solid var(--line);border-bottom:0"><span class="note">${mode === 'plan' ? (rem.some(v => v < 0) ? t('Some months plan more than the income routed to savings.') : t('Type in any cell. Enter or the arrow keys move down the column; Tab moves across. The last row is income minus every goal and fund.')) : mode === 'actual' ? t('What was recorded each month. Withdrawals count as negative.') : t('Recorded minus planned. Negative means less was set aside than planned.')}</span></div></section>`;
 }
@@ -144,22 +150,28 @@ function goalFormDrawer(d) {
   // the monthly amount is always in sight, editing too (owner, 2026-10-10: "editing a goal does not let me edit the contribution I want to make each
   // month"; before, it hid behind a switch, "Change the monthly plan from a month onwards"): it shows what the plan has for the month chosen, and
   // saving a different amount, or another month, changes the plan from that month on (goalReplan, features/goals/goals.actions.js)
-  const cur = d.isNew ? 0 : goalPlan(goalById(g.id), g.from), remNow = allocRemainder(B(), +g.from.slice(0, 4))[+g.from.slice(5) - 1] - (monthly - cur);
+  const cur = d.isNew || gCur(goalById(g.id)) !== bookCur(B()) ? 0 : goalPlan(goalById(g.id), g.from), remNow = allocRemainder(B(), +g.from.slice(0, 4))[+g.from.slice(5) - 1] - (monthly - cur);
+  // its currency (v224, owner: "las metas deben mantenerse en la moneda de la cuenta de ahorro elegida en 'se guarda en'"): the account's it is kept in.
+  // A goal with money in it keeps the currency it has, so only accounts in it are offered. In another currency than the book's, it is not part of
+  // what is left of the savings income (the plan's numbers are in the book's currency): said instead of that sum.
+  const was = !d.isNew && goalById(g.id), locked = !!was && B().goalMoves.some(m => m.goalId === g.id), k = g.accountId && acct(g.accountId);
+  const fc = locked ? gCur(was) : (k && CURRENCIES.includes(k.currency) && k.currency) || (was ? gCur(was) : bookCur(B())), here = fc === bookCur(B());
+  const offered = goalSavings(g.accountId, locked ? fc : null), hidden = locked && goalSavings(g.accountId).length > offered.length;
   // 2026-10-09 (owner: "'already saved' goes beside the target date when the goal has a target, beside the type when it has none; 'kept in' goes above
   // the monthly plan"): the first part of the form holds what the goal is, what is already in it and where it is kept; the notes stay at its foot
   // the amount already saved is asked when editing too (owner, 2026-10-09): it is the goal's starting balance, already in the account, so it moves no money
-  const savedIn = fld('g-initial', tcur('Already saved (R$)'), inp('g-initial', 'initialText', g.initialText, 'inputmode="decimal" class="num" data-rerender="always" placeholder="0"'));
+  const savedIn = fld('g-initial', tcurIn('Already saved (R$)', fc), inp('g-initial', 'initialText', g.initialText, 'inputmode="decimal" class="num" data-rerender="always" placeholder="0"'));
   const noSavings = !goalSavings(g.accountId).length;
   return `<div class="body">${d.error ? errBanner(d.error) : ''}<div class="form-grid">
     ${fld('g-name', t('Name'), inp('g-name', 'name', g.name, `placeholder="${inCompany() ? t('e.g. Taxes, Reserve, Equipment') : t('e.g. Viaje, Carro, Emergencias')}"`), 'full')}
     ${fld('g-kind', t('Type'), `<select id="g-kind" data-c="draft" data-k="kind" data-rerender="1">${options(goalKinds(), g.kind)}</select>`)}
-    ${g.kind === 'goal' ? fld('g-target', tcur('Target (R$)'), inp('g-target', 'targetText', g.targetText, 'inputmode="decimal" class="num" data-rerender="always"')) + ymPicker('g-deadline', 'deadline', g.deadline, t('Target date'), true) + savedIn : savedIn}
-    ${fld('g-acct', t('Kept in'), `<select id="g-acct" data-c="draft" data-k="accountId" required aria-required="true">${acctOptions(g.accountId || '', g.accountId ? null : t('Choose a savings account'), goalSavings(g.accountId))}</select>${noSavings ? `<span class="note">${t('Goals are kept in a savings account, and you have none yet.')} <button type="button" class="linkbtn" data-a="goal-add-savings">${t('Add a savings account')}</button></span>` : ''}`, 'full')}
+    ${g.kind === 'goal' ? fld('g-target', tcurIn('Target (R$)', fc), inp('g-target', 'targetText', g.targetText, 'inputmode="decimal" class="num" data-rerender="always"')) + ymPicker('g-deadline', 'deadline', g.deadline, t('Target date'), true) + savedIn : savedIn}
+    ${fld('g-acct', t('Kept in'), `<select id="g-acct" data-c="draft" data-k="accountId" data-rerender="1" required aria-required="true">${acctOptions(g.accountId || '', g.accountId ? null : t('Choose a savings account'), offered)}</select>${hidden ? `<span class="note">${t('It has money in it, so it stays in {currency}: only savings accounts in {currency} are offered.', { currency: curName(fc) })}</span>` : ''}${noSavings ? `<span class="note">${t('Goals are kept in a savings account, and you have none yet.')} <button type="button" class="linkbtn" data-a="goal-add-savings">${t('Add a savings account')}</button></span>` : ''}`, 'full')}
   </div>
   <div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:14px"><b style="font-weight:500">${t('Monthly plan')}</b>
-    <div class="form-grid">${fld('g-monthly', tcur('Each month (R$)'), inp('g-monthly', 'monthlyText', g.monthlyText, 'inputmode="decimal" class="num" data-rerender="always" placeholder="0"'))}${ymPicker('g-from', 'from', g.from, t('Starting in'))}</div>
-      ${suggest !== null ? `<div class="row"><span class="note">${t('To reach {a} by {month}: {b} a month for {n} months.', { a: fmt.money(target, BCUR(), { trim: true }), month: fmt.month(g.deadline), b: fmt.money(suggest, BCUR()), n: months })}</span><button class="btn sm" data-a="goal-suggest" data-v="${suggest}">${t('Use this amount')}</button></div>` : ''}
-      <p class="note ${remNow < 0 ? 'neg' : ''}">${t('{label} in {month} after this: {amount}.', { label: esc(B().remainderLabel), month: fmt.month(g.from), amount: fmt.money(remNow, BCUR()) })} ${g.deadline && g.kind === 'goal' ? t('The plan is filled until {month}.', { month: fmt.month(g.deadline) }) : t('The plan is filled until December {year}.', { year: Math.max(+g.from.slice(0, 4), ...goalYears(B())) })}</p>
+    <div class="form-grid">${fld('g-monthly', tcurIn('Each month (R$)', fc), inp('g-monthly', 'monthlyText', g.monthlyText, 'inputmode="decimal" class="num" data-rerender="always" placeholder="0"'))}${ymPicker('g-from', 'from', g.from, t('Starting in'))}</div>
+      ${suggest !== null ? `<div class="row"><span class="note">${t('To reach {a} by {month}: {b} a month for {n} months.', { a: fmt.money(target, fc, { trim: true }), month: fmt.month(g.deadline), b: fmt.money(suggest, fc), n: months })}</span><button class="btn sm" data-a="goal-suggest" data-v="${suggest}">${t('Use this amount')}</button></div>` : ''}
+      <p class="note ${here && remNow < 0 ? 'neg' : ''}">${here ? t('{label} in {month} after this: {amount}.', { label: esc(B().remainderLabel), month: fmt.month(g.from), amount: fmt.money(remNow, BCUR()) }) : t('It is in {currency}, its account’s currency: it is planned apart from your income for savings, which is in {main}.', { currency: curName(fc), main: curName(bookCur(B())) })} ${g.deadline && g.kind === 'goal' ? t('The plan is filled until {month}.', { month: fmt.month(g.deadline) }) : t('The plan is filled until December {year}.', { year: Math.max(+g.from.slice(0, 4), ...goalYears(B())) })}</p>
   </div>
   ${foldMore(d, [(g.note || '').trim() ? t('Notes') : ''], `<div class="form-grid">
     ${fld('g-note', t('Notes'), `<textarea id="g-note" data-c="draft" data-k="note">${esc(g.note || '')}</textarea>`, 'full')}</div>`, 'goal-more-box')}</div>
@@ -180,14 +192,15 @@ function goalViewDrawer(d) {
   const menu = [live && ['paused', t('Pause')], live && ['done', t('Mark as completed')], g.status !== 'archived' && ['archived', t('Archive')]].filter(Boolean);
   return `<div class="body">
     <div class="row">${goalChip(g, st)}<span class="note">${g.kind === 'goal' ? t('Goal') : t('Fund')} · ${goalKept(g)}${g.deadline ? ' · ' + t('by {month}', { month: fmt.month(g.deadline) }) : ''}</span></div>
-    <div><div class="bal num" style="font-size:26px;font-weight:500">${fmt.money(st.saved, BCUR())}${st.target !== null ? ` <span class="muted" style="font-size:14px;font-weight:500">/ ${fmt.money(st.target, BCUR(), { trim: true })}</span>` : ''}</div>
-      ${st.target !== null ? `<div style="margin-top:8px">${meter(st.pct, 'go')}<div class="note" style="margin-top:4px">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, BCUR()) }) : ''}</div></div>` : ''}</div>
+    ${goalCurOff(g) ? banner('warn', `${t('Its numbers are in {currency}, but the account it is kept in, {name}, is in {other}.', { currency: curName(gCur(g)), name: esc(acct(g.accountId).name), other: curName(acct(g.accountId).currency) })} <span class="row" style="margin-top:8px"><button class="btn sm" data-a="goal-cur-fix" data-id="${g.id}">${t('Count it in {currency}', { currency: curName(acct(g.accountId).currency) })}</button><button class="btn sm ghost" data-a="goal-edit" data-id="${g.id}">${t('Choose another account')}</button></span>`) : ''}
+    <div><div class="bal num" style="font-size:26px;font-weight:500">${fmt.money(st.saved, gCur(g))}${st.target !== null ? ` <span class="muted" style="font-size:14px;font-weight:500">/ ${fmt.money(st.target, gCur(g), { trim: true })}</span>` : ''}</div>
+      ${st.target !== null ? `<div style="margin-top:8px">${meter(st.pct, 'go')}<div class="note" style="margin-top:4px">${fmt.pct(st.pct)}${st.remaining ? ' · ' + t('{amount} to go', { amount: fmt.money(st.remaining, gCur(g)) }) : ''}</div></div>` : ''}</div>
     <div class="row g-do">${lead}${st.saved > 0 ? `<button class="btn" data-a="goal-move" data-id="${g.id}" data-dir="out" data-back="1">${t('Withdraw')}</button>` : ''}</div>
-    <dl class="kv"><dt>${t('Planned to date')}</dt><dd class="num">${fmt.money(st.plannedToDate, BCUR())}</dd><dt>${t('Plan this month')}</dt><dd class="num">${fmt.money(st.thisMonth, BCUR())}</dd>${g.note ? `<dt>${t('Notes')}</dt><dd>${esc(g.note)}</dd>` : ''}</dl>
+    <dl class="kv"><dt>${t('Planned to date')}</dt><dd class="num">${fmt.money(st.plannedToDate, gCur(g))}</dd><dt>${t('Plan this month')}</dt><dd class="num">${fmt.money(st.thisMonth, gCur(g))}</dd>${g.note ? `<dt>${t('Notes')}</dt><dd>${esc(g.note)}</dd>` : ''}</dl>
     ${bqSheet(`${facts.length || whatif ? `<div class="gv-facts">${facts.map(f => `<div class="obs">${esc(f)}</div>`).join('')}${whatif ? `<button type="button" class="linkbtn g-whatif" data-a="whatif" data-id="${g.id}">${t('What if…?')}</button>` : ''}</div>` : ''}
     ${live ? '' : `<p class="note">${t('Not receiving money from the plan.')}</p>`}
     <div class="gv-moves"><b class="gv-moves-h">${t('Movements')}</b>
-      ${moves.length ? `<ul class="mv-list">${moves.map(m => `<li class="mv"><span class="mv-date num">${fmt.date(m.date, true)}</span><div class="mv-row"><span class="grow">${m.amount < 0 ? t('Withdrawal') : t('Contribution')}${m.note ? ` <span class="muted">· ${esc(m.note)}</span>` : ''}${m.accountId && acct(m.accountId) ? ` <span class="muted">· ${goalAcctName(acct(m.accountId))}</span>` : ''}</span><span class="num mv-amt ${m.amount < 0 ? '' : 'pos'}">${fmt.money(m.amount, BCUR(), { sign: true })}</span><button class="iconbtn" data-a="move-delete" data-id="${m.id}" aria-label="${t('Delete')} ${fmt.date(m.date, true)}">${icon('x')}</button></div></li>`).join('')}</ul>`
+      ${moves.length ? `<ul class="mv-list">${moves.map(m => `<li class="mv"><span class="mv-date num">${fmt.date(m.date, true)}</span><div class="mv-row"><span class="grow">${m.amount < 0 ? t('Withdrawal') : t('Contribution')}${m.note ? ` <span class="muted">· ${esc(m.note)}</span>` : ''}${m.accountId && acct(m.accountId) ? ` <span class="muted">· ${goalAcctName(acct(m.accountId))}</span>` : ''}</span><span class="num mv-amt ${m.amount < 0 ? '' : 'pos'}">${fmt.money(m.amount, gCur(g), { sign: true })}</span><button class="iconbtn" data-a="move-delete" data-id="${m.id}" aria-label="${t('Delete')} ${fmt.date(m.date, true)}">${icon('x')}</button></div></li>`).join('')}</ul>`
         : `<div class="empty" style="padding:18px 0"><b>${t('No movements yet')}</b>${t('If you already have money set aside for this, enter it in Edit, under “Already saved”.')}</div>`}</div>`)}
   </div>
   <footer><button class="btn sm" data-a="goal-edit" data-id="${g.id}">${t('Edit')}</button>
@@ -205,9 +218,9 @@ function goalMoveDrawer(d) {
     : s ? `${t('{name} is not a savings account: it is recorded in the goal only.', { name: esc(s.name) })} ${edit}`
     : `${t('Without a savings account it is recorded in the goal only: no account balance changes.')} ${edit}`;
   return `<div class="body">${d.error ? errBanner(d.error) : ''}
-    <p class="note">${esc(g.name)} · ${s ? goalAcctName(s) : esc(t('No account linked'))} · ${t('Set aside')}: <b class="num" style="color:var(--ink)">${fmt.money(saved, BCUR())}</b></p>
+    <p class="note">${esc(g.name)} · ${s ? goalAcctName(s) : esc(t('No account linked'))} · ${t('Set aside')}: <b class="num" style="color:var(--ink)">${fmt.money(saved, gCur(g))}</b></p>
     <div class="form-grid">
-      ${fld('m-amount', tcur('Amount (R$)'), inp('m-amount', 'amountText', m.amountText, 'inputmode="decimal" class="num" placeholder="0,00"'))}
+      ${fld('m-amount', tcurIn('Amount (R$)', gCur(g)), inp('m-amount', 'amountText', m.amountText, 'inputmode="decimal" class="num" placeholder="0,00"'))}
       ${fld('m-date', t('Date'), `<input type="date" id="m-date" value="${esc(m.date)}" data-c="draft" data-k="date">`)}
       ${from ? fld('m-from', out ? t('Goes to') : t('Comes out of'), `<select id="m-from" data-c="draft" data-k="fromId" data-rerender="1">${acctOptions(from.id, '', pay)}</select>`, 'full') : ''}
       ${fld('m-note', t('Note (optional)'), inp('m-note', 'note', m.note), 'full')}</div>
@@ -220,13 +233,13 @@ function goalMoveDrawer(d) {
 function goalsDashCard() {
   if (!B().goals.length) return '';
   const nowYm = ymOf(B().today), d = distribution(B(), nowYm), live = B().goals.filter(g => g.status === 'active'), goals = live.filter(g => g.kind === 'goal' && !isYearly(g)).slice(0, 3), funds = live.filter(g => g.kind !== 'goal');
-  const total = sum(B().goals.map(g => goalSaved(B(), g.id))), fundTotal = sum(funds.map(g => goalSaved(B(), g.id)));
+  const total = goalSumsBig(B().goals, g => goalSaved(B(), g.id)), fundTotal = goalSums(funds, g => goalSaved(B(), g.id));      // each currency apart (v224)
   // on a phone each goal is something to tap, which opens its details, and the funds' line opens the list of funds (owner, 2026-10-08)
   const tap = isPhone(), go = tap ? icon('right') : '';
-  const pace = (g, st) => { if (st.state === 'reached') return t('Reached'); const a = goalArrival(B(), g, B().today); return !a ? (st.saved <= 0 ? t('Not started') : '') : a.by === 'plan' ? t('reached in {month} at the planned pace', { month: fmt.month(a.ym, true) }) : t('reached in {month} keeping {amount} a month', { month: fmt.month(a.ym, true), amount: fmt.money(a.pace, BCUR(), { trim: true }) }); };
+  const pace = (g, st) => { if (st.state === 'reached') return t('Reached'); const a = goalArrival(B(), g, B().today); return !a ? (st.saved <= 0 ? t('Not started') : '') : a.by === 'plan' ? t('reached in {month} at the planned pace', { month: fmt.month(a.ym, true) }) : t('reached in {month} keeping {amount} a month', { month: fmt.month(a.ym, true), amount: fmt.money(a.pace, gCur(g), { trim: true }) }); };
   return `<section class="card" id="goals-card"><div class="card-h"><h2>${t('Goals')}</h2>${info(t('Set aside is the sum of the contributions you recorded, minus withdrawals; the money itself is in your savings accounts. “Reached in” follows the amounts planned for the coming months.'))}<a class="right btn sm go" href="#goals">${t('Open goals')}${icon('right')}</a></div>
-    <div class="card-b"><div class="figure"><b>${fmt.money(total, BCUR())}</b><span>${t('set aside in goals and funds')}</span></div>
-      ${goals.map(g => { const st = goalStatus(B(), g, B().today), inner = `<b style="font-weight:500">${esc(g.name)}</b><span class="num">${fmt.money(st.saved, BCUR())} <span class="muted">/ ${fmt.money(st.target, BCUR(), { trim: true })}</span>${go}</span>${meter(st.pct, 'go')}<div class="meta"><span>${fmt.pct(st.pct)}</span><span>${pace(g, st)}</span></div>`;
+    <div class="card-b"><div class="figure"><b>${total}</b><span>${t('set aside in goals and funds')}</span></div>
+      ${goals.map(g => { const st = goalStatus(B(), g, B().today), inner = `<b style="font-weight:500">${esc(g.name)}</b><span class="num">${fmt.money(st.saved, gCur(g))} <span class="muted">/ ${fmt.money(st.target, gCur(g), { trim: true })}</span>${go}</span>${meter(st.pct, 'go')}<div class="meta"><span>${fmt.pct(st.pct)}</span><span>${pace(g, st)}</span></div>`;
         return tap ? `<button class="budget tap" data-a="goal-open" data-id="${g.id}">${inner}</button>` : `<div class="budget">${inner}</div>`; }).join('')}
-      ${funds.length ? (inner => tap ? `<button class="budget funds tap" data-a="goal-list" data-kind="fund">${inner}</button>` : `<div class="budget funds">${inner}</div>`)(`<b style="font-weight:500">${tn(funds.length, '{n} fund', '{n} funds')}</b><span class="num">${fmt.money(fundTotal, BCUR())}${go}</span><div class="meta"><span>${esc(funds.slice(0, 3).map(g => g.name).join(' · '))}${funds.length > 3 ? '…' : ''}</span></div>`) : ''}</div></section>`;
+      ${funds.length ? (inner => tap ? `<button class="budget funds tap" data-a="goal-list" data-kind="fund">${inner}</button>` : `<div class="budget funds">${inner}</div>`)(`<b style="font-weight:500">${tn(funds.length, '{n} fund', '{n} funds')}</b><span class="num">${fundTotal}${go}</span><div class="meta"><span>${esc(funds.slice(0, 3).map(g => g.name).join(' · '))}${funds.length > 3 ? '…' : ''}</span></div>`) : ''}</div></section>`;
 }

@@ -44,8 +44,11 @@ function dropLeftLedgers(st) {
 /** Deletes an account with its whole card, once nothing was recorded on any part of it. */
 function deleteCard(a, done) {
   const parts = cardParts(a);
-  confirmBox({ title: t('Delete {name}?', { name: a.name }), text: parts.length > 1 ? t('The account and its card, with its credit and its debit, are removed from the app. None of them has transactions. This can’t be undone.') : t('The account is removed from the app. It has no transactions. This can’t be undone.'), label: t('Delete account'),
-    run() { S.accounts = S.accounts.filter(k => !parts.includes(k)); if (done) done(); toast(t('Account deleted.')); render(); } });
+  // the household's main account going: the next one becomes the main, and the main currency follows it (v224) — said in the question
+  const now = a.scope !== 'business' ? mainOf('personal') : null, snap = mainSnap(), next = now && parts.includes(now) ? mainAmong(S.accounts.filter(k => !parts.includes(k)), 'personal') : null, cur = next && CURRENCIES.includes(next.currency) && next.currency !== currencyOf(S) ? next.currency : null;
+  const after = cur ? ' ' + t('{name} becomes your main account.', { name: next.name }) + ' ' + curFollowText(cur) : '';
+  confirmBox({ title: t('Delete {name}?', { name: a.name }), text: (parts.length > 1 ? t('The account and its card, with its credit and its debit, are removed from the app. None of them has transactions. This can’t be undone.') : t('The account is removed from the app. It has no transactions. This can’t be undone.')) + after, label: t('Delete account'),
+    run() { S.accounts = S.accounts.filter(k => !parts.includes(k)); const c = a.scope !== 'business' ? followMainCur(snap, cur ? undefined : 'quiet') : null; if (done) done(); toast(t('Account deleted.') + (c ? ' ' + t('Your money is counted in {currency}.', { currency: curName(c) }) : '')); render(); } });
 }
 const cardHasDebit = a => !!a && (a.type === 'checking' || (a.type === 'savings' && !!a.debitCard));
 /** Where an expense recorded on an account goes: a savings account whose card has credit and no debit puts it on its invoice. */
@@ -273,7 +276,7 @@ const WALLET_ACTIONS = {
   'wallet-step'(ds) { const row = $('wallet-row'); if (!row) return; const n = row.querySelectorAll('.w-slide').length, i = Math.max(0, Math.min(n - 1, (UI.walletAt || 0) + (+ds.d))); UI.walletAt = i; walletGo(row, i, true); },
   // what is done from an opened card: the panel gives way to the expense or income (in that account), its transactions or its own form
   /** From the savings, when there is no savings account: the account form, set to savings. */
-  'acct-add-savings'() { const co = UI.space === 'business'; A['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : BASE_CURRENCY, type: 'savings' }); const el = $('a-name'); if (el) el.focus(); },
+  'acct-add-savings'() { const co = UI.space === 'business'; A['edit-account']({ id: '', scope: co ? 'business' : 'personal', cur: co ? BCUR() : undefined, type: 'savings' }); const el = $('a-name'); if (el) el.focus(); },
 
   'card-do'(ds) {
     const a = acct(ds.id); if (!a) return; UI.drawer = null; UI.sheet = false;

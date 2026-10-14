@@ -19,7 +19,7 @@ const iwBefore = () => { const r = freeUntil(S, S.today, CUR); return { perDay: 
 /** A way to put part of it aside: the goal the month's plan still waits on most (what the plan asks, up to what came in), or a tenth of it for the
     goal nearest to its end. null without a live goal. */
 function iwIdea(amount) {
-  const bk = B(), ym = ymOf(bk.today), live = bk.goals.filter(g => g.status === 'active' && !isYearly(g)); if (!live.length) return null;
+  const bk = B(), ym = ymOf(bk.today), live = goalsHere(bk).filter(g => g.status === 'active' && !isYearly(g)); if (!live.length) return null;      // the goals in the income's currency, the book's (v224)
   const due = distribution(bk, ym).rows.filter(r => r.pending > 0 && !isYearly(r.goal)).sort((a, b) => b.pending - a.pending)[0];
   const tenth = Math.max(100, Math.round(amount / 10 / 100) * 100);      // whole reais
   const near = live.filter(g => g.kind === 'goal' && g.target > goalSaved(bk, g.id)).sort((a, b) => goalSaved(bk, b.id) / b.target - goalSaved(bk, a.id) / a.target)[0] || live[0];

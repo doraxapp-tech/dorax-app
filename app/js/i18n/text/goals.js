@@ -171,4 +171,12 @@ addTexts([
   ["Covers {n} days of your spending", "Cubre {n} días de tus gastos", "Cobre {n} dias dos seus gastos"],
   ["It goes to {n} goal or fund.", "Va a {n} meta o fondo.", "Vai para {n} meta ou fundo."],
   ["It goes to {n} goals and funds.", "Va a {n} metas y fondos.", "Vai para {n} metas e fundos."],
+  // v224: the main currency follows the main account; each goal in its account’s currency
+  ["{name} is counted in {currency}.", "{name} se cuenta en {currency}.", "{name} é contada em {currency}."],
+  ["Goals and funds in {currency}", "Metas y fondos en {currency}", "Metas e fundos em {currency}"],
+  ["It has money in it, so it stays in {currency}: only savings accounts in {currency} are offered.", "Ya tiene dinero, así que sigue en {currency}: solo se ofrecen cuentas de ahorro en {currency}.", "Ela já tem dinheiro, então continua em {currency}: só aparecem contas poupança em {currency}."],
+  ["It is in {currency}, its account’s currency: it is planned apart from your income for savings, which is in {main}.", "Está en {currency}, la moneda de su cuenta: se planifica aparte de tu ingreso para ahorro, que está en {main}.", "Está em {currency}, a moeda da conta dela: é planejada à parte da sua renda para poupança, que está em {main}."],
+  ["Its numbers are in {currency}, but the account it is kept in, {name}, is in {other}.", "Sus números están en {currency}, pero la cuenta donde se guarda, {name}, está en {other}.", "Os números dela estão em {currency}, mas a conta onde fica, {name}, está em {other}."],
+  ["Count it in {currency}", "Contarla en {currency}", "Contar em {currency}"],
+  ["Choose another account", "Elegir otra cuenta", "Escolher outra conta"],
 ]);

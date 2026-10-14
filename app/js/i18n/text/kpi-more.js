@@ -49,4 +49,6 @@ addTexts([
   ["{amount} of this month’s plan.", "{amount} del plan de este mes.", "{amount} do plano deste mês."],
   ["{name} is the next recurring payment, on {date}.", "{name} es el próximo pago recurrente, el {date}.", "{name} é o próximo pagamento recorrente, em {date}."],
   ["{n} × {price}", "{n} × {price}", "{n} × {price}"],
+  // v224: the main currency follows the main account; each goal in its account’s currency
+  ["By goal, in {currency}", "Por meta, en {currency}", "Por meta, em {currency}"],
 ]);

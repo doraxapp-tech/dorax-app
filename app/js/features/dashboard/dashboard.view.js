@@ -82,7 +82,7 @@ function dashParts() {
   const trend = [], came = []; for (let y = addMonths(nowYm, -5); y <= nowYm; y = addMonths(y, 1)) { const s = monthSummary(b, y, cur); trend.push({ ym: y, value: s.expenses, partial: y === nowYm }); came.push({ ym: y, value: s.income, partial: y === nowYm }); }
   const recent = S.transactions.filter(x => ymOf(x.date) <= ym && mine(x)).slice(0, 5);
   const fresh = !S.transactions.some(mine);   // a plan but no transaction of this side yet
-  const dist = distribution(b, ym), toGoals = sum(b.goals.map(g => goalMonth(b, g.id, ym)));
+  const dist = distribution(b, ym), toGoals = sum(goalsHere(b).map(g => goalMonth(b, g.id, ym)));      // the goals in the book's currency (v224)
   const noOpening = S.clean && accts.length && accts.every(a => !a.opening);
   // company: what left and what arrived by transfer (the owner's pay, a change of currency). A move between two of these accounts is not one.
   const moved = co ? S.transactions.filter(x => x.type === 'transfer' && counts(x) && ymOf(x.date) === ym && mine(x) && !accts.some(a => a.id === x.transferAccountId)) : [], sent = -sum(moved.filter(x => x.amount < 0).map(x => x.amount)), arrived = sum(moved.filter(x => x.amount > 0).map(x => x.amount));

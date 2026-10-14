@@ -19,7 +19,8 @@ const INSIGHT_MIN = 1000;        // a difference under R$ 10 is not worth a sent
 const INSIGHT_MOVE = 3000;       // a category has to move R$ 30 and 10% to be "the one that moved" (the report's rule, core/observations.js)
 
 /** What was put into goals and funds in a month, withdrawals taken off. A starting balance is no contribution. */
-function asideIn(state, ym) { return sum(state.goalMoves.filter(m => !isStartMove(m) && ymOf(m.date) === ym).map(m => m.amount)); }
+// only the goals in the book's currency, as what came in it is counted in (v224: core/goals.js, goalsHere)
+function asideIn(state, ym) { const here = new Set(goalsHere(state).map(g => g.id)); return sum(state.goalMoves.filter(m => here.has(m.goalId) && !isStartMove(m) && ymOf(m.date) === ym).map(m => m.amount)); }
 
 /** Every insight that is true today, in the order of INSIGHT_KINDS: [{ kind, ...figures }]. */
 function insights(state, today, currency) {
@@ -45,7 +46,7 @@ function insights(state, today, currency) {
 
   // the goal reached first
   let near = null;
-  for (const g of state.goals) {
+  for (const g of goalsHere(state)) {
     const a = goalArrival(state, g, today); if (!a) continue;
     if (!near || a.ym < near.a.ym) near = { g, a };
   }

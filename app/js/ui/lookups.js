@@ -44,6 +44,51 @@ const canBeMain = a => !!a && !a.savingsOf && (cardHasDebit(a) || a.type === 'ca
     for a currency (a bill, a book), the main one when it is in that currency, else the first of the side in it. */
 const mainOf = (scope, cur) => { const list = S.accounts.filter(a => (a.scope === 'business') === (scope === 'business') && canBeMain(a)), m = list.find(a => a.main) || list[0] || null;
   return !cur || (m && m.currency === cur) ? m : list.find(a => a.currency === cur) || null; };
+/** The side's main account among a list of accounts (as mainOf, for a list about to be: what is left once an account is deleted). */
+const mainAmong = (list, scope) => { const ok = list.filter(a => (a.scope === 'business') === (scope === 'business') && canBeMain(a)); return ok.find(a => a.main) || ok[0] || null; };
+// ---------- the main currency is the main account's (v224, owner, 2026-10-14: "si el usuario elige una cuenta principal la moneda de la app cambia a la
+// moneda de esa cuenta; las metas deben mantenerse en la moneda de la cuenta de ahorro elegida en 'se guarda en'") ----------
+// The household's totals, plan, limits and reports are counted in its main account's currency. Nothing is converted: when the main account changes to
+// one in another currency, the plan keeps its numbers in the new currency (the person is told before, and asked when the plan has numbers); each
+// goal stays in its own account's currency (core/goals.js: goalCur). S.settings.currency keeps the currency, so the server's reminder job reads it
+// as before; it is set here, and chosen by hand only while there is no account to follow.
+const homeMainCur = () => { const m = mainOf('personal'); return m && CURRENCIES.includes(m.currency) ? m.currency : null; };
+/** Whether the household's plan has numbers a new currency would read differently: a line, or a payment with an amount. */
+const planHasNumbers = () => S.plan.lines.length > 0 || Object.values(S.pay || {}).some(rows => (rows || []).some(r => (r.values || []).some(v => v)));
+/** Which account is the household's main one now, and in which currency: taken before a change, so the currency follows only a change of it. */
+const mainSnap = () => { const m = mainOf('personal'); return m ? m.id + '|' + m.currency : ''; };
+/** The main currency follows the main account; the currency it took, else null. With snap (a mainSnap taken before a change) it follows only when
+    the main account or its currency changed since: saving or deleting another account never moves it. mode 'quiet': only while the plan has no
+    numbers a new currency would read differently; otherwise the money stays counted as it was, and Settings says so and offers the change. Without
+    a mode the person was told before (the form's note, the delete question, the question of makeMain). A goal not stamped yet keeps the currency
+    its numbers were written in. */
+function followMainCur(snap, mode) {
+  const c = homeMainCur(); if (!c || c === currencyOf(S) || (snap !== undefined && mainSnap() === snap)) return null;
+  if (mode === 'quiet' && planHasNumbers()) return null;
+  stampGoalCurrencies(S); S.settings.currency = c; syncCurrency(); return c;
+}
+/** An account from before v224 whose money was counted in another currency than its main account's: with no plan to read differently, it follows at
+    once; with one, Settings says so and offers the change (features/settings/settings.view.js). */
+function alignMainCur() { const m = mainOf('personal'); if (!m || (!m.main && S.transactions.length) || planHasNumbers()) return null; return followMainCur(); }      // a main account only taken as the first that could be, with a history: left as it was
+/** What a change of currency says, before (in the form, in the question) and after (in the note). */
+const curFollowText = c => t('Your totals and your plan are counted in {currency} from now on, with the same numbers: check your pay and your fixed costs. Each goal stays in its own account’s currency. Nothing is converted.', { currency: curName(c) });
+/** Makes an account the household's main one, asking first when its currency is another and the plan has numbers. */
+function makeMain(a) {
+  if (a.scope === 'business') { setMain(a, true); toast(t('{name} is now the main account.', { name: a.name })); return render(); }      // the company's: its own currencies (core/books.js)
+  const c = CURRENCIES.includes(a.currency) && a.currency !== currencyOf(S) ? a.currency : null;
+  const go = () => { setMain(a, true); const now = followMainCur(); toast(now ? t('{name} is now the main account. Your money is counted in {currency}.', { name: a.name, currency: curName(now) }) : t('{name} is now the main account.', { name: a.name })); render(); };
+  if (!c || !planHasNumbers()) return go();
+  confirmBox({ tone: 'neutral', title: t('Count your money in {name}?', { name: curLong(c) }), label: t('Make it the main account'), run: go, onCancel: () => render(),
+    text: t('{name} becomes your main account.', { name: a.name }) + ' ' + curFollowText(c) });
+}
+/** A goal's currency, in the book in use (v224, core/goals.js: goalCur): its savings account's. */
+const gCur = g => goalCur(B(), g);
+/** An amount of several goals, each currency apart and the book's own first: "R$ 12.000 · CUP 40.000" (v224: nothing is converted). */
+const goalSumParts = (goals, val, opt) => { const own = bookCur(B()), cs = [...new Set(goals.map(gCur))].sort((a, b) => (b === own) - (a === own)), of = c => sum(goals.filter(g => gCur(g) === c).map(val)), shown = cs.filter(c => c === cs[0] || of(c));      // another currency with nothing in it is left out
+  return (shown.length ? shown : [own]).map(c => fmt.money(of(c), c, opt)); };
+const goalSums = (goals, val, opt) => goalSumParts(goals, val, opt).join(' · ');
+/** The same as a big figure: the first currency large, the others on a small line under it ("+ CUP 50.000"), so a figure never breaks in two. */
+const goalSumsBig = (goals, val, opt) => { const p = goalSumParts(goals, val, opt); return p[0] + (p.length > 1 ? `<small class="sums-rest">+ ${p.slice(1).join(' · ')}</small>` : ''); };
 /** The main account of the book in use. */
 const mainAcct = () => mainOf(inCompany() ? 'business' : 'personal', BCUR());
 /** Makes an account its side's main one, or stops it being: one per side. */
@@ -72,6 +117,8 @@ const sideLines = () => sideBooks().flatMap(b => (b.plan || {}).lines || []);
 const otherId = () => inCompany() ? 'co-other' : 'other';
 /** A text that names the currency ("Amount (R$)"), in the currency of the book in use. */
 const tcur = (key, vars) => t(key, vars).replace('R$', SYMBOL[BCUR()] || BCUR());
+/** The same, in a currency of its own: a goal's (v224). */
+const tcurIn = (key, cur, vars) => t(key, vars).replace('R$', SYMBOL[cur] || cur);
 function catOf(id) { for (const c of [...S.categories, ...companyCats()]) { if (c.id === id) return { cat: c }; const s = c.subs.find(x => x.id === id); if (s) return { cat: c, sub: s }; } return null; }
 function catName(id) { const f = catOf(id); return f ? (f.sub ? f.sub.name : f.cat.name) : t('Uncategorized'); }
 function catColor(catId) { const c = S.categories.find(x => x.id === catId) || companyCats().find(x => x.id === catId); return c && c.color ? `var(--${c.color})` : 'var(--ink-3)'; }
@@ -115,6 +162,21 @@ const STATUSES = () => [['confirmed', t('Confirmed')], ['pending', t('Pending')]
 /** The banks a dropdown offers, A to Z (owner, 2026-10-09: "sort the banks dropdown alphabetically"), with an account's own institution among them
     and "Other" last. The one chosen for a new account is still the first of BANKS. */
 const bankChoices = (...keep) => [...new Set([...BANKS, ...keep.filter(b => b && b !== t('Other'))])].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' })).concat(t('Other'));
+const PLACE_NAMES = () => ({ BR: t('Brazil'), CU: t('Cuba'), ES: t('Spain'), DE: t('Germany'), INT: t('International') });
+/** The same banks grouped by country (v224, owner, 2026-10-14: "separa la lista de los dropdowns en toda la app por continente o país y una línea al
+    lado para que no se mezclen"): each country under its name with a line beside it, A to Z inside; a bank the app does not know (one typed in an
+    imported file) and "Other" after a line at the end. Where the browser draws its own list (an iPhone, Firefox) the countries are its sections. */
+function bankOptions(sel, ...keep) {
+  // each bank with its logo (owner, 2026-10-14: "agrega los logos de los bancos a los dropdowns para que sean más escaneables"), the chosen one's in the
+  // closed field too. The logo is a picture with no words of its own (the name beside it says the bank), so where the system draws the list it is
+  // simply left out; a bank with no logo file keeps an empty circle, so the names line up.
+  const logo = b => { const m = BANK_MARKS[b], src = m && typeof BANK_LOGOS !== 'undefined' && BANK_LOGOS[m.id]; return src ? `<img class="bk-logo" src="${esc(src)}" alt="" width="24" height="24" decoding="async">` : '<span class="bk-logo none" aria-hidden="true"></span>'; };
+  // sel: the bank, or the bank and its country ("Santander@ES": bankPick) when it is in more than one
+  const all = bankChoices(...keep), other = t('Other'), names = PLACE_NAMES(), now = bankUnpick(sel), opt = (b, p) => { const v = p ? bankPick(b, p) : b, on = b === now.name && (!p || p === now.place); return `<option value="${esc(v)}"${on ? ' selected' : ''}>${b === other ? '' : logo(b)}${esc(b)}</option>`; };
+  const groups = PLACE_ORDER.map(p => [p, all.filter(b => bankPlaces(b).includes(p))]).filter(([, bs]) => bs.length);
+  const rest = all.filter(b => b !== other && !bankPlaces(b).length).concat(other);
+  return '<button type="button" class="bk-now"><selectedcontent></selectedcontent></button>' + groups.map(([p, bs]) => `<optgroup label="${esc(names[p])}"><legend>${esc(names[p])}</legend>${bs.map(b => opt(b, p)).join('')}</optgroup>`).join('<hr>') + '<hr class="bk-end">' + rest.map(b => opt(b)).join('');
+}
 const ACCT_TYPES = () => [['checking', t('Checking')], ['savings', t('Savings')], ['credit', t('Credit card')], ['cash', t('Cash')]];
 const sourceLabel = s => ({ csv: t('CSV file'), ofx: t('OFX file'), manual: t('Manual entry'), say: t('Written as a sentence'), goal: t('A goal’s contribution or withdrawal'), sheet: t('Spreadsheet'), bank: t('Bank connection') }[s] || s);
 const LANGS = [['es', 'Español'], ['pt', 'Português'], ['en', 'English']];

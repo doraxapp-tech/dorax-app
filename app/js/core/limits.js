@@ -77,7 +77,7 @@ const monthPace = today => Math.round(+today.slice(8) * 1000 / daysInMonth(ymOf(
 function monthPlan(state, ym) {
   const income = payTotal(state, ym), lines = linesLive(state, ym), val = l => planValue(state, l, ym);
   const bills = sum(lines.filter(l => l.pay !== 'budget').map(val)), limits = sum(lines.filter(l => l.pay === 'budget').map(val));
-  const goals = sum((state.goals || []).filter(goalLive).map(g => goalPlan(g, ym))), pct = +((state.plan || {}).savePct) || 0, target = pct ? Math.round(income * pct / 100) : 0;
+  const goals = sum((state.goals ? goalsHere(state) : []).filter(goalLive).map(g => goalPlan(g, ym))), pct = +((state.plan || {}).savePct) || 0, target = pct ? Math.round(income * pct / 100) : 0;
   const saving = Math.max(goals, target);
   return { income, bills, goals, pct: pct || null, target, saving, limits, toSpend: income - bills - saving, free: income - bills - saving - limits };
 }

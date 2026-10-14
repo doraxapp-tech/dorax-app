@@ -2,7 +2,7 @@
 function coSetupShow(focusId) { render(); toTop(); const el = (focusId && $(focusId)) || document.querySelector('#co-setup h1'); if (el) { if (el.tagName === 'H1') el.tabIndex = -1; el.focus({ preventScroll: true }); } }
 const COMPANY_ACTIONS = {
   'co-setup-kind'(ds) { UI.coSetup.kind = UI.coSetup.kind === ds.v ? '' : ds.v; render(); },
-  'co-setup-cur'(ds) { UI.coSetup.cur = ds.v === 'USD' ? 'USD' : 'BRL'; render(); },
+  'co-setup-cur'(ds) { UI.coSetup.cur = CURRENCIES.includes(ds.v) ? ds.v : 'BRL'; UI.coSetup.curSet = true; render(); },
   'co-setup-back'() { const o = UI.coSetup; o.error = null; o.step = Math.max(0, o.step - 1); coSetupShow(o.step === 0 ? 'cos-name' : ''); },
   'co-setup-next'() {
     const o = UI.coSetup, d = coSetupRead();
@@ -12,7 +12,7 @@ const COMPANY_ACTIONS = {
     const year = +S.today.slice(0, 4), m0 = +S.today.slice(5, 7) - 1, own = companyData(S, d.cur, true), kind = companyKind(d.kind) || 'PJ';
     S.user.company = true; delete S.user.coLater;
     if (d.name) S.company.name = d.name; if (d.kind) S.company.kind = d.kind;
-    S.accounts.push({ id: newId('a'), name: d.bank + ' ' + kind, institution: d.bank, type: 'checking', currency: d.cur, scope: 'business', monthly: false, purpose: '', opening: d.balance });
+    S.accounts.push({ id: newId('a'), name: d.bank + ' ' + kind, institution: d.bank, place: bankPlaces(d.bank).length > 1 ? d.place || bankPlaces(d.bank)[0] : undefined, type: 'checking', currency: d.cur, scope: 'business', monthly: false, purpose: '', opening: d.balance });
     if (d.income > 0) { own.pay[year] = own.pay[year] || []; own.pay[year].push({ id: newId('pay'), ...appName('Client payments'), sub: 'co-clients', half: 0, to: 'fixed', values: Array.from({ length: 12 }, (_, i) => i >= m0 ? d.income : 0) }); }
     if (d.costs > 0) S.company.spend = { ...(S.company.spend || {}), [d.cur]: d.costs };      // the pace its runway is counted with until real months say more (core/runway.js)
     UI.coSetup = null; setPageBook(bookKeyOf(d.cur));
@@ -46,6 +46,8 @@ const COMPANY_CHANGES = {
   /** A field of the company's setup. One that has a slider moves it along. */
   cos(el) {
     UI.coSetup[el.dataset.k] = el.value;
+    // the bank gives the company's first account its country's currency, unless one was chosen by hand (v224)
+    if (el.dataset.k === 'bank') { const b = bankUnpick(el.value); UI.coSetup.bank = b.name; UI.coSetup.place = b.place; if (!UI.coSetup.curSet) UI.coSetup.cur = bankCur(b.name, b.place) || UI.coSetup.cur; return render(); }
     const r = el.dataset.range && $(el.dataset.range), c = r ? typedAmount(el.value) : null;
     if (r && c !== null && c >= 0) obRangeShow(r, Math.min(+r.max, Math.round(c / 100)));
   },

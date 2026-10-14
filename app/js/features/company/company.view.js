@@ -5,7 +5,7 @@
    in three short screens: its name, where its money is, and what a normal month looks like. */
 const CO_STEPS = 3;
 const CO_MAX = { balance: 200000, income: 100000, costs: 50000 };      // the sliders' far end, in reais or dollars; a larger amount can still be typed
-const freshCoSetup = () => ({ step: 0, error: null, name: (S.company && S.company.name) || '', kind: (S.company && S.company.kind) || '', bank: BANKS[0], cur: BASE_CURRENCY, balance: '0', income: '0', costs: '0' });
+const freshCoSetup = () => ({ step: 0, error: null, name: (S.company && S.company.name) || '', kind: (S.company && S.company.kind) || '', bank: BANKS[0], cur: bankCur(BANKS[0]) || BASE_CURRENCY, balance: '0', income: '0', costs: '0' });
 /** Nothing of a company in the account yet: no company account, no name, nothing planned on its side. Choosing Company then starts its setup. */
 function companyBlank() {
   if (S.accounts.some(a => a.scope === 'business')) return false;
@@ -36,11 +36,11 @@ function coSetupRead() {
   const balance = amt(o.balance), income = amt(o.income), costs = amt(o.costs);
   if (balance === null) errors[1] = bad;
   if ([income, costs].some(v => v === null || v < 0)) errors[2] = bad;
-  return { name: (o.name || '').trim(), kind: o.kind, bank: o.bank, cur: o.cur, balance: balance || 0, income: errors[2] ? 0 : income, costs: errors[2] ? 0 : costs, errors };
+  return { name: (o.name || '').trim(), kind: o.kind, bank: o.bank, place: o.place, cur: o.cur, balance: balance || 0, income: errors[2] ? 0 : income, costs: errors[2] ? 0 : costs, errors };
 }
 /** The company's first-time setup: three screens in the page's own place, with the menu still there to leave by. */
 function viewCompanySetup() {
-  const o = UI.coSetup, step = Math.min(o.step, CO_STEPS - 1), err = o.error ? banner('crit', esc(o.error)) : '', sym = o.cur === 'USD' ? 'US$' : 'R$';
+  const o = UI.coSetup, step = Math.min(o.step, CO_STEPS - 1), err = o.error ? banner('crit', esc(o.error)) : '', sym = SYMBOL[o.cur] || o.cur;
   const dots = `<div class="ob-dots" role="img" aria-label="${t('Step {a} of {b}', { a: step + 1, b: CO_STEPS })}">${Array.from({ length: CO_STEPS }, (_, i) => `<i${i === step ? ' class="now"' : ''}></i>`).join('')}</div>`;
   const foot = label => `<div class="ob-foot">${step ? `<button class="btn ghost" data-a="co-setup-back">${icon('left')}${t('Back')}</button>` : ''}<span class="spacer"></span><button class="btn primary" data-a="co-setup-next">${label}${icon('right')}</button></div>`;
   let body;
@@ -51,8 +51,8 @@ function viewCompanySetup() {
       <div class="field"><span id="cos-kind-l">${t('Kind of company')}</span>${seg('co-setup-kind', [['mei', 'MEI'], ['pj', t('Another company (PJ)')]], o.kind, t('Kind of company'))}</div>
       ${foot(t('Next'))}`;
   else if (step === 1) body = `${head(t('Where does the company keep its money?'), t('One account is enough to start. You add the others later.'), artObj('bank'))}${err}
-      <div class="form-grid"><div class="field"><label for="cos-bank">${t('Bank')}</label><select id="cos-bank" data-c="cos" data-k="bank">${options(bankChoices().map(b => [b, b]), o.bank)}</select></div>
-        <div class="field"><span>${t('Currency')}</span>${seg('co-setup-cur', [['BRL', 'BRL'], ['USD', 'USD']], o.cur, t('Currency'))}</div></div>
+      <div class="form-grid"><div class="field"><label for="cos-bank">${t('Bank')}</label><select id="cos-bank" class="bank-sel" data-c="cos" data-k="bank">${bankOptions(bankPick(o.bank, o.place))}</select></div>
+        <div class="field"><span>${t('Currency')}</span>${seg('co-setup-cur', [...new Set(['BRL', 'USD', o.cur])].map(c => [c, c]), o.cur, t('Currency'))}</div></div>
       ${obSlide('cos-balance', t('In that account today'), 'balance', o.balance, CO_MAX.balance, 500, 'cos', sym)}
       ${foot(t('Next'))}`;
   else body = `${head(t('And in a normal month?'), t('Your best guess is enough. Real months correct it as they come.'), '')}${err}

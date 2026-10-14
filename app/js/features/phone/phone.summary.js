@@ -145,7 +145,7 @@ function fixedListSheet() {
 function goalListSheet() {
   const funds = UI.goalList === 'fund', xs = B().goals.filter(g => g.status === 'active' && (!funds || g.kind !== 'goal')), title = funds ? tn(xs.length, '{n} fund', '{n} funds') : t('Goals');
   return `<div class="scrim" data-a="close"></div><div class="sheet g-pick s-list" role="dialog" aria-label="${esc(title)}"><div class="grab" aria-hidden="true"></div><h2>${esc(title)}</h2>
-    <div class="g-pick-list">${xs.map(g => { const st = goalStatus(B(), g, B().today); return `<button data-a="list-goal" data-id="${g.id}"><span class="grow"><b>${esc(g.name)}</b><small>${g.kind === 'goal' ? t('Goal') : t('Fund')}</small></span><span class="num s-amt">${fmt.money(st.saved, BCUR())}${st.target !== null ? `<small>/ ${fmt.money(st.target, BCUR(), { trim: true })}</small>` : ''}</span>${icon('right')}</button>`; }).join('')
+    <div class="g-pick-list">${xs.map(g => { const st = goalStatus(B(), g, B().today); return `<button data-a="list-goal" data-id="${g.id}"><span class="grow"><b>${esc(g.name)}</b><small>${g.kind === 'goal' ? t('Goal') : t('Fund')}</small></span><span class="num s-amt">${fmt.money(st.saved, gCur(g))}${st.target !== null ? `<small>/ ${fmt.money(st.target, gCur(g), { trim: true })}</small>` : ''}</span>${icon('right')}</button>`; }).join('')
       || `<div class="empty">${t('No active goals.')}</div>`}</div>
     <div class="s-foot"><a class="btn" href="#goals">${t('Open goals')}</a></div></div>`;
 }
