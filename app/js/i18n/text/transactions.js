@@ -139,4 +139,14 @@ addTexts([
   ["Record cost", "Registrar costo", "Registrar custo"],
   ["Record money in", "Registrar cobro", "Registrar recebimento"],
   ["Save changes", "Guardar cambios", "Salvar alterações"],
+  // v225: a transfer between two of the person's accounts reaches both
+  ["A transfer goes between two accounts in the same currency: {name} is in {cur}.", "Una transferencia va entre dos cuentas de la misma moneda: {name} está en {cur}.", "Uma transferência vai entre duas contas da mesma moeda: {name} está em {cur}."],
+  ["Deleted from both accounts.", "Eliminada de las dos cuentas.", "Excluída das duas contas."],
+  ["{n} transfer now reaches its other account.", "{n} transferencia ahora llega a su otra cuenta.", "{n} transferência agora chega à outra conta."],
+  ["{n} transfers now reach their other account.", "{n} transferencias ahora llegan a su otra cuenta.", "{n} transferências agora chegam à outra conta."],
+  ["Transfers recorded from now on reach both accounts.", "Las que registres desde ahora llegan a las dos cuentas.", "As que você registrar a partir de agora chegam às duas contas."],
+  ["Add it to its other account", "Agregarla a su otra cuenta", "Adicionar na outra conta"],
+  ["Add them to the other accounts", "Agregarlas a las otras cuentas", "Adicionar nas outras contas"],
+  ["{n} transfer between your accounts only took the money out: the account it went to never got it.", "{n} transferencia entre tus cuentas solo sacó el dinero: la cuenta a la que iba nunca lo recibió.", "{n} transferência entre suas contas só tirou o dinheiro: a conta de destino nunca recebeu."],
+  ["{n} transfers between your accounts only took the money out: the accounts they went to never got it.", "{n} transferencias entre tus cuentas solo sacaron el dinero: las cuentas a las que iban nunca lo recibieron.", "{n} transferências entre suas contas só tiraram o dinheiro: as contas de destino nunca receberam."],
 ]);

@@ -21,6 +21,7 @@ const C = {
       if (UI.drawer.isNew && !d.curSet) d.currency = bankCur(b.name, b.place) || (d.scope === 'business' ? d.currency : BASE_CURRENCY);
     }
     if (el.dataset.k === 'accountId' && d.transferAccountId === el.value) d.transferAccountId = null;
+    if (el.dataset.k === 'accountId' && UI.drawer.kind === 'tx' && txOtherCur(d)) d.transferAccountId = null;      // a transfer stays between accounts in one currency (v225)
     if (el.dataset.k === 'accountId' && UI.drawer.kind === 'line-pay') delete d.viaCard;      // a payment's account chosen by hand: no card behind it any more
     if (el.dataset.rerender && (el.tagName === 'SELECT' || d.splits || el.dataset.rerender === 'always')) renderOverlayKeepFocus();
   },

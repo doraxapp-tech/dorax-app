@@ -75,10 +75,16 @@ function txInbox() {
 }
 /** Pairs already in the ledger that look like one move between the person's own accounts, counted as spending and as income (owner, 2026-10-09:
     "the most dangerous is not the category, it is the type"). Each one makes both totals bigger than they are; the person decides each pair. */
+// transfers recorded by hand before v225 that never reached their other account (transactions.actions.js: halfTransfers), on either side
+function txHalfNote() {
+  const hs = halfTransfers().filter(h => isBiz(h.x.accountId) === txSideBiz()); if (!hs.length) return '';
+  const n = hs.length;
+  return banner('warn', `<b>${tn(n, '{n} transfer between your accounts only took the money out: the account it went to never got it.', '{n} transfers between your accounts only took the money out: the accounts they went to never got it.')}</b> ${t('Transfers recorded from now on reach both accounts.')} <button class="btn sm" data-a="half-fix">${tn(n, 'Add it to its other account', 'Add them to the other accounts')}</button>`);
+}
 function txPairsNote() {
-  if (txSideBiz()) return '';
+  if (txSideBiz()) return txHalfNote();
   const n = ledgerPairs().length;
-  return n ? banner('warn', `<b>${tn(n, '{n} pair looks like a move between your accounts, counted as spending and as income.', '{n} pairs look like moves between your accounts, counted as spending and as income.')}</b> ${tn(n, 'It makes both figures bigger than they are.', 'Each one makes both figures bigger than they are.')} <button class="btn sm" id="tx-pairs" data-a="tx-pairs">${tn(n, 'Look at it', 'Look at them')}</button>`) : '';
+  return txHalfNote() + (n ? banner('warn', `<b>${tn(n, '{n} pair looks like a move between your accounts, counted as spending and as income.', '{n} pairs look like moves between your accounts, counted as spending and as income.')}</b> ${tn(n, 'It makes both figures bigger than they are.', 'Each one makes both figures bigger than they are.')} <button class="btn sm" id="tx-pairs" data-a="tx-pairs">${tn(n, 'Look at it', 'Look at them')}</button>`) : '');
 }
 function pairsDrawer() {
   const ps = ledgerPairs();

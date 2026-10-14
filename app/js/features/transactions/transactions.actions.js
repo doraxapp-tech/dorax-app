@@ -13,6 +13,37 @@ function homeRowSync(co, home, cents, key) {
   const r = row || S.transactions[S.transactions.length - 1]; r.fingerprint = fingerprint(r.accountId, r.date, r.merchant, r.amount);
 }
 
+// ---------- a transfer between two of the person's accounts: both sides (v225, owner, 2026-10-14: "sí" to "al registrar una transferencia entre
+// dos cuentas tuyas, la de origen baja pero la de destino no sube") ----------
+// A statement brings a transfer's other side in with it (features/imports/import-session.js: commitSession); one recorded by hand now does the same:
+// the other account's row, the other way round, linked to it (linkId), so both are saved, edited, ignored and deleted together. When the other
+// account already has the move (its own statement came in first) that row is linked instead of a second one being made. Either row can be edited:
+// the other one follows. A transfer goes between two accounts in the same currency (owner, 2026-10-14: "asegúrate que las transferencias sean
+// entre cuentas del mismo tipo, no de Nubank (reales) a BANDEC (CUP)"): the lists offer only those, and saving one to another currency says so.
+/** The account a transfer goes into (or came from) on the same side and in the same currency, when it is one of the person's accounts; else null. */
+const txOtherSide = x => { const a = x && acct(x.accountId), o = x && x.type === 'transfer' && x.transferAccountId && acct(x.transferAccountId); return a && o && isBiz(o.id) === isBiz(a.id) && o.currency === a.currency && cardMain(o) !== cardMain(a) ? o : null; };
+/** A transfer to an account of the same side in another currency: not allowed (the account it names), else null. */
+const txOtherCur = x => { const a = x && acct(x.accountId), o = x && x.type === 'transfer' && x.transferAccountId && acct(x.transferAccountId); return a && o && isBiz(o.id) === isBiz(a.id) && o.currency !== a.currency ? o : null; };
+/** The other side of a transfer, made or brought in line with it: the same amount, the other way round. */
+function sideRowSync(src, other) {
+  const row = linkedRow(src), amount = -src.amount;
+  const same = { accountId: other.id, date: src.date, amount, currency: other.currency, type: 'transfer', categoryId: null, subcategoryId: null, status: src.status, transferAccountId: src.accountId, linkId: src.linkId };
+  let r = row;
+  if (r) Object.assign(r, same);      // its own words (the bank's, or what was typed on it) are kept
+  else {
+    const free = S.transactions.filter(k => k.type === 'transfer' && !k.linkId && (!k.transferAccountId || k.transferAccountId === src.accountId)), dup = findDuplicate({ amount, date: src.date, merchant: src.merchant, description: src.description }, other.id, free);
+    if (dup) { r = dup.txn; Object.assign(r, { transferAccountId: src.accountId, linkId: src.linkId, categoryId: null, subcategoryId: null }); }
+    else { r = { id: newId('t'), description: src.description, merchant: src.merchant, recurring: false, notes: '', source: 'manual', sourceTxnId: null, confidence: null, splits: null, ...same }; S.transactions.push(r); }
+  }
+  r.fingerprint = fingerprint(r.accountId, r.date, r.merchant, r.amount);
+}
+/** Transfers recorded by hand before v225 whose other account never got its side: [{ x, other }]. One whose other account has the move (the
+    same amount the other way within three days) is left alone. */
+function halfTransfers() {
+  return S.transactions.filter(x => x.type === 'transfer' && !x.linkId && !x.goalMoveId && !x.importId && x.status !== 'ignored' && txOtherSide(x)).map(x => ({ x, other: txOtherSide(x) }))
+    .filter(({ x, other }) => !S.transactions.some(k => k.accountId === other.id && k.amount === -x.amount && Math.abs(dayDiff(k.date, x.date)) <= 3 && (k.type === 'transfer' || k.type === 'income' || k.type === 'expense')));
+}
+
 /** A field the person set by hand: the sentence no longer writes over it. */
 function txTouched(k) { const d = UI.drawer; (d.touched = d.touched || {})[k] = true; }
 /** After the kind changed: the direction that goes with it, and no group of the other kind. */
@@ -70,7 +101,7 @@ const TRANSACTIONS_ACTIONS = {
     const x = S.transactions.find(k => k.id === ds.id); if (!x) return;
     UI.drawer = { kind: 'tx', title: t('Edit transaction'), isNew: false, original: catKey(x.categoryId, x.subcategoryId), draft: { ...x, amountText: centsToDecimal(Math.abs(x.amount)), dir: x.amount < 0 ? 'out' : 'in', refund: x.type === 'expense' && x.amount > 0, catKey: catKey(x.categoryId, x.subcategoryId),
       splits: x.splits ? x.splits.map(s => ({ catKey: catKey(s.categoryId, s.subcategoryId), amountText: centsToDecimal(Math.abs(s.amount)) })) : null } };
-    const home = linkedRow(x); if (home && isBiz(x.accountId)) Object.assign(UI.drawer.draft, { homeKey: catKey(home.categoryId, home.subcategoryId), homeAmountText: centsToDecimal(Math.abs(home.amount)) });      // paying yourself
+    const home = linkedRow(x); if (home && isBiz(x.accountId) && !isBiz(home.accountId)) Object.assign(UI.drawer.draft, { homeKey: catKey(home.categoryId, home.subcategoryId), homeAmountText: centsToDecimal(Math.abs(home.amount)) });      // paying yourself
     renderOverlay();
   },
   // 2026-10-09 (owner: "I went into the PJ side, added an income and it was recorded in the household account"): a new transaction starts in an
@@ -118,7 +149,7 @@ const TRANSACTIONS_ACTIONS = {
     const x = S.transactions.find(k => k.id === UI.drawer.draft.id); if (!x) return;
     const hit = txGoalMove(x), pair = linkedRow(x), later = x.inst ? instGroup(S, x.inst.g).filter(k => k !== x && k.inst.i > x.inst.i) : [];      // an installment takes the ones after it (features/installments)      // a goal's contribution or withdrawal: its other row and the movement go with it (features/goals); paying yourself: the other side's row
     confirmBox({ title: t('Delete this transaction?'), text: t('{name}, {amount}, {date}. It stops counting in every total. This can’t be undone.', { name: x.merchant, amount: fmt.money(x.amount, x.currency), date: fmt.date(x.date, true) }) + (hit ? ' ' + t('It is a movement of the goal {name}: the goal and the other account change too.', { name: hit.goal ? hit.goal.name : '' }) : '') + (later.length ? ' ' + tn(later.length, 'It is installment {i} of {k}: the one after it goes too ({amount}). The ones before stay.', 'It is installment {i} of {k}: the {n} after it go too ({amount}). The ones before stay.', { i: x.inst.i, k: x.inst.n, amount: fmt.money(-sum(later.map(k => k.amount)), x.currency) }) : ''), label: t('Delete transaction'),
-      run() { if (hit) goalMoveGone(hit.m, hit.book); S.transactions = S.transactions.filter(k => k !== x && k !== pair && !later.includes(k)); UI.drawer = null; toast(pair ? t('Deleted on both sides: the company’s transfer and the household’s income.') : t('Transaction deleted.')); render(); } });
+      run() { if (hit) goalMoveGone(hit.m, hit.book); S.transactions = S.transactions.filter(k => k !== x && k !== pair && !later.includes(k)); UI.drawer = null; toast(pair ? (pair.type === 'transfer' && isBiz(pair.accountId) === isBiz(x.accountId) ? t('Deleted from both accounts.') : t('Deleted on both sides: the company’s transfer and the household’s income.')) : t('Transaction deleted.')); render(); } });
   },
 
   'ignore-tx'() { const x = S.transactions.find(k => k.id === UI.drawer.draft.id), pair = linkedRow(x); x.status = x.status === 'ignored' ? 'confirmed' : 'ignored'; if (pair) pair.status = x.status; UI.drawer = null; toast(x.status === 'ignored' ? t('Transaction ignored. It no longer counts in totals.') : t('Transaction restored.')); render(); },
@@ -132,6 +163,9 @@ const TRANSACTIONS_ACTIONS = {
     if (!parseDate(x.date)) return fail(t('Enter a valid date.'), 'd-date');
     const homeAmt = !homeAcct ? null : homeAcct.currency === acct(x.accountId).currency ? Math.abs(abs) : Math.abs(typedAmount(x.homeAmountText) || 0);
     if (homeAcct && !homeAmt) return fail(t('Enter what arrived at home, in {cur}.', { cur: homeAcct.currency }), 'd-home-amt');
+    const otherCur = homeAcct ? null : txOtherCur(x);      // only between accounts in the same currency (v225)
+    if (otherCur) return fail(t('A transfer goes between two accounts in the same currency: {name} is in {cur}.', { name: otherCur.name, cur: otherCur.currency }), 'd-xfer');
+    const sideTo = homeAcct || (x.id && (S.transactions.find(k => k.id === x.id) || {}).goalMoveId) ? null : txOtherSide(x);      // its other side (v225); a goal's transfer keeps its own two rows (features/goals)
     const sign = x.type === 'expense' ? (x.refund ? 1 : -1) : x.type === 'income' ? 1 : x.dir === 'in' ? 1 : -1, total = Math.abs(abs);
     let splits = null;
     if (x.splits && x.type !== 'transfer' && !biz) {
@@ -150,14 +184,17 @@ const TRANSACTIONS_ACTIONS = {
       recurring: !!x.recurring, notes: x.notes, source: x.source, sourceTxnId: x.sourceTxnId, confidence: x.confidence, splits };
     next.fingerprint = fingerprint(next.accountId, next.date, next.merchant, next.amount);
     const was = prev && prev.accountId;
-    const homeSide = prev && prev.linkId && !isBiz(prev.accountId);      // the household's row of a payment to yourself, edited on its own: it stays linked
-    next.linkId = homeAcct ? (prev && prev.linkId) || newId('lk') : homeSide ? prev.linkId : null;
+    const pairWas = prev && prev.linkId ? linkedRow(prev) : null, samePair = !!pairWas && pairWas.type === 'transfer' && isBiz(pairWas.accountId) === isBiz(prev.accountId);      // a transfer's other side (v225)
+    const homeSide = prev && prev.linkId && !isBiz(prev.accountId) && !samePair;      // the household's row of a payment to yourself, edited on its own: it stays linked
+    next.linkId = homeAcct ? (prev && prev.linkId) || newId('lk') : sideTo ? (samePair && prev.linkId) || newId('lk') : homeSide ? prev.linkId : null;
     if (homeSide && next.type === 'income') next.transferAccountId = prev.transferAccountId;
-    if (prev && prev.linkId && !homeAcct && isBiz(prev.accountId)) S.transactions = S.transactions.filter(k => k === prev || k.linkId !== prev.linkId);      // no longer paying yourself: the household's row goes
+    if (prev && prev.linkId && !homeAcct && isBiz(prev.accountId) && !samePair) S.transactions = S.transactions.filter(k => k === prev || k.linkId !== prev.linkId);      // no longer paying yourself: the household's row goes
+    if (samePair && !sideTo) S.transactions = S.transactions.filter(k => k !== pairWas);      // no longer a transfer between two of the person's accounts: its other side goes
     const parts = d.isNew ? instCount(x) : 1;      // in installments on a card: one row on each coming invoice (features/installments)
     const iwPre = tdOn() && d.isNew && x.type === 'income' && !biz && !homeAcct && parts === 1 ? iwBefore() : null;      // money in, on the summary's look: what it changes (features/transactions/tx-done.js)
     if (prev) Object.assign(prev, next); else S.transactions.push(...instRows(next, parts, newId));
     if (homeAcct) homeRowSync(prev || next, homeAcct, homeAmt, x.homeKey || homeKeyDefault());
+    if (sideTo) sideRowSync(prev || next, sideTo);
     if (prev && prev.goalMoveId) goalTxEdited(prev, was);      // a goal's transfer: the other row and the movement follow it
     S.transactions.sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
     UI.rulePrompt = null;
@@ -177,4 +214,11 @@ const TRANSACTIONS_ACTIONS = {
   },
   'rule-from-prompt'() { const p = UI.rulePrompt; S.rules.push({ id: newId('r'), pattern: p.pattern, merchant: p.merchant, categoryId: p.categoryId, subcategoryId: p.subcategoryId, priority: 10, accountId: null, active: true, transfer: false }); UI.rulePrompt = null; toast(t('Rule created: “{pattern}” → {label}.', { pattern: p.pattern, label: p.label })); render(); },
   'dismiss-prompt'() { UI.rulePrompt = null; render(); },
+  /** The transfers recorded by hand before v225: their other side. */
+  'half-fix'() {
+    const hs = halfTransfers();
+    hs.forEach(({ x, other }) => { x.linkId = newId('lk'); sideRowSync(x, other); });
+    S.transactions.sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+    toast(tn(hs.length, '{n} transfer now reaches its other account.', '{n} transfers now reach their other account.')); render();
+  },
 };

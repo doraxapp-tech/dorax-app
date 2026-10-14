@@ -143,7 +143,8 @@ function txFormBody(d) {
   const more = d.more == null ? (!d.isNew && says.length > 0) : d.more, blank = biz ? t('Not in the company plan') : t('Uncategorized');
   // a transfer moves money between accounts of the same side (owner, 2026-10-09: "the accounts do not mix"), with one way across: a company
   // account pays the household (paying yourself, above). One already linked to the other side keeps its account in the list.
-  const parts = cardParts(cardMain(acct(x.accountId))), same = S.accounts.filter(k => !parts.includes(k) && (k.scope === 'business') === biz).map(k => [k.id, acctLabel(k)]);
+  // and only to an account in the same currency (v225, owner: "asegúrate que las transferencias sean entre cuentas del mismo tipo, no de Nubank (reales) a BANDEC (CUP)")
+  const parts = cardParts(cardMain(acct(x.accountId))), same = S.accounts.filter(k => !parts.includes(k) && (k.scope === 'business') === biz && k.currency === (acct(x.accountId) || {}).currency).map(k => [k.id, acctLabel(k)]);
   const home = biz ? homeTargets().map(k => [k.id, acctLabel(k)]) : [], kept = x.transferAccountId && acct(x.transferAccountId) && ![...same, ...home].some(p => p[0] === x.transferAccountId) ? [[x.transferAccountId, acctLabel(acct(x.transferAccountId))]] : [];
   const xferOpts = options([['', t('Not in Dorax')], ...kept], x.transferAccountId || '') + (biz && home.length ? `<optgroup label="${esc(t('Company'))}">${options(same, x.transferAccountId || '')}</optgroup><optgroup label="${esc(t('Your household (paying yourself)'))}">${options(home, x.transferAccountId || '')}</optgroup>` : options(same, x.transferAccountId || ''));
   const goesHome = toHome(x), homeAcct = goesHome && acct(x.transferAccountId);

@@ -65,7 +65,7 @@ const { open, ok, eq, done } = require('./pw.js');
     { id: 'lp-in', date: '2026-09-11', accountId: 'bb', type: 'income', amount: 33333, currency: 'BRL', merchant: 'Pix recebido', description: 'PIX RECEBIDO', categoryId: 'income', subcategoryId: null, status: 'confirmed', notes: '' }); UI.tx = { ...TX_DEFAULT }; navigate('transactions'); });
   const lp = await p.evaluate(() => ledgerPairs().map(([e, i]) => e.id + '>' + i.id));
   ok(lp.includes('lp-out>lp-in'), 'a pair already in the ledger is found: ' + lp.join(', '));
-  ok(await p.evaluate(n => document.querySelector('#view .banner').innerText.includes(n === 1 ? '1 pair looks like' : n + ' pairs look like'), lp.length), 'Transactions says how many there are');
+  ok(await p.evaluate(n => [...document.querySelectorAll('#view .banner')].some(b => b.innerText.includes(n === 1 ? '1 pair looks like' : n + ' pairs look like')), lp.length), 'Transactions says how many there are');
   await p.click('#tx-pairs'); await p.waitForSelector('#overlay .pr');
   eq(await p.evaluate(() => document.querySelectorAll('#overlay .pr').length), lp.length, 'the panel lists each pair');
   await p.click('#overlay [data-a="pair-yes"][data-e="lp-out"]'); await p.waitForTimeout(150);
