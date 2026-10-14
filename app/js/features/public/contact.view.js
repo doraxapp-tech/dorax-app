@@ -6,7 +6,7 @@ const freshContact = () => ({ email: UI.session ? S.user.email : '', topic: 'que
 const contactState = () => UI.contact || (UI.contact = freshContact());
 function contactFields() {
   const c = contactState();
-  if (c.sent) return `<div class="contact-done" role="status" id="contact-done" tabindex="-1"><div class="modal-icon neutral">${icon('check')}</div><h2>${t('Message sent')}</h2>
+  if (c.sent) return `<div class="contact-done" role="status" id="contact-done" tabindex="-1"><div class="modal-icon neutral ti">${artOr('envelope-simple', 'check')}</div><h2>${t('Message sent')}</h2>
       <p>${t('The answer goes to {email}.', { email: `<b>${esc(c.email)}</b>` })}</p></div>`;
   return `${c.error ? banner('crit', esc(c.error)) : ''}
     <div class="field"><label for="ct-email">${t('Your email, for the answer')}</label><input type="text" inputmode="email" id="ct-email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${esc(c.email)}" placeholder="${t('you@email.com')}" data-c="contact" data-k="email" data-live="1"></div>

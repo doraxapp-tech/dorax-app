@@ -65,6 +65,12 @@ function sideTipCard() {
     <button class="btn ghost sm x" data-a="curio-close" aria-label="${t('Close')}">${icon('x')}</button></aside>`;
 }
 
+/** The thing each quick action is drawn with (v217; owner, 2026-10-13: "¿hiciste los cambios de iconos en el modo casa?"): Dorax's things (js/ui/art.js),
+    in their light line ('bold') so they read at 32 to 56 px. The summary's round buttons and its More list, the round +'s three, and the computer's
+    buttons under the figures. A screen's own "new" keeps its +. */
+const QUICK_ART = { expense: 'receipt', income: 'hand-coins', transfer: 'arrows-left-right', more: 'dots-three-outline', pay: 'calendar-check', save: 'piggy-bank',
+  goal: 'flag-banner', cost: 'calendar-dots', limit: 'gauge', import: 'file-arrow-up', account: 'bank' };
+const quickArt = (v, cls) => QUICK_ART[v] && typeof artObj === 'function' ? artObj(QUICK_ART[v], 'bold qa-art' + (cls ? ' ' + cls : '')) : '';
 /** The quick things to do: what a person does most, each said as what it does (owner: "the text under them is vague, use action text: record a
     payment, record an income"), in the words of the side in use, with this screen's own "new" first when it has one. [id, icon, words]. */
 function quickItems() {

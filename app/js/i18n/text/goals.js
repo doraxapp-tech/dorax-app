@@ -127,7 +127,7 @@ addTexts([
   ["One step closer", "Un paso más cerca", "Um passo mais perto"],
   ["{n} months in a row", "{n} meses seguidos", "{n} meses seguidos"],
   ["This month’s plan: done", "Plan del mes: hecho", "Plano do mês: feito"],
-  ["set aside in total", "guardado en total", "guardado no total"],
+  ["You now have {total} set aside.", "Ya tienes {total} apartados.", "Você já tem {total} guardados."],      // v217: money set aside, its total in one sentence (owner: "demasiados números aquí")
   ["{pct} of {amount}", "{pct} de {amount}", "{pct} de {amount}"],
   ["Saved in {name}", "Guardado en {name}", "Guardado em {name}"],
   ["See goal", "Ver meta", "Ver meta"],

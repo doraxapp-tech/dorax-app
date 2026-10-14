@@ -29,8 +29,8 @@ const BQ_SWAP = '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-
 /** The row of buttons under the figures: the things to record first, More, and the order of the parts. */
 function bqDeskActs() {
   const by = Object.fromEntries(quickItems().map(x => [x[0], x]));
-  const one = (v, d, label, main) => by[v] ? `<button class="bq-dact${main ? ' main' : ''}" data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}">${bqSvg(d)}<span>${label}</span></button>` : '';
-  return `<div class="bq-dacts">${one('expense', BQ_OUT, quickShort('expense', inCompany()), true)}${one('income', BQ_IN, inCompany() ? quickShort('income', true) : t('Inflow'))}${one('transfer', BQ_SWAP, t('Move money'))}<button class="bq-dact" data-a="quick-more" aria-haspopup="dialog">${icon('more')}<span>${t('More')}</span></button>${bqDeskAccs()}${dashOrderBtn()}</div>`;
+  const one = (v, d, label, main) => by[v] ? `<button class="bq-dact${main ? ' main' : ''}${QUICK_ART[v] ? ' art' : ''}" data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}">${quickArt(v) || bqSvg(d)}<span>${label}</span></button>` : '';      // v217: its thing
+  return `<div class="bq-dacts">${one('expense', BQ_OUT, quickShort('expense', inCompany()), true)}${one('income', BQ_IN, inCompany() ? quickShort('income', true) : t('Inflow'))}${one('transfer', BQ_SWAP, t('Move money'))}<button class="bq-dact art" data-a="quick-more" aria-haspopup="dialog">${quickArt('more') || icon('more')}<span>${t('More')}</span></button>${bqDeskAccs()}${dashOrderBtn()}</div>`;
 }
 /** The accounts as the phone's round logos, at the right of the buttons, beside "Reorder" (v202, owner: "los bancos en círculos también ponlos al
     lado izquierdo de ordenar resumen"); each opens its panel, its name shows under the pointer. */

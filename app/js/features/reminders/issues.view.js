@@ -17,7 +17,8 @@ function issuesAll() {
 const issueCur = r => r.currency || r.cur || BASE_CURRENCY;
 const issueMoney = (r, v) => fmt.money(v, issueCur(r), { trim: true });
 const ISSUE_ICONS = { 'plan-over': 'alert', 'no-income': 'coins', short: 'wallet', negative: 'bank', uncat: 'tag', budget: 'gauge', yearly: 'calendar' };
-const issueIcon = r => icon(r.kind === 'budget' ? 'gauge' : ISSUE_ICONS[r.what] || 'alert');
+const ISSUE_ART = { 'plan-over': 'calendar-dots', 'no-income': 'coins', short: 'wallet', negative: 'bank', uncat: 'tag', budget: 'gauge', yearly: 'calendar-check' };      // v218: in the look, each problem's thing
+const issueIcon = r => { const k = r.kind === 'budget' ? 'budget' : r.what; return artOr(ISSUE_ART[k] || 'calendar-dots', k === 'budget' ? 'gauge' : ISSUE_ICONS[r.what] || 'alert'); };
 /** The row's title. */
 function issueTitle(r) {
   if (r.what === 'yearly') return yearlyIssueTitle(r);
@@ -40,7 +41,7 @@ function issueLine(r) {
 }
 const issueChev = () => `<span class="mr-chev" aria-hidden="true">${icon('right')}</span>`;
 /** A row of the bell: the icon, what, the fact, and the way in. */
-const issueRow = r => `<button class="rem iss ${r.level || ''}" data-a="issue-open" data-id="${esc(r.id)}"${r.book ? ` data-book="${r.book}"` : ''}><span class="iss-ico">${issueIcon(r)}</span><span class="grow"><b>${esc(issueTitle(r))}</b><small>${esc(issueLine(r))}</small></span>${issueChev()}</button>`;
+const issueRow = r => `<button class="rem iss ${r.level || ''}" data-a="issue-open" data-id="${esc(r.id)}"${r.book ? ` data-book="${r.book}"` : ''}><span class="iss-ico ti">${issueIcon(r)}</span><span class="grow"><b>${esc(issueTitle(r))}</b><small>${esc(issueLine(r))}</small></span>${issueChev()}</button>`;
 
 /** The ways to solve it: [key, title, what it does]. issues.actions.js ('issue-fix') takes each one there. */
 function issueFixes(r) {
@@ -81,7 +82,7 @@ function issueWhat(r) {
 function issueDrawer(d) {
   const r = bellItems().find(x => x.id === d.id);
   if (!r) return `<div class="body iss-view"><div class="empty"><b>${t('All set')}</b>${t('This is no longer happening.')}</div></div><footer><button class="btn primary" data-a="reminders">${t('Back to the notifications')}</button></footer>`;
-  return `<div class="body iss-view"><div class="iss-head ${r.level || ''}"><span class="iss-ico big">${issueIcon(r)}</span><b>${esc(issueTitle(r))}</b></div>
+  return `<div class="body iss-view"><div class="iss-head ${r.level || ''}"><span class="iss-ico big ti">${issueIcon(r)}</span><b>${esc(issueTitle(r))}</b></div>
       <div class="iss-what">${issueWhat(r)}</div>
       <h3 class="iss-h">${t('How to solve it')}</h3>
       <div class="iss-fixes">${issueFixes(r).map(([k, title, say], i) => `<button class="iss-fix${i === 0 ? ' first' : ''}" data-a="issue-fix" data-v="${k}" data-id="${esc(r.id)}"${r.book ? ` data-book="${r.book}"` : ''}><span class="grow"><b>${title}</b><small>${say}</small></span>${issueChev()}</button>`).join('')}</div></div>

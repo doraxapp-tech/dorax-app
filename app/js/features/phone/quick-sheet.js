@@ -14,5 +14,5 @@ const quickShort = (v, co) => ({ expense: co ? t('Cost') : t('Expense'), income:
 function quickSheet() {
   const co = UI.space === 'business', by = Object.fromEntries(quickItems().map(x => [x[0], x])), base = QUICK_BASE.filter(k => by[k]).map(k => by[k]);
   return `<div class="scrim" data-a="close"></div><div class="sheet quick" role="dialog" aria-label="${t('Add')}"><div class="grab" aria-hidden="true"></div><h2>${t('What do you want to do?')}</h2>
-    <div class="quick-base" role="group" aria-label="${t('Record')}">${base.map((x, i) => `<button data-a="quick-go" data-v="${x[0]}" aria-label="${esc(x[2])}" style="--i:${i}"><span class="fl-ico">${icon(x[1])}</span><span>${quickShort(x[0], co)}</span></button>`).join('')}</div></div>`;
+    <div class="quick-base" role="group" aria-label="${t('Record')}">${base.map((x, i) => { const art = typeof landOn === 'function' && landOn() ? quickArt(x[0]) : ''; return `<button data-a="quick-go" data-v="${x[0]}" aria-label="${esc(x[2])}" style="--i:${i}"><span class="fl-ico${art ? ' qa-ico' : ''}">${art || icon(x[1])}</span><span>${quickShort(x[0], co)}</span></button>`; }).join('')}</div></div>`;      // v217: in the new look, each with its thing (phone.view.js, QUICK_ART)
 }

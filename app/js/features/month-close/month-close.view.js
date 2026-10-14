@@ -22,7 +22,7 @@ const mcMoney = v => fmt.money(v, BASE_CURRENCY, { round: true });
 /** The note at the top of the summary. */
 function monthCloseCard() {
   const ym = mcOffered(); if (!ym) return '';
-  return `<aside class="mc-ask" id="mc-ask" aria-labelledby="mc-ask-h"><span class="mc-ask-ico" aria-hidden="true">${icon('calendar')}</span>
+  return `<aside class="mc-ask" id="mc-ask" aria-labelledby="mc-ask-h"><span class="mc-ask-ico ti" aria-hidden="true">${artOr('calendar-check', 'calendar')}</span>
     <span class="mc-ask-t"><b id="mc-ask-h">${t('{month} closed', { month: mcMonthCap(ym) })}</b><small>${t('See how it went, in 3 short steps.')}</small></span>
     <button class="btn sm primary" data-a="month-close" data-ym="${ym}">${t('See it')}</button><button class="iconbtn mc-ask-x" data-a="month-close-later" data-ym="${ym}" aria-label="${t('Not now')}">${icon('x')}</button></aside>`;
 }

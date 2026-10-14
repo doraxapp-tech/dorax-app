@@ -30,7 +30,7 @@ const yrDue = st => st.now || st.late || st.ready;
 function yearlyCard(g) {
   const st = yearlyState(B(), g, B().today);
   return `<section class="card yr-card${flashed(g.id)}"><button class="yr-main" data-a="yearly-open" data-id="${g.id}">
-      <span class="yr-top"><span class="yr-ico" aria-hidden="true">${icon('calendar')}</span><b>${esc(g.name)}</b>${yrChip(st)}</span>
+      <span class="yr-top"><span class="yr-ico ti" aria-hidden="true">${artOr('calendar-dots', 'calendar')}</span><b>${esc(g.name)}</b>${yrChip(st)}</span>
       <span class="yr-amt num">${yrMoney(st.saved)} <span class="muted">${t('of {amount}', { amount: yrMoney(st.target) })}</span></span>
       ${meter(st.pct, st.late ? 'crit' : 'go')}<span class="yr-say">${esc(yrSay(g, st))}</span></button>
     ${yrDue(st) ? `<div class="yr-foot"><button class="btn sm primary" data-a="yearly-pay" data-id="${g.id}">${icon('check')}${t('I paid it')}</button></div>` : ''}</section>`;

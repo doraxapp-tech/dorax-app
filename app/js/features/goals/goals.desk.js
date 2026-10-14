@@ -23,7 +23,7 @@ function dkGoalCard(g) {
       : later ? dkPill(esc(t('Starts in {month}', { month: yrMonth(next.ym) })))
         : a && a.late > 0 ? dkPill(esc(tn(a.late, '{n} month late', '{n} months late')), 'warn') : st.state === 'behind' ? dkPill(t('Behind plan'), 'warn')
           : fund ? dkPill(t('Up to date'), 'mint') : a ? dkPill(t('On time'), 'mint') : dkPill(t('No date yet'));
-  const head = `<div class="dk-tile-h">${where ? dkMark(where) : `<span class="dk-ico" aria-hidden="true">${icon(fund ? 'wallet' : 'flag')}</span>`}<span class="dk-tile-n"><b>${esc(g.name)}</b><small>${fund ? t('Fund') : t('Goal')} · ${where ? esc(where.name) : t('no account')}</small></span>${chip}</div>`;
+  const head = `<div class="dk-tile-h">${where ? dkMark(where) : `<span class="dk-ico ti" aria-hidden="true">${artOr(fund ? 'piggy-bank' : 'flag-banner', fund ? 'wallet' : 'flag')}</span>`}<span class="dk-tile-n"><b>${esc(g.name)}</b><small>${fund ? t('Fund') : t('Goal')} · ${where ? esc(where.name) : t('no account')}</small></span>${chip}</div>`;
   const value = `<div class="dk-tile-v"><b class="num">${m(st.saved)}</b>${fund ? '' : ` <span class="num">${esc(t('of {amount}', { amount: m(st.target) }))}</span>`}</div>`;
   let body, lines;
   if (!fund) {
@@ -52,7 +52,7 @@ function dkYearlyCard(g) {
   const st = yearlyState(B(), g, B().today), kept = g.accountId && acct(g.accountId);
   const chip = st.late ? dkPill(t('Not paid yet'), 'crit') : st.now ? dkPill(t('Due this month'), 'warn') : st.ready ? dkPill(t('All set aside'), 'mint') : dkPill(esc(t('In {month}', { month: yrMonth(st.due) })));
   const act = yrDue(st) ? `<button class="btn primary" data-a="yearly-pay" data-id="${g.id}">${icon('check')}${t('I paid it')}</button>` : !st.ready && st.toDo > 0 && kept ? `<button class="btn" data-a="yearly-put" data-id="${g.id}">${icon('plus')}${esc(t('Set aside {amount}', { amount: yrMoney(st.toDo) }))}</button>` : '';
-  return `<article class="dk-tile dk-goal${flashed(g.id)}"><div class="dk-tile-h"><span class="dk-ico" aria-hidden="true">${icon('calendar')}</span><span class="dk-tile-n"><b>${esc(g.name)}</b><small>${t('Yearly expense')}${kept ? ' · ' + esc(kept.name) : ''}</small></span>${chip}</div>
+  return `<article class="dk-tile dk-goal${flashed(g.id)}"><div class="dk-tile-h"><span class="dk-ico ti" aria-hidden="true">${artOr('calendar-dots', 'calendar')}</span><span class="dk-tile-n"><b>${esc(g.name)}</b><small>${t('Yearly expense')}${kept ? ' · ' + esc(kept.name) : ''}</small></span>${chip}</div>
     <div class="dk-tile-v"><b class="num">${yrMoney(st.saved)}</b> <span class="num">${esc(t('of {amount}', { amount: yrMoney(st.target) }))}</span></div>${dkBar(st.pct || 0, st.late ? 'crit' : '')}
     <div class="dk-tile-s"><span>${esc(yrSay(g, st))}</span></div><div class="dk-tile-a">${act}<button class="btn ghost" data-a="yearly-open" data-id="${g.id}">${t('Details')}</button></div></article>`;
 }
@@ -88,7 +88,7 @@ function dkGoalDist(ym) {
   const now = d.rows.map(r => { const txt = draft.vals[r.goal.id], v = txt == null ? r.pending : typedAmount(txt || '0'); return { ...r, txt: txt == null ? plain(r.pending) : txt, now: v === null || v < 0 ? 0 : v }; }).filter(r => r.planned || r.done || draft.vals[r.goal.id] != null);
   const total = sum(now.map(r => r.now)), count = now.filter(r => r.now > 0).length, left = d.income - d.done - total, done = d.done > 0;
   const kept = d.rows.find(r => goalMoveFrom({ accountId: r.goal.accountId })), from = kept && goalMoveFrom({ accountId: kept.goal.accountId, fromId: draft.fromId });
-  const mark = g => g.accountId && acct(g.accountId) ? dkMark(acct(g.accountId)) : `<span class="dk-ico" aria-hidden="true">${icon(isYearly(g) ? 'calendar' : g.kind === 'goal' ? 'flag' : 'wallet')}</span>`;
+  const mark = g => g.accountId && acct(g.accountId) ? dkMark(acct(g.accountId)) : `<span class="dk-ico ti" aria-hidden="true">${artOr(isYearly(g) ? 'calendar-dots' : g.kind === 'goal' ? 'flag-banner' : 'piggy-bank', isYearly(g) ? 'calendar' : g.kind === 'goal' ? 'flag' : 'wallet')}</span>`;
   const rows = now.map(r => `<tr><td><div class="dk-who">${mark(r.goal)}<div><b>${esc(r.goal.name)}</b><small>${r.goal.accountId && acct(r.goal.accountId) ? esc(acct(r.goal.accountId).name) : t('No account')}</small></div></div></td>
       <td class="r num">${fmt.money(r.planned, cur, { trim: true })}</td>${done ? `<td class="r num">${r.done ? fmt.money(r.done, cur) : '—'}</td>` : ''}
       <td class="r"><input type="text" inputmode="decimal" class="dk-fld dk-amt num ${r.now ? '' : 'z'}" id="dv-${r.goal.id}" aria-label="${esc(t('Record now in {name}, in {currency}', { name: r.goal.name, currency: curName(BCUR()) }))}" value="${esc(r.txt)}" data-c="dist-val" data-id="${r.goal.id}"></td></tr>`).join('');

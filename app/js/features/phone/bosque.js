@@ -40,8 +40,8 @@ function bqFree() {
 // ---------- four round buttons ----------
 function bqActions() {
   const by = Object.fromEntries(quickItems().map(x => [x[0], x]));
-  const one = (v, d, on, label) => by[v] ? `<button data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}"><span class="bq-ico${on ? ' on' : ''}">${bqSvg(d)}</span><span>${label}</span></button>` : '';
-  return `<nav class="bq-acts" id="quick-acts" aria-label="${t('Add')}">${one('expense', BQ_OUT, true, quickShort('expense', inCompany()))}${one('income', BQ_IN, false, inCompany() ? quickShort('income', true) : t('Inflow'))}${one('transfer', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', false, t('Move money'))}<button data-a="quick-more" aria-haspopup="dialog"><span class="bq-ico">${icon('more')}</span><span>${t('More')}</span></button></nav>`;
+  const one = (v, d, on, label) => by[v] ? `<button data-a="quick-go" data-v="${v}" aria-label="${esc(by[v][2])}"><span class="bq-ico bq-art${on ? ' on' : ''}">${quickArt(v) || bqSvg(d)}</span><span>${label}</span></button>` : '';      // v217: each with its thing (phone.view.js, QUICK_ART)
+  return `<nav class="bq-acts" id="quick-acts" aria-label="${t('Add')}">${one('expense', BQ_OUT, true, quickShort('expense', inCompany()))}${one('income', BQ_IN, false, inCompany() ? quickShort('income', true) : t('Inflow'))}${one('transfer', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', false, t('Move money'))}<button data-a="quick-more" aria-haspopup="dialog"><span class="bq-ico bq-art">${quickArt('more') || icon('more')}</span><span>${t('More')}</span></button></nav>`;
 }
 /** More: every other thing the summary's row of circles offered, in a short list. */
 /** On a computer, More is a menu under its button (v201: a web page's menu, not the phone's sheet at the foot of the screen): where it opens, under
@@ -57,7 +57,7 @@ function bqMoreSheet() {
   const rest = quickList().filter(x => x[0] !== 'main' && !QUICK_BASE.includes(x[0]));
   const at = UI.qmAt && !isPhone() ? ` style="--qm-x:${UI.qmAt.x}px;--qm-y:${UI.qmAt.y}px;--qm-o:${UI.qmAt.o}"` : '';
   return `<div class="scrim" data-a="close"></div><div class="sheet g-pick bq-more-sheet${at ? ' at' : ''}" role="dialog" aria-label="${t('What do you want to do?')}"${at}><div class="grab" aria-hidden="true"></div><h2>${t('What do you want to do?')}</h2>
-    <div class="g-pick-list">${rest.map(([v, ic, l]) => `<button data-a="quick-go" data-v="${v}"><span class="fl-ico">${icon(ic)}</span><span class="grow"><b>${esc(l)}</b></span>${icon('right')}</button>`).join('')}</div></div>`;
+    <div class="g-pick-list">${rest.map(([v, ic, l]) => { const art = quickArt(v); return `<button data-a="quick-go" data-v="${v}"><span class="fl-ico${art ? ' qa-ico' : ''}">${art || icon(ic)}</span><span class="grow"><b>${esc(l)}</b></span>${icon('right')}</button>`; }).join('')}</div></div>`;
 }
 
 // ---------- the accounts, as round logos ----------
@@ -110,8 +110,8 @@ function bqTodo() {
     return `<li><button class="bq-bill${i ? '' : ' first'}" ${attrs} aria-label="${esc(`${name(p)}, ${amount}, ${when}`)}"><span class="bq-bill-t" aria-hidden="true"><span class="bq-ico">${glyph(p)}</span><span class="bq-due${cls}">${esc(when)}</span></span><span class="bq-bill-n" aria-hidden="true">${esc(name(p))}</span><span class="bq-bill-v num" aria-hidden="true">${amount}</span></button></li>`; };
   // the other things that wait, each one more card: last month's bills with no payment, and the savings still to hand out
   const other = [];
-  if (past) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${past.ym}" data-route="plan"><span class="bq-bill-t"><span class="bq-ico">${icon('calendar')}</span><span class="bq-due late">${esc(fmt.month(past.ym, 'bare'))}</span></span><span class="bq-bill-n">${tn(past.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(past.ym) })}</span><span class="bq-bill-v num">${fmt.money(past.amount, BCUR())}</span></button></li>`);
-  if (d.pending > 0) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${nowYm}" data-route="goals"><span class="bq-bill-t"><span class="bq-ico">${icon('flag')}</span><span class="bq-due">${t('Hand it out')}</span></span><span class="bq-bill-n">${t('Savings for {month}', { month: fmt.month(nowYm) })}</span><span class="bq-bill-v num">${t('{amount} still to hand out', { amount: fmt.money(d.pending, BCUR()) })}</span></button></li>`);
+  if (past) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${past.ym}" data-route="plan"><span class="bq-bill-t"><span class="bq-ico bq-art">${artObj('calendar-dots', 'bold qa-art')}</span><span class="bq-due late">${esc(fmt.month(past.ym, 'bare'))}</span></span><span class="bq-bill-n">${tn(past.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(past.ym) })}</span><span class="bq-bill-v num">${fmt.money(past.amount, BCUR())}</span></button></li>`);
+  if (d.pending > 0) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${nowYm}" data-route="goals"><span class="bq-bill-t"><span class="bq-ico bq-art">${artObj('piggy-bank', 'bold qa-art')}</span><span class="bq-due">${t('Hand it out')}</span></span><span class="bq-bill-n">${t('Savings for {month}', { month: fmt.month(nowYm) })}</span><span class="bq-bill-v num">${t('{amount} still to hand out', { amount: fmt.money(d.pending, BCUR()) })}</span></button></li>`);
   const list = rows.slice(0, 8).map(card).join('') + other.join('');
   return `<section class="bq-sec" id="todo">${bqHead(t('To pay'), bqLink('#plan', t('Open plan')), rows.length ? t('{amount} in the next 30 days', { amount: fmt.money(total, BCUR()) }) : '')}${list ? `<ul class="bq-bills bq-row">${list}</ul>` : `<div class="bq-empty bq-calm">${artFig('coffee', '', 'shadow bq-calm-fig')}<span>${t('Nothing to pay or to do in the next 30 days.')}</span></div>`}</section>`;
 }

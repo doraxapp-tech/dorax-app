@@ -19,7 +19,7 @@ function idleWarnShow() {
   if (!el) {
     el = document.createElement('div'); el.id = 'idle-warn'; el.className = 'idle-warn';
     el.innerHTML = `<p class="sr" role="alert">${t('Dorax will lock in one minute to protect your privacy, since nobody is using it. Press any key to keep it open.')}</p>
-      <span class="iw-ico" aria-hidden="true">${icon('lock')}</span><span class="iw-t" aria-hidden="true"><b>${t('Dorax locks in {time}', { time: '<span class="iw-time num"></span>' })}</b><small>${t('To protect your privacy, since nobody is using it.')}</small></span>
+      <span class="iw-ico ti" aria-hidden="true">${artOr('key', 'lock')}</span><span class="iw-t" aria-hidden="true"><b>${t('Dorax locks in {time}', { time: '<span class="iw-time num"></span>' })}</b><small>${t('To protect your privacy, since nobody is using it.')}</small></span>
       <button type="button" class="btn primary sm" id="idle-stay">${t('I’m still here')}</button>`;
     document.body.appendChild(el);
   }

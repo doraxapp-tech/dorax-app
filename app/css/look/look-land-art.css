@@ -74,3 +74,23 @@
 .ip-hero.ip-fig { width: 112px; height: auto; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
 .ip-hero.ip-fig .fig { width: 100%; }
 :root.land .bq-empty.bq-calm > span:not(.fig) { flex: 1 1 auto; min-width: 0; margin: 0; text-align: left; }
+
+/* v217 (owner, 2026-10-13, on a contribution with no drawing: "aún veo esto, ¿qué pasa?"): the piggy bank the coin drops into, what "Saved in …"
+   says (features/goals/goal-win.js). On the lime circle of the notices, the forest line, its layer white; the coin white with a forest edge. */
+:root.land #overlay .gw-pig { display: block; aspect-ratio: 1; pointer-events: none; }
+:root.land #overlay .gw-pig .obj, :root.land #overlay .gw-ring .gw-pig svg.obj { width: 100%; height: 100%; transform: none; --obj-bg: var(--lk-lime); --obj-ink: var(--lk-deep); --obj-fill: #FFFFFF; }      /* not turned with the ring's drawing (look-land-win.css) */
+:root.land.side-co #overlay .gw-pig .obj { --obj-fill: var(--lk-lime-2); }      /* the company: its white circle, a grey-green layer */
+:root.land #overlay .gw-coin { position: absolute; left: 50%; top: 24%; width: 20%; aspect-ratio: 1; box-sizing: border-box; border: 2px solid var(--lk-deep); border-radius: 50%; background: #FFFFFF; opacity: 0; transform: translate(-50%, -290%); }
+/* in the ring's middle, without its circle (the line white, the body lime); the percentage under the ring, in one line */
+:root.land #overlay .gw-pig-mid { position: absolute; left: 50%; top: 50%; width: 62%; margin: -31% 0 0 -31%; }
+:root.land #overlay .gw-ring .gw-pig-mid svg.obj { --obj-bg: transparent; --obj-ink: #FFFFFF; --obj-fill: var(--lk-lime); }
+:root.land.side-co #overlay .gw-ring .gw-pig-mid svg.obj { --obj-fill: var(--lk-lime-2); }      /* the company: white line, its grey-green body */
+:root.land #overlay .gw-pig-mid .gw-coin { top: 26%; width: 18%; border-color: #FFFFFF; background: var(--lk-lime); }
+:root.land #overlay .gw-ring.gw-ring { margin-bottom: 10px; }
+:root.land #overlay .gw-pct-under { display: flex; align-items: baseline; justify-content: center; gap: 8px; margin: 0 0 16px; }
+:root.land #overlay .gw-pct-under b { color: #FFFFFF; font-size: 32px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+:root.land #overlay .gw-pct-under small { color: var(--lk-soft); font-size: 15px; }
+/* money set aside with no amount to reach: the bank alone; the total is said in the sentence */
+:root.land #overlay .gw-total { position: relative; }
+:root.land #overlay .gw-pig-top { position: relative; width: min(132px, 36vw); margin: 0 auto; }      /* the only figure here: larger (v217: "demasiados números aquí") */
+@media (prefers-reduced-motion: reduce) { :root.land #overlay .gw-coin { display: none; } }

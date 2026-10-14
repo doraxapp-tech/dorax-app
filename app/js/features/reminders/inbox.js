@@ -23,15 +23,16 @@ function inboxSeen() { let n = 0; inboxList().forEach(x => { if (!x.read) { x.re
 /** One update, as the notice said it. */
 function inboxRow(x, fresh) {
   const when = x.at ? fmt.date(String(x.at).slice(0, 10)) : '';
-  let ico = 'spark', title = '', text = '', src = '';
+  let ico = 'spark', art = 'hourglass-medium', title = '', text = '', src = '';      // v218: in the look, a thing (art) in place of the icon
   if (x.kind === 'curio') {
     const f = curioFacts()[x.id]; if (!f) return '';
-    ico = 'bulb'; title = t('Did you know?'); text = f[0]; src = t('Source: {name}', { name: esc(f[1]) });
+    ico = 'bulb'; art = 'lightbulb'; title = t('Did you know?'); text = f[0]; src = t('Source: {name}', { name: esc(f[1]) });
   } else {
     title = x.cheer === 'goal' ? t('{name}: reached!', { name: esc(x.name) }) : x.co ? t('The company passed {mark} of runway!', { mark: rwMark(x.mark) }) : t('You passed {mark} of freedom!', { mark: rwMark(x.mark) });
     text = x.cheer === 'goal' ? t('What is saved reaches its target.') : '';
+    if (x.cheer === 'goal') art = 'flag-banner';
   }
-  return `<div class="nt-row${fresh ? ' new' : ''}"><span class="nt-ico">${icon(ico)}</span><div class="grow"><div class="nt-h"><b>${title}</b><small>${esc(when)}</small></div>${text ? `<p>${text}</p>` : ''}${src ? `<small class="nt-src">${src}</small>` : ''}</div>${fresh ? `<i class="nt-dot" aria-label="${esc(t('New'))}"></i>` : ''}</div>`;
+  return `<div class="nt-row${fresh ? ' new' : ''}"><span class="nt-ico ti">${artOr(art, ico)}</span><div class="grow"><div class="nt-h"><b>${title}</b><small>${esc(when)}</small></div>${text ? `<p>${text}</p>` : ''}${src ? `<small class="nt-src">${src}</small>` : ''}</div>${fresh ? `<i class="nt-dot" aria-label="${esc(t('New'))}"></i>` : ''}</div>`;
 }
 /** The Updates part of the bell's panel: milestones, then curiosities, each newest first. */
 function inboxPart(fresh) {

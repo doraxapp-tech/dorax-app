@@ -1,0 +1,54 @@
+/* Dorax Finance — the quick actions drawn with Dorax's things (v217; owner, 2026-10-13: "¿hiciste los cambios de iconos en el modo casa?").
+   The summary's round buttons (Expense, Income, Move money, More), its More list, the round +'s three, the computer's buttons under the figures and
+   the two summary rows that are not a bill: each shows its thing (js/features/phone/phone.view.js: QUICK_ART) in the light line ('bold'), whose own
+   circle is the button's circle. The bar at the foot, the top bar and the categories keep their line icons: at 20 to 24 px a drawing reads worse.
+   Colours are the look's words (look-land.css, look-land-co.css), so the company's side wears its own: where the household has lime, white. */
+:root.land :is(.bq-ico.bq-art, .fl-ico.qa-ico) > svg.qa-art, :root.land #overlay .fl-ico.qa-ico > svg.qa-art { display: block; width: 100%; height: 100%; color: inherit; }      /* over each list's own icon size */
+/* a thing in a quiet circle: mint with the forest line and its lime layer (the company: its grey-green and grey) */
+:root.land .qa-art, :root.land .bq-art .qa-art { --obj-bg: var(--bq-mint); --obj-ink: var(--lk-deep); --obj-fill: var(--lk-lime-2); }
+:root.land.land-dark .qa-art, :root.land.land-dark .bq-art .qa-art { --obj-ink: var(--lk-mint); }
+/* the round buttons: the thing is the circle */
+:root.land .bq-ico.bq-art { background: none; overflow: visible; }
+/* the main one (Expense, the company's Cost): the main button's colours, its layer white (the company's forest: a light veil; its dark theme: grey-green) */
+:root.land .bq-ico.bq-art.on .qa-art { --obj-bg: var(--lk-pop); --obj-ink: var(--lk-pop-ink); --obj-fill: #FFFFFF; }
+:root.land.side-co:not(.land-dark) .bq-ico.bq-art.on .qa-art { --obj-fill: rgba(255, 255, 255, .3); }
+:root.land.side-co.land-dark .bq-ico.bq-art.on .qa-art { --obj-fill: var(--lk-lime-2); }
+/* the nearest bill's circle is the forest: its thing too */
+:root.land .bq-bill.first .bq-ico.bq-art { background: none; }
+:root.land .bq-bill.first .bq-art .qa-art { --obj-bg: var(--lk-deep); --obj-ink: var(--lk-lime); --obj-fill: rgba(var(--lk-lime-rgb), .3); }
+/* a list (More, the round +'s three): the thing in place of the small circle */
+:root.land .fl-ico.qa-ico { display: block; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: none; }
+:root.land .quick-base .fl-ico.qa-ico { width: 48px; height: 48px; }
+:root.land #overlay .bq-more-sheet .fl-ico.qa-ico { width: 40px; height: 40px; background: none; }
+/* a computer: the buttons on the forest block, each pill with its thing at its left */
+@media (min-width: 921px) {
+  :root.land .bq-dact.art { gap: 9px; padding-left: 6px; }
+  :root.land .bq-dact.art > svg.qa-art { flex: none; width: 32px; height: 32px; --obj-bg: rgba(255, 255, 255, .1); --obj-ink: #FFFFFF; --obj-fill: var(--lk-lime-2); }
+  :root.land .bq-dact.art.main > svg.qa-art { --obj-bg: rgba(var(--lk-deep-rgb), .1); --obj-ink: var(--lk-deep); --obj-fill: #FFFFFF; }
+  :root.land.side-co .bq-dact.art > svg.qa-art { --obj-fill: rgba(255, 255, 255, .3); }
+  :root.land.side-co .bq-dact.art.main > svg.qa-art { --obj-fill: var(--lk-lime-2); }
+}
+
+/* v218 (owner, 2026-10-13: "¿toda la webapp tiene los iconos nuevos?", then "sí" to the medium icons inside the screens): a thing in place of a
+   screen's icon (artOr, js/ui/art.js), its circle the holder's circle and its size: the bell's problems and updates, the month's close notice, the
+   insight of the day, the limits' invitation, the yearly expenses, the lock's warning, a computer's goals and ways of paying with no bank, a delete's
+   question, the message sent, an account's two buttons. The :is() gives these rules an id's weight over each holder's own background and icon size. */
+:root.land :is(#view, #overlay, #modal-root, body) .ti { padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: none; overflow: visible; }
+:root.land :is(#view, #overlay, #modal-root, body) .ti > svg.ti-art { display: block; width: 100%; height: 100%; color: inherit; --obj-bg: var(--bq-mint); --obj-ink: var(--lk-deep); --obj-fill: var(--lk-lime-2); }
+:root.land.land-dark :is(#view, #overlay, #modal-root, body) .ti > svg.ti-art { --obj-ink: var(--lk-mint); }
+/* a problem keeps the colour of how urgent it is: amber, red */
+:root.land :is(#view, #overlay, #modal-root, body) :is(.rem.iss.warn, .iss-head.warn) .ti > svg.ti-art { --obj-bg: var(--warn-bg); --obj-ink: var(--warn); --obj-fill: color-mix(in srgb, var(--warn) 30%, transparent); }
+:root.land :is(#view, #overlay, #modal-root, body) :is(.rem.iss.crit, .iss-head.crit) .ti > svg.ti-art { --obj-bg: var(--crit-bg); --obj-ink: var(--crit); --obj-fill: color-mix(in srgb, var(--crit) 30%, transparent); }
+/* a delete stays red: the drawing does not soften it */
+:root.land :is(#view, #overlay, #modal-root, body) .modal-icon.ti > svg.ti-art { --obj-bg: var(--crit-bg); --obj-ink: var(--crit); --obj-fill: color-mix(in srgb, var(--crit) 30%, transparent); }
+/* on a mint card, a white circle; the insight of the day keeps its lime circle */
+:root.land :is(#view, #overlay, #modal-root, body) :is(.mc-ask, .lim-invite) .ti > svg.ti-art { --obj-bg: #FFFFFF; }
+:root.land.land-dark :is(#view, #overlay, #modal-root, body) :is(.mc-ask, .lim-invite) .ti > svg.ti-art { --obj-bg: var(--bq-circle); }
+:root.land :is(#view, #overlay, #modal-root, body) .ins-pc .ti > svg.ti-art { --obj-bg: var(--lk-lime); --obj-ink: var(--lk-deep); --obj-fill: #FFFFFF; }
+/* an account's two buttons, on its forest panel: the expense lime, the income light, each with its thing at its left */
+:root.land #overlay .cv .bq-cv-acts .btn > svg.qa-art { flex: none; width: 30px; height: 30px; margin-left: -8px; --obj-bg: rgba(255, 255, 255, .1); --obj-ink: #FFFFFF; --obj-fill: var(--lk-lime-2); }
+:root.land #overlay .cv .bq-cv-acts .btn.primary > svg.qa-art { --obj-bg: rgba(var(--lk-deep-rgb), .1); --obj-ink: var(--lk-deep); --obj-fill: #FFFFFF; }
+:root.land.side-co #overlay .cv .bq-cv-acts .btn > svg.qa-art { --obj-fill: rgba(255, 255, 255, .3); }
+:root.land.side-co #overlay .cv .bq-cv-acts .btn.primary > svg.qa-art { --obj-fill: var(--lk-lime-2); }
+:root.land #view .ins-pc .ins-mark svg.ins-art { width: 100%; height: 100%; --obj-ink: currentColor; --obj-fill: currentColor; }      /* the insight's large faint mark: its thing, in the card's lime */
+:root.land #view .ins-pc .ins-mark svg.ins-art .of { opacity: .45; }

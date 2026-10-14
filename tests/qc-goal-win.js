@@ -65,7 +65,7 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.keyboard.press('Escape'); await page.waitForTimeout(350);
   eq(await page.evaluate(() => UI.sheet), false, 'Escape closes the success screen');
   await page.evaluate(() => { A.close(); A['goal-move']({ id: 'emergencia', dir: 'in' }); }); await page.waitForTimeout(150); await page.fill('#m-amount', '50'); await page.focus('#gw-knob'); await page.keyboard.press('Enter'); await page.waitForSelector('#overlay .gw-win');
-  eq(await page.evaluate(() => [document.querySelector('.gw-h').textContent, !!document.querySelector('.gw-ring'), /^R\$ [\d,.]+$/.test(document.querySelector('.gw-total #gw-num').textContent)]), ['Money set aside', false, true], 'a fund (no target): its total instead of a ring');
+  eq(await page.evaluate(() => [document.querySelector('.gw-h').textContent, !!document.querySelector('.gw-ring'), !!document.querySelector('.gw-total .gw-pig-top'), /^You now have R\$ [\d,.]+ set aside\.$/.test(document.querySelector('.gw-say2').textContent)]), ['Money set aside', false, true, true], 'a fund (no target): no ring; the piggy bank alone and its total in the sentence (v217: "demasiados números aquí")');
   await page.evaluate(() => A.close()); await page.waitForTimeout(300);
   const left = await page.evaluate(id => { const g = B().goals.find(x => x.id === id); return g.target - goalSaved(B(), id); }, G.id);
   await page.evaluate(() => { S.user.cheer = S.user.cheer || { marks: {}, goals: [] }; });      // what the app has seen reached so far (features/ahead/curios.view.js)

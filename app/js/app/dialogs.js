@@ -16,7 +16,7 @@ function renderModal() {
   }
   root.inert = false; root.classList.remove('out'); root.classList.toggle('in', !was && !reducedMotion());
   root.innerHTML = `<div class="modal-wrap"><div class="scrim" data-a="modal-cancel"></div><div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-text">
-    <div class="modal-icon ${m.tone === 'danger' ? '' : 'neutral'}">${icon(m.tone === 'danger' ? 'trash' : 'alert')}</div>
+    <div class="modal-icon ${m.tone === 'danger' ? 'ti' : 'neutral'}">${m.tone === 'danger' ? artOr('trash', 'trash') : icon('alert')}</div>
     <h2 id="modal-title">${esc(m.title)}</h2><p id="modal-text">${esc(m.text)}</p>
     ${m.word ? `<div class="field"><label for="modal-word">${t('Type {word} to confirm', { word: `<b>${esc(m.word)}</b>` })}</label><input type="text" id="modal-word" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="${esc(m.typed)}" data-c="modal-word" data-live="1"></div>` : ''}
     <footer><button class="btn" data-a="modal-cancel">${esc(m.cancelLabel || t('Cancel'))}</button><button class="btn ${m.tone === 'danger' ? 'danger' : 'primary'}" id="modal-ok" data-a="modal-confirm" ${modalReady() ? '' : 'disabled'}>${esc(m.label)}</button></footer></div></div>`;

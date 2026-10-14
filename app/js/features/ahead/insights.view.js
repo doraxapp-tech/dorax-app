@@ -3,6 +3,7 @@
    figures come from core/insights.js; here they get their words, an icon of the app's own and one thing to do next. A fact that is not good news
    is said plainly and without blame. Names the person typed (a goal, a category, a bill) are shown as text, never as markup. */
 const INSIGHT_ICON = { pace: 'trend', mover: 'tag', bills: 'calendar', goal: 'target', mark: 'flag', day: 'sun', streak: 'spark', rate: 'coins', start: 'bulb' };
+const INSIGHT_ART = { pace: 'chart-bar', mover: 'tag', bills: 'calendar-dots', goal: 'flag-banner', mark: 'hourglass-medium', day: 'sun-horizon', streak: 'fire', rate: 'coins', start: 'lightbulb' };      // v218: in the look, each kind's thing
 /** The words of one insight: { title, text, action }. co: the company's side says "costs", "runway" and "reserves" where the household says
     "spending", "freedom" and "goals" (2026-10-07: the company has its insight too). */
 function insightSay(x, co) {
@@ -43,7 +44,7 @@ function insightCard(fold) {
   return `<section class="card insight" id="insight-card" data-kind="${x.kind}"><div class="card-h"><h2>${t('Insight of the day')}</h2>${info(co ? t('One fact a day, worked out from the company’s own numbers: its costs by this day, the bills ahead, its reserves and its runway. It is arithmetic on what was recorded and planned, not advice. “Another” shows the next one.')
       : t('One fact a day, worked out from your own numbers: your spending by this day, the bills ahead, your goals and your days of freedom. It is arithmetic on what you recorded and planned, not advice, and it compares you only with yourself. “Another” shows the next one.'))}
       ${pick.count > 1 || fold ? `<span class="right">${pick.count > 1 ? `<button class="btn sm" id="insight-next" data-a="insight-next">${t('Another')}</button>` : ''}${fold ? `<button class="btn sm ghost in-fold" id="insight-open" data-a="insight-open" aria-expanded="true" aria-label="${t('Hide')}">${icon('right')}</button>` : ''}</span>` : ''}</div>
-    <div class="card-b" aria-live="polite"><span class="fl-ico">${icon(INSIGHT_ICON[x.kind])}</span><span class="grow"><b>${say.title}</b><small>${say.text}</small></span>${say.action}</div></section>`;
+    <div class="card-b" aria-live="polite"><span class="fl-ico ti">${artOr(INSIGHT_ART[x.kind], INSIGHT_ICON[x.kind])}</span><span class="grow"><b>${say.title}</b><small>${say.text}</small></span>${say.action}</div></section>`;
 }
 /** The computer's card (owner, 2026-10-08: "I don't like the design of the insight of the day on the computer, improve its UI"). The fact is the
     headline: its icon and the card's name above it, "Another" (with its arrows) at the right; the fact large, what it means under it; at the foot, what
@@ -52,10 +53,10 @@ function insightCardPc(pick, x, say, co) {
   const n = pick.count, i = pick.index, dots = n > 1 && n <= 7 ? `<span class="ins-dots" aria-hidden="true">${Array.from({ length: n }, (_, k) => `<i${k === i ? ' class="on"' : ''}></i>`).join('')}</span>` : n > 7 ? `<span class="ins-pos num" aria-hidden="true">${i + 1}/${n}</span>` : '';
   const tip = co ? t('One fact a day, worked out from the company’s own numbers: its costs by this day, the bills ahead, its reserves and its runway. It is arithmetic on what was recorded and planned, not advice. “Another” shows the next one.')
     : t('One fact a day, worked out from your own numbers: your spending by this day, the bills ahead, your goals and your days of freedom. It is arithmetic on what you recorded and planned, not advice, and it compares you only with yourself. “Another” shows the next one.');
-  return `<section class="card insight ins-pc" id="insight-card" data-kind="${x.kind}"><div class="card-h"><span class="fl-ico">${icon(INSIGHT_ICON[x.kind])}</span><h2>${t('Insight of the day')}</h2>${info(tip)}
+  return `<section class="card insight ins-pc" id="insight-card" data-kind="${x.kind}"><div class="card-h"><span class="fl-ico ti">${artOr(INSIGHT_ART[x.kind], INSIGHT_ICON[x.kind])}</span><h2>${t('Insight of the day')}</h2>${info(tip)}
       ${n > 1 ? `<span class="right"><button class="btn sm" id="insight-next" data-a="insight-next" aria-label="${esc(t('Another') + ' · ' + t('{a} of {b}', { a: i + 1, b: n }))}">${icon('repeat')}${t('Another')}</button></span>` : ''}</div>
     <div class="card-b" aria-live="polite"><span class="grow"><b>${say.title}</b><small>${say.text}</small></span>${say.action || dots ? `<div class="ins-foot">${say.action || ''}${dots}</div>` : ''}</div>
-    <span class="ins-mark" aria-hidden="true">${icon(INSIGHT_ICON[x.kind])}</span></section>`;
+    <span class="ins-mark" aria-hidden="true">${typeof landOn === 'function' && landOn() ? artObj(INSIGHT_ART[x.kind], 'bare ins-art') : icon(INSIGHT_ICON[x.kind])}</span></section>`;      // v218: in the look, the same thing large and faint
 }
 /** "Another" (owner, 2026-10-08: "animate the cards when they change on pressing Another"): the next fact comes in from the right as the last one
     left, its icon turns in, the faint picture settles, and the active dot grows into its place. transform and opacity only, about a quarter of a

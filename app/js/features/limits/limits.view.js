@@ -73,7 +73,7 @@ function limRows(by) {
 const limAny = by => Object.values(by).some(i => i.set.length);
 /** The invitation to the guide while the side has no limit (owner, 2026-10-10: "I myself didn't know, and the web app didn't even recommend it,
     knowing how important it is to have a spending limit"). */
-const limInvite = () => `<div class="lim-invite"><span class="fl-ico">${icon('gauge')}</span><div class="grow"><b>${t('Give each category a monthly cap')}</b><p>${t('Three steps: what comes in, what you keep, and how much to spend on each category. Dorax lets you know at 80%.')}</p></div><button class="btn primary" data-a="plan-guide">${t('Plan my month')}</button></div>`;
+const limInvite = () => `<div class="lim-invite"><span class="fl-ico ti">${artOr('gauge', 'gauge')}</span><div class="grow"><b>${t('Give each category a monthly cap')}</b><p>${t('Three steps: what comes in, what you keep, and how much to spend on each category. Dorax lets you know at 80%.')}</p></div><button class="btn primary" data-a="plan-guide">${t('Plan my month')}</button></div>`;
 
 /** On the Plan, under the month's payments: the limits, apart from the bills (owner, 2026-10-10: "yes, do it"). */
 function planLimitsCard(noMonth) {      // noMonth: a computer's Plan shows the month in its own card beside it (features/plan/plan-desk.view.js)
