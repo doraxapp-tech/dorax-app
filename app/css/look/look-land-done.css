@@ -53,7 +53,8 @@
 
 /* ---------- any other transaction saved: the panel's button says it ---------- */
 :root.land #overlay .btn.td-saved, :root.land #overlay .btn.primary.bq-save.td-saved { background: var(--lk-lime); border-color: var(--lk-lime); color: var(--lk-deep); transition: background-color 160ms ease-out, color 160ms ease-out; }
-:root.land #overlay .bq-save.td-saved .bq-save-ico { background: var(--lk-deep); color: var(--lk-lime); }
-:root.land #overlay .bq-save.td-saved .bq-save-amt { color: var(--lk-deep); }
+:root.land #overlay .btn.primary.bq-save.td-saved { background: var(--lk-pop); border-color: var(--lk-pop); color: var(--lk-pop-ink); }      /* v222: the button keeps its colours (the company's forest) */
+:root.land #overlay .bq-save.td-saved .bq-save-ico { display: grid; place-items: center; width: 24px; height: 24px; }      /* saved: the check comes in beside "Recorded" */
+:root.land #overlay .bq-save.td-saved .bq-save-amt { display: none; }
 :root.land #overlay .btn.td-saved:not(.bq-save) { display: inline-flex; align-items: center; gap: 6px; }
 :root.land #overlay .btn.td-saved:not(.bq-save) svg { width: 18px; height: 18px; stroke-width: 2.6; }

@@ -917,8 +917,10 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const OFX_BASE = { version: '102', language: 'POR', transferMapping: 'SIGN' };
 /** Compensation codes of the banks in the list (Banco Central do Brasil). They go into the OFX file as the bank identifier; the person can change them in the profile. */
 const BANK_CODES = { 'Banco do Brasil': '001', 'Santander': '033', 'Inter': '077', 'Caixa': '104', 'Bradesco': '237', 'Nubank': '260', 'Mercado Pago': '323', 'C6 Bank': '336', 'Itaú': '341', 'Wise': 'WISE',
-  'PicPay': '380', 'BTG Pactual': '208', 'XP': '348', 'Sicredi': '748', 'Agibank': '121', 'Banco BV': '655' };
-const BANKS = ['Nubank', 'Banco do Brasil', 'Mercado Pago', 'Santander', 'Wise', 'Itaú', 'Bradesco', 'Caixa', 'Inter', 'C6 Bank', 'PicPay', 'BTG Pactual', 'XP', 'Sicredi', 'Agibank', 'Banco BV'];
+  'PicPay': '380', 'BTG Pactual': '208', 'XP': '348', 'Sicredi': '748', 'Agibank': '121', 'Banco BV': '655',
+  // Spain: each bank's entity code (Banco de España). The three Cuban banks have none here: the file names them by their own name.
+  'Unicaja': '2103', 'Deutsche Bank': '0019', 'Banco Sabadell': '0081', 'BBVA': '0182', 'CaixaBank': '2100', 'Abanca': '2080' };
+const BANKS = ['Nubank', 'Banco do Brasil', 'Mercado Pago', 'Santander', 'Wise', 'Itaú', 'Bradesco', 'Caixa', 'Inter', 'C6 Bank', 'PicPay', 'BTG Pactual', 'XP', 'Sicredi', 'Agibank', 'Banco BV', 'Banco Metropolitano', 'BPA', 'BANDEC', 'Unicaja', 'Deutsche Bank', 'Banco Sabadell', 'BBVA', 'CaixaBank', 'Abanca'];
 
 /** A new account: a few everyday groups in the person's language, no accounts, no fixed costs, no income, no goals, no investments.
     The group names are the app's own, so they follow the language until the person renames them. */

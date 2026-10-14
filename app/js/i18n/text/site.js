@@ -101,6 +101,8 @@ addTexts([
   ["In 2026 the spreadsheet became Dorax: on the phone and the computer, in Portuguese, Spanish and English, free to start and made first for Brazil.", "En 2026 la planilla se convirtió en Dorax: en el celular y en la computadora, en portugués, español e inglés, gratis para empezar y pensada primero para Brasil.", "Em 2026 a planilha virou o Dorax: no celular e no computador, em português, espanhol e inglês, grátis para começar e pensado primeiro para o Brasil."],
   ["Clear money.", "Dinero claro.", "Dinheiro claro."],
   ["Your decisions.", "Decisiones tuyas.", "Decisões suas."],
+  ["Born from a spreadsheet.", "Nació de una planilla.", "Nasceu de uma planilha."],      // About us, v221: its own heading (the home page keeps "Clear money. Your decisions.")
+  ["Made for your month.", "Hecho para tu mes.", "Feito para o seu mês."],
   ["Dorax exists so that anyone knows what is still to pay this month, how long they can hold out with what they have saved and when they get to what they want. With their own numbers, in simple words.", "Dorax existe para que cualquier persona sepa qué le falta pagar este mes, cuánto tiempo aguanta con lo que ahorró y cuándo llega a lo que quiere. Con sus propios números y en palabras simples.", "O Dorax existe para que qualquer pessoa saiba o que ainda falta pagar neste mês, quanto tempo aguenta com o que guardou e quando chega ao que quer. Com os próprios números e em palavras simples."],
   ["Our story", "Nuestra historia", "Nossa história"],
   ["Our mission", "Nuestra misión", "Nossa missão"],

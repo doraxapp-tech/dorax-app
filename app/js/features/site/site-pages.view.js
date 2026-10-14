@@ -111,7 +111,7 @@ function viewAbout() {
     ['laptop', 'briefcase', t('A company next to the household'), t('There was also a company (PJ). Its money could not mix with the household’s, and the accountant asked for the statements every month. That is where the company’s side and the statement converter came from.')],
     ['phone', 'device-mobile', t('An app for more people'), t('In 2026 the spreadsheet became Dorax: on the phone and the computer, in Portuguese, Spanish and English, free to start and made first for Brazil.')],
   ];
-  return `<div class="lp2 web-page st-page">${siteTop('about', t('About us'), t('Clear money.'), t('Your decisions.'),
+  return `<div class="lp2 web-page st-page">${siteTop('about', t('About us'), t('Born from a spreadsheet.'), t('Made for your month.'),      // v221 (owner, 2026-10-14: "cambia el h1 de sobre nos, ya que es el mismo que el del home page"): its own, from its story
       t('Dorax exists so that anyone knows what is still to pay this month, how long they can hold out with what they have saved and when they get to what they want. With their own numbers, in simple words.'),
       siteJump('ab-story', t('Our story')), t('Free · No card · Your bank password is never asked for'), '', ['coffee', 'phone', 'arms', 'laptop', 'hi'].map(w => artFig(w)).join(''))}
     <main>

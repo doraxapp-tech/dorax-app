@@ -63,7 +63,7 @@ function bqMoreSheet() {
 // ---------- the accounts, as round logos ----------
 // the name under a logo: what is left of the account's name once the bank's is taken out ("Tarjeta Nubank" is "Tarjeta"), or the bank's short name
 // when nothing else is left or only a word like "Cuenta" ("Cuenta Nubank" is "Nubank", "Banco do Brasil" is "BB"); the full name is read aloud
-const BQ_SHORT = { 'Banco do Brasil': 'BB', 'Mercado Pago': 'M. Pago', 'C6 Bank': 'C6', 'BTG Pactual': 'BTG', 'Banco BV': 'BV' };
+const BQ_SHORT = { 'Banco do Brasil': 'BB', 'Mercado Pago': 'M. Pago', 'C6 Bank': 'C6', 'BTG Pactual': 'BTG', 'Banco BV': 'BV', 'Banco Metropolitano': 'Metropolitano', 'Banco Sabadell': 'Sabadell' };
 const BQ_PLAIN = /^(cuenta|conta|account|cuenta corriente|conta corrente|corriente|corrente|checking)$/i;
 function bqShort(a) {
   const inst = String(a.institution || ''); if (!BANK_MARKS[inst]) return a.name;

@@ -23,6 +23,17 @@ const BANK_MARKS = {
   'Sicredi':         { id: 'sicredi',         short: 'SI', bg: '#3F7C49', ink: '#FFFFFF' },
   'Agibank':         { id: 'agibank',         short: 'AG', bg: '#0065F5', ink: '#FFFFFF' },
   'Banco BV':        { id: 'bv',              short: 'BV', bg: '#4757A2', ink: '#FFFFFF' },
+  // 2026-10-14 (owner: "agrega estos bancos a la lista de bancos y sus diseños de tarjetas", with their logos): three Cuban banks and five Spanish ones,
+  // each colour taken from the logo file sent (Unicaja: its green, the colour of its fan; its dark blue would be near black on a card); Abanca the same day, its logo sent after
+  'Banco Metropolitano': { id: 'banco-metropolitano', short: 'BM', bg: '#91D506', ink: '#111111' },
+  'BPA':             { id: 'bpa',             short: 'BP', bg: '#00595F', ink: '#FFFFFF' },
+  'BANDEC':          { id: 'bandec',          short: 'BD', bg: '#9E181B', ink: '#FFFFFF' },
+  'Unicaja':         { id: 'unicaja',         short: 'UN', bg: '#00D701', ink: '#111111' },
+  'Deutsche Bank':   { id: 'deutsche-bank',   short: 'DB', bg: '#1E2978', ink: '#FFFFFF' },
+  'Banco Sabadell':  { id: 'banco-sabadell',  short: 'BS', bg: '#016DFC', ink: '#FFFFFF' },
+  'BBVA':            { id: 'bbva',            short: 'BA', bg: '#001391', ink: '#FFFFFF' },
+  'CaixaBank':       { id: 'caixabank',       short: 'CB', bg: '#2DA8D5', ink: '#111111' },
+  'Abanca':          { id: 'abanca',          short: 'AB', bg: '#5A84D6', ink: '#111111' },
 };
 
 /** The badge of an account's bank. The card does not write the bank's name anywhere else, so the badge carries it for screen readers

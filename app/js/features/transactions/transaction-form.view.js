@@ -203,7 +203,7 @@ function txDrawer(d) {
       <div class="tx-or" aria-hidden="true"><span>${t('or fill it in')}</span></div>` : ''}
     <div id="tx-form" class="tx-form">${txFormBody(d)}</div>
   </div>
-  ${d.pad ? bqTxFoot(d) : `<footer><button class="btn primary" data-a="save-tx">${t('Save')}</button>
+  ${d.pad ? bqTxFoot(d) : `<footer><button class="btn primary" data-a="save-tx">${txSaveWord(d)}</button>
     ${d.isNew ? '' : `<button class="btn" data-a="ignore-tx">${x.status === 'ignored' ? t('Restore') : t('Ignore')}</button><button class="btn ghost danger" data-a="ask-delete">${t('Delete')}</button>`}
     <button class="btn ghost spacer" data-a="close">${t('Cancel')}</button></footer>`}`;
 }

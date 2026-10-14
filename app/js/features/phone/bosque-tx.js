@@ -15,14 +15,18 @@ const bqSep = () => S.settings.locale === 'pt-BR' ? ',' : '.';
 const bqAmtPh = () => `0${bqSep()}00`;
 const bqAmtIn = s => s ? esc(s) : `<span class="bq-amt-ph">${bqAmtPh()}</span>`;
 const bqAmt = d => `<button type="button" id="d-amount" class="num bq-amt" data-a="tx-pad" value="${esc(d.draft.amountText || '')}" aria-labelledby="d-amount-l d-amount" aria-required="true"${d.invalid === 'd-amount' ? ' aria-invalid="true"' : ''}>${bqAmtIn(d.draft.amountText)}</button>`;
-/** The amount as it will be saved, for the bar: R$ 0,00 until something is typed. */
-const bqTxAmt = d => { const x = d.draft, a = acct(x.accountId), v = Math.abs(typedAmount(x.amountText || '') || 0); return fmt.money(v, (a && a.currency) || CUR); };
+/** The amount as it will be saved, beside the button's words; nothing until something is typed (v222). */
+const bqTxAmt = d => { const x = d.draft, a = acct(x.accountId), v = Math.abs(typedAmount(x.amountText || '') || 0); return v ? fmt.money(v, (a && a.currency) || CUR) : ''; };
+/** The save button's words (v222, owner, 2026-10-14: "el botón de guardar debería tener un nombre diferente dependiendo si es un gasto, ingreso o
+    transferencia"): what it records, in the words of the side in use; an edit saves its changes. */
+const txSaveWord = d => { if (!d.isNew) return t('Save changes'); const co = UI.space === 'business';
+  return { expense: co ? t('Record cost') : t('Record expense'), income: co ? t('Record money in') : t('Record income'), transfer: t('Record transfer') }[d.draft.type] || t('Save'); };
 function bqTxFoot(d) {
   const key = (v, label, aria) => `<button type="button" class="bq-key${v === 'del' || v === 'sep' ? ' soft' : ''}" data-a="tx-key" data-v="${v}"${aria ? ` aria-label="${esc(aria)}"` : ''}>${label}</button>`;
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(n => key(n, n)).join('') + key('sep', bqSep(), t('Decimal mark')) + key('0', '0')
     + key('del', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><path d="m12 9 6 6"/><path d="m18 9-6 6"/></svg>`, t('Erase'));
   return `<footer class="bq-tx-foot${bqPadCls(d)}" id="bq-tx-foot"${bqPadAt(d)}><div class="bq-pad-wrap"><div class="bq-pad-in"><div class="bq-pad" id="bq-pad" role="group" aria-label="${esc(t('Amount'))}" aria-controls="d-amount">${keys}</div></div></div>
-    <button class="btn primary bq-save" data-a="save-tx"><span class="bq-save-ico" aria-hidden="true">${icon('check')}</span><span class="bq-save-t">${t('Save')}</span><span class="bq-save-amt num" id="bq-save-amt">${bqTxAmt(d)}</span></button></footer>`;
+    <button class="btn primary bq-save" data-a="save-tx"><span class="bq-save-ico" aria-hidden="true">${icon('check')}</span><span class="bq-save-t">${txSaveWord(d)}</span><span class="bq-save-amt num" id="bq-save-amt">${bqTxAmt(d)}</span></button></footer>`;      // v222: a plain button (owner: "parece un botón para deslizar"): its words and the amount; the check shows only once it is saved
 }
 
 /* ---------- the keypad, put away and back (v197, owner, 2026-10-12: "el teclado numérico sigue visible en agregar transacción, necesito esconderlo

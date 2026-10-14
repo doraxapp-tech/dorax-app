@@ -92,7 +92,9 @@ function refundOf(x, accountId, earlier) {
 /** The banks a line may name as the other side of a transfer, as the app names them (data/defaults.js BANKS). */
 const BANK_WORDS = [[/\bITAU\b/, 'Itaú'], [/\bBRADESCO\b/, 'Bradesco'], [/\bSANTANDER\b/, 'Santander'], [/\bCAIXA ECON|\bCEF\b|\bCAIXA\b/, 'Caixa'], [/\bB(AN)?CO DO BRASIL\b|\bBB\b/, 'Banco do Brasil'],
   [/\bNU PAGAMENTOS\b|\bNUBANK\b/, 'Nubank'], [/\bBANCO INTER\b|\bINTER\b/, 'Inter'], [/\bC6\b/, 'C6 Bank'], [/\bPICPAY\b/, 'PicPay'], [/\bMERCADO ?PAGO\b|\bMERCADOPAGO\b/, 'Mercado Pago'],
-  [/\bBTG\b/, 'BTG Pactual'], [/\bXP INVEST|\bBANCO XP\b/, 'XP'], [/\bSICREDI\b/, 'Sicredi'], [/\bAGIBANK\b/, 'Agibank'], [/\bBANCO BV\b|\bBV S A\b/, 'Banco BV'], [/\bWISE\b/, 'Wise']];
+  [/\bBTG\b/, 'BTG Pactual'], [/\bXP INVEST|\bBANCO XP\b/, 'XP'], [/\bSICREDI\b/, 'Sicredi'], [/\bAGIBANK\b/, 'Agibank'], [/\bBANCO BV\b|\bBV S A\b/, 'Banco BV'], [/\bWISE\b/, 'Wise'],
+  [/\bBANCO METROPOLITANO\b/, 'Banco Metropolitano'], [/\bBPA\b|\bBANCO POPULAR DE AHORRO\b/, 'BPA'], [/\bBANDEC\b/, 'BANDEC'], [/\bUNICAJA\b/, 'Unicaja'], [/\bDEUTSCHE BANK\b/, 'Deutsche Bank'],
+  [/\bSABADELL\b/, 'Banco Sabadell'], [/\bBBVA\b/, 'BBVA'], [/\bCAIXABANK\b/, 'CaixaBank'], [/\bABANCA\b/, 'Abanca']];
 /** A transfer between the person's own accounts: a Pix or TED that names the person (their first and last names, as the profile has them). */
 function toOneself(description) {
   const name = normalizeText((S.user || {}).name || '').split(' ').filter(w => w.length >= 3); if (name.length < 2) return false;

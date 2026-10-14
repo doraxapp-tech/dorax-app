@@ -132,4 +132,11 @@ addTexts([
   ["{n} incomes", "{n} ingresos", "{n} receitas"],
   ["Show {n} more", "Mostrar {n} más", "Mostrar mais {n}"],
   ["Changes saved", "Cambios guardados", "Alterações salvas"],
+  // v222 (owner, 2026-10-14: "el botón de guardar debería tener un nombre diferente dependiendo si es un gasto, ingreso o transferencia"): what it records
+  ["Record expense", "Registrar gasto", "Registrar despesa"],
+  ["Record income", "Registrar ingreso", "Registrar receita"],
+  ["Record transfer", "Registrar transferencia", "Registrar transferência"],
+  ["Record cost", "Registrar costo", "Registrar custo"],
+  ["Record money in", "Registrar cobro", "Registrar recebimento"],
+  ["Save changes", "Guardar cambios", "Salvar alterações"],
 ]);

@@ -18,7 +18,7 @@ const { open, ok, eq, done } = require('./pw.js');
     how: ['Cómo funciona · Dorax Finance', 'Tu mes en orden. En cinco pasos.', 'Cómo funciona', 5],
     pj: ['Para PJ y MEI · Dorax Finance', 'La empresa te paga. La casa tiene su plan.', 'Para PJ', 5],
     converter: ['Conversor de extractos · Dorax Finance', 'Del extracto de tu banco al OFX de tu contador.', null, 5],
-    about: ['Sobre nosotros · Dorax Finance', 'Dinero claro. Decisiones tuyas.', 'Sobre nosotros', 0],
+    about: ['Sobre nosotros · Dorax Finance', 'Nació de una planilla. Hecho para tu mes.', 'Sobre nosotros', 0],      // v221: its own heading, not the home page's
   };
   for (const v of ['how', 'pj', 'converter', 'about']) {
     await page.evaluate(() => scrollTo(0, document.body.scrollHeight)); await page.click(`.l2-foot a[data-v="${v}"]`); await page.waitForSelector('.st-page');
@@ -91,7 +91,7 @@ const { open, ok, eq, done } = require('./pw.js');
     eq(await page.evaluate(() => { const cards = [...document.querySelectorAll('.st-card, .st-cards .l2-tc, .st-qcard, .st-step, .st-story li')].map(c => c.getBoundingClientRect()); return [document.documentElement.scrollWidth <= innerWidth, [...document.querySelectorAll('.st-page main .l2-btn, .l2-faq summary')].every(e => e.getBoundingClientRect().height >= 44), cards.every((r, i) => i === 0 || r.top >= cards[i - 1].bottom - 1 || r.left === cards[i - 1].left)]; }),
       [true, true, true], `${v}, a phone, in Portuguese: nothing wider than the screen, every button a thumb high, the cards one under the other`);
   }
-  eq(await page.evaluate(() => [document.querySelector('#st-title').textContent, (document.querySelector('.l2-links [aria-current]') || document.querySelector('#web-menu [data-v="about"]')).textContent]), ['Dinheiro claro. Decisões suas.', 'Sobre nós'], 'in Portuguese');
+  eq(await page.evaluate(() => [document.querySelector('#st-title').textContent, (document.querySelector('.l2-links [aria-current]') || document.querySelector('#web-menu [data-v="about"]')).textContent]), ['Nasceu de uma planilha. Feito para o seu mês.', 'Sobre nós'], 'in Portuguese');
   eq(errors, [], 'phone: no error'); await browser.close();
   done('qc-site-pages');
 })();

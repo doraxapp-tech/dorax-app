@@ -13,11 +13,19 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.evaluate(() => { S.settings.themePhone = 'light'; navigate('dashboard'); render(); }); await page.waitForTimeout(400);
   await page.tap('#quick-acts [data-v="expense"]'); await page.waitForSelector('#overlay .bq-pad');
 
+  // ---------- 0. the button's words (v222, owner, 2026-10-14: "el botón de guardar debería tener un nombre diferente dependiendo si es un gasto,
+  //      ingreso o transferencia y parece un botón para deslizar") ----------
+  const saysNow = () => page.evaluate(() => { const b = document.querySelector('#overlay .bq-save'); return [b.querySelector('.bq-save-t').textContent, b.querySelector('.bq-save-amt').textContent, getComputedStyle(b.querySelector('.bq-save-ico')).display, Math.round(b.getBoundingClientRect().height) >= 52]; });
+  eq(await saysNow(), ['Record expense', '', 'none', true], 'a new expense: the button says what it records, no amount until one is typed, no round knob at its side');
+  const words = [];
+  for (const v of ['income', 'transfer', 'expense']) { await page.tap(`#overlay .tx-kind [data-v="${v}"]`); await page.waitForTimeout(150); words.push((await saysNow())[0]); }
+  eq(words, ['Record income', 'Record transfer', 'Record expense'], 'income and transfer: each its own words');
+
   // ---------- 1. the amount ----------
   eq(await page.evaluate(() => { const a = document.getElementById('d-amount'); return [a.tagName, a.type, document.getElementById('d-amount-l').textContent.startsWith('Amount'), a.textContent.trim(), document.querySelector('.tx-amount').classList.contains('typing'), !UI.drawer.padOff]; }),
     ['BUTTON', 'button', true, '0,00', true, true], 'the amount is a button with its name, “0,00” until something is typed; the keypad up and the line after the figure');
   for (const k of ['4', '2', 'sep', '5', '0', '9']) await page.tap(`#overlay .bq-key[data-v="${k}"]`);
-  eq(await page.evaluate(() => [UI.drawer.draft.amountText, document.getElementById('d-amount').value, document.getElementById('d-amount').textContent, document.getElementById('bq-save-amt').textContent]), ['42,50', '42,50', '42,50', 'R$ 42,50'], 'the keys write into it (two digits after the mark at most) and on “Save”');
+  eq(await page.evaluate(() => [UI.drawer.draft.amountText, document.getElementById('d-amount').value, document.getElementById('d-amount').textContent, document.getElementById('bq-save-amt').textContent]), ['42,50', '42,50', '42,50', 'R$ 42,50'], 'the keys write into it (two digits after the mark at most) and beside the button’s words');
   await page.tap('#overlay .bq-key[data-v="del"]');
   eq(await page.evaluate(() => UI.drawer.draft.amountText), '42,5', 'erase takes the last one');
 

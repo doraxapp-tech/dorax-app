@@ -26,8 +26,19 @@ The app shows a bank's own logo next to each account when its file is in this fo
 | Sicredi | `sicredi.svg` |
 | Agibank | `agibank.svg` |
 | Banco BV | `bv.svg` |
+| Banco Metropolitano (Cuba) | `banco-metropolitano.svg` |
+| BPA (Cuba) | `bpa.svg` |
+| BANDEC (Cuba) | `bandec.svg` |
+| Unicaja | `unicaja.svg` |
+| Deutsche Bank | `deutsche-bank.svg` |
+| Banco Sabadell | `banco-sabadell.svg` |
+| BBVA | `bbva.svg` |
+| CaixaBank | `caixabank.svg` |
+| Abanca | `abanca.svg` |
 
 (`.png`, `.webp` or `.jpg` in place of `.svg` is fine.)
+
+The nine added on 2026-10-14 are the pictures the owner sent, squared for the circle and not redrawn or recoloured: BPA without the line "banco popular de ahorro", BANDEC and CaixaBank with their symbol alone (the words beside or under it cannot be read at 36 pixels and the circle would cut them), Banco Metropolitano with a little more of its own lime around it so the circle does not cut the letters. If any did not come from the bank's own brand page, replace it with the bank's file when you have it (same name).
 
 **Then.** Deploy as usual (`git add .`, `git commit`, `git push`). The deploy lists the files by itself. To see them on this computer first: `npm start`.
 
