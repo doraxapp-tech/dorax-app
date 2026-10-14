@@ -35,11 +35,11 @@ const { open, ok, eq, done } = require('./pw.js');
   // ---------- 3. dark notices ----------
   const look = sel => page.evaluate(sel => { const c = getComputedStyle(document.querySelector(sel)); return [c.backgroundColor, c.borderTopColor, c.color]; }, sel);
   await page.evaluate(() => toast('Saved.')); await page.waitForSelector('#toast');
-  eq(await look('#toast'), ['rgba(44, 44, 46, 0.94)', 'rgba(255, 255, 255, 0.14)', 'rgb(212, 212, 212)'], 'the toast: a medium-light black, a fine light edge, white words');
+  eq(await look('#toast'), ['rgba(31, 51, 47, 0.97)', 'rgba(255, 255, 255, 0.12)', 'rgb(255, 255, 255)'], 'the toast (v215, the look’s notices: css/look/look-land-notices.css): in the dark theme the forest a step lighter than the page, a fine light edge, white words');
   await page.evaluate(() => { UI.curio = { cheer: 'mark', mark: 90 }; renderCurio(); }); await page.waitForSelector('#curio');
-  eq([await look('#curio'), await page.evaluate(() => getComputedStyle(document.querySelector('#curio b')).color)], [['rgba(44, 44, 46, 0.94)', 'rgba(255, 255, 255, 0.14)', 'rgb(212, 212, 212)'], 'rgb(212, 212, 212)'], 'a milestone: the same, its title white, no green');
+  eq([await look('#curio'), await page.evaluate(() => getComputedStyle(document.querySelector('#curio b')).color)], [['rgba(31, 51, 47, 0.97)', 'rgba(255, 255, 255, 0.12)', 'rgb(255, 255, 255)'], 'rgb(255, 255, 255)'], 'a milestone: the same card, its title white (v215, owner: "las curiosidades y los avisos flotantes al nuevo estilo visual")');
   await page.evaluate(() => { UI.curio = null; renderCurio(); S.settings.theme = S.settings.themePhone = 'light'; applyTheme && applyTheme(); render(); toast('Saved.'); });
-  eq((await look('#toast'))[0], 'rgba(44, 44, 46, 0.94)', 'in the light theme too');
+  eq((await look('#toast'))[0], 'rgba(17, 38, 34, 0.96)', 'in the light theme: the summary’s forest block');
   await page.evaluate(() => { S.settings.theme = S.settings.themePhone = 'dark'; applyTheme && applyTheme(); render(); });
   // ---------- 4. the flame ----------
   await page.evaluate(() => navigate('plan')); await page.click('#nav a[href="#dashboard"]'); await page.waitForTimeout(80);

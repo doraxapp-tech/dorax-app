@@ -75,7 +75,7 @@ const bqSideAccts = () => inCompany() ? bookAccounts() : personal();
 const bqHead = (title, link, sub) => `<div class="bq-h"><span class="bq-t"><h2>${title}</h2>${sub ? `<span class="bq-sub">${sub}</span>` : ''}</span>${link || ''}</div>`;
 const bqLink = (href, label) => `<a class="bq-more" href="${href}">${label}${icon('right')}</a>`;
 function bqAccounts() {
-  if (!bqSideAccts().length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty"><b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
+  if (!bqSideAccts().length) return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'))}<div class="bq-empty bq-with-art">${artObj('bank', 'bq-empty-art')}<b>${t('No accounts yet')}</b>${acctButton()}</div></section>`;
   return `<section class="bq-sec" id="ac-card">${bqHead(t('Your accounts'), bqLink('#accounts', t('View all')))}<ul class="bq-accs bq-row">${bqAccItems()}</ul></section>`;
 }
 /** The accounts as round logos, one per bank (the phone's row; on a computer, the summary's header: features/phone/bosque-desk.js). */
@@ -113,7 +113,7 @@ function bqTodo() {
   if (past) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${past.ym}" data-route="plan"><span class="bq-bill-t"><span class="bq-ico">${icon('calendar')}</span><span class="bq-due late">${esc(fmt.month(past.ym, 'bare'))}</span></span><span class="bq-bill-n">${tn(past.lines.length, '{n} bill from {month} has no payment', '{n} bills from {month} have no payment', { month: fmt.month(past.ym) })}</span><span class="bq-bill-v num">${fmt.money(past.amount, BCUR())}</span></button></li>`);
   if (d.pending > 0) other.push(`<li><button class="bq-bill" data-a="remind-month" data-ym="${nowYm}" data-route="goals"><span class="bq-bill-t"><span class="bq-ico">${icon('flag')}</span><span class="bq-due">${t('Hand it out')}</span></span><span class="bq-bill-n">${t('Savings for {month}', { month: fmt.month(nowYm) })}</span><span class="bq-bill-v num">${t('{amount} still to hand out', { amount: fmt.money(d.pending, BCUR()) })}</span></button></li>`);
   const list = rows.slice(0, 8).map(card).join('') + other.join('');
-  return `<section class="bq-sec" id="todo">${bqHead(t('To pay'), bqLink('#plan', t('Open plan')), rows.length ? t('{amount} in the next 30 days', { amount: fmt.money(total, BCUR()) }) : '')}${list ? `<ul class="bq-bills bq-row">${list}</ul>` : `<div class="bq-empty"><span>${t('Nothing to pay or to do in the next 30 days.')}</span></div>`}</section>`;
+  return `<section class="bq-sec" id="todo">${bqHead(t('To pay'), bqLink('#plan', t('Open plan')), rows.length ? t('{amount} in the next 30 days', { amount: fmt.money(total, BCUR()) }) : '')}${list ? `<ul class="bq-bills bq-row">${list}</ul>` : `<div class="bq-empty bq-calm">${artFig('coffee', '', 'shadow bq-calm-fig')}<span>${t('Nothing to pay or to do in the next 30 days.')}</span></div>`}</section>`;
 }
 
 // ---------- the days of freedom as a ring, the goals on mint ----------
@@ -128,7 +128,7 @@ function bqRunway() {
     <span class="bq-tile-s" aria-hidden="true">${say}</span></button></section>`;
 }
 function bqGoals() {
-  if (!B().goals.length) return `<section class="bq-goals" id="goals-card"><a class="bq-tile" href="#goals"><span class="bq-tile-h">${t('Goals')}</span><span class="bq-goals-none">${t('No goals yet')}</span><span class="bq-more">${t('Start a goal')}${icon('right')}</span></a></section>`;
+  if (!B().goals.length) return `<section class="bq-goals" id="goals-card"><a class="bq-tile" href="#goals"><span class="bq-tile-h">${t('Goals')}</span>${artObj('flag-banner', 'bq-goals-art')}<span class="bq-goals-none">${t('No goals yet')}</span><span class="bq-more">${t('Start a goal')}${icon('right')}</span></a></section>`;
   const total = sum(B().goals.map(g => goalSaved(B(), g.id)));
   const top = B().goals.filter(g => g.status === 'active' && g.kind === 'goal' && !isYearly(g)).map(g => [g, goalStatus(B(), g, B().today)]).filter(([, st]) => st.target).slice(0, 2);
   const bar = ([g, st]) => `<span class="bq-g"><span class="bq-g-t"><span>${esc(g.name)}</span><span class="num">${fmt.pct(Math.round(st.pct))}</span></span><span class="bq-bar"><i style="width:${Math.max(0, Math.min(100, st.pct))}%"></i></span></span>`;

@@ -10,7 +10,7 @@ const { open, ok, eq, done } = require('./pw.js');
 
 (async () => {
   const text = async (p, sel) => (await p.locator(sel).innerText()).replace(/\s+/g, ' ');
-  const signup = async (p, name) => { await p.evaluate(() => A['pub-go']({ v: 'signup' })); await p.fill('#au-name', name); await p.fill('#au-email', name.toLowerCase() + '@example.org'); await p.fill('#au-pass', 'UmaSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name'); await p.click('[data-a="onboard-save"]'); await p.waitForSelector('#ob-pay0'); };
+  const signup = async (p, name) => { await p.evaluate(() => A['pub-go']({ v: 'signup' })); await p.fill('#au-name', name); await p.fill('#au-email', name.toLowerCase() + '@example.org'); await p.fill('#au-pass', 'UmaSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name'); await p.click('[data-a="onboard-save"]'); await p.click('[data-a="ob-next"]'); await p.waitForSelector('#ob-pay0'); };      // v216: the name, then the dream, then the numbers
 
   // ---------- 1. the arithmetic ----------
   let { browser, page, errors } = await open({ lang: 'en', account: 'example', plan: true, viewport: { width: 1280, height: 900 } });

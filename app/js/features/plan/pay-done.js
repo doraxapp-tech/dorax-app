@@ -5,7 +5,8 @@
    the strip at the top of the screen: a receipt rises from the foot of the screen, as a "comprovante" does. Its check is drawn; what was paid, how
    much, from where and when; under a dashed cut, how the month's bills stand: a bar of the paid ones filling to the new count, and what is still to
    pay, or that every bill of the month is paid. "Undo" is on it, as it was on the strip; "Done", the screen behind it or Escape close it, and the panel
-   it was paid from (the bell, a bill's details) comes back. Not a celebration: no forest, no confetti. Styles: css/look/look-land-done.css. */
+   it was paid from (the bell, a bill's details) comes back. Not a celebration: no forest, no confetti. The payment that pays the month's last bill has,
+   in place of the check, the person who made it with the month's calendar (v214, js/ui/art.js). Styles: css/look/look-land-done.css. */
 
 const pdOn = () => typeof landOn === 'function' && landOn();
 /** The bills of a month: how many there are, how many are paid, what is still to pay. */
@@ -23,7 +24,7 @@ function pdSheet() {
         <span class="pd-bar" aria-hidden="true"><i id="pd-fill" style="width:${share(r.after.paid)}%" data-from="${share(r.before.paid)}"></i></span>
         <p class="pd-left${all ? ' all' : ''}">${all ? `${icon('check')}${t('Every bill of the month is paid.')}` : t('{amount} still to pay this month.', { amount: `<b class="num">${fmt.money(r.after.left, BCUR())}</b>` })}</p></div>` : '';
   return `<div class="scrim" data-a="pd-done"></div><div class="sheet pd-sheet" role="dialog" aria-modal="true" aria-labelledby="pd-h" aria-describedby="pd-meta">
-    <div class="pd-paper"><span class="pd-check" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/><path d="M19 33l9 9 18-20"/></svg></span>
+    <div class="pd-paper${all ? ' all' : ''}">${all ? `<span class="pd-fig" aria-hidden="true">${artFig('win', 'calendar-check', 'shadow')}</span>` : '<span class="pd-check" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/><path d="M19 33l9 9 18-20"/></svg></span>'}
       <h2 class="pd-h" id="pd-h">${esc(r.title)}</h2><p class="pd-amt num">${fmt.money(r.amount, BCUR())}</p><p class="pd-meta" id="pd-meta">${esc(r.from)} · ${fmt.date(r.date)}</p>${month}
       <div class="pd-acts"><button class="btn primary" data-a="pd-done">${t('Done')}</button>${r.undo ? `<button class="btn ghost" data-a="pd-undo">${t('Undo')}</button>` : ''}</div></div></div>`;
 }

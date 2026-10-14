@@ -11,6 +11,9 @@ const { open, ok, eq, done } = require('./pw.js');
   await page.waitForSelector('#tour');
   eq(await page.evaluate(() => { const r = document.querySelector('#tour').getBoundingClientRect(); return [UI.tour, r.width >= innerWidth && r.height >= innerHeight, document.querySelector('#tour').getAttribute('role'), !!document.querySelector('#tour .ta-bills'), document.querySelector('#tour-h').innerText, document.querySelectorAll('.tour-does li').length, document.querySelector('.tour-go').dataset.go]; }),
     ['plan', true, 'dialog', true, 'Your month, before it happens.', 3, 'plan-guide'], 'Plan, the first time: a page over the whole screen, its drawing, its purpose, three lines, its first thing (Plan my month, v146)');
+  eq(await page.evaluate(() => { const sh = document.querySelector('.tour-sheet').getBoundingClientRect(), fr = document.querySelector('.tour-screen').getBoundingClientRect(), th = document.querySelector('.tour-scene .tour-thing'), sc = document.querySelector('.tour-scroll');
+    return [fr.top < sh.top && fr.bottom > sh.top, !!th && th.querySelector('svg.obj.badge') !== null && th.getBoundingClientRect().top < sh.top && th.getBoundingClientRect().bottom > sh.top, +getComputedStyle(document.querySelector('.tour-sheet')).zIndex >= 1, document.querySelectorAll('.tour-does li .tour-ico svg.obj').length, sc.scrollWidth <= sc.clientWidth]; }),
+    [true, true, true, 3, true], 'Plan (v215): its drawing in a white frame rising from the sheet’s edge, the month’s calendar beside it, each line with one of Dorax’s things; nothing slides sideways');
   await page.click('.tour-go'); await page.waitForTimeout(150);
   eq(await page.evaluate(() => [!UI.tour, !document.querySelector('#tour'), UI.drawer && UI.drawer.kind, S.user.tours.plan]), [true, true, 'plan-guide', true], 'its button: the page goes, “Plan your month” opens; seen');
   await page.evaluate(() => { A.close(); navigate('dashboard'); navigate('plan'); });
@@ -30,6 +33,7 @@ const { open, ok, eq, done } = require('./pw.js');
   eq(await page.evaluate(() => !UI.tour), true, 'an account older than 30 days: none');
   await page.evaluate(() => { S.user.since = S.today; S.user.tours = {}; navigate('dashboard'); });
   eq(await page.evaluate(() => [UI.tour, !!document.querySelector('#tour .ta-kpis'), document.querySelector('.tour-go').dataset.a]), ['dashboard', true, 'tour-close'], 'Summary: its drawing, and “Got it”');
+  eq(await page.evaluate(() => { const f = document.querySelector('.tour-scene .fig img[src$="shadow/coffee.svg"]'), sh = document.querySelector('.tour-sheet').getBoundingClientRect(); return !!f && Math.abs(f.closest('.fig').getBoundingClientRect().bottom - sh.top) <= 3; }), true, 'Summary (v215): the person at ease stands on the sheet’s edge beside the drawing');
   eq(errors, [], 'no error in the console'); await browser.close();
   done('qc-tours');
 })();

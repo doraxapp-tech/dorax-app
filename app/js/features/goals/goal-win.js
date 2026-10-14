@@ -9,7 +9,7 @@
    2. The success screen, on the forest, opening out of the flag where the coin landed: what was put in, the goal's ring filling from where it was to
       where it is now with its percentage counting with it, one sentence on what that means (what is left, when it is reached at the planned pace),
       and as chips the months in a row with money put in and the month's plan completed. Passing a quarter, half, three quarters or the whole goal
-      says so, with 🎉 and confetti. "Done" goes back to where the panel was opened from; "See goal" opens the goal.
+      says so, with confetti (Dorax's own drawing beside the words, v214: no emoji); the goal reached shows the person who made it with its flag. "Done" goes back to where the panel was opened from; "See goal" opens the goal.
    Progress is celebrated, spending never is: a withdrawal and a starting balance keep their plain note. With less motion asked for, the same screen
    stands still. Styles: css/look/look-land-win.css; the record itself: features/goals/goals.actions.js (move-save). */
 
@@ -122,13 +122,15 @@ function gwWinSheet() {
   const head = w.crossed === 100 || (!w.fund && w.after.remaining <= 0) ? t('Goal reached!') : w.crossed === 75 ? t('Three quarters of the way') : w.crossed === 50 ? t('Past halfway') : w.crossed === 25 ? t('A quarter of the way') : w.fund ? t('Money set aside') : t('One step closer');
   const chips = (w.streak >= 2 ? `<span class="gw-chip">${icon('flame')}${t('{n} months in a row', { n: w.streak })}</span>` : '') + (w.planDone ? `<span class="gw-chip">${icon('check')}${t('This month’s plan: done')}</span>` : '');
   const R = 76, C = +(2 * Math.PI * R).toFixed(2), say = gwSentence(w);
-  const fig = w.fund ? `<div class="gw-fig gw-total"><b class="num" id="gw-num">${fmt.money(w.after.saved, BCUR())}</b><small>${t('set aside in total')}</small></div>`
+  const reached = !w.fund && (w.crossed === 100 || w.after.remaining <= 0);      // v214: the goal reached, the person who made it with the goal's flag
+  const fig = reached ? `<div class="gw-fig gw-reached" role="img" aria-label="${esc(t('{pct} of {amount}', { pct: gwPct(100), amount: fmt.money(w.after.target, BCUR(), { trim: true }) }))}">${artFig('win', 'flag-banner', 'shadow')}</div>`
+    : w.fund ? `<div class="gw-fig gw-total"><b class="num" id="gw-num">${fmt.money(w.after.saved, BCUR())}</b><small>${t('set aside in total')}</small></div>`
     : `<div class="gw-fig gw-ring" role="img" aria-label="${esc(t('{pct} of {amount}', { pct: gwPct(w.after.pct), amount: fmt.money(w.after.target, BCUR(), { trim: true }) }))}"><svg viewBox="0 0 180 180" aria-hidden="true"><circle class="gw-track" cx="90" cy="90" r="${R}"/>`
       + `<circle class="gw-arc" id="gw-arc" cx="90" cy="90" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${(C * (1 - Math.min(100, w.after.pct) / 100)).toFixed(2)}"/></svg>`
       + `<span class="gw-pct" aria-hidden="true"><b class="num" id="gw-num">${gwPct(w.after.pct)}</b><small>${t('of {amount}', { amount: fmt.money(w.after.target, BCUR(), { trim: true }) })}</small></span></div>`;
   return `<div class="scrim"></div><div class="gw-win" role="dialog" aria-modal="true" aria-labelledby="gw-h" aria-describedby="gw-say2">
     <div class="gw-in"><p class="gw-kick">${esc(t('Saved in {name}', { name: w.name }))}</p><p class="gw-amt num">+${fmt.money(w.amt, BCUR())}</p>${fig}
-      <h2 class="gw-h" id="gw-h">${head}${w.crossed ? ' 🎉' : ''}</h2>${say ? `<p class="gw-say2" id="gw-say2">${say}</p>` : ''}${chips ? `<div class="gw-chips">${chips}</div>` : ''}</div>
+      <h2 class="gw-h" id="gw-h">${head}${w.crossed && !reached ? `<span class="gw-conf" aria-hidden="true">${artObj('confetti', 'on-dark')}</span>` : ''}</h2>${say ? `<p class="gw-say2" id="gw-say2">${say}</p>` : ''}${chips ? `<div class="gw-chips">${chips}</div>` : ''}</div>
     <div class="gw-acts"><button class="btn primary" data-a="gw-done">${t('Done')}</button>${w.yearly ? '' : `<button class="btn" data-a="gw-see">${t('See goal')}</button>`}</div></div>`;
 }
 /** Its entrance: it opens out of the goal's flag, where the coin went in; then what was put in, the ring filling with its percentage counting with
@@ -147,13 +149,13 @@ function gwPlay() {
   const arc = $('gw-arc'), num = $('gw-num'), from = w.fund ? w.before.saved : w.before.pct, to = w.fund ? w.after.saved : Math.min(100, w.after.pct), show = v => w.fund ? fmt.money(Math.round(v), BCUR()) : gwPct(v);
   const C = arc ? +arc.getAttribute('stroke-dasharray') : 0, timing = { duration: 1000, delay: 380, easing: GW_EASE, fill: 'backwards' };
   const drive = arc ? arc.animate([{ strokeDashoffset: C * (1 - Math.min(100, w.before.pct) / 100) }, { strokeDashoffset: C * (1 - to / 100) }], timing) : num ? num.animate([{ opacity: 1 }, { opacity: 1 }], timing) : null;
-  if (!drive || !num) return;
+  const cheer = () => { if (fig) fig.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }], { duration: 420, easing: 'cubic-bezier(.77, 0, .175, 1)' });
+    confetti(); const cf = $('confetti'); if (cf) cf.classList.add('gw'); gwBuzz([10, 40, 14]); };      // in the summary's colours
+  if (!drive || !num) { if (w.crossed && !arc && !num) setTimeout(() => { if (el.isConnected) cheer(); }, 900); return; }      // the goal reached: its person, then the confetti (v214)
   num.textContent = show(from);
   const step = () => { if (!num.isConnected || drive.playState === 'finished') return; const p = drive.effect.getComputedTiming().progress; num.textContent = show(from + (to - from) * (p || 0)); requestAnimationFrame(step); };
   requestAnimationFrame(step);
-  drive.finished.then(() => { if (!num.isConnected) return; num.textContent = show(to); if (!w.crossed) return;
-    if (fig) fig.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }], { duration: 420, easing: 'cubic-bezier(.77, 0, .175, 1)' });
-    confetti(); const cf = $('confetti'); if (cf) cf.classList.add('gw'); gwBuzz([10, 40, 14]); }).catch(() => { });      // in the summary's colours
+  drive.finished.then(() => { if (!num.isConnected) return; num.textContent = show(to); if (w.crossed) cheer(); }).catch(() => { });
 }
 /** Out of the screen: back where the panel was opened from, or to the goal; with nothing to go to, the page shows where the money went (its row
     washes). A panel to go to comes in as a panel does. */

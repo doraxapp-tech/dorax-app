@@ -1,0 +1,76 @@
+/* Dorax Finance — the illustrations inside the app (v214, owner, 2026-10-13: "haz un update a las pantallas de onboarding y pantallas de éxito y
+   otras partes de la app donde puedas agregar las ilustraciones. Jornada también. No abuses de las personas, usa los iconos también").
+   The drawings are the website's (js/ui/art.js, css/components/art.css): people (artFig) for a few moments only, and Dorax's things (artObj) for
+   the rest. Each one sits beside the words that say the same thing, in the place the screen already had for its mark, never on top as decoration.
+     - people: the welcome (hi), the days of freedom (coffee), the company's first question (laptop), the statement brought in (paper), a calm month
+       with nothing to pay (coffee), and the moments made: the month's last bill paid, a goal reached, the month met (win);
+     - things: the dreams, the month's numbers, the ways to go on, the company's bank and money, the money that came in and its piggy bank, the steps
+       of the month's close and a new month, the Journey's streak, sprint and way out, the empty pages (bank, calendar, list, flag, chart).
+   In the dark theme a thing takes the brand's dark version (a forest circle, a mint line), as on the website's dark bands. */
+
+:root.land-dark .obj:not(.badge) { --obj-ink: #E2F6D5; --obj-bg: #1F4209; }
+
+/* ---------- the setup of a new account (features/onboarding) ---------- */
+.ob-page .ob-thing { flex: none; display: block; width: 40px; height: 40px; }
+.ob-page .ob-thing .obj { width: 100%; height: 100%; }
+.ob-page .ob-dream .ob-thing { width: 40px; height: 40px; }
+.ob-page .ob-dream[aria-pressed="true"] .obj { --obj-bg: #FFFFFF; }      /* the chosen dream is forest: its thing on a white circle */
+.ob-page .ob-way .ob-thing { width: 44px; height: 44px; }
+.ob-slide.with-art .ob-slide-h { justify-content: flex-start; gap: 10px; }
+.ob-slide.with-art .ob-slide-h label { flex: 1 1 auto; min-width: 0; }
+.ob-slide .ob-thing { width: 34px; height: 34px; }
+/* the drawing of each step stands on its stage: css/look/look-stage.css (v215) */
+
+/* ---------- the company's setup (features/company) ---------- */
+.co-setup .cos-head { display: flex; align-items: flex-start; gap: 16px; }
+.co-setup .cos-head .grow { min-width: 0; }
+.co-setup .cos-art { flex: none; display: block; width: 72px; }
+.co-setup .cos-art .fig { width: 88px; margin-top: -6px; }
+.co-setup .cos-art:has(.fig) { width: 88px; margin-right: 14px; }      /* its badge stands out at the corner: room for it inside the card */
+.co-setup .cos-art .obj { width: 72px; height: 72px; }
+
+/* ---------- what success looks like ---------- */
+/* the month's last bill paid: the person with the month's calendar, where the check was (features/plan/pay-done.js) */
+:root.land #overlay .pd-fig { display: block; width: 96px; margin: 0 0 8px; }
+/* money in: the coins coming in, on the forest; putting part aside, the piggy bank (features/transactions/tx-done.js) */
+:root.land #overlay .iw-coin.iw-art { width: 92px; height: 92px; padding: 0; border: 0; background: none; box-shadow: none; }
+:root.land #overlay .iw-coin.iw-art .obj { width: 100%; height: 100%; }
+:root.land #overlay .iw-save-h { display: flex; align-items: center; gap: 10px; }
+:root.land #overlay .iw-save-h .obj { flex: none; width: 36px; height: 36px; }
+:root.land #overlay .iw-save-h b { color: #FFFFFF; font-size: 16px; font-weight: 600; }      /* the words were .iw-save > b before the piggy bank came beside them */
+/* a goal: its milestone's confetti beside the words; reached, the person with its flag in place of the ring (features/goals/goal-win.js) */
+:root.land #overlay .gw-conf { display: inline-block; width: 1.15em; height: 1.15em; margin-left: 8px; vertical-align: -.18em; }
+:root.land #overlay .gw-conf .obj { width: 100%; height: 100%; }
+:root.land #overlay .gw-fig.gw-reached { width: 150px; height: auto; margin-inline: auto; }
+/* the month's close: what each step is about; met, the person with confetti; not met, a new day (features/month-close) */
+.mc .mc-head { display: flex; align-items: center; gap: 14px; }
+.mc .mc-head .grow { min-width: 0; }
+.mc .mc-art { flex: none; display: block; width: 52px; height: 52px; }
+.mc .mc-art .obj { width: 100%; height: 100%; }
+.mc .mc-end-fig { display: block; width: 128px; margin: 0 auto 10px; }
+.mc .mc-end-art { display: block; width: 88px; height: 88px; margin: 0 auto 12px; }
+.mc .mc-end-art .obj { width: 100%; height: 100%; }
+
+/* ---------- the Journey (features/journey) ---------- */
+.js-how .js-ico.js-art { width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: none; }
+.js-how .js-ico.js-art .obj { width: 100%; height: 100%; }
+.jr .jr-art-sec { display: flex; align-items: flex-start; gap: 14px; }
+.jr .jr-art-sec .grow { min-width: 0; }
+.jr .jr-art { flex: none; display: block; width: 48px; height: 48px; }
+.jr .jr-art .obj { width: 100%; height: 100%; }
+.jr .jr-none { display: flex; align-items: center; gap: 12px; }
+.jr .jr-none .jr-art { width: 40px; height: 40px; }
+
+/* ---------- the summary and the pages: their empty parts ---------- */
+:root.land .bq-empty.bq-calm { display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; gap: 14px; }
+.bq-calm .bq-calm-fig { flex: none; width: 60px; }
+:root.land .bq-empty.bq-with-art { display: flex; align-items: center; justify-content: flex-start; gap: 12px; flex-wrap: wrap; }
+:root.land .bq-empty.bq-with-art > b, :root.land .bq-empty.bq-with-art > span:not(.fig) { flex: 1 1 auto; min-width: 0; }
+.obj.bq-empty-art { flex: none; width: 40px; height: 40px; }
+.obj.bq-goals-art { width: 40px; height: 40px; margin: 6px 0 2px; }
+.empty > .obj.empty-art, .bq-txnone > .obj.empty-art { display: block; width: 64px; height: 64px; margin: 0 auto 12px; }
+.obj.co-ask-art { flex: none; width: 44px; height: 44px; }
+/* the phone's import: the person with their statement, where the upload mark was (features/imports/imports.phone.js) */
+.ip-hero.ip-fig { width: 112px; height: auto; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.ip-hero.ip-fig .fig { width: 100%; }
+:root.land .bq-empty.bq-calm > span:not(.fig) { flex: 1 1 auto; min-width: 0; margin: 0; text-align: left; }

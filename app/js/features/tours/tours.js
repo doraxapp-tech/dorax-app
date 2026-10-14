@@ -11,22 +11,22 @@ const TOUR_DAYS = 30;
 function tourText(route) {
   return ({
     dashboard: { art: 'kpis', title: t('Your money, at a glance.'), lead: t('Summary tells you how you are doing today, and how long you would last if you stopped earning.'),
-      does: [['chart', t('What came in, went out and is left this month')], ['shield', t('Your days of freedom: how long your savings last')], ['check', t('What is still to pay, before it is due')]], go: null },
+      does: [['chart-bar', t('What came in, went out and is left this month')], ['shield-check', t('Your days of freedom: how long your savings last')], ['calendar-check', t('What is still to pay, before it is due')]], go: null, fig: 'coffee' },
     transactions: { art: 'list', title: t('Every real in its place.'), lead: t('Everything that comes into and goes out of your accounts is here.'),
-      does: [['plus', t('Write an expense in one line: “taxi 15”')], ['upload', t('Bring your bank statement and Dorax sorts it')], ['filter', t('Filter by category, account or month')]], go: ['new-tx', t('Add a transaction')] },
+      does: [['chat-circle-dots', t('Write an expense in one line: “taxi 15”')], ['file-arrow-down', t('Bring your bank statement and Dorax sorts it')], ['sliders-horizontal', t('Filter by category, account or month')]], go: ['new-tx', t('Add a transaction')], thing: 'list-checks' },
     plan: { art: 'bills', title: t('Your month, before it happens.'), lead: t('In the Plan you put what you expect to earn, your fixed costs with their due day, and how much to spend on each category.'),
-      does: [['calendar', t('Fixed costs: rent, internet, cards')], ['gauge', t('A spending limit per category, with a warning at 80%')], ['bell', t('A reminder before each bill is due')]], go: ['plan-guide', t('Plan my month')] },      // 2026-10-10: the guide first (features/limits/plan-guide.view.js)
+      does: [['house', t('Fixed costs: rent, internet, cards')], ['sliders-horizontal', t('A spending limit per category, with a warning at 80%')], ['bell-ringing', t('A reminder before each bill is due')]], go: ['plan-guide', t('Plan my month')], thing: 'calendar-dots' },      // 2026-10-10: the guide first (features/limits/plan-guide.view.js)
     goals: { art: 'ring', title: t('Your dreams, with a date.'), lead: t('Each goal tells you how much to set aside a month, and when you get there.'),
-      does: [['target', t('Give what you want an amount and a date')], ['trend', t('Set aside each month and watch it move')], ['flag', t('If you fall behind or get ahead, it tells you')]], go: ['goal-new', t('Create a goal')] },
+      does: [['calendar-dots', t('Give what you want an amount and a date')], ['piggy-bank', t('Set aside each month and watch it move')], ['bell-ringing', t('If you fall behind or get ahead, it tells you')]], go: ['goal-new', t('Create a goal')], thing: 'flag-banner' },
     reports: { art: 'bars', title: t('Where your money went.'), lead: t('Reports shows your months in charts, so you see what to change.'),
-      does: [['chart', t('Your largest spending, by category')], ['sort', t('Month against month: what went up and what went down')], ['search', t('Tap a category to see its transactions')]], go: null },
+      does: [['chart-bar', t('Your largest spending, by category')], ['arrows-left-right', t('Month against month: what went up and what went down')], ['list-checks', t('Tap a category to see its transactions')]], go: null, fig: 'idea' },
     // a phone's Imports (owner, 2026-10-10: "let phone users import from the phone ... and make an onboarding for it"): where the file comes from,
     // in three steps, and the button that opens the file picker. For everybody, at any age of the account, on both sides (always).
     ...(smallPhone() ? { imports: { art: 'file', always: true, title: t('Your statement, in a few taps.'), lead: t('Bring months of transactions at once, without typing them. The file is read on your phone and is not uploaded.'),
-      does: [['bank', t('In your bank’s app, open the statement and export it as OFX or CSV')], ['download', t('It is saved on your phone: in Files on an iPhone, in Downloads on Android')], ['check', t('Choose it here: Dorax sorts it, you only check what is unclear')]],
-      go: ['imp-pick', t('Choose my statement')], later: t('Not now') } } : {}),
+      does: [['bank', t('In your bank’s app, open the statement and export it as OFX or CSV')], ['file-arrow-down', t('It is saved on your phone: in Files on an iPhone, in Downloads on Android')], ['seal-check', t('Choose it here: Dorax sorts it, you only check what is unclear')]],
+      go: ['imp-pick', t('Choose my statement')], later: t('Not now'), fig: 'paper' } } : {}),
     accounts: { art: 'cards', title: t('What you really have.'), lead: t('Your accounts, cards and savings, with today’s balance.'),
-      does: [['wallet', t('Each account and card, with its balance')], ['coins', t('Your savings, and what they add up to')], ['bank', t('Card invoices, and how much of the limit you use')]], go: ['account-add', t('Add an account')] },
+      does: [['wallet', t('Each account and card, with its balance')], ['piggy-bank', t('Your savings, and what they add up to')], ['file-text', t('Card invoices, and how much of the limit you use')]], go: ['account-add', t('Add an account')], thing: 'bank' },
   })[route] || null;
 }
 /** Tests see a screen's first visit only when they ask for it (window.DORAX_TOURS); a real visit has neither switch. */
@@ -52,21 +52,32 @@ function tourArt(kind) {
   if (kind === 'bars') return `<div class="ta ta-bars">${[46, 70, 38, 88, 60, 96].map((h, i) => `<span style="--i:${i};--h:${h}%"${i === 5 ? ' class="on"' : ''}></span>`).join('')}</div>`;
   return `<div class="ta ta-cards">${n(3).map(i => `<span class="ta-card" style="--i:${i}"><i></i><b></b></span>`).join('')}</div>`;
 }
+// v215 (owner, 2026-10-13: "no veo las pantallas de cuando se abre una tab por primera vez, las que explican de qué va cada tab", on the drawings):
+// each first visit is laid out as the setup and the home page's first band (css/look/look-stage.css). On the stage, the small live drawing of the
+// screen in a white frame that rises from the sheet's edge and, beside it, standing on the same edge, who or what the screen is about: the person at
+// ease (Summary: the days of freedom), the person with an idea (Reports: what to change), the person with the statement (the phone's Imports); the
+// list (Transactions), the month's calendar (Plan), the flag (Goals), the bank (Accounts). On the sheet, the words, each line with its own thing
+// (fig / thing / does[0] are Dorax's drawings, js/ui/art.js), and the button.
 function renderTour() {
   const box = $('tour-root'); if (!box) return;
   const r = UI.tour, x = r && tourText(r);
   document.documentElement.classList.toggle('tour-open', !!x);
   if (!x) { box.innerHTML = ''; return; }
-  box.innerHTML = `<div id="tour" class="tour-page" role="dialog" aria-modal="true" aria-labelledby="tour-h" data-route="${r}">
+  const who = x.fig ? artFig(x.fig, '', 'shadow tour-fig') : `<span class="tour-thing">${artObj(x.thing, 'badge')}</span>`;
+  box.innerHTML = `<div id="tour" class="tour-page tour-staged" role="dialog" aria-modal="true" aria-labelledby="tour-h" data-route="${r}">
     <button class="tour-x" data-a="tour-close" aria-label="${esc(t('Close'))}">${icon('x')}</button>
-    <div class="tour-body">
-      <div class="tour-art" aria-hidden="true">${tourArt(x.art)}</div>
-      <p class="tour-eyebrow">${esc(routeLabel(r))}</p>
-      <h1 id="tour-h" tabindex="-1">${x.title}</h1>
-      <p class="tour-lead">${x.lead}</p>
-      <ul class="tour-does">${x.does.map(([ic, s], i) => `<li style="--i:${i}"><span>${icon(ic)}</span>${s}</li>`).join('')}</ul>
+    <div class="tour-scroll">
+      <div class="tour-stage" aria-hidden="true"><div class="tour-scene ${x.fig ? 'is-fig' : 'is-thing'}"><span class="tour-art tour-screen">${tourArt(x.art)}</span>${who}</div></div>
+      <div class="tour-sheet">
+        <div class="tour-body">
+          <p class="tour-eyebrow">${esc(routeLabel(r))}</p>
+          <h1 id="tour-h" tabindex="-1">${x.title}</h1>
+          <p class="tour-lead">${x.lead}</p>
+          <ul class="tour-does">${x.does.map(([ic, s], i) => `<li style="--i:${i}"><span class="tour-ico" aria-hidden="true">${artObj(ic)}</span>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="tour-foot">${x.go ? `<button class="tour-go" data-a="tour-go" data-go="${x.go[0]}">${x.go[1]}</button><button class="tour-later" data-a="tour-close">${x.later || t('I’ll look around first')}</button>` : `<button class="tour-go" data-a="tour-close">${t('Got it')}</button>`}</div>
+      </div>
     </div>
-    <div class="tour-foot">${x.go ? `<button class="tour-go" data-a="tour-go" data-go="${x.go[0]}">${x.go[1]}</button><button class="tour-later" data-a="tour-close">${x.later || t('I’ll look around first')}</button>` : `<button class="tour-go" data-a="tour-close">${t('Got it')}</button>`}</div>
   </div>`;
   const h = $('tour-h'); if (h) h.focus({ preventScroll: true });
 }

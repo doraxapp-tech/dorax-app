@@ -54,4 +54,23 @@ addTexts([
   ["Your month","Tu mes","Seu mês"],
   ["What your money can already do","Lo que tu dinero ya puede hacer","O que seu dinheiro já pode fazer"],
   ["Your next step","Tu próximo paso","Seu próximo passo"],
+  // v215: the bubble over the month's calendar, as the sliders move
+  ["Left each month","Te sobra al mes","Sobra por mês"],
+  ["Short each month","Te falta al mes","Falta por mês"],
+  // v216: the new setup (owner, 2026-10-13: "haz un diseño nuevo y mejorado"; "se ven bien")
+  ["Your plan in a minute","Tu plan en un minuto","Seu plano em um minuto"],
+  ["In a minute we see what your money can do for your first dream.","En un minuto vemos qué puede hacer tu dinero por tu primer sueño.","Em um minuto vemos o que seu dinheiro pode fazer pelo seu primeiro sonho."],
+  ["A nickname works.","Un apodo sirve.","Um apelido serve."],
+  ["A nickname works. We’ll call you {name}.","Un apodo sirve. Te llamaremos {name}.","Um apelido serve. Vamos te chamar de {name}."],
+  ["{name}, which dream do you want to reach first?","{name}, ¿qué sueño quieres alcanzar primero?","{name}, qual sonho você quer realizar primeiro?"],
+  ["Which dream do you want to reach first?","¿Qué sueño quieres alcanzar primero?","Qual sonho você quer realizar primeiro?"],
+  ["Pick one and tell us what it costs. We put a date on it in a minute.","Elige uno y dinos cuánto cuesta. Le ponemos fecha en un minuto.","Escolha um e diga quanto custa. Colocamos uma data nele em um minuto."],
+  ["Buy or change","Comprar o cambiar","Comprar ou trocar"],
+  ["Dream holidays","Vacaciones soñadas","Férias dos sonhos"],
+  ["Safety net","Reserva","Reserva"],
+  ["To sleep easy","Para dormir tranquilo","Para dormir tranquilo"],
+  ["You name it","Tú le pones nombre","Você dá o nome"],
+  ["Pick where to start","Elige por dónde empezar","Escolha por onde começar"],
+  ["What’s your name?","¿Cómo te llamas?","Como você se chama?"],
+  ["Start","Empezar","Começar"],
 ]);

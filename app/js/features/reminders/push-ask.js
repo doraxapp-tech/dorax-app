@@ -19,7 +19,7 @@ async function pushAskDue() {
 /** The notice (drawn by curioCard, features/ahead/curios.view.js, in the corner the other notices use). */
 function pushAskCard(c) {
   const ios = c.st === 'install';
-  return `<aside class="curio nudge" id="curio" role="status" aria-label="${t('Notifications')}"><span class="fl-ico">${icon('bell')}</span><div class="grow"><b>${t('Want a heads-up before a bill is due?')}</b>
+  return `<aside class="curio nudge" id="curio" role="status" aria-label="${t('Notifications')}">${noteMark(icon('bell'), 'bell-ringing')}<div class="grow"><b>${t('Want a heads-up before a bill is due?')}</b>
       <p>${ios ? t('Dorax can notify this iPhone before a bill’s due day, on the day, and if it is late. Apple allows that only once Dorax is on your Home Screen.') : t('Dorax can send a notification to this device before a bill’s due day, on the day, and if it is late. In your profile you choose what it reminds you of.')}</p>
       <div class="row"><button class="btn sm primary" data-a="push-ask-yes">${ios ? t('Show me how') : t('Turn on notifications')}</button><button class="btn sm ghost" data-a="push-ask-no">${t('Not now')}</button></div></div>
     <button class="btn ghost sm x" data-a="push-ask-no" aria-label="${t('Close')}">${icon('x')}</button></aside>`;

@@ -49,8 +49,8 @@ const measure = () => {
     let { browser, page, errors } = await open({ lang, viewport: { width: w, height: h }, touch: true, mobile: true, server: { confirmEmail: false } });
     for (const v of ['login', 'signup', 'forgot']) { await page.evaluate(v => A['pub-go']({ v }), v); await page.waitForSelector('#au-email'); await check(page, `the ${v} screen`); }
     await page.evaluate(() => A['pub-go']({ v: 'signup' })); await page.fill('#au-name', 'Ana'); await page.fill('#au-email', 'ana@example.org'); await page.fill('#au-pass', 'UmaSenha2026'); await page.check('#au-accept'); await page.click('[data-a="auth-signup"]');
-    await page.waitForSelector('#ob-name'); await check(page, 'setup, the name'); await page.click('.ob-dream'); await check(page, 'setup, a dream chosen');
-    await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0'); await check(page, 'setup, the numbers');
+    await page.waitForSelector('#ob-name'); await check(page, 'setup, the name'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('.ob-dreams'); await page.click('.ob-dream'); await check(page, 'setup, a dream chosen');
+    await page.click('[data-a="ob-next"]'); await page.waitForSelector('#ob-pay0'); await check(page, 'setup, the numbers');
     await page.click('[data-a="ob-next"]'); await page.waitForSelector('[data-a="ob-finish"]'); await check(page, 'setup, the projection');
     eq(await page.evaluate(() => [...document.querySelectorAll('[data-a="ob-finish"]')].some(b => b.dataset.go === 'sheet')), false, `${tag}: the setup does not offer the spreadsheet import on a phone (it is left to the computer)`);
     await page.click('[data-a="ob-finish"]'); await page.waitForFunction(() => !!UI.session); await page.evaluate(() => navigate('dashboard')); await page.waitForSelector('#first-steps'); await check(page, 'a new account’s dashboard, with its first steps');

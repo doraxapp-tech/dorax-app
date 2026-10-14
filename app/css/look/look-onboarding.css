@@ -1,0 +1,183 @@
+/* Dorax Finance — the setup of a new account, in the app's look (v216; owner, 2026-10-13: "el onboarding del signup no me gusta ni en pc ni en
+   móvil, haz un artefacto con un diseño nuevo y mejorado"; the canvas "Onboarding Dorax: nuevo diseño", approved: "se ven bien").
+   The summary's forest block (#112622) and, over it, a sage sheet that rises with rounded corners (owner: "likes the deep-green top block with a
+   light sheet rising over it"; css/look/look-land.css). On the block: the bar, the screen's words, its drawing (a person in front of a lime sun, or
+   a thing that rises from behind the sheet, with the home page's bubble over it). On the sheet: what is asked, white tiles and fields with a
+   hairline, and at its foot the bar in parts and the lime button with forest words, as the app's main buttons.
+   A computer: the block is the left of the screen, its drawing standing on the screen's foot; the sheet comes in from the side, round at its left,
+   and holds the step's fields and its button together in its middle. features/onboarding/onboarding.view.js draws it; before v216 the stage of
+   v215 (sage and white) and, before it, the light page of v198 (css/look/look-pages.css, css/screens/onboarding.css, still under these rules).
+   Every rule starts at #obpage.ob-page: the light page's rules start at :is(.ob-page, :root.app-light #jstart), which counts as an id and a class. */
+#obpage.ob-page.ob-forest {
+  --deep: #112622; --deep-2: #1F332F; --lime: #B6DD62; --lime-hi: #C4E57A; --mint: #E8F3D2; --sage: #F2F4EE; --soft: #B5C2BE; --on-2: #D6DCCF;
+  --ink: #0E0F0C; --ink-strong: #0E0F0C; --ink-2: #454745; --ink-3: #5F625D; --hair: #DDE3E1; --line-strong: #C3C9BD; --track: #DCE2D5;
+  --brand: var(--deep); --focus: var(--deep); --knob: #FFFFFF;
+  --gut: max(20px, calc((100% - 520px) / 2)); --fig-w: clamp(140px, 44vw, 176px);
+}
+#obpage.js-page.ob-page.ob-forest { justify-content: flex-start; background: var(--deep); color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-body { flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; max-height: none; margin: 0; padding: 0; overflow-y: auto; }
+
+/* ---------- the block: the bar, the words, the drawing ---------- */
+#obpage.ob-page.ob-forest .ob-stage { position: relative; flex: none; display: flex; flex-direction: column; padding: calc(12px + var(--safe-t, 0px)) var(--gut) 0; overflow-x: clip; color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-bar { position: static; display: flex; align-items: center; gap: 10px; margin: 0; }
+#obpage.ob-page.ob-forest .ob-brand { flex: none; width: auto; height: 44px; transform: none; color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-brand .brand { padding: 0; } #obpage.ob-page.ob-forest .ob-brand .logo { width: auto; height: 24px; color: #FFFFFF; } #obpage.ob-page.ob-forest .ob-brand .logo .ac { stroke: var(--lime); }
+#obpage.ob-page.ob-forest .ob-bar select.lang { color-scheme: dark; flex: 0 1 auto; min-width: 0; width: auto; min-height: 44px; padding: 4px 30px 4px 14px; border-radius: 999px; color: #FFFFFF; background-color: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .16); font-size: 14px; }
+#obpage.ob-page.ob-forest .ob-bar select.lang option { color: #0E0F0C; background: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-out { flex: none; width: 44px; height: 44px; color: #FFFFFF; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .16); }
+#obpage.ob-page.ob-forest :is(.ob-out, select.lang):focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+#obpage.ob-page.ob-forest .ob-words { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 26px 0 28px; }
+#obpage.ob-page.ob-forest .ob-words h1 { margin: 0; font-size: clamp(28px, 8.4vw, 36px); line-height: 1.05; font-weight: 600; letter-spacing: -.035em; color: #FFFFFF; outline: 0; text-wrap: balance; }
+#obpage.ob-page.ob-forest .ob-words h1 .e { margin-left: 2px; }
+#obpage.ob-page.ob-forest .ob-words .js-lead { margin: 0; font-size: 16px; line-height: 1.45; color: var(--soft); max-width: 34ch; }
+#obpage.ob-page.ob-forest .ob-words .js-eyebrow { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 4px 13px 4px 11px; box-sizing: border-box; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); color: var(--on-2); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+#obpage.ob-page.ob-forest .ob-words .js-eyebrow::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px rgba(182, 221, 98, .25); }
+#obpage.ob-page.ob-forest .ob-wide { display: none; }      /* a line the computer has room for */
+/* the drawing: a person in front of the lime sun, standing on the sheet's edge; a thing on the lime circle, half behind the sheet */
+#obpage.ob-page.ob-forest .ob-scene { position: absolute; z-index: 0; right: var(--gut); bottom: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; pointer-events: none; }
+#obpage.ob-page.ob-forest .ob-scene.is-fig { width: var(--fig-w); }
+#obpage.ob-page.ob-forest .ob-scene .fig.ob-fig { position: relative; z-index: 1; width: 100%; }
+#obpage.ob-page.ob-forest .ob-sun { position: absolute; z-index: 0; left: 50%; bottom: -14%; width: 128%; aspect-ratio: 1; border-radius: 50%; background: var(--lime); transform: translateX(-50%); }
+#obpage.ob-page.ob-forest .ob-big-thing { display: block; width: 104px; height: 104px; margin: 0 4px -38px 0; }
+#obpage.ob-page.ob-forest .ob-big-thing .obj, #obpage.ob-page.ob-forest .ob-thing.on-lime .obj { width: 100%; height: 100%; --obj-bg: var(--lime); --obj-fill: var(--mint); --obj-ink: var(--deep); }
+#obpage.ob-page.ob-forest .ob-chip { margin-right: 14px; box-shadow: 0 18px 36px -20px rgba(0, 0, 0, .6); }
+#obpage.ob-page.ob-forest .ob-chip > b { font-size: 17px; color: var(--deep); }
+#obpage.ob-page.ob-forest .ob-chip::after { right: 40px; box-shadow: none; }
+/* the welcome: the words over the whole width, the person and the sun under them, in the middle */
+#obpage.ob-page.ob-forest[data-step="0"] .ob-words { padding-bottom: 8px; }
+#obpage.ob-page.ob-forest[data-step="0"] .ob-scene { position: relative; right: auto; align-self: center; margin-top: 4px; }
+/* the dream and the next step: the words at the left, the thing and its bubble at the right */
+/* the dream and the next step: the words over the whole width; under them at the right, the bubble and the thing beside it, rising from the sheet */
+#obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-words { padding-bottom: 108px; }
+#obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-scene { flex-direction: row; align-items: flex-end; gap: 12px; }
+#obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-chip { margin: 0 0 44px; }
+#obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-chip::after { left: auto; right: -5px; top: 50%; transform: translateY(-50%) rotate(45deg); }
+/* the month: what is left each month, large, as the summary's balance; the dream beside it */
+#obpage.ob-page.ob-forest[data-step="2"] .ob-scene { display: none; }
+#obpage.ob-page.ob-forest .ob-live { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px 14px; width: 100%; }
+#obpage.ob-page.ob-forest .ob-left { display: flex; flex-direction: column; gap: 2px; }
+#obpage.ob-page.ob-forest .ob-left-k { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--soft); }
+#obpage.ob-page.ob-forest .ob-left-k::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); }
+#obpage.ob-page.ob-forest .ob-left > b { font-size: 46px; line-height: 1.05; font-weight: 600; letter-spacing: -.04em; color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-left-c { font-size: .44em; font-weight: 500; letter-spacing: 0; color: var(--soft); }
+#obpage.ob-page.ob-forest .ob-left-say { font-size: 14px; color: var(--soft); }
+#obpage.ob-page.ob-forest .ob-dream-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-bottom: 4px; padding: 3px 14px 3px 3px; box-sizing: border-box; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); font-size: 14px; color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-dream-chip .ob-thing { width: 32px; height: 32px; }
+/* what the money can already do: the days very large, in lime; the person at ease in front of the sun */
+#obpage.ob-page.ob-forest[data-step="3"] { --fig-w: clamp(124px, 38vw, 150px); }
+#obpage.ob-page.ob-forest[data-step="3"] .ob-words { padding-right: calc(var(--fig-w) + 22px); min-height: calc(var(--fig-w) * 1.62); }      /* the person's head stays under the step's name */
+#obpage.ob-page.ob-forest[data-step="3"] .ob-words .js-eyebrow { margin-right: calc(-22px - var(--fig-w)); }      /* the long name of the step takes the room over the person's head */
+#obpage.ob-page.ob-forest .ob-days { display: flex; flex-direction: column; gap: 4px; }
+#obpage.ob-page.ob-forest .ob-days .rw-n { font-size: clamp(72px, 23vw, 96px); line-height: .9; font-weight: 600; letter-spacing: -.05em; color: var(--lime); }
+#obpage.ob-page.ob-forest .ob-days .rw-u { font-size: 21px; line-height: 1.15; font-weight: 600; letter-spacing: -.02em; color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-days.zero { font-size: 26px; }
+
+/* ---------- the sheet: what is asked ---------- */
+#obpage.ob-page.ob-forest .ob-sheet { position: relative; z-index: 1; flex: 1 0 auto; gap: 16px; margin: 0; padding: 24px var(--gut) 12px; background: var(--sage); border-radius: 28px 28px 0 0; color: var(--ink); }
+#obpage.ob-page.ob-forest .ob-foot { position: relative; z-index: 1; width: 100%; margin: 0; padding: 8px var(--gut) calc(16px + var(--safe-b, 0px)); background: var(--sage); color: var(--ink); }
+#obpage.ob-page.ob-forest .ob-sheet .field label, #obpage.ob-page.ob-forest .ob-sheet .ob-slide-h label { color: var(--ink); font-size: 15px; font-weight: 500; }
+#obpage.ob-page.ob-forest .ob-sheet .ob-name label { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+#obpage.ob-page.ob-forest .ob-name { display: flex; flex-direction: column; gap: 10px; }
+#obpage.ob-page.ob-forest .ob-sheet .field:not(.ob-slide) input[type=text] { min-height: 56px; border-radius: 16px; border: 1.5px solid var(--line-strong); background: #FFFFFF; color: var(--ink); font-size: 18px; }
+#obpage.ob-page.ob-forest .ob-sheet .field:not(.ob-slide) input[type=text]:focus { border-color: var(--deep); box-shadow: 0 0 0 4px rgba(182, 221, 98, .45); }
+#obpage.ob-page.ob-forest .ob-sheet .js-soft, #obpage.ob-page.ob-forest .ob-sheet .note { margin: 0; color: var(--ink-3); font-size: 13.5px; }
+#obpage.ob-page.ob-forest .ob-sheet .banner.js-warn { color: var(--ink); background: #FFFFFF; border: 1px solid var(--line-strong); }
+/* the dreams: a word and a line each, the thing on its mint circle; the one chosen forest, its thing on white */
+#obpage.ob-page.ob-forest .ob-dream { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; min-height: 44px; border-radius: 20px; border: 1px solid var(--hair); background: #FFFFFF; color: var(--ink); font-size: inherit; }
+#obpage.ob-page.ob-forest .ob-dream .ob-thing { width: 40px; height: 40px; }
+#obpage.ob-page.ob-forest .ob-dream .grow { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+#obpage.ob-page.ob-forest .ob-dream b { font-size: 16px; font-weight: 600; color: inherit; } #obpage.ob-page.ob-forest .ob-dream small { font-size: 13px; line-height: 1.3; color: var(--ink-3); }
+#obpage.ob-page.ob-forest .ob-dream:hover { border-color: var(--deep); }
+#obpage.ob-page.ob-forest .ob-dream[aria-pressed="true"] { background: var(--deep); border-color: var(--deep); color: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-dream[aria-pressed="true"] small { color: var(--soft); }
+#obpage.ob-page.ob-forest .ob-dream[aria-pressed="true"] .obj { --obj-bg: #FFFFFF; }
+#obpage.ob-page.ob-forest .ob-dream:focus-visible { outline: 2px solid var(--deep); outline-offset: 2px; }
+#obpage.ob-page.ob-forest .obj { --obj-bg: var(--mint); --obj-fill: var(--lime); --obj-ink: var(--deep); }
+/* the sliders: forest track and knob with a lime halo; the amount a figure on its dashed line */
+#obpage.ob-page.ob-forest .ob-slide { gap: 6px; }
+#obpage.ob-page.ob-forest .ob-slide-h label { font-size: 15px; line-height: 1.3; }
+#obpage.ob-page.ob-forest .ob-val { color: var(--ink-3); border-bottom-color: var(--line-strong); }
+#obpage.ob-page.ob-forest .ob-val input[type=text] { color: var(--ink); font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+#obpage.ob-page.ob-forest .ob-slide input[type=range]::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--deep) var(--p, 0%), var(--track) var(--p, 0%)); }
+#obpage.ob-page.ob-forest .ob-slide input[type=range]::-moz-range-progress { background: var(--deep); }
+#obpage.ob-page.ob-forest .ob-slide input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -11px; background: #FFFFFF; border: 2px solid var(--deep); box-shadow: 0 0 0 6px rgba(182, 221, 98, .45); }
+#obpage.ob-page.ob-forest .ob-slide input[type=range]::-moz-range-thumb { width: 24px; height: 24px; background: #FFFFFF; border: 2px solid var(--deep); box-shadow: 0 0 0 6px rgba(182, 221, 98, .45); }
+#obpage.ob-page.ob-forest[data-step="2"] .ob-sheet { gap: 0; padding-top: 10px; }
+#obpage.ob-page.ob-forest[data-step="2"] .ob-slide { padding: 11px 0; border-bottom: 1px solid var(--hair); }
+#obpage.ob-page.ob-forest[data-step="2"] .ob-slide:last-of-type { border-bottom: 0; }
+#obpage.ob-page.ob-forest .ob-slide .ob-thing { width: 36px; height: 36px; }
+/* what the money can already do: the track, then the facts with their things */
+#obpage.ob-page.ob-forest .ob-track { display: flex; flex-direction: column; gap: 8px; }
+#obpage.ob-page.ob-forest .ob-track-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+#obpage.ob-page.ob-forest .ob-track .rw-seg .bar { background: var(--track); } #obpage.ob-page.ob-forest .ob-track .rw-seg .bar > i { background: var(--deep); }
+#obpage.ob-page.ob-forest .ob-track .rw-seg .lbl { color: var(--ink-3); font-size: 12px; }
+#obpage.ob-page.ob-forest .ob-facts { display: flex; flex-direction: column; }
+#obpage.ob-page.ob-forest .ob-fact { gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--hair); }
+#obpage.ob-page.ob-forest .ob-fact:last-child { border-bottom: 0; }
+#obpage.ob-page.ob-forest .ob-fact .ob-thing { width: 38px; height: 38px; }
+#obpage.ob-page.ob-forest .ob-fact b { font-size: 15px; font-weight: 600; color: var(--ink); } #obpage.ob-page.ob-forest .ob-fact small { color: var(--ink-3); }
+#obpage.ob-page.ob-forest .ob-when { color: #2F6B1C; }
+/* where to go next */
+#obpage.ob-page.ob-forest .ob-pick { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+#obpage.ob-page.ob-forest .ob-way { gap: 14px; padding: 16px; border-radius: 20px; border: 1px solid var(--hair); background: #FFFFFF; color: var(--ink); }
+#obpage.ob-page.ob-forest .ob-way .ob-thing { width: 44px; height: 44px; }
+#obpage.ob-page.ob-forest .ob-way b { font-size: 16px; font-weight: 600; } #obpage.ob-page.ob-forest .ob-way small { color: var(--ink-3); font-size: 13.5px; line-height: 1.35; }
+#obpage.ob-page.ob-forest .ob-way:hover { border-color: var(--deep); }
+/* the foot: the cheer, the bar in parts, back and the lime button */
+#obpage.ob-page.ob-forest .ob-foot .ob-cheer { color: var(--deep); font-size: 15px; font-weight: 600; }
+#obpage.ob-page.ob-forest .ob-dots i { background: var(--track); } #obpage.ob-page.ob-forest .ob-dots i.done { background: rgba(17, 38, 34, .35); } #obpage.ob-page.ob-forest .ob-dots i.now { background: var(--deep); }
+#obpage.ob-page.ob-forest .ob-foot .btn.primary.js-go { background: var(--lime); border-color: var(--lime); color: var(--deep); box-shadow: none; }
+#obpage.ob-page.ob-forest .ob-foot .btn.primary.js-go:hover { background: var(--lime-hi); border-color: var(--lime-hi); }
+#obpage.ob-page.ob-forest .ob-foot .btn.js-back { background: #FFFFFF; border: 1px solid var(--line-strong); color: var(--ink); }
+#obpage.ob-page.ob-forest .ob-foot :is(.js-go, .js-back):focus-visible { outline: 2px solid var(--deep); outline-offset: 3px; }
+#obpage.ob-page.ob-forest .ob-later .linkbtn { color: var(--ink-3); }
+
+/* ---------- coming in ---------- */
+#obpage.ob-page.ob-forest .ob-body.in .ob-words > * { animation: js-rise .6s cubic-bezier(.2, .8, .2, 1) both; }
+#obpage.ob-page.ob-forest .ob-body.in .ob-words > :nth-child(2) { animation-delay: .06s; } #obpage.ob-page.ob-forest .ob-body.in .ob-words > :nth-child(n+3) { animation-delay: .12s; }
+#obpage.ob-page.ob-forest .ob-body.in .ob-scene > :is(.fig, .ob-big-thing) { animation: ob-stand .7s cubic-bezier(.2, .8, .2, 1) .1s both; }
+#obpage.ob-page.ob-forest .ob-body.in .ob-sun { animation: ob-sun .9s cubic-bezier(.2, .8, .2, 1) both; }
+#obpage.ob-page.ob-forest .ob-body.in .ob-scene > .ob-chip { animation: ob-pop .45s cubic-bezier(.2, .8, .2, 1) .55s both; }
+@keyframes ob-sun { from { opacity: 0; transform: translate(-50%, 18%) scale(.9); } to { opacity: 1; transform: translateX(-50%); } }
+
+/* ---------- a computer: the block at the left, the sheet in from the side ---------- */
+@media (min-width: 921px) {
+  #obpage.ob-page.ob-forest { --side: clamp(420px, 42vw, 620px); --fig-w: clamp(220px, 21vw, 300px); }
+  #obpage.js-page.ob-page.ob-forest { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); grid-template-rows: minmax(24px, 1fr) auto auto minmax(24px, 1fr); align-items: stretch; padding: 0; }
+  #obpage.js-page.ob-page.ob-forest::before { content: ""; grid-column: 2; grid-row: 1 / -1; margin-left: -40px; border-radius: 40px 0 0 40px; background: var(--sage); }
+  #obpage.ob-page.ob-forest .ob-body { display: contents; }
+  #obpage.ob-page.ob-forest .ob-stage { grid-column: 1; grid-row: 1 / -1; min-height: 0; padding: 36px clamp(32px, 4vw, 56px) 0; overflow: hidden; }
+  #obpage.ob-page.ob-forest .ob-words, #obpage.ob-page.ob-forest[data-step] .ob-words { flex: none; max-width: 520px; min-height: 0; padding: clamp(40px, 10vh, 104px) 0 0; gap: 16px; }
+  #obpage.ob-page.ob-forest .ob-words h1 { font-size: clamp(40px, 3.9vw, 56px); line-height: 1.02; letter-spacing: -.04em; }
+  #obpage.ob-page.ob-forest .ob-words .js-lead { font-size: 19px; max-width: 30ch; }
+  #obpage.ob-page.ob-forest .ob-words .js-eyebrow, #obpage.ob-page.ob-forest[data-step="3"] .ob-words .js-eyebrow { margin-right: 0; font-size: 14px; min-height: 32px; }
+  #obpage.ob-page.ob-forest .ob-wide { display: block; }
+  #obpage.ob-page.ob-forest .ob-left > b { font-size: clamp(64px, 6vw, 84px); }
+  #obpage.ob-page.ob-forest .ob-left-k, #obpage.ob-page.ob-forest .ob-left-say { font-size: 16px; }
+  #obpage.ob-page.ob-forest .ob-live { flex-direction: column; align-items: flex-start; gap: 28px; margin-top: 18px; }
+  #obpage.ob-page.ob-forest .ob-dream-chip { min-height: 46px; padding-right: 16px; font-size: 15px; }
+  #obpage.ob-page.ob-forest .ob-dream-chip .ob-thing { width: 38px; height: 38px; }
+  #obpage.ob-page.ob-forest .ob-days .rw-n { font-size: clamp(120px, 12vw, 176px); }
+  #obpage.ob-page.ob-forest .ob-days .rw-u { font-size: clamp(26px, 2.4vw, 34px); }
+  /* the drawing stands on the screen's foot */
+  #obpage.ob-page.ob-forest .ob-scene, #obpage.ob-page.ob-forest[data-step="0"] .ob-scene { position: absolute; right: auto; left: 50%; bottom: 0; margin: 0; align-items: center; transform: translateX(-42%); }
+  #obpage.ob-page.ob-forest[data-step="3"] .ob-scene { left: auto; right: clamp(60px, 5vw, 84px); transform: none; }      /* clear of the sheet, which comes 40px into the block */
+  #obpage.ob-page.ob-forest[data-step="2"] .ob-scene { display: flex; }
+  #obpage.ob-page.ob-forest .ob-big-thing { --thing: clamp(220px, 20vw, 300px); width: var(--thing); height: var(--thing); margin: 0 0 calc(var(--thing) * -.24) 0; }
+  #obpage.ob-page.ob-forest .ob-chip { margin: 0 0 6px 64px; padding: 12px 16px; border-radius: 16px; }
+  #obpage.ob-page.ob-forest .ob-chip > small { font-size: 13px; } #obpage.ob-page.ob-forest .ob-chip > b { font-size: 22px; }
+  #obpage.ob-page.ob-forest .ob-chip::after, #obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-chip::after { left: 40px; right: auto; top: 100%; transform: translate(-50%, -6px) rotate(45deg); }
+  #obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-scene { flex-direction: column; align-items: center; gap: 10px; }
+  #obpage.ob-page.ob-forest:is([data-step="1"], [data-step="4"]) .ob-chip { margin: 0 0 6px 64px; }
+  /* the sheet: its fields and button together in its middle */
+  #obpage.ob-page.ob-forest .ob-sheet { grid-column: 2; grid-row: 2; justify-self: center; z-index: 1; width: min(480px, calc(100% - 80px)); max-height: calc(100vh - 230px); min-height: 0; overflow-y: auto; padding: 8px 4px 4px; background: none; border-radius: 0; gap: 20px; overscroll-behavior: contain; }
+  #obpage.ob-page.ob-forest .ob-foot { grid-column: 2; grid-row: 3; justify-self: center; z-index: 1; width: min(480px, calc(100% - 80px)); padding: 22px 4px 0; background: none; }
+  #obpage.js-page.ob-page.ob-forest .js-body, #obpage.js-page.ob-page.ob-forest .js-foot { margin: 0; }
+  #obpage.ob-page.ob-forest .ob-dream { flex-direction: row; align-items: center; gap: 14px; padding: 18px; }
+  #obpage.ob-page.ob-forest .ob-dream .ob-thing { width: 48px; height: 48px; }
+  #obpage.ob-page.ob-forest .ob-sheet .ob-name label { font-size: 32px; letter-spacing: -.03em; }
+  #obpage.ob-page.ob-forest[data-step="3"] { --fig-w: clamp(240px, 22vw, 320px); }
+  #obpage.ob-page.ob-forest .ob-sheet .field:not(.ob-slide) input[type=text] { min-height: 60px; font-size: 19px; }
+}
+@media (min-width: 921px) and (max-height: 720px) { #obpage.ob-page.ob-forest { --fig-w: 200px; } #obpage.ob-page.ob-forest .ob-words, #obpage.ob-page.ob-forest[data-step] .ob-words { padding-top: 24px; } }
+@media (prefers-reduced-motion: reduce) { #obpage.ob-page.ob-forest .ob-body.in :is(.ob-words > *, .ob-scene > *, .ob-sun) { animation: none; } }

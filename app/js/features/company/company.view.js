@@ -44,18 +44,20 @@ function viewCompanySetup() {
   const dots = `<div class="ob-dots" role="img" aria-label="${t('Step {a} of {b}', { a: step + 1, b: CO_STEPS })}">${Array.from({ length: CO_STEPS }, (_, i) => `<i${i === step ? ' class="now"' : ''}></i>`).join('')}</div>`;
   const foot = label => `<div class="ob-foot">${step ? `<button class="btn ghost" data-a="co-setup-back">${icon('left')}${t('Back')}</button>` : ''}<span class="spacer"></span><button class="btn primary" data-a="co-setup-next">${label}${icon('right')}</button></div>`;
   let body;
-  if (step === 0) body = `<h1>${t('First, what is your company called?')}</h1><p>${t('Its money gets a side of its own here, apart from your home’s.')}</p>${err}
+  // v214: the company's person on its first question; its bank, and what comes in and goes out, drawn with Dorax's things (js/ui/art.js)
+  const head = (h, p, art) => `<div class="cos-head"><div class="grow"><h1>${h}</h1><p>${p}</p></div>${art ? `<span class="cos-art" aria-hidden="true">${art}</span>` : ''}</div>`;
+  if (step === 0) body = `${head(t('First, what is your company called?'), t('Its money gets a side of its own here, apart from your home’s.'), artFig('laptop', 'briefcase', 'shadow'))}${err}
       <div class="field"><label for="cos-name">${t('Company name')}</label><input type="text" id="cos-name" maxlength="60" value="${esc(o.name)}" placeholder="${t('e.g. Studio Lima')}" data-c="cos" data-k="name" data-live="1"></div>
       <div class="field"><span id="cos-kind-l">${t('Kind of company')}</span>${seg('co-setup-kind', [['mei', 'MEI'], ['pj', t('Another company (PJ)')]], o.kind, t('Kind of company'))}</div>
       ${foot(t('Next'))}`;
-  else if (step === 1) body = `<h1>${t('Where does the company keep its money?')}</h1><p>${t('One account is enough to start. You add the others later.')}</p>${err}
+  else if (step === 1) body = `${head(t('Where does the company keep its money?'), t('One account is enough to start. You add the others later.'), artObj('bank'))}${err}
       <div class="form-grid"><div class="field"><label for="cos-bank">${t('Bank')}</label><select id="cos-bank" data-c="cos" data-k="bank">${options(bankChoices().map(b => [b, b]), o.bank)}</select></div>
         <div class="field"><span>${t('Currency')}</span>${seg('co-setup-cur', [['BRL', 'BRL'], ['USD', 'USD']], o.cur, t('Currency'))}</div></div>
       ${obSlide('cos-balance', t('In that account today'), 'balance', o.balance, CO_MAX.balance, 500, 'cos', sym)}
       ${foot(t('Next'))}`;
-  else body = `<h1>${t('And in a normal month?')}</h1><p>${t('Your best guess is enough. Real months correct it as they come.')}</p>${err}
-      ${obSlide('cos-income', t('Comes into the company'), 'income', o.income, CO_MAX.income, 500, 'cos', sym)}
-      ${obSlide('cos-costs', t('Costs: taxes, accountant, tools'), 'costs', o.costs, CO_MAX.costs, 100, 'cos', sym)}
+  else body = `${head(t('And in a normal month?'), t('Your best guess is enough. Real months correct it as they come.'), '')}${err}
+      ${obSlide('cos-income', t('Comes into the company'), 'income', o.income, CO_MAX.income, 500, 'cos', sym, 'coins')}
+      ${obSlide('cos-costs', t('Costs: taxes, accountant, tools'), 'costs', o.costs, CO_MAX.costs, 100, 'cos', sym, 'file-text')}
       <p class="note">${t('What you pay yourself is not a cost of the company here: it is a transfer to your home’s side.')}</p>
       ${foot(t('See my company’s runway'))}`;
   return `<section class="card co-setup" id="co-setup" data-step="${step}"><div class="card-b">${body}${dots}</div></section>

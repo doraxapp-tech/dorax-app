@@ -44,7 +44,7 @@ const bqDeskTodo = () => { const h = bqTodo(), n = (h.match(/<li>/g) || []).leng
 function bqDeskGoals() {
   const bk = B(), cur = BCUR(), live = bk.goals.filter(g => g.status === 'active' && !isYearly(g)), m = v => fmt.money(v, cur, { trim: true });
   const total = sum(bk.goals.map(g => goalSaved(bk, g.id))), head = bqHead(t('Goals'), bqLink('#goals', t('Open goals')), live.length ? `${fmt.money(total, cur)} ${t('set aside in goals and funds')}` : '');
-  if (!live.length) return `<section class="bq-sec bq-dgoals-sec" id="goals-card">${head}<div class="bq-empty"><span>${t('No goals yet')}</span><button class="btn" data-a="goal-new">${icon('plus')}${t('Start a goal')}</button></div></section>`;
+  if (!live.length) return `<section class="bq-sec bq-dgoals-sec" id="goals-card">${head}<div class="bq-empty bq-with-art">${artObj('flag-banner', 'bq-empty-art')}<span>${t('No goals yet')}</span><button class="btn" data-a="goal-new">${icon('plus')}${t('Start a goal')}</button></div></section>`;
   const one = g => {
     const st = goalStatus(bk, g, bk.today), fund = !st.target, a = fund ? null : goalArrival(bk, g, bk.today), where = g.accountId && acct(g.accountId);
     const when = st.state === 'reached' ? t('Reached') : a ? t('by {month}', { month: fmt.month(a.ym, true) }) : st.saved <= 0 ? t('Not started') : '';

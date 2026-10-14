@@ -5,6 +5,10 @@
    WHEN A RULE CHANGES (a new MEI limit, a new ceiling), the row must change with it: each says the year it was read. */
 // the facts themselves, with their sources, live in features/reminders/tip-messages.js (curioFacts): the morning job on the server sends them too
 const curioRateLabel = r => ({ more: t('More: up to three a day'), normal: t('Normal: one a day'), less: t('Fewer: one a week'), off: t('None') }[r]);
+/** A notice's mark. In the look of v214 on (landOn): one of Dorax's things on the look's lime circle (the company's white), where a notification has
+    its app's icon (v215; owner, 2026-10-13: "actualiza las curiosidades y los avisos flotantes al nuevo estilo visual que tenemos"; css/look/look-land-notices.css).
+    Before it: the line icon on its grey square, the iPhone's notification (2026-10-10). */
+const noteMark = (ic, thing) => landOn() && ART_ICONS[thing] ? `<span class="fl-ico nt-art" aria-hidden="true">${artObj(thing)}</span>` : `<span class="fl-ico">${ic}</span>`;
 /** The notice itself: what it is, the fact, where it is from, and the three things to do with it. */
 function curioCard() {
   const c = UI.curio; if (!c) return '';
@@ -16,13 +20,13 @@ function curioCard() {
     const next = RUNWAY_MARKS.find(m => m > c.mark);
     const title = c.cheer === 'goal' ? t('{name}: reached!', { name: esc(c.name) }) : c.co ? t('The company passed {mark} of runway!', { mark: rwMark(c.mark) }) : t('You passed {mark} of freedom!', { mark: rwMark(c.mark) });
     const text = c.cheer === 'goal' ? t('What is saved reaches its target.') : next ? t('Next goal: {mark}.', { mark: rwMark(next) }) : t('That was the last goal: more than a year put aside.');
-    return `<aside class="curio cheer" id="curio" role="status"><span class="fl-ico">${icon('spark')}</span><div class="grow"><b>${title}</b><p>${text}</p><div class="row"><button class="btn sm" data-a="curio-close">${t('Great')}</button></div></div>
+    return `<aside class="curio cheer" id="curio" role="status">${noteMark(icon('spark'), c.cheer === 'goal' ? 'flag-banner' : 'hourglass-medium')}<div class="grow"><b>${title}</b><p>${text}</p><div class="row"><button class="btn sm" data-a="curio-close">${t('Great')}</button></div></div>
       <button class="btn ghost sm x" data-a="curio-close" aria-label="${t('Close')}">${icon('x')}</button></aside>`;
   }
   const f = curioFacts()[c.id]; if (!f) return '';
   // on a phone a curiosity arrives as a small signal and becomes the notice when it is touched (owner, 2026-10-07: "only give a sign that there is one")
-  if (isPhone() && !c.open) return `<aside class="curio sig" id="curio" role="status"><button class="cu-open" data-a="curio-open" aria-expanded="false"><span class="fl-ico">${icon('bulb')}</span><b>${t('Did you know?')}</b><span class="in-see">${t('See')}</span>${icon('right')}</button><button class="btn ghost sm x" data-a="curio-close" aria-label="${t('Close')}">${icon('x')}</button></aside>`;
-  return `<aside class="curio" id="curio" role="status" aria-label="${t('Did you know?')}"><span class="fl-ico">${icon('bulb')}</span><div class="grow"><b>${t('Did you know?')}</b><p>${f[0]}</p><small>${t('Source: {name}', { name: esc(f[1]) })}</small>
+  if (isPhone() && !c.open) return `<aside class="curio sig" id="curio" role="status"><button class="cu-open" data-a="curio-open" aria-expanded="false">${noteMark(icon('bulb'), 'lightbulb')}<b>${t('Did you know?')}</b><span class="in-see">${t('See')}</span>${icon('right')}</button><button class="btn ghost sm x" data-a="curio-close" aria-label="${t('Close')}">${icon('x')}</button></aside>`;
+  return `<aside class="curio" id="curio" role="status" aria-label="${t('Did you know?')}">${noteMark(icon('bulb'), 'lightbulb')}<div class="grow"><b>${t('Did you know?')}</b><p>${f[0]}</p><small>${t('Source: {name}', { name: esc(f[1]) })}</small>
       <div class="row"><button class="btn sm" data-a="curio-next">${t('Another')}</button><button class="btn sm ghost" data-a="curio-less">${t('Fewer of these')}</button></div></div>
     <button class="btn ghost sm x" data-a="curio-close" aria-label="${t('Close')}">${icon('x')}</button></aside>`;
 }

@@ -37,12 +37,12 @@ function iwSheet() {
   const w = UI.iw; if (!w) return '';
   const m = v => fmt.money(v, CUR, { trim: true }), i = w.idea;
   const chips = w.up ? `<div class="gw-chips"><span class="gw-chip">${icon('wallet')}${t('You can spend {amount} a day', { amount: m(w.perDay) })}</span></div>` : '';
-  const save = i ? `<div class="iw-save"><b>${t('Put some aside while it is fresh')}</b>
+  const save = i ? `<div class="iw-save"><span class="iw-save-h">${artObj('piggy-bank')}<b>${t('Put some aside while it is fresh')}</b></span>
       <p>${i.plan ? t('Your plan asks {amount} for {goal} this month.', { amount: `<b class="num">${m(i.amt)}</b>`, goal: esc(i.g.name) }) : t('A tenth of it, {amount}, to {goal}.', { amount: `<b class="num">${m(i.amt)}</b>`, goal: esc(i.g.name) })}${i.after !== null ? ' ' + t('It takes the goal to {pct}.', { pct: fmt.pct(i.after) }) : ''}</p>
       <button class="btn primary" data-a="iw-save">${icon('flag')}${t('Save {amount} in {name}', { amount: m(i.amt), name: esc(i.g.name) })}</button></div>`
-    : `<div class="iw-save"><b>${t('Put some aside while it is fresh')}</b><p>${t('Give part of it a purpose: a goal keeps it apart.')}</p><button class="btn primary" data-a="iw-goal">${icon('flag')}${t('Start a goal')}</button></div>`;
+    : `<div class="iw-save"><span class="iw-save-h">${artObj('piggy-bank')}<b>${t('Put some aside while it is fresh')}</b></span><p>${t('Give part of it a purpose: a goal keeps it apart.')}</p><button class="btn primary" data-a="iw-goal">${icon('flag')}${t('Start a goal')}</button></div>`;
   return `<div class="scrim"></div><div class="gw-win iw-win" role="dialog" aria-modal="true" aria-labelledby="iw-h">
-    <div class="gw-in"><span class="iw-coin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="M16 17H7V8"/></svg></span>
+    <div class="gw-in"><span class="iw-coin iw-art" aria-hidden="true">${artObj('coins', 'on-dark')}</span>
       <p class="gw-kick">${esc(t('Into {name}', { name: w.account }))}</p><p class="gw-amt num" id="iw-amt">+${fmt.money(w.amount, w.cur)}</p>
       <h2 class="gw-h" id="iw-h">${esc(w.merchant || t('Money in'))}</h2>${chips}${save}</div>
     <div class="gw-acts"><button class="btn" data-a="iw-done">${t('Not now')}</button></div></div>`;

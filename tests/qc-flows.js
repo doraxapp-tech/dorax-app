@@ -16,9 +16,10 @@ const file = (name, text) => { const p = path.join(tmp, name); fs.writeFileSync(
   await page.click('[data-a="auth-signup"]'); await page.waitForSelector('#ob-name');
   // the first minute (2026-10-07): a dream and its cost, three numbers, what the money can already do, where to go next
   const fill = async (sel, v) => { const el = page.locator(sel).first(); if (await el.count()) await el.fill(v); return el.count(); };
+  await page.click('[data-a="onboard-save"]'); await page.waitForSelector('.ob-dreams');      // v216: the name has its own screen first
   await page.click('[data-a="ob-dream"][data-v="other"]'); await fill('#ob-dream-name', 'Viagem'); await fill('#ob-cost', '6.000');
   ok(/Bia/.test(await page.locator('.ob-cheer').innerText()), 'setup: the dream is cheered by name');
-  await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0');
+  await page.click('[data-a="ob-next"]'); await page.waitForSelector('#ob-pay0');
   await fill('#ob-pay0', '8.200,50'); await fill('#ob-spend', '7.700,50'); await fill('#ob-saved', '1.000');
   await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts');
   const reveal = await page.locator('.onb').innerText();

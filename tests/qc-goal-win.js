@@ -46,9 +46,9 @@ const { open, ok, eq, done } = require('./pw.js');
   const ready = await page.evaluate(() => document.getElementById('gw-slide').classList.contains('ready'));
   await page.mouse.up(); await page.waitForSelector('#overlay .gw-win'); await page.waitForTimeout(100);
   const w = await page.evaluate(() => { const el = document.querySelector('#overlay .gw-win'), r = el.getBoundingClientRect(), tx = s => (el.querySelector(s) || {}).textContent;
-    return [UI.sheet, UI.drawer, tx('.gw-kick'), tx('.gw-amt') === '+' + fmt.money(UI.win.amt, BCUR()), tx('#gw-num'), tx('.gw-h'), /^R\$ [\d,.]+ to go/.test(tx('.gw-say2') || ''), el.getAttribute('role'), el.getAttribute('aria-modal'), document.activeElement.dataset.a, r.width >= innerWidth - 1 && r.height >= innerHeight - 1, getComputedStyle(el).backgroundColor]; });
-  eq([ready, await moves() - n0, w], [true, 1, ['goal-win', null, `Saved in ${G.name}`, true, '25%', 'A quarter of the way 🎉', true, 'dialog', 'true', 'gw-done', true, 'rgb(17, 38, 34)']],
-    'dragged to the end: recorded once; the success screen fills the phone: what was put in, the ring at 25%, “A quarter of the way 🎉”, what is left; the focus on Done');
+    return [UI.sheet, UI.drawer, tx('.gw-kick'), tx('.gw-amt') === '+' + fmt.money(UI.win.amt, BCUR()), tx('#gw-num'), tx('.gw-h') + (el.querySelector('.gw-h .gw-conf svg.obj') ? ' +confetti' : ''), /^R\$ [\d,.]+ to go/.test(tx('.gw-say2') || ''), el.getAttribute('role'), el.getAttribute('aria-modal'), document.activeElement.dataset.a, r.width >= innerWidth - 1 && r.height >= innerHeight - 1, getComputedStyle(el).backgroundColor]; });
+  eq([ready, await moves() - n0, w], [true, 1, ['goal-win', null, `Saved in ${G.name}`, true, '25%', 'A quarter of the way +confetti', true, 'dialog', 'true', 'gw-done', true, 'rgb(17, 38, 34)']],
+    'dragged to the end: recorded once; the success screen fills the phone: what was put in, the ring at 25%, “A quarter of the way” with Dorax’s confetti beside it (v214: no emoji), what is left; the focus on Done');
   eq(await page.evaluate(() => { const el = document.querySelector('#overlay .gw-win'); return [getComputedStyle(el).backgroundColor === 'rgb(17, 38, 34)', [...el.querySelectorAll('.gw-acts .btn')].map(b => [b.textContent, getComputedStyle(b).backgroundColor, Math.round(b.getBoundingClientRect().height) >= 44])]; }),
     [true, [['Done', 'rgb(182, 221, 98)', true], ['See goal', 'rgba(255, 255, 255, 0.1)', true]]], 'on the forest; Done lime, See goal light on the forest, both 44 px or taller');
   await page.click('#overlay [data-a="gw-see"]'); await page.waitForTimeout(300);
@@ -70,7 +70,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const left = await page.evaluate(id => { const g = B().goals.find(x => x.id === id); return g.target - goalSaved(B(), id); }, G.id);
   await page.evaluate(() => { S.user.cheer = S.user.cheer || { marks: {}, goals: [] }; });      // what the app has seen reached so far (features/ahead/curios.view.js)
   await openMove(); await page.waitForTimeout(200); await page.fill('#m-amount', (left / 100).toFixed(2).replace('.', ',')); await page.focus('#gw-knob'); await page.keyboard.press('Enter'); await page.waitForSelector('#overlay .gw-win'); await page.waitForTimeout(300);
-  eq(await page.evaluate(id => [document.querySelector('.gw-h').textContent, document.getElementById('gw-num').textContent, (S.user.cheer && S.user.cheer.goals || []).includes(id), !(UI.curio && UI.curio.cheer === 'goal')], G.id), ['Goal reached! 🎉', '100%', true, true], 'the goal reached: said on this screen, and not said again by the note that would have followed');
+  eq(await page.evaluate(id => [document.querySelector('.gw-h').textContent, !!document.querySelector('.gw-reached .fig img[src$="shadow/win.svg"]') && !document.getElementById('gw-num'), /^100% of R\$ [\d.,]+$/.test(document.querySelector('.gw-reached').getAttribute('aria-label')), (S.user.cheer && S.user.cheer.goals || []).includes(id), !(UI.curio && UI.curio.cheer === 'goal')], G.id), ['Goal reached!', true, true, true, true], 'the goal reached: said on this screen with the person who made it, holding its flag (v214), and not said again by the note that would have followed');
   await page.evaluate(() => A.close());
   eq(errors, [], 'phone: no error in the console'); await browser.close();
 

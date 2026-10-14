@@ -226,7 +226,7 @@ const BAD = /\bundefined\b|\bNaN\b|\[object |\bnull\b|\{[a-z]+\}|Infinity/;
     await p.click('#calc-tool [data-a="calc-dream"][data-v="safety"]');
     await p.click('[data-a="calc-go"]'); await p.waitForSelector('#au-name');
     eq(await p.evaluate(() => { const c = JSON.parse(localStorage.getItem('dorax.calc')); return [c.dream, c.cost, c.saved, Date.now() - c.at < 5000, Object.keys(c).sort().join(' ')]; }), ['safety', '10.000', '0', true, 'at cost dream saved'], `${w}px calculator: the way in keeps the dream, its cost and what is put aside on this device, and nothing else, and opens sign-up`);
-    await p.fill('#au-name', 'Rui'); await p.fill('#au-email', `rui${w}@example.org`); await p.fill('#au-pass', 'RuiSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name');
+    await p.fill('#au-name', 'Rui'); await p.fill('#au-email', `rui${w}@example.org`); await p.fill('#au-pass', 'RuiSenha2026'); await p.check('#au-accept'); await p.click('[data-a="auth-signup"]'); await p.waitForSelector('#ob-name'); await p.click('[data-a="onboard-save"]'); await p.waitForSelector('.ob-dreams');      // v216: the dream is on the second screen
     eq(await p.evaluate(() => [document.querySelector('.ob-dream[aria-pressed="true"]').dataset.v, document.getElementById('ob-cost').value, UI.ob.saved, UI.ob.pay]), ['safety', '10.000', '0', '3.700'], `${w}px calculator: the new account's setup opens with that dream chosen and its cost; what comes in still starts where it always did`);
     eq(o.errors, [], `${w}px calculator: no console errors`); await o.browser.close();
   }

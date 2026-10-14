@@ -25,12 +25,13 @@ function impPhone() {
   if (imp && imp.step === 'done') return ipDone(imp);
   return ipStart();
 }
+// v214: the start shows the person with their statement (js/ui/art.js: paper), where the upload icon was
 function ipStart() {
   const mine = impAccounts(), side = UI.space === 'business' ? 'business' : 'personal';
   const dest = mine.some(a => a.id === UI.impDest) ? UI.impDest : (mainOf(side, side === 'business' ? BCUR() : BASE_CURRENCY) || mainOf(side) || mine[0] || {}).id;
   const hist = S.imports.filter(impOnSide).slice(0, 5);
   return `<section class="ip-start" id="imp-start">
-      <span class="ip-hero" aria-hidden="true">${icon('upload')}</span>
+      <span class="ip-hero ip-fig" aria-hidden="true">${artFig('paper', 'file-text', 'shadow')}</span>
       <h2>${t('Bring your bank statement')}</h2>
       <p class="ip-lead">${t('Months of transactions at once, without typing them. Dorax sorts them; you only check what is unclear.')}</p>
       ${UI.impError ? errBanner(UI.impError) : ''}

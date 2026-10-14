@@ -3,7 +3,10 @@
    A thing (.obj) is drawn inline on a mint circle; on a dark or forest band its line turns mint and its circle forest; on a mint or sage panel
    its circle turns white. */
 .fig { position: relative; display: block; width: 100%; }
-.fig img { display: block; width: 100%; height: auto; }
+.fig img { display: block; width: 146.5116%; max-width: none; height: auto; margin: -2.3256% 0 0 -13.9535%; }
+/* (v214, owner, 2026-10-13: "asegúrate que no le cortas las manos o brazos a algunos avatares"): a person's picture is wider and a little taller than its
+   box (1260 × 1300 against the circle's square, 860 × 1280), so a hand, an arm or what it holds is drawn whole, reaching past the box. The box (.fig)
+   keeps the size and place it had: the picture is laid out so that the square is where the box is. Nothing around a person clips it. */
 .fig-bdg { position: absolute; left: 83.26%; top: 85.94%; width: 30.7%; transform: translate(-50%, -50%); }
 
 .obj { display: block; width: 100%; height: auto; overflow: visible; --obj-bg: #E2F6D5; --obj-ink: #163300; --obj-fill: #9FD182; }

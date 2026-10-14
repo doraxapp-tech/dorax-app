@@ -48,6 +48,7 @@ addTexts([
   ["Remove filter: {label}","Quitar filtro: {label}","Remover filtro: {label}"],
   ["No transactions in {month}","No hay transacciones en {month}","Nenhuma transação em {month}"],
   ["Nothing is recorded for this month in your household accounts.","No hay nada registrado este mes en las cuentas de tu hogar.","Não há nada registrado neste mês nas contas da sua casa."],
+  ["Nothing is recorded for this month in the company’s accounts.","No hay nada registrado este mes en las cuentas de la empresa.","Não há nada registrado neste mês nas contas da empresa."],
   ["Show all months","Ver todos los meses","Ver todos os meses"],
   ["Show {n} transaction","Ver {n} transacción","Ver {n} transação"],
   ["Show {n} transactions","Ver {n} transacciones","Ver {n} transações"],

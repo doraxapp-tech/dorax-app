@@ -103,7 +103,7 @@ function runwayDrawer(d) {
 function companyAsk() {
   if (inCompany() || S.user.company !== undefined || hasCompany()) return '';
   const q = t('Do you also run a company (PJ or MEI)?');
-  return `<section class="card co-ask" id="co-ask"><div class="card-b">${`<span class="fl-ico">${icon('briefcase')}</span>`}<span class="grow"><b id="co-ask-q">${q}</b><small>${t('Company and home in one place, never mixed.')}</small></span>
+  return `<section class="card co-ask" id="co-ask"><div class="card-b">${artObj('briefcase', 'co-ask-art')}<span class="grow"><b id="co-ask-q">${q}</b><small>${t('Company and home in one place, never mixed.')}</small></span>
     ${info(isPhone() ? t('Yes opens the company’s side: three short questions set it up, and from then on you switch between Household and Company with the button with two arrows, next to the bell. No puts this question away; if that changes, “Open a company account” is in your menu.') : t('Yes opens the company’s side: three short questions set it up, and from then on you choose between Household and Company. No puts this question away; if that changes, “Open a company account” is in your menu.'))}
     <span class="co-ask-btns" role="group" aria-labelledby="co-ask-q"><button class="btn sm primary" data-a="co-answer" data-v="yes">${t('Yes')}</button><button class="btn sm" data-a="co-answer" data-v="no">${t('No')}</button></span></div></section>`;
 }

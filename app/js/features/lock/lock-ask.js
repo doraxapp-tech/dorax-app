@@ -34,7 +34,7 @@ async function lockAskAfterPin() {
 /** The notice (drawn by curioCard, features/ahead/curios.view.js, in the corner the other notices use). */
 function lockAskCard(c) {
   const bio = c.what === 'bio';
-  return `<aside class="curio nudge" id="curio" role="status" aria-label="${t('Protection on this device')}"><span class="fl-ico">${bio ? LOCK_ICON : icon('lock')}</span><div class="grow"><b>${bio ? t('Open Dorax with Face ID or fingerprint?') : t('Lock Dorax on this device?')}</b>
+  return `<aside class="curio nudge" id="curio" role="status" aria-label="${t('Protection on this device')}">${noteMark(bio ? LOCK_ICON : icon('lock'), bio ? 'shield-check' : 'key')}<div class="grow"><b>${bio ? t('Open Dorax with Face ID or fingerprint?') : t('Lock Dorax on this device?')}</b>
       <p>${bio ? t('No PIN to type: this device checks that it is you. The PIN stays as the other way in.') : t('A 4-digit PIN closes Dorax when you leave it, so your numbers stay yours if someone else picks up this device. It takes a few seconds.')}</p>
       <div class="row"><button class="btn sm primary" data-a="lock-ask-yes">${bio ? t('Turn on') : t('Set a PIN')}</button><button class="btn sm ghost" data-a="lock-ask-no">${t('Not now')}</button></div></div>
     <button class="btn ghost sm x" data-a="lock-ask-no" aria-label="${t('Close')}">${icon('x')}</button></aside>`;

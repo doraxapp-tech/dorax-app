@@ -88,7 +88,7 @@ function viewGoals() {
   if (dkOn()) return dkGoals();      // a computer in the summary's look: its own page (v203, features/goals/goals.desk.js)
   const ym = B().month, nowYm = ymOf(B().today);
   const open = B().goals.filter(g => g.status === 'active' || g.status === 'paused'), closed = B().goals.filter(g => g.status === 'done' || g.status === 'archived');
-  if (!B().goals.length) return `${companyNote()}<div class="card"><div class="empty"><b>${t('No goals yet')}</b>${t('Create a goal with a target, or a fund for money you set aside every month.')}<div style="margin-top:12px"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div></div></div>${yearlySection()}`;
+  if (!B().goals.length) return `${companyNote()}<div class="card"><div class="empty">${artObj('flag-banner', 'empty-art')}<b>${t('No goals yet')}</b>${t('Create a goal with a target, or a fund for money you set aside every month.')}<div style="margin-top:12px"><button class="btn primary" data-a="goal-new">${icon('plus')}${t('New goal')}</button></div></div></div>${yearlySection()}`;
   const d = distribution(B(), ym), totalSaved = sum(B().goals.filter(g => g.status !== 'archived').map(g => goalSaved(B(), g.id)));
   const top = isPhone() ? phoneGoalsTop(open, closed, ym) : `<section class="tiles">
       <div class="card tile tap">${kpiTap('goal-saved', t('Set aside in goals and funds'))}<div class="label"><span>${t('Set aside in goals and funds')}</span>${hint('goalSaved')}</div><div class="value num">${fmt.money(totalSaved, BCUR())}</div></div>

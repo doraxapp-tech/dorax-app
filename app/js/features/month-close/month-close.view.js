@@ -26,7 +26,8 @@ function monthCloseCard() {
     <span class="mc-ask-t"><b id="mc-ask-h">${t('{month} closed', { month: mcMonthCap(ym) })}</b><small>${t('See how it went, in 3 short steps.')}</small></span>
     <button class="btn sm primary" data-a="month-close" data-ym="${ym}">${t('See it')}</button><button class="iconbtn mc-ask-x" data-a="month-close-later" data-ym="${ym}" aria-label="${t('Not now')}">${icon('x')}</button></aside>`;
 }
-const mcHead = (n, title) => `<p class="pg-step">${t('Step {n} of 3', { n })}</p><h3 class="pg-h mc-h" id="mc-h" tabindex="-1">${title}</h3>`;
+const MC_ART = ['coins', 'flag-banner', 'calendar-dots'];      // v214: what each step is about, drawn (js/ui/art.js): the money of the month, the goals, the month that starts
+const mcHead = (n, title) => `<div class="mc-head"><span class="mc-art" aria-hidden="true">${artObj(MC_ART[n - 1])}</span><span class="grow"><p class="pg-step">${t('Step {n} of 3', { n })}</p><h3 class="pg-h mc-h" id="mc-h" tabindex="-1">${title}</h3></span></div>`;
 /** Step 1: how it closed. */
 function mcStep1(c) {
   const top = Math.max(c.income, c.expenses, 1), bar = (cls, label, v) => `<li class="${cls}"><span class="mc-bl">${label}</span><span class="mc-track"><i style="width:${Math.max(2, Math.round(v * 100 / top))}%"></i></span><b class="num">${mcMoney(v)}</b></li>`;
@@ -57,9 +58,9 @@ function mcStep3(c) {
 }
 /** The end: a celebration when it was met; else a kind word. */
 function mcEnd(c) {
-  if (c.met) return `<div class="mc-end good"><span class="mc-end-ico" aria-hidden="true">${icon('spark')}</span><h3 class="pg-h mc-h" id="mc-h" tabindex="-1">${t('You did it!')}</h3>
+  if (c.met) return `<div class="mc-end good"><span class="mc-end-fig" aria-hidden="true">${artFig('win', 'confetti', 'shadow')}</span><h3 class="pg-h mc-h" id="mc-h" tabindex="-1">${t('You did it!')}</h3>
     <p>${c.limits ? t('{month} went as you planned it: money left over, your goals got what was planned, and you kept your limits.', { month: mcMonthCap(c.ym) }) : t('{month} went as you planned it: money left over, and your goals got what was planned.', { month: mcMonthCap(c.ym) })}</p></div>`;
-  return `<div class="mc-end"><span class="mc-end-ico" aria-hidden="true">${icon('sun')}</span><h3 class="pg-h mc-h" id="mc-h" tabindex="-1">${t('{month} is behind you', { month: mcMonthCap(c.ym) })}</h3>
+  return `<div class="mc-end"><span class="mc-end-art" aria-hidden="true">${artObj('sun-horizon')}</span><h3 class="pg-h mc-h" id="mc-h" tabindex="-1">${t('{month} is behind you', { month: mcMonthCap(c.ym) })}</h3>
     <p>${t('It did not all go as planned, and that happens. Every month starts again: {month} is a new one.', { month: mcMonth(addMonths(c.ym, 1)) })}</p></div>`;
 }
 function monthCloseDrawer(d) {

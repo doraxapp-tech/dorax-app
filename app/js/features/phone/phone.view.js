@@ -59,7 +59,7 @@ function sideTipShow() {
   const b = document.querySelector('.navbar .side-flip'); if (b && isPhone()) { b.classList.add('pulse'); setTimeout(() => b.classList.remove('pulse'), 4200); }
 }
 function sideTipCard() {
-  return `<aside class="curio nudge" id="curio" role="status" aria-label="${t('Household and Company')}"><span class="fl-ico">${icon('swap')}</span><div class="grow"><b>${t('Household and Company, one tap apart')}</b>
+  return `<aside class="curio nudge" id="curio" role="status" aria-label="${t('Household and Company')}">${noteMark(icon('swap'), 'arrows-left-right')}<div class="grow"><b>${t('Household and Company, one tap apart')}</b>
       <p>${isPhone() ? t('Switch between them with the button with two arrows, next to the bell.') : t('Switch between them with Household | Company, at the top of the menu.')}</p>
       <div class="row"><button class="btn sm primary" data-a="curio-close">${t('Got it')}</button></div></div>
     <button class="btn ghost sm x" data-a="curio-close" aria-label="${t('Close')}">${icon('x')}</button></aside>`;

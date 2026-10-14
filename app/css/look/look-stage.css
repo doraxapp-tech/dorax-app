@@ -1,0 +1,65 @@
+/* Dorax Finance — the first-time pages on their stage (v215; owner, 2026-10-13: "los onboardings se ven como si solo pusiste las ilustraciones
+   allí, no se ve que formen parte de ellas", and "no veo las pantallas de cuando se abre una tab por primera vez, las que explican de qué va cada
+   tab"). The setup of a new account (features/onboarding) and the first visit to a screen (features/tours) are laid out as the home page's first
+   band: a sage stage and, under it, a white sheet with rounded corners; the drawing stands on the sheet's edge, as the home page's people stand on
+   the edge of its first band, and a bubble over it, as theirs, says the page's own figure. A thing sits half behind the edge, as the sun at dawn.
+     - the setup: on the stage the bar, the step's words and its drawing at their right; on the sheet the step's fields; the large button under it.
+       A computer: the stage at the left (its drawing stands on the screen's foot), the sheet a white panel at the right with the button at its foot.
+     - a first visit: on the stage a picture of the screen, in a white frame, and beside it the person or the thing it is about; on the sheet the
+       screen's name, what it is for, three lines and the button. The same on a computer, wider.
+   The colours are the home page's (sage #F2F4EE, white, ink, forest #163300 for what is chosen, lime #9FD182), as the drawings'. */
+
+/* ---------- the bubble (the home page's, css/public/landing-v2.css .l2-chip) ---------- */
+.ob-chip, .tour-chip { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 2px; padding: 9px 13px; border-radius: 14px; background: #FFFFFF; color: #0E0F0C;
+  box-shadow: 0 0 0 1px #E1E5DC, 0 18px 36px -22px rgba(22, 51, 0, .45); white-space: nowrap; text-align: left; }
+.ob-chip > small, .tour-chip > small { font-size: 12px; font-weight: 600; color: #5F625D; max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+.ob-chip > b, .tour-chip > b { font-size: 16px; font-weight: 600; letter-spacing: -.02em; color: #163300; font-variant-numeric: tabular-nums; }
+.ob-chip::after, .tour-chip::after { content: ""; position: absolute; right: 30px; top: 100%; width: 10px; height: 10px; background: #FFFFFF; box-shadow: 1px 1px 0 0 #E1E5DC; transform: translate(50%, -5px) rotate(45deg); }
+
+/* the setup of a new account has its own page since v216: css/look/look-onboarding.css (the forest block and the sheet that rises over it) */
+
+@keyframes ob-stand { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes ob-pop { from { opacity: 0; transform: translateY(6px) scale(.94); } to { opacity: 1; transform: none; } }
+
+/* ================= the first visit to a screen (features/tours) ================= */
+.tour-page.tour-staged { justify-content: flex-start; overflow: hidden; --tour-stage: #F2F4EE; --tour-sheet: #FFFFFF; --tour-frame: #FFFFFF; --tour-line: #E1E5DC; }
+.tour-staged .tour-scroll { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+/* the stage: the screen in its frame, rising from the sheet, and who or what it is about standing beside it */
+.tour-staged .tour-stage { position: relative; flex: none; display: flex; justify-content: center; align-items: flex-end; padding: calc(70px + var(--safe-t, 0px)) 20px 0; background: var(--tour-stage); overflow-x: clip; }
+.tour-staged .tour-scene { position: relative; display: flex; align-items: flex-end; }
+.tour-staged .tour-art.tour-screen { position: relative; z-index: 0; flex: none; display: grid; place-items: center; width: 212px; height: 156px; margin: 0 0 -24px; padding-bottom: 14px; box-sizing: border-box; border-radius: 22px; background: var(--tour-frame);
+  box-shadow: 0 0 0 1px var(--tour-line), 0 24px 40px -26px rgba(22, 51, 0, .35); overflow: hidden; }
+.tour-staged .tour-screen .ta { flex: none; transform: scale(.72); }
+.tour-staged .tour-screen .ta-ring, .tour-staged .tour-screen .ta-cards { transform: scale(.8); }
+.tour-staged .tour-scene .fig.tour-fig { flex: none; width: 112px; margin: 0 0 0 -10px; }
+.tour-staged .tour-scene .tour-thing { flex: none; display: block; width: 86px; height: 86px; margin: 0 0 -32px -18px; position: relative; z-index: 1; }      /* beside the frame, its foot behind the sheet as the frame's */
+.tour-staged .tour-thing .obj { width: 100%; height: 100%; }
+/* the sheet: the screen's name, its purpose, three lines with their things, the button */
+.tour-staged .tour-sheet { position: relative; z-index: 1; flex: 1 0 auto; display: flex; flex-direction: column; background: var(--tour-sheet); border-radius: 28px 28px 0 0; box-shadow: 0 -1px 0 var(--tour-line); }
+.tour-staged .tour-body { padding-top: 26px; gap: 12px; }
+.tour-staged .tour-page h1, .tour-page.tour-staged h1 { font-size: clamp(28px, 7.6vw, 40px); text-wrap: balance; }
+.tour-staged .tour-lead { font-size: 16px; }
+.tour-staged .tour-does { gap: 10px; }
+.tour-staged .tour-does li { gap: 12px; font-size: 15px; }
+.tour-staged .tour-does li .tour-ico { flex: none; display: block; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; }
+.tour-staged .tour-does li .tour-ico .obj { width: 100%; height: 100%; }
+.tour-staged .tour-foot { margin-top: auto; padding-top: 20px; }
+.tour-staged .tour-x { z-index: 3; }
+/* the scene comes in with the page */
+.tour-staged .tour-screen, .tour-staged .tour-scene > .fig, .tour-staged .tour-scene > .tour-thing { animation: ob-stand .7s cubic-bezier(.2, .8, .2, 1) both; }
+.tour-staged .tour-scene > .fig, .tour-staged .tour-scene > .tour-thing { animation-delay: .12s; }
+/* a computer: the same page, wider; the stage takes the top half, the scene larger on it; the words and the button together under it */
+@media (min-width: 921px) {
+  .tour-staged .tour-stage { min-height: 46vh; box-sizing: border-box; padding-top: 80px; }
+  .tour-staged .tour-art.tour-screen { width: 340px; height: 244px; margin-bottom: -34px; padding-bottom: 24px; border-radius: 28px; }
+  .tour-staged .tour-screen .ta { transform: scale(1.08); }
+  .tour-staged .tour-screen .ta-ring, .tour-staged .tour-screen .ta-cards { transform: scale(1.1); }
+  .tour-staged .tour-scene .fig.tour-fig { width: 196px; margin-left: -18px; }
+  .tour-staged .tour-scene .tour-thing { width: 136px; height: 136px; margin: 0 0 -50px -28px; }
+  .tour-staged .tour-body { padding-top: 40px; }
+  .tour-staged .tour-foot { margin-top: 0; padding-top: 28px; padding-bottom: 48px; }
+}
+/* the dark theme: the stage and the sheet in the look's deep greens (look-land.css), the frame a step lighter */
+:root:not(.app-light) .tour-page.tour-staged { --tour-stage: #0B1412; --tour-sheet: #121C19; --tour-frame: #1A2925; --tour-line: rgba(255, 255, 255, .08); }
+:root:not(.app-light) .tour-staged .tour-scene .tour-thing .obj { --obj-bg: #1A2925; }
+@media (prefers-reduced-motion: reduce) { .tour-staged .tour-screen, .tour-staged .tour-scene > * { animation: none !important; } }

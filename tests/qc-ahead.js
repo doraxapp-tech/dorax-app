@@ -64,31 +64,42 @@ const { load } = require('./load.js');
   // bar in four parts over the large button, the part of the step green
   const dots = () => page.evaluate(() => { const d = document.querySelector('.ob-dots'), now = [...d.children].map(i => i.classList.contains('now')); const r = d.getBoundingClientRect(), b = document.querySelector('.ob-foot .js-go').getBoundingClientRect(), pg = document.querySelector('#obpage').getBoundingClientRect();
     return [d.children.length, now.indexOf(true), now.filter(Boolean).length, getComputedStyle(d.children[now.indexOf(true)]).backgroundColor, d.getAttribute('aria-label'), r.bottom <= b.top, pg.width >= innerWidth - 1 && pg.height >= innerHeight - 1 && !document.querySelector('.auth-card.onb'), document.querySelectorAll('.ob-prog, .ob-count').length]; });
-  eq(await dots(), [4, 0, 1, 'rgb(22, 51, 0)', 'Step 1 of 4', true, true, 0], 'setup: a page over the whole screen with no card; a bar in four parts over the large button, the first part forest (light since 2026-10-11, as the home page); no step counter');
-  eq(await page.locator('.ob-dream').count(), 4, 'setup: four dreams to choose from');
-  eq(await page.evaluate(() => [document.querySelectorAll('.ob-dream .fl-ico svg[aria-hidden="true"]').length, [...document.querySelectorAll('.onb .e')].map(e => [e.textContent, e.getAttribute('aria-hidden')]), /\p{Extended_Pictographic}/u.test(document.querySelector('.ob-dreams').textContent), ['car', 'plane', 'shield', 'spark', 'bulb', 'target'].every(n => ICONS[n])]),
-    [4, [['👋', 'true']], false, true], 'setup: each dream has an icon drawn in the app’s set; the only emoji is the waving hand of the greeting, hidden from screen readers');
+  eq(await dots(), [5, 0, 1, 'rgb(17, 38, 34)', 'Step 1 of 5', true, true, 0], 'setup: a page over the whole screen with no card; a bar in five parts over the large button, the first part the forest (v216: the app\'s look); no step counter');
+  // v216 (owner, 2026-10-13: "el onboarding del signup no me gusta… haz un diseño nuevo y mejorado"; "se ven bien"): the summary's forest block
+  // with a sage sheet rising over it; the welcome asks only the name, the person waving in front of a lime sun, standing on the sheet's edge
+  eq(await page.evaluate(() => { const pg = getComputedStyle($('obpage')), sh = document.querySelector('.ob-sheet'), desk = innerWidth > 920, cs = desk ? getComputedStyle($('obpage'), '::before') : getComputedStyle(sh), f = document.querySelector('.ob-scene .fig img[src$="shadow/hi.svg"]'), go = getComputedStyle(document.querySelector('.ob-foot .js-go'));
+    return [pg.backgroundColor, cs.backgroundColor, parseFloat(cs.borderTopLeftRadius) >= 24, !!f && Math.abs(f.closest('.fig').getBoundingClientRect().bottom - (desk ? innerHeight : sh.getBoundingClientRect().top)) <= 3, !!document.querySelector('.ob-scene .ob-sun'), go.backgroundColor, go.color, document.querySelectorAll('.ob-dream').length, [...document.querySelectorAll('.onb .e')].map(e => [e.textContent, e.getAttribute('aria-hidden')])]; }),
+    ['rgb(17, 38, 34)', 'rgb(242, 244, 238)', true, true, true, 'rgb(182, 221, 98)', 'rgb(17, 38, 34)', 0, [['👋', 'true']]], 'setup, the welcome (v216): the forest block, the sage sheet with round corners (on a computer it comes in from the side), the person waving in front of the sun on the sheet\'s edge (on a computer, on the screen\'s foot), the lime button with forest words; only the name is asked; the only emoji is the waving hand, hidden from screen readers');
   await page.fill('#ob-name', ''); await page.click('[data-a="onboard-save"]');
   ok(/something to call you/.test(await text(page, '.onb .banner')), 'setup: a name is asked for');
-  await page.fill('#ob-name', 'Ana Lima Souza'); await page.click('[data-a="ob-dream"][data-v="car"]');
+  await page.fill('#ob-name', '<b>Ana Lima');
+  eq(await text(page, '#ob-name-say'), 'A nickname works. We’ll call you <b>Ana.', 'setup: under the name, what Dorax will call the person, as it is typed, as text, the first name only');
+  await page.click('[data-a="onboard-save"]'); await page.waitForSelector('.ob-dreams');
+  eq(await page.locator('.ob-dream').count(), 4, 'the dream (its own screen since v216): four dreams to choose from');
+  eq(await page.evaluate(() => [document.querySelectorAll('.ob-dream .ob-thing[aria-hidden="true"] svg.obj').length, [...document.querySelectorAll('.ob-dream b')].map(b => b.textContent), /\p{Extended_Pictographic}/u.test(document.querySelector('.ob-dreams').textContent), ['car-profile', 'airplane-tilt', 'shield-check', 'sparkle', 'lightbulb', 'coins', 'signpost'].every(n => ART_ICONS[n]), !!document.querySelector('.ob-scene .ob-big-thing svg.obj'), document.querySelector('.onb h1').innerText]),
+    [4, ['Car', 'Trip', 'Safety net', 'Another dream'], false, true, true, '<b>Ana, which dream do you want to reach first?'], 'the dream: each a word and a line with Dorax\'s own thing (read at a glance, v216); a thing rises from behind the sheet; the heading has the first name, as text');
+  await page.click('[data-a="ob-dream"][data-v="car"]');
   eq(await page.evaluate(() => [ob().cost, $('ob-cost').value, $('ob-cost-r').value, $('ob-cost-r').max, $('ob-cost-r').getAttribute('aria-valuetext'), document.activeElement.tagName]), ['50.000', '50.000', '50000', '300000', 'R$ 50.000', 'BUTTON'], 'setup: a dream brings its slider, at a round starting figure; the keyboard is not called');
   await page.click('[data-a="ob-dream"][data-v="trip"]'); eq(await page.evaluate(() => [ob().cost, $('ob-cost-r').max]), ['6.000', '60000'], 'setup: another dream starts at its own figure while the cost was not touched');
+  eq(await page.evaluate(() => [...document.querySelectorAll('.ob-scene #ob-chip > *')].map(e => e.textContent).concat(!!document.querySelector('.ob-scene .ob-big-thing svg.obj path'))), ['Trip', 'R$ 6.000', true], 'the dream: its thing rises from behind the sheet, the bubble over it the dream and its cost');
   await page.evaluate(() => { const r = $('ob-cost-r'); r.value = 12500; r.dispatchEvent(new Event('input', { bubbles: true })); });
+  eq(await page.evaluate(() => $('ob-chip').querySelector('b').textContent), 'R$ 12.500', 'the bubble follows the slider, without redrawing the screen');
   eq(await page.evaluate(() => [ob().cost, $('ob-cost').value, $('ob-cost-r').style.getPropertyValue('--p'), ob().costTouched]), ['12.500', '12.500', '20.8%', true], 'slider: dragging writes the amount in its field and fills the track');
   await page.fill('#ob-cost', '90.000'); eq(await page.evaluate(() => [ob().cost, $('ob-cost-r').value, $('ob-cost-r').style.getPropertyValue('--p')]), ['90.000', '60000', '100%'], 'slider: an amount typed past its far end stays in the field; the slider stops at the end');
   await page.click('[data-a="ob-dream"][data-v="car"]'); eq(await page.evaluate(() => ob().cost), '90.000', 'setup: a cost the person set is kept when the dream changes');
-  await page.fill('#ob-cost', '0'); await page.click('[data-a="onboard-save"]');
+  await page.fill('#ob-cost', '0'); await page.click('[data-a="ob-next"]');
   ok(/how much it costs/.test(await text(page, '.onb .banner')), 'setup: a dream needs its cost, said without blame');
   await page.fill('#ob-cost', 'abc'); eq(await page.inputValue('#ob-cost'), '', 'setup: letters cannot be typed in a cost (owner, 2026-10-09)');
-  await page.fill('#ob-cost', '1.2.3'); await page.click('[data-a="onboard-save"]');
+  await page.fill('#ob-cost', '1.2.3'); await page.click('[data-a="ob-next"]');
   ok(/1500 or 9,90/.test(await text(page, '.onb .banner')), 'setup: a cost that cannot be read is refused');
-  await page.click('[data-a="ob-dream"][data-v="other"]'); await page.fill('#ob-cost', '6.000'); await page.click('[data-a="onboard-save"]');
+  await page.click('[data-a="ob-dream"][data-v="other"]'); await page.fill('#ob-cost', '6.000'); await page.click('[data-a="ob-next"]');
   ok(/Give your dream a name/.test(await text(page, '.onb .banner')), 'setup: another dream needs a name');
-  await page.fill('#ob-dream-name', '<img src=x onerror=window.HIT=1>'); await page.fill('#ob-name', '<b>Ana Lima');
-  eq(await text(page, '.ob-cheer'), 'Great goal, <b>Ana! Let’s put a date on it.', 'setup: the cheer follows the name as it is typed, as text, and uses the first name only');
-  eq(await page.evaluate(() => { const c = document.querySelector('.ob-cheer'), b = document.querySelector('.ob-foot [data-a="onboard-save"]'), r = c.getBoundingClientRect(), k = b.getBoundingClientRect(); return [c.parentElement.classList.contains('ob-foot'), r.bottom <= k.top, getComputedStyle(document.querySelector('.ob-dream:not([aria-pressed="true"])')).backgroundColor, getComputedStyle(document.querySelector('.ob-val')).backgroundColor]; }), [true, true, 'rgb(255, 255, 255)', 'rgba(0, 0, 0, 0)'], 'setup (since 2026-10-10, a page of its own; light since 2026-10-11, as the home page): the cheer is over the large Next button; the dreams are white with a fine edge, as the home page\'s choices; the dreams are #171717 (owner, 2026-10-07); the cost is a figure with no box around it');
-  await page.fill('#ob-name', 'Ana Lima Souza'); await page.click('[data-a="ob-dream"][data-v="trip"]'); await page.focus('#ob-cost'); await page.keyboard.press('Enter'); await page.waitForSelector('#ob-pay0');
-  eq(await page.evaluate(() => [ob().step, document.activeElement.tagName, document.querySelectorAll('[data-a="ob-pays"], #ob-pay1').length]), [1, 'H1', 0], 'setup: Enter goes on; no field takes the focus (the numbers are sliders); no "two payments" switch');
+  await page.fill('#ob-dream-name', '<img src=x onerror=window.HIT=1>');
+  eq([await text(page, '.ob-cheer'), await page.evaluate(() => $('ob-chip').querySelector('small').textContent)], ['Great goal, <b>Ana! Let’s put a date on it.', '<img src=x onerror=window.HIT=1>'], 'setup: the cheer has the first name, as text; the bubble follows the dream\'s name as it is typed, as text');
+  eq(await page.evaluate(() => { const c = document.querySelector('.ob-cheer'), b = document.querySelector('.ob-foot [data-a="ob-next"]'), r = c.getBoundingClientRect(), k = b.getBoundingClientRect(); return [c.parentElement.classList.contains('ob-foot'), r.bottom <= k.top, getComputedStyle(document.querySelector('.ob-dream:not([aria-pressed="true"])')).backgroundColor, getComputedStyle(document.querySelector('.ob-dream[aria-pressed="true"]')).backgroundColor, getComputedStyle(document.querySelector('.ob-val')).backgroundColor, typeof window.HIT]; }), [true, true, 'rgb(255, 255, 255)', 'rgb(17, 38, 34)', 'rgba(0, 0, 0, 0)', 'undefined'], 'setup: the cheer is over the large Next button; the dreams are white with a fine edge, the one chosen the forest; the cost is a figure with no box around it; nothing typed runs');
+  await page.click('[data-a="ob-back"]'); await page.fill('#ob-name', 'Ana Lima Souza'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('.ob-dreams');
+  await page.click('[data-a="ob-dream"][data-v="trip"]'); await page.focus('#ob-cost'); await page.keyboard.press('Enter'); await page.waitForSelector('#ob-pay0');
+  eq(await page.evaluate(() => [ob().step, document.activeElement.tagName, document.querySelectorAll('[data-a="ob-pays"], #ob-pay1').length]), [2, 'H1', 0], 'setup: Enter goes on; no field takes the focus (the numbers are sliders); no "two payments" switch');
   eq(await text(page, '.onb h1'), 'How do your numbers look today, Ana?', 'numbers: the heading, with the first name only (owner, 2026-10-07)');
   // the amount beside each slider is a figure, not a second box: no frame, no fill, a dashed line that says it can be typed over (owner, 2026-10-07:
   // "leave only the slider but still give the person the option to type the amount, so the screen looks cleaner without hurting the UX")
@@ -102,7 +113,11 @@ const { load } = require('./load.js');
   await page.fill('#ob-pay0', ''); await page.click('[data-a="ob-next"]');
   ok(/what comes in and what goes out/.test(await text(page, '.onb .banner')), 'setup: the look ahead needs what comes in and what goes out');
   await page.fill('#ob-pay0', '1.200'); await page.fill('#ob-spend', '800'); await page.fill('#ob-saved', '1.200');
-  eq(await dots().then(d => d.slice(1, 3).concat(d[4], d[5])), [1, 1, 'Step 2 of 4', true], 'numbers: the second dot is the green one');
+  const left = () => page.evaluate(() => [...document.querySelectorAll('#ob-left .ob-left-k, #ob-left .ob-left-n, #ob-left .ob-left-c')].map(e => e.textContent).concat(document.querySelector('.ob-dream-chip').innerText.trim()));
+  eq(await left(), ['Left each month', 'R$ 400', ',00', 'Trip · R$ 6.000'], 'numbers (v216): what is left each month, large on the forest block as the summary’s balance, as the numbers change; the dream beside it');
+  await page.fill('#ob-spend', '1.500'); eq((await left()).slice(0, 2), ['Short each month', 'R$ 300'], 'numbers: more out than in, it says what is short');
+  await page.fill('#ob-spend', '800');
+  eq(await dots().then(d => d.slice(1, 3).concat(d[4], d[5])), [2, 1, 'Step 3 of 5', true], 'numbers: the third part is the forest one');
   ok(await page.locator('.onb [data-a="ob-company"], #ob-co-l').count() === 0 && !/company|PJ|MEI/i.test(await text(page, '.onb')) && !/What goes out is everything/.test(await text(page, '.onb')), 'numbers: three sliders and where they start; the company question and the note about what goes out are gone (owner, 2026-10-07)');
   await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts');
   let rv = await text(page, '.onb');
@@ -111,7 +126,7 @@ const { load } = require('./load.js');
   eq(await page.evaluate(() => [...document.querySelectorAll('.onb .rw-seg .bar > i')].map(e => e.style.width)), ['100%', '25%'], 'reveal: the track is full to 30 days and a quarter of the way to 3 months');
   ok(/no investment returns/.test(rv), 'reveal: it says the sum assumes no investment return');
   ok(await page.locator('.onb .ob-meter, .onb .ob-fact .meter').count() === 0 && !/R\$ 1\.200 of R\$ 6\.000 saved/.test(rv), 'reveal: no bar and no "saved of cost" line under the dream (owner, 2026-10-07)');
-  ok(!/\p{Extended_Pictographic}/u.test(rv) && await page.locator('.ob-fact .fl-ico svg').count() === 3, 'reveal: no emoji; each fact has one of the app’s own icons (owner: "no emoji, icons in our style")');
+  ok(!/\p{Extended_Pictographic}/u.test(rv) && await page.locator('.ob-fact .ob-thing svg.obj').count() === 3 && await page.locator('.ob-stage .ob-scene .fig img[src$="shadow/coffee.svg"]').count() === 1 && await page.locator('.ob-stage .ob-words h1.ob-days .rw-n').count() === 1, 'reveal: no emoji; each fact has one of Dorax’s own things, and the days of freedom, the screen\'s heading, are on the forest block beside the person at ease (v216; owner: "no emoji, icons in our style")');
   // the same screen for the hard cases, each reached by going back and changing a number
   const again = async (pay, spend, saved) => { await page.click('[data-a="ob-back"]'); await page.fill('#ob-pay0', pay); await page.fill('#ob-spend', spend); await page.fill('#ob-saved', saved); await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts'); return text(page, '.onb'); };
   rv = await again('800', '800', '0');
@@ -124,7 +139,8 @@ const { load } = require('./load.js');
   await again('1.200', '800', '1.200');
   await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-ways');
   eq(await page.evaluate(() => [...document.querySelectorAll('.ob-way')].map(e => e.dataset.go)), ['limits', 'plan', 'sheet'], 'last screen: plan the month (limits), fixed costs or the spreadsheet; the company is asked about on the dashboard');
-  eq(await dots().then(d => [d[1], d[4], d[5]]), [3, 'Step 4 of 4', true], 'last screen: the fourth dot');
+  eq(await page.evaluate(() => [...$('ob-chip').children].map(e => e.textContent).concat(!!document.querySelector('.ob-scene .ob-big-thing svg.obj'))), ['Trip · You get there in', 'September 2027', true], 'stage (v215): the signpost, and the date the ways on make sharper');
+  eq(await dots().then(d => [d[1], d[4], d[5]]), [4, 'Step 5 of 5', true], 'last screen: the fifth part');
   await page.click('.ob-foot [data-a="ob-finish"]'); await page.waitForFunction(() => !!UI.session);
   eq(await page.evaluate(() => [UI.route, S.user.name, S.user.spend, 'company' in S.user, S.isNew]), ['dashboard', 'Ana', 80000, false, true], 'finishing opens the dashboard with the answers kept; nothing was said about a company yet');
   // the dashboard asks about the company (owner, 2026-10-07: "ask this on the dashboard")
@@ -217,13 +233,21 @@ const { load } = require('./load.js');
     ({ browser, page, errors } = await open({ lang: 'pt', viewport: { width, height: 800 }, mobile: true, touch: true, server: { confirmEmail: false } }));
     await signup(page, 'Rui', 'rui@example.org');
     const wide = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    // the welcome (v216): the person waving stands on the sheet's edge, under it, the words over the person; nothing slides sideways
+    eq(await page.evaluate(() => { const f = document.querySelector('.ob-scene .fig').getBoundingClientRect(), sh = document.querySelector('.ob-sheet').getBoundingClientRect(), w = [...document.querySelectorAll('.ob-words h1, .ob-words .js-lead')].map(e => e.getBoundingClientRect());
+      return [Math.abs(f.bottom - sh.top) <= 3, +getComputedStyle(document.querySelector('.ob-sheet')).zIndex > +getComputedStyle(document.querySelector('.ob-scene')).zIndex, w.every(r => r.bottom <= f.top + 12), document.querySelector('.ob-body').scrollWidth <= document.querySelector('.ob-body').clientWidth, document.documentElement.scrollWidth - innerWidth]; }),
+      [true, true, true, true, 0], `pt, ${width}px (v216): the welcome: the person stands on the sheet's edge, under it, the words over it; nothing slides sideways`);
+    await page.click('[data-a="onboard-save"]'); await page.waitForSelector('.ob-dreams');
     await page.click('[data-a="ob-dream"][data-v="safety"]'); eq(await page.evaluate(() => ob().cost), '10.000', `pt, ${width}px: the emergency fund starts at 10.000`);
     ok(/Quanto você quer ter guardado/.test(await text(page, '.onb')), `pt, ${width}px: the emergency fund asks how much to have put aside`);
-    eq(await wide(), 0, `pt, ${width}px: screen 1 is not wider than the phone`);
+    eq(await wide(), 0, `pt, ${width}px: the dream's screen is not wider than the phone`);
+    eq(await page.evaluate(() => { const t = document.querySelector('.ob-scene .ob-big-thing').getBoundingClientRect(), sh = document.querySelector('.ob-sheet').getBoundingClientRect(), h = document.querySelector('.ob-words h1').getBoundingClientRect(), c = $('ob-chip').getBoundingClientRect(), bar = document.querySelector('.ob-bar').getBoundingClientRect();
+      return [t.top < sh.top && t.bottom > sh.top, h.bottom <= Math.min(c.top, t.top) + 2, c.right <= t.left + 2 && c.bottom <= sh.top, c.top >= bar.bottom, document.querySelector('.ob-body').scrollWidth <= document.querySelector('.ob-body').clientWidth]; }),
+      [true, true, true, true, true], `pt, ${width}px (v216): the dream: its thing rises from behind the sheet; the words over it; the bubble beside it, over the sheet; nothing slides sideways`);
     eq(await page.evaluate(() => { const c = document.querySelector('.ob-foot .ob-cheer').getBoundingClientRect(), b = document.querySelector('.ob-foot .btn.primary').getBoundingClientRect(); return [c.bottom <= b.top, /Ótima meta/.test(document.querySelector('.ob-cheer').innerText)]; }), [true, true], `pt, ${width}px: the cheer sits over the Next button, which keeps the full width`);
     eq(await page.evaluate(() => Math.min(...[...document.querySelectorAll('.ob-dream, .ob-foot .btn')].map(e => e.getBoundingClientRect().height)) >= 44), true, `pt, ${width}px: every button is at least 44px tall`);
     eq(await page.evaluate(() => { const b = [...document.querySelectorAll('.ob-dream')].map(e => e.getBoundingClientRect()); return [b[0].top === b[1].top, b[2].top === b[3].top, b[2].top > b[0].top]; }), [true, true, true], `pt, ${width}px: the dreams stay two by two`);
-    await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0');
+    await page.click('[data-a="ob-next"]'); await page.waitForSelector('#ob-pay0');
     eq(await page.evaluate(() => Math.min(...[...document.querySelectorAll('.ob-slide input[type=range]')].map(e => e.getBoundingClientRect().height)) >= 44), true, `pt, ${width}px: every slider is at least 44px tall to the finger`);
     await page.fill('#ob-pay0', '3.000'); await page.fill('#ob-spend', '1.500'); await page.fill('#ob-saved', '0'); eq(await wide(), 0, `pt, ${width}px: screen 2 is not wider than the phone`);
     await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts'); eq(await wide(), 0, `pt, ${width}px: the reveal is not wider than the phone`);
@@ -243,7 +267,7 @@ const { load } = require('./load.js');
 
   // ---------- 4b. with motion: confetti when the reveal holds good news, and only then ----------
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', motion: true, server: { confirmEmail: false } }));
-  await signup(page, 'Lia', 'lia@example.org'); await page.click('[data-a="ob-dream"][data-v="trip"]'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0');
+  await signup(page, 'Lia', 'lia@example.org'); await page.click('[data-a="onboard-save"]'); await page.click('[data-a="ob-dream"][data-v="trip"]'); await page.click('[data-a="ob-next"]'); await page.waitForSelector('#ob-pay0');
   await page.click('[data-a="ob-next"]'); await page.waitForSelector('.ob-facts');
   eq(await page.evaluate(() => { const c = document.getElementById('confetti'), cs = c && getComputedStyle(c); return c ? [c.children.length >= 70, c.getAttribute('aria-hidden'), cs.pointerEvents, cs.position] : null; }), [true, 'true', 'none', 'fixed'], 'reveal, with the averages left as they are (500 left over, 30 days): confetti, hidden from screen readers and never in the way of a click');
   await page.waitForTimeout(1300);      // the figure counts up

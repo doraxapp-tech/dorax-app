@@ -73,10 +73,10 @@ function journeyDrawer() {
       ${j.checks[today] ? `<p class="jr-ok">${icon('check')}${t('Today is marked. See you tomorrow.')}</p>` : `<div class="jr-ask"><p>${t('A day with no new debt: no new loan, no purchase you cannot pay this month.')}</p><button class="btn primary" data-a="journey-mark" data-d="${today}">${icon('check')}${t('I added no debt today')}</button></div>`}
       ${jrSprint(s, cur, j)}
     </section>
-    ${total ? `<section class="jr-sec" id="jr-free"><h3>${t('Out of debt in')}</h3>${jrFree(list, pace, cur)}</section>` : ''}
+    ${total ? `<section class="jr-sec jr-art-sec" id="jr-free"><span class="jr-art" aria-hidden="true">${artObj('sun-horizon')}</span><div class="grow"><h3>${t('Out of debt in')}</h3>${jrFree(list, pace, cur)}</div></section>` : ''}
     <section class="jr-sec" id="jr-debts"><div class="jr-h"><h3>${t('What you owe')}</h3>${list.length ? `<b class="num">${fmt.money(total, cur)}</b>` : ''}</div>
       ${list.length ? `<ul class="jr-list">${list.map((x, i) => jrRow(x, i, mine.length, cur)).join('')}</ul>` : ''}
-      ${total ? '' : `<p class="note">${list.length ? t('Everything here is paid off.') : t('Nothing owed here yet. Add what you owe, and the cards with an invoice come in by themselves.')}</p>`}
+      ${total ? '' : `<p class="note jr-none">${list.length ? '' : `<span class="jr-art" aria-hidden="true">${artObj('wallet')}</span>`}<span>${list.length ? t('Everything here is paid off.') : t('Nothing owed here yet. Add what you owe, and the cards with an invoice come in by themselves.')}</span></p>`}
       ${mine.length > 1 ? `<p class="note">${t('What you pay above the monthly payments goes to the first debt of the list. Two common orders: the highest interest first (less interest paid), or the smallest first (one debt less, sooner). The order is yours.')}</p>` : ''}
       <button class="btn sm" data-a="debt-new">${icon('plus')}${t('Add a debt')}</button></section>
     <section class="jr-sec"><h3>${t('Reminders')}</h3><p class="note">${notify ? t('While a sprint runs, each morning Dorax asks about the day before; and it reminds you before a debt’s payment is due. On this device and by email, as set in Settings, under Notifications.') : t('Journey reminders are off. Turn them on in Settings, under Notifications.')}</p>
@@ -213,9 +213,9 @@ function jstartBody(J) {
       <p class="js-lead">${t('You are not alone. And there is a way out: a clear amount, one day at a time.')}</p></div>`;
   if (s === 2) return `<div class="js-step"><p class="js-eyebrow">${t('How it works')}</p><h1 id="js-h" tabindex="-1">${t('Three things, every day.')}</h1>
       <ol class="js-how">
-        <li style="--i:0"><span class="js-ico">${icon('flame')}</span><span><b>${t('Streak')}</b>${t('Each day with no new debt, you mark it. The days in a row are your streak.')}</span></li>
-        <li style="--i:1"><span class="js-ico">${icon('flag')}</span><span><b>${t('Sprint')}</b>${t('7, 14 or 30 days with an amount to pay off. A bar shows how far you are.')}</span></li>
-        <li style="--i:2"><span class="js-ico">${icon('sun')}</span><span><b>${t('The way out')}</b>${t('The month you are out of debt, worked out from your own figures.')}</span></li>
+        <li style="--i:0"><span class="js-ico js-art">${artObj('fire')}</span><span><b>${t('Streak')}</b>${t('Each day with no new debt, you mark it. The days in a row are your streak.')}</span></li>
+        <li style="--i:1"><span class="js-ico js-art">${artObj('flag-banner')}</span><span><b>${t('Sprint')}</b>${t('7, 14 or 30 days with an amount to pay off. A bar shows how far you are.')}</span></li>
+        <li style="--i:2"><span class="js-ico js-art">${artObj('sun-horizon')}</span><span><b>${t('The way out')}</b>${t('The month you are out of debt, worked out from your own figures.')}</span></li>
       </ol></div>`;
   if (s === 3) {
     const list = journeyDebts(b, S.today, cur), total = sum(list.map(x => x.left));

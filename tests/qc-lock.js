@@ -123,7 +123,7 @@ const { open, ok, eq, done } = require('./pw.js');
   ({ browser, page, errors } = await open({ oldLook: true, lang: 'en', viewport: { width: 1280, height: 900 }, server: { confirmEmail: false } }));
   const login = async () => { await page.evaluate(() => A['pub-go']({ v: 'login' })); await page.fill('#au-email', 'ana@example.org'); await page.fill('#au-pass', 'UmaSenha2026'); await page.click('[data-a="auth-login"]'); await page.waitForFunction(() => !!UI.session); };
   await page.evaluate(() => A['pub-go']({ v: 'signup' })); await page.fill('#au-name', 'Ana'); await page.fill('#au-email', 'ana@example.org'); await page.fill('#au-pass', 'UmaSenha2026'); await page.check('#au-accept'); await page.click('[data-a="auth-signup"]');
-  await page.waitForSelector('#ob-name'); await page.click('[data-a="onboard-save"]'); await page.waitForSelector('#ob-pay0'); await page.click('[data-a="ob-next"]'); await page.click('[data-a="ob-finish"]'); await page.waitForSelector('.hello');
+  await page.waitForSelector('#ob-name'); await page.click('[data-a="onboard-save"]'); await page.click('[data-a="ob-next"]'); await page.waitForSelector('#ob-pay0'); await page.click('[data-a="ob-next"]'); await page.click('[data-a="ob-finish"]'); await page.waitForSelector('.hello');
   const uid = await page.evaluate(() => guardUser());
   eq(await page.evaluate(() => { const g = GUARD.of(guardUser()); return [!!g.seen && Date.now() - g.seen < 60000, g.idle || 0, !!g.pin]; }), [true, 0, false], 'a new account: the device notes when it was last used; no limit and no lock by default');
   await page.evaluate(() => navigate('settings/security')); await setPin(page, '2580');

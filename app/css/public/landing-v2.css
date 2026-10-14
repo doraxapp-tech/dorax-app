@@ -117,7 +117,7 @@ html:has(#public:not([hidden]) > .lp2), body:has(#public:not([hidden]) > .lp2) {
 .lp2 .calc-line i { flex: 1 1 0; min-width: 0; height: calc(6% + var(--k, 1) * 94%); border-radius: 8px 8px 3px 3px; background: #FFFFFF; transition: height 400ms var(--l2-ease); }
 .lp2 .calc-line i:last-child { background: var(--l2-forest); }
 .lp2 .calc-ends { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--l2-ink-2); }
-.fig.l2-calc-fig { width: 150px; flex: none; margin-bottom: 28px; }
+.fig.l2-calc-fig { width: 150px; flex: none; margin-bottom: 28px; margin-right: 26px; }      /* v214: room for the open hands, drawn whole now (css/components/art.css) */
 .l2-cnote { margin: 18px 0 0; font-size: 13px; line-height: 1.5; color: var(--l2-ink-3); }
 
 /* the moments of the month */
@@ -385,7 +385,7 @@ html:has(#public:not([hidden]) > .lp2), body:has(#public:not([hidden]) > .lp2) {
   .l2-calc { border-radius: 28px; }
   .l2-calc-l { padding: 28px 22px; } .l2-calc-l > .l2-btn { align-self: stretch; }
   .l2-calc-r { padding: 28px 22px; }
-  .l2-run { gap: 12px; } .fig.l2-calc-fig { width: 104px; }
+  .l2-run { gap: 12px; } .fig.l2-calc-fig { width: 104px; margin-right: 18px; }
   .lp2 .calc-line { height: 112px; gap: 4px; }
   .l2-mo-panel { padding: 28px 18px; border-radius: 28px; }
   .l2-mo-head { flex-direction: column; align-items: flex-start; gap: 20px; }
