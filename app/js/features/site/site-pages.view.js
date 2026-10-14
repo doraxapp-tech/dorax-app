@@ -42,8 +42,8 @@ function viewPj() {
   return `<div class="lp2 web-page st-page">${siteTop('pj', t('For people with a company (PJ or MEI)'), t('The company pays you.'), t('Home keeps its own plan.'),
       t('When you pay yourself from your own company, home money and company money blur. In Dorax each one has its own side.'), siteJump('pj-how', t('How it works')), t('Free · No card · Your bank password is never asked for'), artFig('laptop', 'briefcase'))}
     <main>
-      <section class="l2-pj"><div class="l2-wrap"><div class="l2-sec-h light">${l2Eyebrow(t('Two sides, one account'), true)}<h2 class="l2-h2">${t('Home and company, never mixed.')}</h2><p class="l2-sub">${t('Household totals, the plan and the reports count only household money.')}</p></div>
-        ${l2Sides()}${l2PjList()}</div></section>
+      <section class="l2-pj"><div class="l2-wrap"><div class="l2-sec-h light">${l2Eyebrow(t('Two sides, one account'), true)}<h2 class="l2-h2">${t('Home and company, never mixed.')}</h2></div>
+        ${l2HomeCo()}</div></section>
       <section class="l2-sec l2-white"><div class="l2-wrap"><div class="l2-sec-h">${l2Eyebrow(t('The company’s side'))}<h2 class="l2-h2">${t('What your company gets.')}</h2></div>
         ${siteCards([
           ['piggy-bank', t('Reserve and goals'), t('The company’s reserve and its goals, apart from home’s, each with how much to set aside a month.')],

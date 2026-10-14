@@ -82,8 +82,9 @@ function l2Steps() {
 }
 /** Home and company on the home page (owner: "busca una estructura mejor para expresar esto"): each side says what it does for you, and between
     them the person with the company pays themself. The company's side is white (owner: "haz esto en tema blanco") with a lime tag ("cambia x
-    lima"); the figures are an example, so they are hidden from a screen reader and the sentences carry the meaning. The page for PJ and MEI keeps
-    its own two sides (l2Sides). */
+    lima"); the figures are an example, so they are hidden from a screen reader and the sentences carry the meaning. The page for PJ and MEI shows
+    the same two sides since v219 (owner, 2026-10-14: "en la página PJ aún se ve este bloque con iconos viejos y en la home page esta sección se ve
+    diferente"): features/site/site-pages.view.js. */
 function l2HomeCo() {
   const feat = (thing, title, text) => `<li>${artObj(thing, 'l2-hc-ic')}<span><b>${title}</b>${text}</span></li>`;
   const side = (cls, thing, tag, label, amount, feats) => `<div class="l2-hc-side ${cls}"><span class="l2-hc-tag">${artObj(thing)}${tag}</span><span class="l2-hc-fig" aria-hidden="true"><span class="l2-hc-lbl">${label}</span><b class="l2-hc-amt">${l2Amt(amount)}</b></span><ul class="l2-hc-feats">${feats}</ul></div>`;
@@ -192,29 +193,13 @@ function l2Foot(app) {
     <div class="l2-ft-bottom"><p>© 2026 Dorax Finance</p>
       <p>${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')} ${t('Contabilizei and the banks named on this page belong to their owners. Dorax is independent of them.')}</p></div></div></footer>`;
 }
-/** The two sides, home and company, side by side: the home page's PJ section and the page for PJ and MEI (features/site/site-pages.view.js). */
-const l2Sides = () => `<div class="l2-sides" aria-hidden="true">
-        <div class="l2-side co"><span class="l2-stag">${icon('briefcase')}${t('Company')}</span><span class="l2-slbl">${t('Company reserve')}</span><b class="l2-samt">${l2Amt(8400)}</b>
-          <div class="l2-srows"><span>${t('Accountant')} · ${t('day {d}', { d: 10 })}<em>${l2Money(189)}</em></span><span>Software · ${t('day {d}', { d: 28 })}<em>${fmt.money(2400, 'USD')}</em></span></div><span class="l2-sfoot">${t('Each cost in its own currency: reais or dollars.')}</span></div>
-        <div class="l2-join"><i>${icon('right')}</i>${t('You pay yourself')}</div>
-        <div class="l2-side home"><span class="l2-stag">${icon('home')}${t('Household')}</span><span class="l2-slbl">${t('Left this month')}</span><b class="l2-samt">${l2Amt(1240)}</b>
-          <div class="l2-srows"><span>${t('Rent')} · ${t('day {d}', { d: 5 })}<em>${l2Money(1600)}</em></span><span>${t('Groceries')}<em>${l2Money(980)}</em></span></div><span class="l2-sfoot">${t('Household totals, the plan and the reports count only household money.')}</span></div></div>`;
-/** What a company's side gives: the home page's PJ section and the page for PJ and MEI. */
-function l2PjList() {
-  const pj = [
-    [t('Company and home, never mixed'), t('Household totals, the plan and the reports count only household money.')],
-    [t('A plan for income that changes'), t('Set your income month by month and see what is left.')],
-    [t('Home bills do not wait for invoices'), t('Due days and reminders, whatever day a client pays.')],
-    [t('The month-end your accountant asks for'), t('The list of statements to send, and the bank’s file turned into OFX.')],
-  ];
-  return `<ul class="l2-pj-list">${pj.map(([title, text], i) => `<li data-reveal="pj-${i}">${l2Check()}<span><b>${title}</b> ${text}</span></li>`).join('')}</ul>`;
-}
 /** The home page. Since v213 (2026-10-13: "crea un artefacto totalmente nuevo que gire alrededor de las ilustraciones. me gusta el estilo de
     sobre nos. Estas secciones me gustan: Tu dinero, en los días que importan. Todo tu mes, en un lugar. Lo demás puede variar"; the canvas
     "Landing Dorax con personajes", commented section by section and then approved: "publish") it is drawn around Dorax's people (js/ui/art.js):
     the top, centred as the page About us, with seven people in a row > who it is for (three people) > the moments of the month > what's inside >
-    how it works, in three steps > home and company > your money, with a date (the calculator) > the blog > your data, with the person who holds
-    the key > questions > the way in, with a person waving > footer. Each person stands next to the words about them; nothing is put on top. */
+    how it works, in three steps > home and company > your money, with a date (the calculator) > the blog > your data (since v219 without the
+    person who holds the key; owner, 2026-10-14: "quita esto del home page") > questions > the way in, with a person waving > footer. Each person
+    stands next to the words about them; nothing is put on top. */
 function viewLanding() {
   // nine questions, in the order the doubts come up (2026-10-07): is it free, the bank, the phone, then the rest. "No ads, data not sold" is the owner's commitment.
   const faq = [
@@ -260,8 +245,6 @@ function viewLanding() {
     <section class="l2-trustsec" id="lp-data"><div class="l2-wrap">
       <div class="l2-sec-h light">${l2Eyebrow(t('Your data'), true)}<h2 class="l2-h2">${t('Your money is yours. Your data too.')}</h2><p class="l2-sub">${t('Dorax organises what you type or import. Nothing more.')}</p></div>
       <div class="l2-tr-grid">${[['bank', t('No bank password'), t('You do not have to connect your bank. The workflow is based on information you enter and files you choose to import.')], ['laptop', t('Your files are not uploaded'), t('Sheets and statements open in your browser to be read. Only the rows you accept become your data.')], ['shield-check', t('No ads'), t('Your data is not sold or used for advertising.')]].map(([ic, title, text], i) => `<div class="l2-tc" data-reveal="tc-${i}">${artObj(ic, 'st-obj')}<h3>${title}</h3><p>${text}</p></div>`).join('')}</div>
-      <div class="l2-tr-wide" data-reveal="key"><div><h3 class="l2-h3w">${t('You hold the key.')}</h3><ul class="l2-tr-list">${[t('Download a backup of everything whenever you want.'), t('Delete your data or your account from Settings.'), t('Your password is stored encrypted, never as you typed it.')].map(x => `<li>${l2Check()}${x}</li>`).join('')}</ul></div>
-        ${artFig('key', 'key', 'l2-keyfig')}</div>
       <p class="l2-disc">${t('Dorax organises information about your own money. It is not financial, tax or accounting advice.')}</p></div></section>
     <section class="l2-sec" id="lp-faq"><div class="l2-wrap"><div class="l2-faq-grid">
       <div class="l2-faq-l">${l2Eyebrow(t('Questions'))}<h2 class="l2-h2">${t('Questions before you start')}</h2><p class="l2-sub">${t('Use the {form}. It works without logging in.', { form: contact })}</p>${artFig('explain', 'chat-circle-dots', 'l2-fig')}<p class="l2-faq-cap">${t('A person reads every message.')}</p></div>
