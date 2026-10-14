@@ -43,7 +43,8 @@ function jrSprint(s, cur, j) {
     <div class="jr-fig"><b class="num">${fmt.money(s.paid, cur, { trim: true })}</b><span class="num">/ ${fmt.money(s.target, cur, { trim: true })}</span><span class="num jr-pct">${s.pct}%</span></div>
     <div class="jr-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${s.pct}" aria-label="${esc(t('Paid in this sprint'))}"><i style="width:${s.pct}%"></i></div>
     <p class="note">${say}</p>
-    ${s.done ? `<button class="btn primary" data-a="sprint-close">${t('Close it and start the next')}</button>` : ''}</div>`;
+    ${s.done ? `<button class="btn primary" data-a="sprint-close">${t('Close it and start the next')}</button>`
+      : `<button class="btn primary jr-sprint-pay" data-a="sprint-pay">${icon('plus')}${t('Record a payment')}</button><p class="note jr-sprint-how">${t('The sprint fills with what you pay on your debts and card invoices.')}</p>`}</div>`;      // v226 (owner, 2026-10-14: "¿cómo agrego dinero aquí en Jornada? no sé")
 }
 function jrFree(list, pace, cur) {
   if (!pace) return `<p class="note">${t('Start a sprint, or give your debts their monthly payment, to see when you are out.')}</p>`;

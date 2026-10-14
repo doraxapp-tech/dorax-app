@@ -57,6 +57,8 @@ button.jr-day:active { transform: scale(.93); }
 .jr-bar { height: 12px; margin: 10px 0 8px; border-radius: 999px; background: var(--track); overflow: hidden; }
 .jr-bar i { display: block; height: 100%; border-radius: 999px; background: var(--brand); box-shadow: 0 0 12px color-mix(in srgb, var(--brand) 45%, transparent); transition: width .5s var(--ease, ease-out); }
 .jr-sprint .note { margin: 0 0 10px; }
+.jr-sprint .jr-sprint-pay { width: 100%; min-height: 48px; }      /* v226: what fills the sprint, one tap away */
+.jr-sprint .note.jr-sprint-how { margin: 8px 0 0; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .jr-bar i { transition: none; } }
 
 /* ---------- the parts under it ---------- */

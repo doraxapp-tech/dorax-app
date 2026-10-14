@@ -13,14 +13,47 @@
 //   day     what one day costs at the pace money goes out
 //   streak  months in a row with money put aside in goals and funds
 //   rate    of every 100 that came in last month, how much went to goals and funds
+//   subs    what the subscriptions cost last month, and how many months sooner a goal arrives without them (v226)
 
-const INSIGHT_KINDS = ['pace', 'mover', 'bills', 'goal', 'mark', 'day', 'streak', 'rate'];
+const INSIGHT_KINDS = ['pace', 'mover', 'bills', 'goal', 'subs', 'mark', 'day', 'streak', 'rate'];
 const INSIGHT_MIN = 1000;        // a difference under R$ 10 is not worth a sentence
 const INSIGHT_MOVE = 3000;       // a category has to move R$ 30 and 10% to be "the one that moved" (the report's rule, core/observations.js)
 
 /** What was put into goals and funds in a month, withdrawals taken off. A starting balance is no contribution. */
 // only the goals in the book's currency, as what came in it is counted in (v224: core/goals.js, goalsHere)
 function asideIn(state, ym) { const here = new Set(goalsHere(state).map(g => g.id)); return sum(state.goalMoves.filter(m => here.has(m.goalId) && !isStartMove(m) && ymOf(m.date) === ym).map(m => m.amount)); }
+
+// ---------- subscriptions that hold a goal back (v226, owner, 2026-10-14: "haz el 6": "Netflix + Spotify = R$ 85 al mes. Sin ellos, Viaje llega 2
+// meses antes". Arithmetic on what was recorded, not advice) ----------
+// The subscriptions are the household's group of them: the app's own ("Subscriptions", where Netflix and Spotify go when a statement comes in) or
+// any group the person named so. What they cost is last month's, a whole month; a goal's months sooner are the what-if of spending that less
+// each month and putting it aside (core/whatif.js), for the goal it brings closest.
+const SUBS_NAME = /\b(ASSINATURAS?|SUSCRIPCION(ES)?|SUBSCRIPTIONS?)\b/;
+const subsFold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+/** The household's subscription groups: their ids. */
+const subsCats = state => (state.categories || []).filter(c => !c.income && (c.id === 'subs' || SUBS_NAME.test(subsFold(c.name)))).map(c => c.id);
+/** What the subscriptions cost in a month: { amount, names } (the names most paid first). */
+function subsMonth(state, ym, currency) {
+  const cats = new Set(subsCats(state)), biz = new Set(state.accounts.filter(a => a.scope === 'business').map(a => a.id)), by = {};
+  if (!cats.size) return { amount: 0, names: [] };
+  for (const t of state.transactions) {
+    if (t.type !== 'expense' || !counts(t) || biz.has(t.accountId) || t.currency !== currency || ymOf(t.date) !== ym) continue;
+    const v = t.splits ? -sum(t.splits.filter(s => cats.has(s.categoryId)).map(s => s.amount)) : cats.has(t.categoryId) ? -t.amount : 0;
+    if (v) by[t.merchant || ''] = (by[t.merchant || ''] || 0) + v;
+  }
+  return { amount: Math.max(0, sum(Object.values(by))), names: Object.entries(by).filter(([n, v]) => n && v > 0).sort((a, b) => b[1] - a[1]).map(([n]) => n) };
+}
+/** Last month's subscriptions and the goal they hold back most: { amount, names, month, id, name, sooner, from, to } or null. */
+function subsDelay(state, today, currency) {
+  if (state.scope === 'business') return null;      // the household's
+  const month = addMonths(ymOf(today), -1), s = subsMonth(state, month, currency); if (s.amount < INSIGHT_MIN) return null;
+  let best = null;
+  for (const g of whatIfGoals(state, today)) {
+    const w = whatIf(state, today, currency, g.id, { less: s.amount }), x = w.goal;
+    if (x && x.sooner >= 1 && (!best || x.sooner > best.sooner || (x.sooner === best.sooner && x.to < best.to))) best = { id: g.id, name: g.name, sooner: x.sooner, from: x.from, to: x.to };
+  }
+  return best ? { amount: s.amount, names: s.names.slice(0, 3), more: Math.max(0, s.names.length - 3), month, ...best } : null;
+}
 
 /** Every insight that is true today, in the order of INSIGHT_KINDS: [{ kind, ...figures }]. */
 function insights(state, today, currency) {
@@ -54,6 +87,7 @@ function insights(state, today, currency) {
     const st = goalStatus(state, near.g, today), pace = near.a.pace || st.thisMonth || 0;
     out.push({ kind: 'goal', id: near.g.id, name: near.g.name, remaining: st.remaining, ym: near.a.ym, months: near.a.months, lever: pace > 0 ? lever(st.target, st.saved, pace) : null });
   }
+  const sd = subsDelay(state, today, currency); if (sd) out.push({ kind: 'subs', ...sd });
 
   // days of freedom: the next mark, and what one day costs
   const r = runway(state, today, currency);

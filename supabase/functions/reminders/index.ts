@@ -6,7 +6,8 @@
 //   test     a logged-in person    sends that person a test: a notification to their devices (channel "push") or an email (channel "email").
 //   run      the daily schedule    looks at every account and tells each person what is NEW for them today, by notification and by email.
 //   tips     a schedule every 15'  between 8:00 and 23:00 (Brasília): the people whose time for a tip has come today get one by notification,
-//                                  as often as they chose, at a different time each day (logic.mjs: tipFor, tipSlot; supabase/tips-schedule.sql).
+//                                  as often as they chose, at a different time each day (logic.mjs: tipFor, tipSlot; supabase/tips-schedule.sql);
+//                                  on Sundays from 17:00, the weekly summary in its place (v226; logic.mjs: weekTime).
 //   contact  the database          a message came in through the contact form: emails it to the owner (the address in CONTACT_TO).
 //
 // What is where:
@@ -24,7 +25,7 @@
 // name and its answer, with the kind of device as its browser named it), and the id of an account
 // that could not be read.
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { messageFor, tipFor, tipSlot, minuteIn, TIP_FROM, TIP_UNTIL, testTexts, todayIn, sameSecret, versionOf, PARTS as LOGIC } from './logic.mjs';
+import { messageFor, tipFor, tipSlot, weekTime, minuteIn, TIP_FROM, TIP_UNTIL, testTexts, todayIn, sameSecret, versionOf, PARTS as LOGIC } from './logic.mjs';
 import { sendPush, generateVapidKeys, PARTS as WEBPUSH } from './webpush.mjs';
 import { reminderEmail, PARTS as EMAIL } from './email.mjs';
 
@@ -257,6 +258,8 @@ async function run(req: Request, admin: Any, body: Any) {
     night, any day; with the app closed, of course: the idea is to bring the person back to the app"). The schedule calls this every 15 minutes.
     Each person has a time of their own for each day (tipSlot: from the id and the date, so it changes every day and nobody has to remember it);
     once that time has come, and while no tip and no reminder reached them today, today's tip goes, if their rhythm says today is a day for one.
+    On Sundays from 17:00 everyone with a device is looked at once more, for the weekly summary (v226, owner, 2026-10-14: "Resumen semanal por
+    notificación, el domingo por la tarde"), which goes even on a day that had a reminder; on a Sunday it takes the tip's place.
     Only people with a device are looked at, and only their accounts are read. */
 async function tips(req: Request, admin: Any) {
   if (!await fromDatabase(req, admin)) return answer(req, { ok: false, code: 'not_allowed' }, 403);
@@ -264,21 +267,23 @@ async function tips(req: Request, admin: Any) {
   const out = { ok: true, day: today, minute, waiting: 0, tips: 0, notifications: 0, problems: 0, quiet: false };
   if (minute < TIP_FROM || minute >= TIP_UNTIL) { out.quiet = true; return answer(req, out); }      // the night: nothing
   const { data: subs } = await admin.from('push_subscriptions').select('user_id, endpoint, p256dh, auth, agent');
-  const ids = [...new Set((subs || []).map((s: Any) => s.user_id))].filter((id: Any) => tipSlot(String(id), today) <= minute) as string[];
+  const week = weekTime(today, minute);
+  const ids = [...new Set((subs || []).map((s: Any) => s.user_id))].filter((id: Any) => week || tipSlot(String(id), today) <= minute) as string[];
   if (!ids.length) return answer(req, out);
   const { data: logs } = await admin.from('reminder_log').select('user_id, key, sent_at').in('user_id', ids);
   const mine = (id: string) => (logs || []).filter((l: Any) => l.user_id === id);
-  // one a day at most: not when a tip already went today, nor on a day a reminder went (a test does not count)
-  const waiting = ids.filter(id => !mine(id).some((l: Any) => l.key === 'tip|' + today || (!/^(tip|test)/.test(l.key) && todayIn(TZ, new Date(l.sent_at)) === today)));
+  // one a day at most: not when a tip (or the summary) already went today, nor on a day a reminder went, except for the Sunday summary (a test does not count)
+  const reminded = (id: string) => mine(id).some((l: Any) => !/^(tip|test|week)/.test(l.key) && todayIn(TZ, new Date(l.sent_at)) === today);
+  const waiting = ids.filter(id => !mine(id).some((l: Any) => l.key === 'tip|' + today || l.key === 'week|' + today) && (week || !reminded(id)));
   out.waiting = waiting.length;
   const answers: Record<string, number> = {};
   for (let i = 0; i < waiting.length; i += PAGE) {
     const { data: rows } = await admin.from('user_data').select('user_id, data').in('user_id', waiting.slice(i, i + PAGE));
     for (const row of rows || []) {
       try {
-        const tip = tipFor(row.data, today, new Set<string>(mine(row.user_id).map((l: Any) => l.key)), false);
+        const tip = tipFor(row.data, today, new Set<string>(mine(row.user_id).map((l: Any) => l.key)), { reminded: reminded(row.user_id), minute, slotReached: tipSlot(String(row.user_id), today) <= minute });
         if (!tip) continue;
-        const r = await pushTo(admin, (subs || []).filter((s: Any) => s.user_id === row.user_id), { title: tip.push.title, body: tip.push.body, url: SITE + '/', tag: 'dorax-tip-' + today, lang: tip.lang });
+        const r = await pushTo(admin, (subs || []).filter((s: Any) => s.user_id === row.user_id), { title: tip.push.title, body: tip.push.body, url: SITE + '/', tag: (tip.kind === 'week' ? 'dorax-week-' : 'dorax-tip-') + today, lang: tip.lang });
         out.notifications += r.sent; out.problems += r.failed;
         for (const x of r.results) answers[x.service + ' ' + x.status] = (answers[x.service + ' ' + x.status] || 0) + 1;
         // remembered once it reached a device, so the rhythm the person chose counts what they actually got

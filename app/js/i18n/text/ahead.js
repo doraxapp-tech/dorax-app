@@ -123,4 +123,10 @@ addTexts([
   ["Add savings account","Agregar cuenta de ahorro","Adicionar conta poupança"],
   ["Nothing is saved until you say so.","No se guarda nada hasta que tú lo digas.","Nada é salvo até você dizer."],
   ["Your emergency fund", "Tu reserva de emergencia", "Sua reserva de emergência"],
+  // v226: the subscriptions that hold a goal back
+  ["Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} month sooner.", "Tus suscripciones costaron {amount} en {month}. Sin ellas, {name} llega {n} mes antes.", "Suas assinaturas custaram {amount} em {month}. Sem elas, {name} chega {n} mês antes."],
+  ["Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} months sooner.", "Tus suscripciones costaron {amount} en {month}. Sin ellas, {name} llega {n} meses antes.", "Suas assinaturas custaram {amount} em {month}. Sem elas, {name} chega {n} meses antes."],
+  ["{names}. Which ones stay is your call.", "{names}. Cuáles se quedan lo decides tú.", "{names}. Quais ficam é você quem decide."],
+  ["Without your subscriptions, {name} arrives {n} month sooner.", "Sin tus suscripciones, {name} llega {n} mes antes.", "Sem suas assinaturas, {name} chega {n} mês antes."],
+  ["Without your subscriptions, {name} arrives {n} months sooner.", "Sin tus suscripciones, {name} llega {n} meses antes.", "Sem suas assinaturas, {name} chega {n} meses antes."],
 ]);

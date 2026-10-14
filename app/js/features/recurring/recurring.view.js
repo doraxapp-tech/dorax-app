@@ -1,8 +1,12 @@
 /* Dorax Finance — screen: Recurring. */
 // ---------- Recurring ----------
+// a month inside a sentence: its name alone, in small letters where the language writes it so ("en septiembre"), as the day's facts say it
+const subsMonthName = ym => { const m = mon(+ym.slice(5, 7) - 1, true); return S.settings.lang === 'en' ? m : m.toLowerCase(); };
 function viewRecurring() {
   const list = recurringList(S, S.today), upcoming = list.filter(r => dayDiff(r.next, S.today) <= 30), tot = xs => fmt.money(sum(xs.map(r => r.amount)), CUR);
-  return `<section class="tiles">
+  // v226: what the subscriptions hold back (core/insights.js: subsDelay), said where the recurring payments are
+  const sd = subsDelay(S, S.today, CUR), subsNote = sd ? banner('info', `<b>${tn(sd.sooner, 'Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} month sooner.', 'Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} months sooner.', { amount: fmt.money(sd.amount, CUR, { round: true }), month: subsMonthName(sd.month), name: esc(sd.name) })}</b> ${t('{names}. Which ones stay is your call.', { names: subsNames(sd, true) })}`) : '';
+  return `${subsNote}<section class="tiles">
       <div class="card tile tap">${kpiTap('rec-count', t('Recurring payments'))}<div class="label"><span>${t('Recurring payments')}</span>${hint('recCount')}</div><div class="value num">${list.length}</div></div>
       <div class="card tile tap">${kpiTap('rec-total', t('Monthly total'))}<div class="label"><span>${t('Monthly total')}</span>${hint('recTotal')}</div><div class="value num">${tot(list)}</div></div>
       <div class="card tile tap">${kpiTap('rec-due', t('Due in the next 30 days'))}<div class="label"><span>${t('Due in the next 30 days')}</span>${hint('recDue')}</div><div class="value num">${tot(upcoming)}</div></div>

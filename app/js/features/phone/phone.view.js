@@ -136,6 +136,7 @@ function insightShort(x, co) {
     case 'mover': { const v = { name: esc(catName(x.id)), amount: money(Math.abs(x.diff)), month: bare(x.month) };
       return x.diff < 0 ? t('{name}: {amount} less than in {month}.', v) : t('{name}: {amount} more than in {month}.', v); }
     case 'bills': return tn(x.n, '{n} bill in the next 7 days: {total}.', '{n} bills in the next 7 days: {total}.', { total: money(x.total) });
+    case 'subs': return tn(x.sooner, 'Without your subscriptions, {name} arrives {n} month sooner.', 'Without your subscriptions, {name} arrives {n} months sooner.', { name: esc(x.name) });      // v226
     case 'goal': return t('{name}: {amount} to go, by {month}.', { name: esc(x.name), amount: money(x.remaining), month: `${bare(x.ym)} ${x.ym.slice(0, 4)}` });
     case 'mark': { const v = { amount: money(x.missing), mark: rwMark(x.mark) };
       return co ? t('{amount} more and the company reaches {mark} of runway.', v) : t('{amount} more and you reach {mark} of freedom.', v); }

@@ -11,7 +11,8 @@
    How often (user.notify.tips): 'daily', 'three' (at most three a week, two days apart: the default), 'weekly', or 'off'. When: between 8:00 and
    23:00, at a different time each day (the server's tipSlot, supabase/functions/reminders/logic.mjs; owner, 2026-10-10: "any time from 8 in the
    morning to 11 at night, any day, with the app closed: the idea is to bring the person back"). Never on a day that already had a reminder, and only
-   by notification, never by email. */
+   by notification, never by email.
+   And on Sundays from 17:00, in the tip's place, the weekly summary (v226, below: weekSummary). */
 const TIP_RATES = ['daily', 'three', 'weekly', 'off'];
 const tipRate = state => { const r = (((state.user || {}).notify) || {}).tips; return TIP_RATES.includes(r) ? r : 'three'; };
 
@@ -71,6 +72,8 @@ function tipInsight(x) {
       x.first.days === 0 ? t('First up: {name}, today.', { name: x.first.name }) : x.first.days === 1 ? t('First up: {name}, tomorrow.', { name: x.first.name }) : t('First up: {name}, on {date}.', { name: x.first.name, date: fmt.date(x.first.date) })];
     case 'goal': return [t('{amount} to go for {name}. At this pace: {month}.', { amount: money(x.remaining), name: x.name, month: fmt.month(x.ym) }),
       x.lever ? tn(x.lever.sooner, 'With {amount} more a month, you get there {n} month sooner.', 'With {amount} more a month, you get there {n} months sooner.', { amount: money(x.lever.extra) }) : t('Keep the pace and the date holds.')];
+    case 'subs': return [tn(x.sooner, 'Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} month sooner.', 'Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} months sooner.', { amount: money(x.amount), month: bare(x.month), name: x.name }),
+      t('{names}. Which ones stay is your call.', { names: x.names.join(', ') + (x.more ? ' ' + t('and {n} more', { n: x.more }) : '') })];      // v226
     case 'mark': return [t('{amount} more put aside and you reach {mark} of freedom.', { amount: money(x.missing), mark: tipMark(x.mark) }), t('Today you have {span}.', { span: tipSpan(x.days) })];
     case 'day': return [t('One day of freedom costs {amount}.', { amount: money(x.amount) }), t('That is what goes out in a day at your pace. Every {amount} you put aside buys one more.', { amount: money(x.amount) })];
     case 'streak': return [tn(x.n, '{n} month in a row putting money aside.', '{n} months in a row putting money aside.'), x.open ? t('Put something aside in {month} and it is {n}.', { month: bare(x.month), n: x.n + 1 }) : t('This month already counts.')];
@@ -90,9 +93,43 @@ function tipDue(state, today, sent) {
   if (rate === 'weekly') return last >= 7;
   return last >= 2 && ago.filter(n => n < 7).length < 3;
 }
+// ---------- the weekly summary (v226, owner, 2026-10-14: "Resumen semanal por notificación, el domingo por la tarde") ----------
+// On Sundays from 17:00 (WEEK_AT; the server asks from WEEK_FROM in supabase/functions/reminders/logic.mjs, the same minute), one notification with
+// the week in figures: what went out against the week before, what went into goals, the bills of the coming week. A line with nothing true to say
+// is left out; a week with none of the three sends nothing, and that Sunday's tip goes as on any other day.
+// It is its own switch (user.notify.week, on unless switched off), apart from the tips: it does not take a turn of their rhythm ("up to three a
+// week" stays three). On a Sunday it takes the place of the tip, and it goes even on a day that had a reminder, because it was asked for at its own time.
+const WEEK_DAY = 0, WEEK_AT = 17 * 60;      // Sunday, 17:00
+const weekOn = state => ((state.user || {}).notify || {}).week !== false;
+const weekDay = day => new Date(day + 'T12:00:00Z').getUTCDay();
+/** The week ending today in plain words, for the household in its main currency: { title, body }, or null when there is nothing to say. */
+function weekSummary(state, today) {
+  const cur = BASE_CURRENCY, money = v => fmt.money(Math.round(v / 100) * 100, cur, { trim: true });
+  const spent = (from, to) => sum(state.transactions.filter(x => x.type === 'expense' && x.date >= from && x.date <= to && inScope(state, x, null, cur)).map(x => -x.amount));
+  const week = spent(addDays(today, -6), today), before = spent(addDays(today, -13), addDays(today, -7)), lines = [];
+  if (week > 0) {
+    const diff = week - before, v = { amount: money(week), diff: money(Math.abs(diff)) };
+    lines.push(before > 0 && Math.abs(diff) >= INSIGHT_MIN ? (diff < 0 ? t('This week you spent {amount}: {diff} less than the week before.', v) : t('This week you spent {amount}: {diff} more than the week before.', v)) : t('This week you spent {amount}.', v));
+  }
+  const here = new Set(goalsHere(state).map(g => g.id)), from = addDays(today, -6);
+  const aside = sum(state.goalMoves.filter(m => here.has(m.goalId) && !isStartMove(m) && m.date >= from && m.date <= today).map(m => m.amount));
+  if (aside > 0) lines.push(t('{amount} went to your goals.', { amount: money(aside) }));
+  const due = upcomingBills(state, today, cur, 7).filter(p => p.dueDate && p.days >= 0);
+  if (due.length) lines.push(tn(due.length, '{n} bill due in the next 7 days: {total}.', '{n} bills due in the next 7 days: {total}.', { total: money(sum(due.map(p => p.planned))) }));
+  return lines.length ? { title: t('Your week'), body: lines.join(' ') } : null;
+}
+
 /** Today's tip, or null: { kind, keys, push: { title, body } }. The kinds take turns (one more tip sent, the next kind first); a kind with nothing to
-    say today (an account with no numbers yet has no insight) gives its turn to the next. Facts and habits go in order, the ones never sent first, then the one sent longest ago. */
-function tipPick(state, today, sent) {
+    say today (an account with no numbers yet has no insight) gives its turn to the next. Facts and habits go in order, the ones never sent first, then the one sent longest ago.
+    o (from the server): minute, the minutes since midnight where the person lives; reminded, a reminder reached them today; slotReached, their time for
+    a tip today has come. On a Sunday with the weekly summary on, nothing goes before 17:00, then the summary, or the tip when the week has nothing to say. */
+function tipPick(state, today, sent, o = {}) {
+  if (weekOn(state) && weekDay(today) === WEEK_DAY) {
+    if (!(o.minute >= WEEK_AT)) return null;
+    if (sent.has('week|' + today)) return null;      // one notification of these a day
+    const w = weekSummary(state, today); if (w) return { kind: 'week', keys: ['week|' + today], push: w };
+  }
+  if (o.reminded || o.slotReached === false) return null;
   if (!tipDue(state, today, sent)) return null;
   const n = tipDays(sent, today).length, kinds = ['insight', 'curio', 'advice'];
   // what was sent is kept as 'tipi|kind|day', 'tipc|id|day', 'tipa|id|day': of the candidates, the one not sent for the longest, never sent first

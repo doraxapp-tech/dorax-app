@@ -59,6 +59,16 @@ const JOURNEY_ACTIONS = {
   },
   'jstart-finish'() { UI.jstart = null; renderJstart(); UI.drawer = jOpen(); render(); },
   // ---------- debts ----------
+  /** The sprint's own button (v226, owner, 2026-10-14: "¿cómo agrego dinero aquí en Jornada? no sé"): what fills it is a payment of a debt or a card
+      invoice, so it opens that payment when there is one thing owed, goes to "What you owe" when there are more, and to a new debt when nothing is owed. */
+  'sprint-pay'() {
+    const owed = journeyDebts(B(), S.today, BCUR()).filter(x => x.left > 0);
+    if (!owed.length) return A['debt-new']({});
+    if (owed.length === 1) return owed[0].kind === 'card' ? A['card-pay']({ id: owed[0].id, back: 'journey' }) : A['debt-pay']({ id: owed[0].id });
+    const sec = $('jr-debts'); if (!sec) return;
+    sec.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
+    const b = sec.querySelector('[data-a="debt-pay"], [data-a="card-pay"]'); if (b) b.focus({ preventScroll: true });
+  },
   'debt-new'(ds) { UI.drawer = { kind: 'debt-form', title: t('New debt'), isNew: true, pop: true, back: ds && ds.back === 'start' ? 'start' : null, draft: { id: null, name: '', owedText: '', rateText: '', minText: '', dueText: '' } }; renderOverlay(); const el = $('db-name'); if (el) el.focus(); },
   'debt-edit'(ds) {
     const j = jMine(), x = j.debts.find(k => k.id === ds.id); if (!x) return;

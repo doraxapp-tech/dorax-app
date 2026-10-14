@@ -28,12 +28,17 @@ export function tipSlot(userId, day) {
   const steps = (TIP_LAST - TIP_FIRST) / 15 + 1; return TIP_FIRST + (h % steps) * 15;
 }
 
-/** Today's tip by notification (owner, 2026-10-10: "notify about curiosities, tips, advice, to help and motivate"), or null.
-    reminded: a reminder reached this person today; then there is no tip, one notification a day is enough.
-    The tip's own rules (how often, which kind, which fact) are the app's: features/reminders/tip-messages.js, through engine.mjs. */
-export function tipFor(account, today, sent, reminded) {
-  if (reminded) return null;
-  const acc = openAccount(account, today), tip = acc.tip(sent);
+/** The weekly summary goes on Sundays from 17:00 where the person lives (v226, owner, 2026-10-14: "Resumen semanal por notificación, el domingo
+    por la tarde"). The same day and minute as WEEK_DAY and WEEK_AT in features/reminders/tip-messages.js (qc-tips checks they match). */
+export const WEEK_FROM = 17 * 60;
+export const weekTime = (day, minute) => new Date(day + 'T12:00:00Z').getUTCDay() === 0 && minute >= WEEK_FROM;
+
+/** Today's tip by notification (owner, 2026-10-10: "notify about curiosities, tips, advice, to help and motivate"), or the weekly summary, or null.
+    o: { reminded: a reminder reached this person today (then no tip: one notification a day is enough; the Sunday summary still goes, it was asked
+    for at its time), minute: the minutes since midnight where they live, slotReached: their time for a tip today has come }.
+    The rules (how often, which kind, which fact, the summary) are the app's: features/reminders/tip-messages.js, through engine.mjs. */
+export function tipFor(account, today, sent, o = {}) {
+  const acc = openAccount(account, today), tip = acc.tip(sent, { reminded: !!o.reminded, minute: o.minute, slotReached: o.slotReached !== false });
   return tip ? { kind: tip.kind, keys: tip.keys, push: tip.push, lang: acc.lang } : null;
 }
 
@@ -55,4 +60,4 @@ export async function versionOf(parts) {
   const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)));
   return [...hash.slice(0, 8)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
-export const PARTS = [todayIn, messageFor, tipFor, tipSlot, minuteIn, testTexts, sameSecret, versionOf, openAccount, 'tips ' + [TIP_FROM, TIP_UNTIL, TIP_FIRST, TIP_LAST].join(' ')];
+export const PARTS = [todayIn, messageFor, tipFor, tipSlot, minuteIn, testTexts, sameSecret, versionOf, openAccount, weekTime, 'tips ' + [TIP_FROM, TIP_UNTIL, TIP_FIRST, TIP_LAST, WEEK_FROM].join(' ')];

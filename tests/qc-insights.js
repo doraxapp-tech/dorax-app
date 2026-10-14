@@ -42,7 +42,7 @@ const T = '2026-10-07';
   s.plan.lines.push(line('l1', 'Rent', 10, 150000), line('l2', 'Gym', 3, 20000), line('l3', 'Net', 20, 9000));
   eq(one('bills'), { kind: 'bills', n: 1, total: 150000, first: { id: 'l1', name: 'Rent', date: '2026-10-10', days: 3 } }, 'bills: the one due on the 10th; the one that was due on the 3rd is the To do list’s to say, the one of the 20th is too far');
   eq(kinds(), ['pace', 'mover', 'bills', 'goal', 'mark', 'day', 'streak', 'rate'], 'all eight kinds, in their fixed order');
-  eq(E.INSIGHT_KINDS, ['pace', 'mover', 'bills', 'goal', 'mark', 'day', 'streak', 'rate'], 'eight kinds of rule');
+  eq(E.INSIGHT_KINDS, ['pace', 'mover', 'bills', 'goal', 'subs', 'mark', 'day', 'streak', 'rate'], 'nine kinds of rule (v226: subs)');
   // the day picks one; "Another" moves on and comes round
   const p0 = E.insightOfDay(s, T, 'BRL', 0), p1 = E.insightOfDay(s, T, 'BRL', 1), p8 = E.insightOfDay(s, T, 'BRL', 8), next = E.insightOfDay(s, '2026-10-08', 'BRL', 0);
   eq([p0.count, p0.index, p1.index, p8.index, p0.insight.kind], [8, 7, 0, 7, 'rate'], 'the day picks its place in the list (279 days after 1 January: place 7 of 0 to 7); "Another" moves on and comes round');
@@ -184,7 +184,7 @@ const T = '2026-10-07';
       await page.evaluate(k => document.querySelector(`.ins-row .ins-c[data-k="${k}"]`).click(), k); await page.waitForTimeout(150);
       opens[k] = await page.evaluate(() => UI.drawer ? 'panel:' + UI.drawer.kind : UI.route + (UI.route === 'transactions' ? ':' + (UI.tx.category ? 'cat' : 'month') : UI.route === 'reports' ? ':' + UI.repView : ''));
     }
-    const want2 = { pace: 'transactions:month', mover: 'transactions:cat', bills: 'plan', goal: 'panel:goal-view', mark: 'panel:whatif', day: 'panel:runway-view', streak: 'goals', rate: 'reports:in' };
+    const want2 = { pace: 'transactions:month', mover: 'transactions:cat', bills: 'plan', goal: 'panel:goal-view', subs: 'transactions:cat', mark: 'panel:whatif', day: 'panel:runway-view', streak: 'goals', rate: 'reports:in' };
     eq(kinds.map(k => opens[k]), kinds.map(k => want2[k]), `${lang}, ${width}px: each fact opens its own place (${kinds.join(', ')}); only the mark of freedom opens "What if…?"`);
     await page.evaluate(() => { A.close(); UI.repView = 'out'; navigate('dashboard'); }); await page.waitForTimeout(200);
     await page.click('#runway-open'); await page.click('.drawer footer [data-a="whatif"]'); await page.waitForSelector('#wi-out');      // on a phone, What if…? is in the details of the days of freedom

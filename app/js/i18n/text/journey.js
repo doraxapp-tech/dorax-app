@@ -133,4 +133,7 @@ addTexts([
   ["See my Journey","Ver mi Jornada","Ver minha Jornada"],
   ["Begin","Empezar","Começar"],
   ["{n} million","{n} millones","{n} milhões"],
+  // v226: the sprint's payment button
+  ["Record a payment", "Registrar un pago", "Registrar um pagamento"],
+  ["The sprint fills with what you pay on your debts and card invoices.", "El sprint se llena con lo que pagas de tus deudas y facturas de tarjeta.", "O sprint enche com o que você paga das suas dívidas e faturas de cartão."],
 ]);

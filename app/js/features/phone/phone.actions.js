@@ -31,6 +31,7 @@ const PHONE_ACTIONS = {
     const k = ds.k;
     if (k === 'pace' || k === 'mover') return A['filter-cat']({ cat: k === 'mover' ? ds.id || '' : '' });
     if (k === 'goal' && ds.id) return A['goal-open']({ id: ds.id });
+    if (k === 'subs') return A['filter-cat']({ cat: subsCats(B())[0] || '' });      // the subscriptions' own movements, as on a computer (v226)
     if (k === 'mark') return A.whatif({});
     if (k === 'day') return A['runway-view']();
     if (k === 'rate') { UI.repView = 'in'; return go('reports'); }

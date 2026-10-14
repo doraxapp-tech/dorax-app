@@ -189,4 +189,12 @@ addTexts([
   ["{amount} left of the limit for {n} days.", "Quedan {amount} del límite para {n} días.", "Restam {amount} do limite para {n} dias."],
   ["Spending limits", "Límites de gasto", "Limites de gasto"],
   ["When a category with a limit reaches 80% of it, and when it goes over. Each once a month.", "Cuando una categoría con límite llega al 80% y cuando se pasa. Cada aviso, una vez al mes.", "Quando uma categoria com limite chega a 80% e quando passa. Cada aviso, uma vez por mês."],
+  // v226: the weekly summary (features/reminders/tip-messages.js: weekSummary)
+  ["Your week", "Tu semana", "Sua semana"],
+  ["This week you spent {amount}.", "Esta semana gastaste {amount}.", "Esta semana você gastou {amount}."],
+  ["This week you spent {amount}: {diff} less than the week before.", "Esta semana gastaste {amount}: {diff} menos que la semana anterior.", "Esta semana você gastou {amount}: {diff} a menos que na semana anterior."],
+  ["This week you spent {amount}: {diff} more than the week before.", "Esta semana gastaste {amount}: {diff} más que la semana anterior.", "Esta semana você gastou {amount}: {diff} a mais que na semana anterior."],
+  ["{amount} went to your goals.", "{amount} fueron a tus metas.", "{amount} foram para as suas metas."],
+  ["Weekly summary", "Resumen semanal", "Resumo semanal"],
+  ["On Sundays from 17:00, by notification: what you spent in the week against the week before, what went to your goals, and the bills of the coming week.", "Los domingos desde las 17:00, por notificación: lo que gastaste en la semana frente a la anterior, lo que fue a tus metas y los pagos de la semana que viene.", "Aos domingos a partir das 17:00, por notificação: o que você gastou na semana comparado com a anterior, o que foi para as suas metas e as contas da semana que vem."],
 ]);

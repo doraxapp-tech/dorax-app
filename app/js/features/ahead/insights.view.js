@@ -2,8 +2,10 @@
    2026-10-07 (owner: "I want the app to keep motivating in the day to day: tips from real behaviour, an insight of the day"). The facts and their
    figures come from core/insights.js; here they get their words, an icon of the app's own and one thing to do next. A fact that is not good news
    is said plainly and without blame. Names the person typed (a goal, a category, a bill) are shown as text, never as markup. */
-const INSIGHT_ICON = { pace: 'trend', mover: 'tag', bills: 'calendar', goal: 'target', mark: 'flag', day: 'sun', streak: 'spark', rate: 'coins', start: 'bulb' };
-const INSIGHT_ART = { pace: 'chart-bar', mover: 'tag', bills: 'calendar-dots', goal: 'flag-banner', mark: 'hourglass-medium', day: 'sun-horizon', streak: 'fire', rate: 'coins', start: 'lightbulb' };      // v218: in the look, each kind's thing
+const INSIGHT_ICON = { pace: 'trend', mover: 'tag', bills: 'calendar', goal: 'target', subs: 'repeat', mark: 'flag', day: 'sun', streak: 'spark', rate: 'coins', start: 'bulb' };
+const INSIGHT_ART = { pace: 'chart-bar', mover: 'tag', bills: 'calendar-dots', goal: 'flag-banner', subs: 'device-mobile', mark: 'hourglass-medium', day: 'sun-horizon', streak: 'fire', rate: 'coins', start: 'lightbulb' };      // v218: in the look, each kind's thing
+/** The subscriptions of an insight, as a list in a sentence: "Netflix, Spotify and 2 more" (html: escaped for the page). */
+const subsNames = (x, html) => { const n = x.names.join(', '); return (html ? esc(n) : n) + (x.more ? ' ' + t('and {n} more', { n: x.more }) : ''); };
 /** The words of one insight: { title, text, action }. co: the company's side says "costs", "runway" and "reserves" where the household says
     "spending", "freedom" and "goals" (2026-10-07: the company has its insight too). */
 function insightSay(x, co) {
@@ -24,6 +26,9 @@ function insightSay(x, co) {
       text: x.first.days === 0 ? t('First up: {name}, today.', { name: esc(x.first.name) }) : x.first.days === 1 ? t('First up: {name}, tomorrow.', { name: esc(x.first.name) }) : t('First up: {name}, on {date}.', { name: esc(x.first.name), date: fmt.date(x.first.date) }), action: link('#plan', t('Open plan')) };
     case 'goal': return { title: t('{amount} to go for {name}. At this pace: {month}.', { amount: money(x.remaining), name: esc(x.name), month: fmt.month(x.ym) }),
       text: x.lever ? tn(x.lever.sooner, 'With {amount} more a month, you get there {n} month sooner.', 'With {amount} more a month, you get there {n} months sooner.', { amount: money(x.lever.extra) }) : t('Keep the pace and the date holds.'), action: whatif(x.id) };
+    // v226: the subscriptions that hold a goal back (core/insights.js: subsDelay); what stays is the person's call
+    case 'subs': return { title: tn(x.sooner, 'Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} month sooner.', 'Your subscriptions cost {amount} in {month}. Without them, {name} arrives {n} months sooner.', { amount: money(x.amount), month: bare(x.month), name: esc(x.name) }),
+      text: t('{names}. Which ones stay is your call.', { names: subsNames(x, true) }), action: seeTx(subsCats(B())[0]) };
     case 'mark': { const v = { amount: money(x.missing), mark: rwMark(x.mark) }, sp = { span: rwFigure(x.days, co).span };
       return { title: co ? t('{amount} more kept and the company reaches {mark} of runway.', v) : t('{amount} more put aside and you reach {mark} of freedom.', v), text: co ? t('Today it has {span}.', sp) : t('Today you have {span}.', sp), action: whatif() }; }
     case 'day': { const v = { amount: money(x.amount) };
