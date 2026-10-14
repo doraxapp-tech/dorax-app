@@ -2,10 +2,13 @@
 /** The page book's journey, made the first time something is written in it. */
 function jMine() {
   const b = B(); if (!b.journey) b.journey = journeyEmpty();
-  const j = b.journey; for (const k of ['debts', 'pays', 'sprints']) if (!Array.isArray(j[k])) j[k] = []; if (!j.checks) j.checks = {};
+  const j = b.journey; for (const k of ['debts', 'pays', 'sprints', 'ended']) if (!Array.isArray(j[k])) j[k] = []; if (!j.checks) j.checks = {};
   return j;
 }
 const jOpen = () => ({ kind: 'journey', title: t('Journey'), pop: true });
+/** A challenge that ended, or was left: kept in the journey's list of them, the running one cleared (v227). */
+function jEndS52(c) { const j = jMine(); j.ended.push({ kind: 's52', id: c.id, goalId: c.goalId, start: c.start, step: c.step, reverse: c.reverse, saved: c.saved, total: c.total, end: S.today }); j.save52 = null; }
+function jEndNs(c) { const j = jMine(); j.ended.push({ kind: 'ns', id: c.id, start: c.start, length: c.length, marked: c.marked, end: S.today }); j.nospend = null; }
 /** The first time (no sprint ever): the onboarding, a page over the whole screen (journey.view.js: renderJstart), at a step. */
 function jstartOpen(step) { UI.sheet = false; UI.drawer = null; renderOverlay(); UI.jstart = { step: step || 0, done: false, error: null, draft: { start: S.today, days: 30, targetText: '' } }; jPushKnown(); renderJstart(true); }
 /** Whether this device's notifications are known yet; when they become known, the open Journey panel is drawn again. */
@@ -18,13 +21,16 @@ const JOURNEY_CHANGES = {
 };
 const JOURNEY_ACTIONS = {
   /** The Journey: its onboarding until the first sprint (owner, 2026-10-10), then the panel. */
-  'journey-open'() { const j = journeyOf(B()); if (!j.sprint && !j.sprints.length) return jstartOpen(0); UI.sheet = false; UI.drawer = jOpen(); jPushKnown(); renderOverlay(); },
+  // the first time, the way out of debt is told on a page of its own; someone who owes nothing, or who already took up a challenge, goes straight to the
+  // panel, where the saving challenges come first (v227, owner, 2026-10-14: the Journey is also "a game for whoever has no debts"). A company's
+  // Journey is the way out of debt alone: it keeps its first page.
+  'journey-open'() { const b = B(), j = journeyOf(b), owes = journeyDebts(b, S.today, BCUR()).some(x => x.left > 0); if (!j.sprint && !j.sprints.length && (inCompany() || (owes && !(j.save52 || j.nospend || (j.ended || []).length)))) return jstartOpen(0); UI.sheet = false; UI.drawer = jOpen(); jPushKnown(); renderOverlay(); },
   /** A day with no new debt, marked by the person (owner's choice, 2026-10-10): today or yesterday; pressed again, unmarked. */
   'journey-mark'(ds) {
     const d = ds.d; if (d !== S.today && d !== addDays(S.today, -1)) return;
     const j = jMine(); if (j.checks[d]) delete j.checks[d]; else j.checks[d] = true;
-    const n = journeyStreak(j, S.today);
-    toast(j.checks[d] ? tn(n, 'Marked. Your streak: {n} day.', 'Marked. Your streak: {n} days.') : t('Unmarked.')); render();
+    const n = journeyStreak(j, S.today), ns = !inCompany() && nsHas(j, d) ? nsNow(j, S.today) : null;      // in the days without spending, the mark is one of them (v227)
+    toast(j.checks[d] ? (ns ? tn(ns.marked, 'Marked: {n} day without spending.', 'Marked: {n} days without spending.') : tn(n, 'Marked. Your streak: {n} day.', 'Marked. Your streak: {n} days.')) : t('Unmarked.')); render();
   },
   // ---------- the onboarding's page ----------
   'jstart-step'(ds) {
@@ -141,4 +147,73 @@ const JOURNEY_ACTIONS = {
     j.sprints.push({ id: s.id, start: s.start, days: s.days, target: s.target, paid: s.paid }); j.sprint = null;
     A['sprint-new']({ keep: 1 });
   },
+  // ---------- the saving challenges (v227, journey.view.js: jrChallenges; core/journey.js) ----------
+  /** The 52 weeks: how much it goes up each week, the order, and the savings account its goal keeps the money in. */
+  's52-new'() {
+    if (inCompany()) return;
+    const j = jMine(); if (j.save52 && !goalById(j.save52.goalId)) j.save52 = null;      // its goal was deleted in Goals: the challenge went with it
+    if (j.save52) return A['journey-open']();
+    const keep = goalSavings(null, BCUR());
+    UI.sheet = false; UI.drawer = { kind: 's52-form', title: t('52 weeks'), isNew: true, pop: true, draft: { step: 100, reverse: false, accountId: keep.length === 1 ? keep[0].id : '' } };
+    jPushKnown(); renderOverlay();
+  },
+  's52-step'(ds) { UI.drawer.draft.step = +ds.v; renderOverlay(); },
+  's52-order'(ds) { UI.drawer.draft.reverse = ds.v === '1'; renderOverlay(); },
+  /** Started: a goal of its own, its target the 52 weeks' total, its plan week by week in the months they fall in, kept in the account chosen. */
+  's52-save'() {
+    const d = UI.drawer, g = d.draft, a = acct(g.accountId);
+    if (!S52_STEPS.includes(g.step)) return fail(t('Choose how much it goes up each week.'));
+    if (!a || a.type !== 'savings') return fail(goalSavings(null, BCUR()).length ? t('Choose the savings account you keep it in.') : t('Add a savings account to keep it in.'), 's52-acct');
+    if (!jNotifyOk()) return;
+    const j = jMine(), c = { id: newId('c52'), start: S.today, step: g.step, reverse: !!g.reverse };
+    const goal = { id: newId('g'), status: 'active', kind: 'goal', name: t('52-week challenge'), target: s52Total(c), deadline: ymOf(s52End(c)), accountId: a.id, currency: CURRENCIES.includes(a.currency) ? a.currency : bookCur(B()), plan: s52Plan(c), note: '', challenge: 's52' };
+    B().goals.push(goal); j.save52 = { ...c, goalId: goal.id };
+    toast(t('Challenge started. Week 1: {amount}.', { amount: s52Money(s52Amount(c, 1), goal.currency) })); UI.drawer = jOpen(); render();
+  },
+  /** "Put aside R$ 12": a contribution to its goal of what is due to be up to date, and back to the Journey. */
+  's52-put'() {
+    const c = s52Now(B(), S.today); if (!c) return;
+    A['goal-move']({ id: c.goal.id, dir: 'in' }); UI.drawer.draft.amountText = c.toGo ? plain(c.toGo) : ''; UI.drawer.after = jOpen();
+    renderOverlay(); const el = $('m-amount'); if (el) { el.focus(); el.select(); }
+  },
+  's52-end'() {
+    const c = s52Now(B(), S.today); if (!c) return;
+    confirmBox({ tone: 'neutral', title: t('Leave the 52 weeks?'), text: t('What you put aside stays in {name}, in Goals.', { name: c.goal.name }), label: t('Leave it'), run() { jEndS52(c); toast(t('Challenge left.')); UI.drawer = jOpen(); render(); } });
+  },
+  's52-close'() {
+    const c = s52Now(B(), S.today); if (!c) return;
+    jEndS52(c); if (c.done) confetti();
+    toast(c.done ? t('Well done: {total} put aside in 52 weeks.', { total: s52Money(c.total, c.cur) }) : t('Challenge closed.')); UI.drawer = jOpen(); render();
+  },
+  /** The days without spending: how long. They start today. */
+  'ns-new'() {
+    if (inCompany()) return; if (jMine().nospend) return A['journey-open']();
+    UI.sheet = false; UI.drawer = { kind: 'ns-form', title: t('Days without spending'), isNew: true, pop: true, draft: { length: 30 } };
+    jPushKnown(); renderOverlay();
+  },
+  'ns-days'(ds) { UI.drawer.draft.length = +ds.v; renderOverlay(); },
+  'ns-save'() {
+    const g = UI.drawer.draft; if (![7, 14, 30].includes(g.length)) return fail(t('Choose how long it lasts.'));
+    if (!jNotifyOk()) return;
+    jMine().nospend = { id: newId('ns'), start: S.today, length: g.length };
+    toast(t('Challenge started. It ends on {date}.', { date: fmt.date(addDays(S.today, g.length - 1)) })); UI.drawer = jOpen(); render();
+  },
+  'ns-end'() {
+    const c = nsNow(jMine(), S.today); if (!c) return;
+    confirmBox({ tone: 'neutral', title: t('Leave the days without spending?'), text: tn(c.marked, 'You have {n} day marked. Your streak stays as it is.', 'You have {n} days marked. Your streak stays as it is.'), label: t('Leave it'), run() { jEndNs(c); toast(t('Challenge left.')); UI.drawer = jOpen(); render(); } });
+  },
+  'ns-close'() {
+    const c = nsNow(jMine(), S.today); if (!c) return;
+    jEndNs(c); if (c.marked === c.length) confetti();
+    toast(t('{a} of {b} days without spending. Closed.', { a: c.marked, b: c.length })); UI.drawer = jOpen(); render();
+  },
+  /** Notifications on from a challenge's form, as from the first page (jstart-push): this device, and the Journey's reminders with them. */
+  async 'ch-push'() {
+    S.user.notify.journey = true;
+    UI.push = { ...(UI.push || {}), busy: true }; renderOverlay();
+    const r = await PUSH.on();
+    toast(r.ok ? t('Notifications are on for this device.') : r.why === 'denied' ? t('You did not allow notifications, so nothing was turned on.') : t('Notifications could not be turned on. Try again.'));
+    await pushRefresh(); renderOverlay();
+  },
+  'ch-journey-on'() { S.user.notify.journey = true; save(); renderOverlay(); },
 };

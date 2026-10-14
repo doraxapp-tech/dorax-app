@@ -197,4 +197,17 @@ addTexts([
   ["{amount} went to your goals.", "{amount} fueron a tus metas.", "{amount} foram para as suas metas."],
   ["Weekly summary", "Resumen semanal", "Resumo semanal"],
   ["On Sundays from 17:00, by notification: what you spent in the week against the week before, what went to your goals, and the bills of the coming week.", "Los domingos desde las 17:00, por notificación: lo que gastaste en la semana frente a la anterior, lo que fue a tus metas y los pagos de la semana que viene.", "Aos domingos a partir das 17:00, por notificação: o que você gastou na semana comparado com a anterior, o que foi para as suas metas e as contas da semana que vem."],
+  // v227: the saving challenges in the Journey (core/journey.js; features/journey)
+  ["Days without spending: if you spent nothing yesterday, mark it.", "Días sin gastar: si ayer no gastaste, márcalo.", "Dias sem gastar: se ontem você não gastou, marque."],
+  ["Days without spending: if you spent nothing yesterday, mark it and keep your {n} day streak.", "Días sin gastar: si ayer no gastaste, márcalo y mantén tu racha de {n} día.", "Dias sem gastar: se ontem você não gastou, marque e mantenha sua sequência de {n} dia."],
+  ["Days without spending: if you spent nothing yesterday, mark it and keep your {n} days streak.", "Días sin gastar: si ayer no gastaste, márcalo y mantén tu racha de {n} días.", "Dias sem gastar: se ontem você não gastou, marque e mantenha sua sequência de {n} dias."],
+  ["52 weeks: put aside {amount} to be up to date (week {n}).", "52 semanas: guarda {amount} para ponerte al día (semana {n}).", "52 semanas: guarde {amount} para ficar em dia (semana {n})."],
+  ["52 weeks, week {n}: put aside {amount}.", "52 semanas, semana {n}: guarda {amount}.", "52 semanas, semana {n}: guarde {amount}."],
+  ["Your days without spending ended: {a} of {b} days.", "Terminaron tus días sin gastar: {a} de {b} días.", "Seus dias sem gastar acabaram: {a} de {b} dias."],
+  ["Did you spend nothing yesterday? Mark it: it counts as a day without spending.", "¿Ayer no gastaste? Márcalo: cuenta como un día sin gastar.", "Ontem você não gastou? Marque: conta como um dia sem gastar."],
+  ["What is missing to be up to date.", "Lo que falta para ponerte al día.", "O que falta para ficar em dia."],
+  ["This week’s amount.", "Lo de esta semana.", "O valor desta semana."],
+  ["Your days without spending ended", "Terminaron tus días sin gastar", "Seus dias sem gastar acabaram"],
+  ["{a} of {b} days without spending.", "{a} de {b} días sin gastar.", "{a} de {b} dias sem gastar."],
+  ["While a sprint or the days without spending run, each morning: mark the day before. Each week of the 52 weeks: what to put aside. And before a debt’s payment is due.", "Mientras corre un sprint o los días sin gastar, cada mañana: marcar el día anterior. Cada semana de las 52 semanas: cuánto guardar. Y antes de que venza la cuota de una deuda.", "Enquanto um sprint ou os dias sem gastar estão em andamento, toda manhã: marcar o dia anterior. A cada semana das 52 semanas: quanto guardar. E antes do vencimento da parcela de uma dívida."],
 ]);

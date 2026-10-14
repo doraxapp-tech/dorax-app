@@ -22,7 +22,7 @@ function jrWeek(j) {
   const today = S.today, yest = addDays(today, -1), names = JR_DAYS();
   return `<ol class="jr-week" aria-label="${t('This week')}">${journeyWeek(today).map((d, i) => {
     const on = !!j.checks[d], can = d === today || d === yest, cls = on ? 'on' : d === today ? 'now' : d < today ? 'past' : 'next';
-    const say = `${names[i]} ${fmt.date(d)}: ${on ? t('no new debt') : d > today ? t('still to come') : t('not marked')}`;
+    const say = `${names[i]} ${fmt.date(d)}: ${on ? (!inCompany() && nsHas(j, d) ? t('no spending') : t('no new debt')) : d > today ? t('still to come') : t('not marked')}`;
     const mark = on ? icon('check') : '';
     return `<li>${can ? `<button class="jr-day ${cls}" data-a="journey-mark" data-d="${d}" aria-pressed="${on}" aria-label="${esc(say)}">${mark}</button>` : `<span class="jr-day ${cls}" role="img" aria-label="${esc(say)}">${mark}</span>`}<small aria-hidden="true">${names[i]}</small></li>`;
   }).join('')}</ol>`;
@@ -64,23 +64,82 @@ function jrRow(x, i, n, cur) {
     <span class="jr-acts">${done ? '' : `<button class="btn sm" data-a="debt-pay" data-id="${x.id}">${t('Pay')}</button>`}<button class="btn sm ghost" data-a="debt-edit" data-id="${x.id}">${t('Edit')}</button>
       ${n > 1 ? `<button class="btn sm ghost ico" data-a="debt-move" data-id="${x.id}" data-v="-1" aria-label="${esc(t('Move {name} up', { name: x.name }))}" ${i === 0 ? 'disabled' : ''}>${icon('up')}</button><button class="btn sm ghost ico" data-a="debt-move" data-id="${x.id}" data-v="1" aria-label="${esc(t('Move {name} down', { name: x.name }))}" ${i === n - 1 ? 'disabled' : ''}>${icon('down')}</button>` : ''}</span></li>`;
 }
+// ---------- the saving challenges (v227, core/journey.js: s52Now, nsNow; owner, 2026-10-14: in the Journey, "juego para quien no tiene deudas") ----------
+// One part of the panel, "Challenges", with the two of them one under the other, parted by a line (never a box in a box): what each is and its button
+// to start; running, its figure, its bar and the one thing to do now. For someone who owes nothing it comes right after the streak; otherwise after
+// what is owed, the way out of debt first.
+const s52Money = (v, cur) => fmt.money(v, cur, { trim: true });
+function jrS52(b, j) {
+  const c = s52Now(b, S.today), cur = BCUR();
+  if (!c) {
+    const last = (j.ended || []).filter(x => x.kind === 's52').pop();
+    return `<div class="jr-ch" id="jr-s52"><span class="jr-art" aria-hidden="true">${artObj('piggy-bank')}</span><div class="grow"><h4>${t('52 weeks')}</h4>
+      <p class="note">${t('Week 1 you put aside {a}, week 2 {b}, and so on up to {c} in week 52. At the end: {total}.', { a: s52Money(100, cur), b: s52Money(200, cur), c: s52Money(5200, cur), total: s52Money(137800, cur) })}</p>
+      ${last ? `<p class="note">${t('Last one: {saved} of {total}.', { saved: s52Money(last.saved, cur), total: s52Money(last.total, cur) })}</p>` : ''}
+      <button class="btn" data-a="s52-new">${icon('plus')}${t('Start the 52 weeks')}</button></div></div>`;
+  }
+  const say = c.done ? t('Challenge done: {total} put aside in {name}.', { total: s52Money(c.total, c.cur), name: esc(c.goal.name) })
+    : c.over ? t('The 52 weeks are over: you put aside {saved} of {total}.', { saved: s52Money(c.saved, c.cur), total: s52Money(c.total, c.cur) })
+      : c.toGo > c.thisWeek ? t('To be up to date: {amount}.', { amount: s52Money(c.toGo, c.cur) })
+        : c.toGo > 0 ? t('This week: {amount}.', { amount: s52Money(c.toGo, c.cur) })
+          : c.next ? t('Week {n} is done. Next: {amount}, from {date}.', { n: c.week, amount: s52Money(c.next.amount, c.cur), date: fmt.date(c.next.date) }) : t('Week 52 is done.');
+  const act = c.done || c.over ? `<button class="btn primary" data-a="s52-close">${t('Close the challenge')}</button>`
+    : c.toGo > 0 ? `<button class="btn primary jr-ch-go" data-a="s52-put">${icon('plus')}${t('Put aside {amount}', { amount: s52Money(c.toGo, c.cur) })}</button>` : '';
+  return `<div class="jr-ch on" id="jr-s52"><div class="jr-sh"><small class="jr-lab">${t('52 weeks')} · ${t('week {a} of {b}', { a: c.week, b: 52 })}</small>${c.done || c.over ? '' : `<button class="linkbtn" data-a="s52-end">${t('Leave it')}</button>`}</div>
+    <div class="jr-fig"><b class="num">${s52Money(c.saved, c.cur)}</b><span class="num">/ ${s52Money(c.total, c.cur)}</span><span class="num jr-pct">${c.pct}%</span></div>
+    <div class="jr-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${c.pct}" aria-label="${esc(t('Put aside in the 52 weeks'))}"><i style="width:${c.pct}%"></i></div>
+    <p class="note">${say}</p>${act}
+    <p class="note jr-ch-where">${t('It is kept in {name}, a goal in Goals.', { name: `<b>${esc(c.goal.name)}</b>` })}</p></div>`;
+}
+function jrNs(j) {
+  const c = nsNow(j, S.today);
+  if (!c) {
+    const last = (j.ended || []).filter(x => x.kind === 'ns').pop();
+    return `<div class="jr-ch" id="jr-ns"><span class="jr-art" aria-hidden="true">${artObj('calendar-check')}</span><div class="grow"><h4>${t('Days without spending')}</h4>
+      <p class="note">${t('7, 14 or 30 days paying only what is fixed: rent, bills, transport. Each day you manage it, you mark it, and your streak grows.')}</p>
+      ${last ? `<p class="note">${t('Last one: {a} of {b} days.', { a: last.marked, b: last.length })}</p>` : ''}
+      <button class="btn" data-a="ns-new">${icon('plus')}${t('Start days without spending')}</button></div></div>`;
+  }
+  const say = c.done ? t('It ended: {a} of {b} days without spending.', { a: c.marked, b: c.length })
+    : tn(c.daysLeft + 1, '{n} day to go. Mark each day above, in your streak.', '{n} days to go. Mark each day above, in your streak.');
+  return `<div class="jr-ch on" id="jr-ns"><div class="jr-sh"><small class="jr-lab">${t('Days without spending')} · ${t('day {a} of {b}', { a: c.day, b: c.length })}</small>${c.done ? '' : `<button class="linkbtn" data-a="ns-end">${t('Leave it')}</button>`}</div>
+    <div class="jr-fig"><b class="num">${c.marked}</b><span class="num">/ ${tn(c.length, '{n} day', '{n} days')}</span><span class="num jr-pct">${c.pct}%</span></div>
+    <div class="jr-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${c.pct}" aria-label="${esc(t('Days without spending'))}"><i style="width:${c.pct}%"></i></div>
+    <p class="note">${say}</p>${c.done ? `<button class="btn primary" data-a="ns-close">${t('Close it')}</button>` : ''}</div>`;
+}
+const jrChallenges = (b, j) => `<section class="jr-sec" id="jr-chal"><h3>${t('Saving challenges')}</h3>${jrS52(b, j)}${jrNs(j)}</section>`;
+/** The day's question: with the days without spending running, the day is one without spending; otherwise one with no new debt. What Dorax sees
+    spent today outside the fixed costs is said beside it: the person decides whether the day counts (owner's choice, 2026-10-14). */
+function jrAsk(b, j, today) {
+  const ns = !inCompany() && nsHas(j, today);
+  if (j.checks[today]) return `<p class="jr-ok">${icon('check')}${t('Today is marked. See you tomorrow.')}</p>`;
+  if (!ns) return `<div class="jr-ask"><p>${t('A day with no new debt: no new loan, no purchase you cannot pay this month.')}</p><button class="btn primary" data-a="journey-mark" data-d="${today}">${icon('check')}${t('I added no debt today')}</button></div>`;
+  const seen = nsSpent(b, today, BCUR()), n = seen.length;
+  return `<div class="jr-ask"><p>${t('A day without spending: only what is fixed, like rent, bills and transport. No shopping, no treats.')}</p>
+    ${n ? `<p class="note jr-seen">${tn(n, 'Dorax sees {n} purchase today outside the fixed costs: {what}. You decide whether the day counts.', 'Dorax sees {n} purchases today outside the fixed costs: {what}. You decide whether the day counts.', { what: seen.slice(0, 2).map(x => `${esc(x.name)} ${fmt.money(x.amount, BCUR())}`).join(', ') + (n > 2 ? ' ' + t('and {n} more', { n: n - 2 }) : '') })}</p>` : ''}
+    <button class="btn primary" data-a="journey-mark" data-d="${today}">${icon('check')}${t('I spent nothing today')}</button></div>`;
+}
 function journeyDrawer() {
   const b = B(), cur = BCUR(), j = journeyOf(b), today = S.today, streak = journeyStreak(j, today), best = journeyBest(j), s = sprintNow(b, today, cur);
   const list = journeyDebts(b, today, cur), mine = list.filter(x => x.kind === 'debt'), total = sum(list.map(x => x.left)), pace = journeyPace(b, today, cur), notify = S.user.notify.journey !== false;
+  // v227: the challenges are the household's; for someone who owes nothing and runs no sprint, they come first and the sprint stays out of the way
+  const home = !inCompany(), owes = total > 0 || !!s, chal = home ? jrChallenges(b, j) : '';
   return `<div class="body jr">
     <section class="jr-card" aria-label="${t('Streak')}">
       <div class="jr-top"><span class="jr-flame">${jrFlame()}</span><div class="jr-streak"><small class="jr-lab">${t('Streak')}</small><b><span class="num">${streak}</span> ${tn(streak, 'day', 'days')}</b></div>${best > streak ? `<span class="jr-best">${t('Best: {n}', { n: best })}</span>` : ''}</div>
       ${jrWeek(j)}
-      ${j.checks[today] ? `<p class="jr-ok">${icon('check')}${t('Today is marked. See you tomorrow.')}</p>` : `<div class="jr-ask"><p>${t('A day with no new debt: no new loan, no purchase you cannot pay this month.')}</p><button class="btn primary" data-a="journey-mark" data-d="${today}">${icon('check')}${t('I added no debt today')}</button></div>`}
-      ${jrSprint(s, cur, j)}
+      ${jrAsk(b, j, today)}
+      ${owes || !home ? jrSprint(s, cur, j) : ''}
     </section>
+    ${owes ? '' : chal}
     ${total ? `<section class="jr-sec jr-art-sec" id="jr-free"><span class="jr-art" aria-hidden="true">${artObj('sun-horizon')}</span><div class="grow"><h3>${t('Out of debt in')}</h3>${jrFree(list, pace, cur)}</div></section>` : ''}
     <section class="jr-sec" id="jr-debts"><div class="jr-h"><h3>${t('What you owe')}</h3>${list.length ? `<b class="num">${fmt.money(total, cur)}</b>` : ''}</div>
       ${list.length ? `<ul class="jr-list">${list.map((x, i) => jrRow(x, i, mine.length, cur)).join('')}</ul>` : ''}
       ${total ? '' : `<p class="note jr-none">${list.length ? '' : `<span class="jr-art" aria-hidden="true">${artObj('wallet')}</span>`}<span>${list.length ? t('Everything here is paid off.') : t('Nothing owed here yet. Add what you owe, and the cards with an invoice come in by themselves.')}</span></p>`}
       ${mine.length > 1 ? `<p class="note">${t('What you pay above the monthly payments goes to the first debt of the list. Two common orders: the highest interest first (less interest paid), or the smallest first (one debt less, sooner). The order is yours.')}</p>` : ''}
       <button class="btn sm" data-a="debt-new">${icon('plus')}${t('Add a debt')}</button></section>
-    <section class="jr-sec"><h3>${t('Reminders')}</h3><p class="note">${notify ? t('While a sprint runs, each morning Dorax asks about the day before; and it reminds you before a debt’s payment is due. On this device and by email, as set in Settings, under Notifications.') : t('Journey reminders are off. Turn them on in Settings, under Notifications.')}</p>
+    ${owes ? chal : ''}
+    <section class="jr-sec"><h3>${t('Reminders')}</h3><p class="note">${notify ? (home ? t('While a sprint or the days without spending run, each morning Dorax asks about the day before; each week of the 52 weeks it says what to put aside; and it reminds you before a debt’s payment is due. On this device and by email, as set in Settings, under Notifications.') : t('While a sprint runs, each morning Dorax asks about the day before; and it reminds you before a debt’s payment is due. On this device and by email, as set in Settings, under Notifications.')) : t('Journey reminders are off. Turn them on in Settings, under Notifications.')}</p>
       <a class="btn sm ghost" href="#settings/notifications" data-a="remind-go" data-route="settings/notifications">${t('Reminder settings')}</a></section>
   </div>
   <footer><button class="btn ghost spacer" data-a="close">${t('Close')}</button></footer>`;
@@ -117,6 +176,47 @@ function sprintFormDrawer(d) {
     ${cover ? `<div class="row"><span class="note">${t('Your monthly payments, for these days: {amount}.', { amount: fmt.money(cover, cur) })}</span><button class="btn sm" data-a="sprint-use" data-v="${cover}">${t('Use this amount')}</button></div>` : ''}
     <p class="note">${t('From {start} to {end}. Payments to your debts and to your cards count.', { start: fmt.date(g.start), end: fmt.date(end) })}</p></div>
   <footer><button class="btn primary" data-a="sprint-save">${d.isNew ? t('Start sprint') : t('Save')}</button><button class="btn ghost spacer" data-a="journey-open">${t('Cancel')}</button></footer>`;
+}
+
+// ---------- a challenge, started (v227) ----------
+// As a sprint, a challenge starts only with this device's notifications on: the 52 weeks are a weekly word, the days without spending a morning
+// question. The form says where things stand and its main button is the one step missing.
+function jrNotifyNote() {
+  if (jNotifyOk()) return `<p class="note jr-n-ok">${icon('check')}${t('Notifications are on for this device.')}</p>`;
+  const p = UI.push || {}, st = p.status;
+  if (p.busy || !p.known) return `<p class="note">${t('One moment…')}</p>`;
+  const say = st === 'on' ? t('The Journey’s reminders are off, and a challenge works with them.')
+    : st === 'off' ? t('A challenge works with a reminder: turn notifications on for this device.')
+      : st === 'blocked' ? t('Notifications for Dorax are blocked in this browser. Allow them in the browser’s settings for this site, then reload the page.')
+        : st === 'install' ? t('On an iPhone or iPad, add Dorax to the Home Screen first: tap Share, then “Add to Home Screen”. Open Dorax from there and turn notifications on.')
+          : st === 'preview' ? t('This preview sends nothing: no notifications and no emails.') : t('This browser cannot show notifications from a website.');
+  return `<p class="note jr-n-no">${esc(say)}</p>`;
+}
+/** The form's main button: the challenge's start when notifications are on, otherwise the step that turns them on. */
+function jrStartBtn(action, label) {
+  if (jNotifyOk()) return `<button class="btn primary" data-a="${action}">${icon('flag')}${label}</button>`;
+  const st = (UI.push || {}).status, busy = (UI.push || {}).busy ? ' disabled' : '';
+  return st === 'off' ? `<button class="btn primary" data-a="ch-push"${busy}>${icon('bell')}${t('Turn on notifications')}</button>`
+    : st === 'on' ? `<button class="btn primary" data-a="ch-journey-on">${icon('bell')}${t('Turn on the Journey’s reminders')}</button>` : `<button class="btn primary" disabled>${icon('flag')}${label}</button>`;
+}
+function s52FormDrawer(d) {
+  const g = d.draft, cur = BCUR(), c = { start: S.today, step: g.step, reverse: !!g.reverse }, keep = goalSavings(g.accountId, cur), none = !keep.length;
+  return `<div class="body">${d.error ? errBanner(d.error) : ''}
+    <div class="field"><span class="lbl">${t('How much it goes up each week')}</span>${seg('s52-step', S52_STEPS.map(v => [v, s52Money(v, cur)]), g.step, t('How much it goes up each week'))}</div>
+    <div class="field"><span class="lbl">${t('Order')}</span>${seg('s52-order', [[0, t('Smallest first')], [1, t('Largest first')]], g.reverse ? 1 : 0, t('Order'))}</div>
+    <p class="jr-pre" aria-live="polite">${t('Week 1: {a} · week 52: {b} · at the end: {total}', { a: `<b class="num">${s52Money(s52Amount(c, 1), cur)}</b>`, b: `<b class="num">${s52Money(s52Amount(c, 52), cur)}</b>`, total: `<b class="num">${s52Money(s52Total(c), cur)}</b>` })}</p>
+    <div class="form-grid">${fld('s52-acct', t('Where do you keep it?'), `<select id="s52-acct" data-c="draft" data-k="accountId" data-rerender="1">${acctOptions(g.accountId || '', g.accountId ? null : t('Choose a savings account'), keep)}</select>${none ? `<span class="note">${t('It is kept in a savings account, and you have none yet.')} <button type="button" class="linkbtn" data-a="goal-add-savings">${t('Add a savings account')}</button></span>` : ''}`, 'full')}</div>
+    <p class="note">${t('From today, {start}, to {end}. The money goes into a goal of its own, in Goals, so it counts in your plan.', { start: fmt.date(c.start), end: fmt.date(s52End(c), true) })}</p>
+    ${jrNotifyNote()}</div>
+  <footer>${jrStartBtn('s52-save', t('Start the challenge'))}<button class="btn ghost spacer" data-a="journey-open">${t('Cancel')}</button></footer>`;
+}
+function nsFormDrawer(d) {
+  const g = d.draft, end = addDays(S.today, g.length - 1);
+  return `<div class="body">${d.error ? errBanner(d.error) : ''}
+    <div class="field"><span class="lbl">${t('How long')}</span>${seg('ns-days', [[7, tn(7, '{n} day', '{n} days')], [14, tn(14, '{n} day', '{n} days')], [30, tn(30, '{n} day', '{n} days')]], g.length, t('How long'))}</div>
+    <p class="note">${t('From today, {start}, to {end}. Only what is fixed: rent, bills, transport. Each day you manage it, you mark it; each morning Dorax asks about the day before.', { start: fmt.date(S.today), end: fmt.date(end) })}</p>
+    ${jrNotifyNote()}</div>
+  <footer>${jrStartBtn('ns-save', t('Start the challenge'))}<button class="btn ghost spacer" data-a="journey-open">${t('Cancel')}</button></footer>`;
 }
 
 // ---------- the first time: a page of its own ----------
