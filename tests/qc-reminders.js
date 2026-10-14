@@ -74,7 +74,7 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
       eq(openAccount(quiet, '2026-10-05').reminders.length, 0, 'a person who switched every reminder off is told nothing');
       const all = openAccount(JSON.parse(JSON.stringify(accounts.en)), '2026-10-05').reminders, later = JSON.parse(JSON.stringify(accounts.en)); later.user.remind.snoozed = { [all[0].id]: '2026-10-05' };
       eq([openAccount(later, '2026-10-05').reminders.length, openAccount(later, '2026-10-06').reminders.some(r => r.id === all[0].id)], [all.length - 1, true], 'a reminder put off for today is left out today and is back tomorrow');
-      ok(logic.messageFor(JSON.parse(JSON.stringify(accounts.en)), '2026-10-05', new Set(all.map(r => r.id + '|' + (r.when || r.kind)))) === null, 'when everything was already said, there is no message');
+      { const told = JSON.parse(JSON.stringify(accounts.en)); told.user.notify.invites = false; ok(logic.messageFor(told, '2026-10-05', new Set(all.map(r => r.id + '|' + (r.when || r.kind)))) === null, 'when everything was already said, there is no message (and, with invitations off, nothing else: qc-invites.js)'); }
       const one = logic.messageFor(JSON.parse(JSON.stringify(accounts.en)), '2026-10-05', new Set(all.slice(1).map(r => r.id + '|' + (r.when || r.kind))));
       eq([one.keys.length, one.push.title, one.push.body, one.subject], [1, 'Rent · R$ 1.800,00', 'Due 05/10 · due today', 'Rent: due today'], 'one new bill is announced by its name, amount and day');
     }
@@ -177,6 +177,10 @@ const KEYS = { p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvT
     eq([O.tip1again.g.length, O.tip2.g.length, O.tip3.g.length, O.tip3.g[0] && O.tip3.g[0].title], [0, 0, 1, '¿Sabías que…?'], '“Up to three a week”: not twice a day, not two days in a row; two days on, the next kind (a curiosity, with its source)');
     ok(O.tip3.g[0] && /Fuente: /.test(O.tip3.g[0].body), 'a curiosity says its source', O.tip3.g[0]);
     eq([O.tipDownKept, O.tip5.g.length, O.tip5.g[0] && O.tip5.g[0].title, O.tipOff.g.length], [false, 1, 'Un consejo de Dorax', 0], 'a tip that reached no device is not counted and goes the next day (a practical tip, in turn); switched off, none');
+    // invitations (v228, core/invites.js): a morning with nothing due, to someone who started nothing
+    eq([O.invite.push.length, O.invite.push[0] && O.invite.push[0].title, O.invite.push[0] && O.invite.push[0].url, O.invite.mail, O.invite.log], [1, '52-week challenge', 'https://dorax.app/?do=s52', { subject: 'Shall we put aside R$ 1.378 in a year?', link: true, figure: true, why: true }, ['invite|s52|2026-11-17']],
+      'an invitation: its notification opens the place to start it, its email has the button there and says how to stop them; remembered once');
+    eq([O.inviteNextDay, O.inviteKeptOld], [0, true], 'not again the next morning; its key outlives the four months, so it is never offered more than three times');
     ok(!O.logsLeak && O.logs.every(l => /^(ERR )?reminders: /.test(l)), 'the logs hold counts and an account id: no address, no device, no bill, no key', O.logs.slice(0, 3));
   }
 

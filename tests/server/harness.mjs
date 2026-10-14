@@ -28,7 +28,7 @@ function query(table) {
     if (q.op === 'upsert') { for (const row of q.rows) { const at = T[table].findIndex(r => KEYS[table].every(k => r[k] === row[k])); if (at < 0) T[table].push({ sent_at: new Date().toISOString(), ...row }); else if (!q.ignore) Object.assign(T[table][at], row); } return { data: null, error: null }; }
   };
   const api = {
-    select() { return api; }, eq(k, v) { q.filters.push(r => r[k] === v); return api; }, in(k, vs) { q.filters.push(r => vs.includes(r[k])); return api; }, lt(k, v) { q.filters.push(r => r[k] < v); return api; }, gt(k, v) { q.filters.push(r => r[k] > v); return api; }, gte(k, v) { q.filters.push(r => r[k] != null && r[k] >= v); return api; }, is(k, v) { q.filters.push(r => (r[k] == null ? null : r[k]) === v); return api; },
+    select() { return api; }, eq(k, v) { q.filters.push(r => r[k] === v); return api; }, in(k, vs) { q.filters.push(r => vs.includes(r[k])); return api; }, lt(k, v) { q.filters.push(r => r[k] < v); return api; }, gt(k, v) { q.filters.push(r => r[k] > v); return api; }, not(k, op, v) { const like = op === 'like', head = String(v).replace(/%+$/, ''); q.filters.push(r => like ? !String(r[k]).startsWith(head) : r[k] !== v); return api; }, gte(k, v) { q.filters.push(r => r[k] != null && r[k] >= v); return api; }, is(k, v) { q.filters.push(r => (r[k] == null ? null : r[k]) === v); return api; },
     update(patch) { q.op = 'update'; q.patch = patch; return api; }, limit(n) { q.limit = n; return api; },
     order(k) { q.orderBy = k; return api; }, range(a, b) { q.range = [a, b]; return api; }, maybeSingle() { q.single = true; return api; },
     delete() { q.op = 'delete'; return api; }, upsert(rows, opt) { q.op = 'upsert'; q.rows = Array.isArray(rows) ? rows : [rows]; q.ignore = !!(opt && opt.ignoreDuplicates); return api; },
@@ -86,8 +86,9 @@ const runAll = async () => { const first = await call({ action: 'run' }, cron), 
   json.more = pages[pages.length - 1].json.more; return { status: first.status, json, pages: pages.length, asked: pages.slice(1).map(p => [p.asked.after.slice(0, 1), p.asked.hop]), statuses: pages.map(p => p.status) }; };
 const flush = () => { const out = { pushes: NET.pushes.splice(0), mails: NET.mails.splice(0), other: NET.other.splice(0) }; return out; };
 const cron = { 'x-reminders-secret': 'the-cron-secret' };
-// tips by notification (2026-10-10) are off for the people of the reminder runs, so those runs count reminders only; part 7 has its own people
-const person = (id, email, doc, opt = {}) => { USERS[id] = { id, email, token: 'token-' + id, confirmed: opt.confirmed !== false }; if (doc) { const data = JSON.parse(JSON.stringify(doc)); if (data.user) data.user.notify = { ...(data.user.notify || {}), tips: opt.tips || 'off' }; T.user_data.push({ user_id: id, data }); } };
+// tips by notification (2026-10-10) and invitations (v228) are off for the people of the reminder runs, so those runs count reminders only; parts 7
+// and 8 have their own people
+const person = (id, email, doc, opt = {}) => { USERS[id] = { id, email, token: 'token-' + id, confirmed: opt.confirmed !== false }; if (doc) { const data = JSON.parse(JSON.stringify(doc)); if (data.user) data.user.notify = { ...(data.user.notify || {}), tips: opt.tips || 'off', invites: !!opt.invites }; T.user_data.push({ user_id: id, data }); } };
 const OUT = {};
 
 // ---- 1. the public key
@@ -206,6 +207,13 @@ g1.status = 500; OUT.tipDown = await tipsAt('2026-11-13', 22 * 60 + 45); OUT.tip
 OUT.tip5 = await tipsAt('2026-11-14', 22 * 60 + 45);
 T.user_data.find(x => x.user_id === G).data.user.notify.tips = 'off';
 OUT.tipOff = await tipsAt('2026-11-17', 22 * 60 + 45);
+// ---- 8. invitations (v228, core/invites.js): a morning with nothing due, to someone who started nothing; the notification and the email open the
+// place to start it, the email shows its figure; once a week at most; the server keeps their keys past its four months
+const J = '66666666-6666-4666-8666-666666666666'; person(J, 'joa@example.org', quiet(input.accounts.en), { invites: true });
+const j1 = await device('joa-phone'); T.push_subscriptions.push({ user_id: J, endpoint: j1.endpoint, p256dh: j1.p256dh, auth: j1.auth });
+NOW = '2026-11-17T11:00:00Z'; await runAll(); { const n = flush(), m = n.mails.find(x => x.to[0] === 'joa@example.org'); OUT.invite = { push: mine(n, 'joa-phone'), mail: m ? { subject: m.subject, link: m.html.includes('href="https://dorax.app/?do=s52"'), figure: /font-size:34px[^>]*>R\$ 1\.378</.test(m.html), why: m.html.includes('switch off Invitations') } : null, log: T.reminder_log.filter(l => l.user_id === J).map(l => l.key) }; }
+NOW = '2026-11-18T11:00:00Z'; await runAll(); { const n = flush(); OUT.inviteNextDay = mine(n, 'joa-phone').length + n.mails.filter(x => x.to[0] === 'joa@example.org').length; }
+T.reminder_log.push({ user_id: J, key: 'invite|s52|2026-01-02', sent_at: '2026-01-02T11:00:00Z' }); NOW = '2026-11-19T11:00:00Z'; await runAll(); flush(); OUT.inviteKeptOld = T.reminder_log.some(l => l.key === 'invite|s52|2026-01-02');
 OUT.logs = logs;
 OUT.logsLeak = logs.some(l => /@example\.org|fcm\.googleapis|Aluguel|Internet|re_test_key|the-cron-secret|question about|First line/.test(l));
 process.stdout.write(JSON.stringify(OUT));

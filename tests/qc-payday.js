@@ -109,7 +109,7 @@ const { open, ok, eq, done } = require('./pw.js');
     const path = require('path'), FN = path.join(__dirname, '..', 'supabase', 'functions', 'reminders'), logic = await import('file://' + path.join(FN, 'logic.mjs')), copy = () => JSON.parse(JSON.stringify(said.doc));
     const first = logic.messageFor(copy(), '2026-10-02', new Set(said.keys.filter(k => !/^pay:/.test(k))));
     eq([first.keys, first.push, first.subject], [said.key, said.push, said.digest.subject], 'the server sends that same notification and email on pay day');
-    eq(logic.messageFor(copy(), '2026-10-02', new Set(said.keys)), null, 'once sent, it is not sent again');
+    eq((logic.messageFor(copy(), '2026-10-02', new Set(said.keys)) || { kind: null }).kind === 'reminders', false, 'once sent, it is not sent again (a morning with nothing new may bring an invitation instead: qc-invites.js)');
     const next = logic.messageFor(copy(), '2026-10-03', new Set(said.keys)); ok(!next || !next.keys.some(k => /^pay:/.test(k)), 'nor the next morning, with the pay still not recorded', next && next.keys);
     const before = logic.messageFor(copy(), '2026-10-01', new Set()); ok(!before || !before.keys.some(k => /^pay:/.test(k)), 'nothing the day before', before && before.keys);
     const off = copy(); off.user.notify.pay = false; const quiet = logic.messageFor(off, '2026-10-02', new Set()); ok(!quiet || !quiet.keys.some(k => /^pay:/.test(k)), 'and nothing for a person who switched “Pay day” off');

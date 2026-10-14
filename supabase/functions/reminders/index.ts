@@ -4,7 +4,8 @@
 //   key      anyone                the app's public push key, which a browser needs to switch notifications on. Made here on first use.
 //   version  anyone                a short name for the exact code that is running, to check a deploy (node tools/build-functions.js --version).
 //   test     a logged-in person    sends that person a test: a notification to their devices (channel "push") or an email (channel "email").
-//   run      the daily schedule    looks at every account and tells each person what is NEW for them today, by notification and by email.
+//   run      the daily schedule    looks at every account and tells each person what is NEW for them today, by notification and by email;
+//                                  on a morning with nothing new, now and then an invitation to what they have not started (v228, logic.mjs).
 //   tips     a schedule every 15'  between 8:00 and 23:00 (Brasília): the people whose time for a tip has come today get one by notification,
 //                                  as often as they chose, at a different time each day (logic.mjs: tipFor, tipSlot; supabase/tips-schedule.sql);
 //                                  on Sundays from 17:00, the weekly summary in its place (v226; logic.mjs: weekTime).
@@ -221,7 +222,7 @@ async function run(req: Request, admin: Any, body: Any) {
       let reached = false;
       const devices = (subs || []).filter((s: Any) => s.user_id === row.user_id);
       if (devices.length) {
-        const r = await pushTo(admin, devices, { title: msg.push.title, body: msg.push.body, url: SITE + '/?open=reminders', tag: 'dorax-' + today, lang: msg.lang });
+        const r = await pushTo(admin, devices, { title: msg.push.title, body: msg.push.body, url: SITE + '/' + msg.link, tag: (msg.kind === 'invite' ? 'dorax-invite-' : 'dorax-') + today, lang: msg.lang });
         out.notifications += r.sent; out.problems += r.failed; reached = reached || r.sent > 0;
         for (const x of r.results) answers[x.service + ' ' + x.status] = (answers[x.service + ' ' + x.status] || 0) + 1;
       }
@@ -230,7 +231,7 @@ async function run(req: Request, admin: Any, body: Any) {
         const person = u && u.user;
         if (person && person.email && person.email_confirmed_at) {
           const subject = clip(msg.subject, 150, true), lines = msg.lines.slice(0, 40).map((l: string) => clip(l, 300, true));
-          const r = await sendEmail(person.email, subject, reminderEmail({ title: subject, lines, texts: msg.texts, site: SITE, link: SITE + '/?open=reminders', lang: msg.lang }));
+          const r = await sendEmail(person.email, subject, reminderEmail({ title: subject, lines, figure: msg.figure, texts: msg.texts, site: SITE, link: SITE + '/' + msg.link, lang: msg.lang }));
           if (r.ok) { out.emails++; reached = true; } else out.problems++;
         }
       }
@@ -245,8 +246,9 @@ async function run(req: Request, admin: Any, body: Any) {
       body: JSON.stringify({ action: 'run', after: rows[rows.length - 1].user_id, hop: hop + 1 }) }).then(r => { if (!r.ok) console.error('reminders: the next page was refused:', r.status); }, () => console.error('reminders: the next page could not be started'));
     const rt = (globalThis as Any).EdgeRuntime; if (rt && typeof rt.waitUntil === 'function') rt.waitUntil(next);
   } else {
-    // the last page. A key names its month, so after four months it can never matter again
-    await admin.from('reminder_log').delete().lt('sent_at', new Date(Date.now() - 120 * 864e5).toISOString());
+    // the last page. A key names its month, so after four months it can never matter again; an invitation's is kept, so each is offered three
+    // times in all and never again (v228, core/invites.js: at most nine keys a person)
+    await admin.from('reminder_log').delete().lt('sent_at', new Date(Date.now() - 120 * 864e5).toISOString()).not('key', 'like', 'invite|%');
     // and the contact-form messages the owner was not emailed about (the day's limit, or the email service was down): one summary
     try { out.contact = await contactWaiting(admin); } catch (_e) { out.problems++; }
   }

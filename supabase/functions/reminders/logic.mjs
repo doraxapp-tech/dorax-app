@@ -7,14 +7,16 @@ export const todayIn = (timeZone, now = new Date()) => new Intl.DateTimeFormat('
 
 /** What one person is told today, or null when there is nothing new.
     account: their document; today: 'YYYY-MM-DD'; sent: the keys already sent to them (a Set).
-    Only what is NEW is sent: a bill is announced when it comes into view, on its day and when it turns late, once each. Without this the
+    On a morning with nothing new, an invitation may go instead (v228): what the person has not started yet, as rarely as core/invites.js allows.
+    link: where the message opens the app (the bell's panel, or the place to start what is invited to). Only what is NEW is sent: a bill is announced when it comes into view, on its day and when it turns late, once each. Without this the
     same late bill would arrive every morning, which is the fastest way to get notifications switched off. */
 export function messageFor(account, today, sent) {
   const acc = openAccount(account, today), fresh = acc.reminders.filter(r => !sent.has(acc.key(r)));
-  if (!fresh.length) return null;
+  // a morning with nothing due: maybe an invitation to what the person has not started (v228, core/invites.js: once a week at most, each three times)
+  if (!fresh.length) { const inv = acc.invite(sent); return inv ? { kind: 'invite', keys: inv.keys, subject: inv.subject, lines: inv.lines, figure: inv.figure, push: inv.push, lang: acc.lang, emailOn: acc.emailOn, texts: inv.texts, link: inv.link } : null; }
   const digest = acc.digest(fresh), push = acc.push(fresh);
   if (!digest || !push) return null;
-  return { keys: fresh.map(acc.key), subject: digest.subject, lines: digest.lines, push, lang: acc.lang, emailOn: acc.emailOn, texts: acc.texts };
+  return { kind: 'reminders', keys: fresh.map(acc.key), subject: digest.subject, lines: digest.lines, push, lang: acc.lang, emailOn: acc.emailOn, texts: acc.texts, link: '?open=reminders' };
 }
 
 /** The minutes since midnight in a time zone (8:30 is 510). */

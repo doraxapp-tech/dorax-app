@@ -23,11 +23,11 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   // only ever this site: an address from a message is used only if it is on the app's own origin
   // a reminder opens the bell's panel; a tip just brings the app to the front (owner, 2026-10-10: "the idea is to bring the person back to the app")
-  const raw = String((e.notification.data || {}).url || ''), reminder = /[?&]open=reminders\b/.test(raw);
+  const raw = String((e.notification.data || {}).url || ''), reminder = /[?&]open=reminders\b/.test(raw), todo = (/[?&]do=(\w+)/.exec(raw) || [])[1];      // an invitation (v228): the place to start it
   let url = reminder ? './?open=reminders' : './'; try { const u = new URL(raw || './', self.location.href); if (u.origin === self.location.origin) url = u.href; } catch (x) { /* keep the app's own address */ }
   e.waitUntil((async () => {
     const open = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of open) if ('focus' in c) { if (reminder) c.postMessage({ dorax: 'open-reminders' }); return c.focus(); }
+    for (const c of open) if ('focus' in c) { if (reminder) c.postMessage({ dorax: 'open-reminders' }); else if (todo) c.postMessage({ dorax: 'do', v: todo }); return c.focus(); }
     return self.clients.openWindow(url);
   })());
 });

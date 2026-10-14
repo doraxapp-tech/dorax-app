@@ -70,5 +70,5 @@ function pushArrival() {
 // error: there are no notifications there, so there is nothing to listen to.
 try {
   if (typeof navigator !== 'undefined' && navigator.serviceWorker && navigator.serviceWorker.addEventListener)
-    navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.dorax === 'open-reminders' && UI.session && !UI.drawer) A.reminders(); });
+    navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.dorax === 'open-reminders' && UI.session && !UI.drawer) A.reminders(); if (e.data && e.data.dorax === 'do' && UI.session && typeof SHORTCUTS !== 'undefined' && SHORTCUTS[e.data.v]) SHORTCUTS[e.data.v](); });      // an invitation tapped with Dorax open (v228)
 } catch (e) { /* no background script in this frame */ }

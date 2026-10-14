@@ -6,8 +6,9 @@ const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica 
 
 /** title: the subject; lines: one sentence each; texts: { open, why } (no "open": no button); site: the app's address (the logo comes from
     it); link: where the button goes (the site unless said otherwise; a mailto: address makes it a "write to" button); more: { text, link },
-    a small link after the last line; lang: 'pt' | 'es' | 'en'. */
-export function reminderEmail({ title, lines, texts, site, lang, link, more }) {
+    a small link after the last line; lang: 'pt' | 'es' | 'en'; figure: { big, small }, one figure under the heading, large, with its line
+    (v228: an invitation shows the thing itself, "R$ 1.378 in 52 weeks"). */
+export function reminderEmail({ title, lines, texts, site, lang, link, more, figure }) {
   link = link || site;
   // the button: where it goes decides how the plain-text version says it (an address to write to is not something to "open")
   const writes = /^mailto:/i.test(link), button = texts.open ? `
@@ -21,7 +22,9 @@ export function reminderEmail({ title, lines, texts, site, lang, link, more }) {
   // more: one quiet link after the small print ({ text, link }), for the thing that is worth having at hand without being the point
   const after = more && more.text && more.link ? ` <a href="${esc(more.link)}" target="_blank" style="color:#6b7280; text-decoration:underline;">${esc(more.text)}</a>` : '';
   const logo = site.replace(/\/$/, '') + '/assets/email/dorax-logo.png';
-  const rows = lines.map((l, i) => `<tr><td style="padding:12px 0; ${i ? 'border-top:1px solid #eceef0; ' : ''}font-family:${FONT}; font-size:15px; line-height:1.55; color:#3c4149;">${esc(l)}</td></tr>`).join('');
+  // the figure: large, in the button's green, its line in grey under it; then the lines as always
+  const fig = figure && figure.big ? `<tr><td style="padding:6px 0 10px; font-family:${FONT};"><div style="font-size:34px; line-height:1.15; font-weight:700; color:#006239; letter-spacing:-0.02em;">${esc(figure.big)}</div>${figure.small ? `<div style="margin-top:4px; font-size:14px; line-height:1.4; color:#6b7280;">${esc(figure.small)}</div>` : ''}</td></tr>` : '';
+  const rows = fig + lines.map((l, i) => `<tr><td style="padding:12px 0; ${i ? 'border-top:1px solid #eceef0; ' : ''}font-family:${FONT}; font-size:15px; line-height:1.55; color:#3c4149;">${esc(l)}</td></tr>`).join('');
   const html = `<!doctype html>
 <html lang="${esc(lang || 'pt')}">
 <head>
@@ -53,7 +56,7 @@ export function reminderEmail({ title, lines, texts, site, lang, link, more }) {
 </html>
 `;
   const action = !texts.open ? [] : writes ? [texts.open, ''] : [texts.open + ': ' + link, ''];
-  return { html, text: [title, '', ...lines, '', ...action, texts.why + (after ? ' ' + more.text + ': ' + more.link : '')].join('\n') };
+  return { html, text: [title, '', ...(figure && figure.big ? [figure.big + (figure.small ? ' — ' + figure.small : ''), ''] : []), ...lines, '', ...action, texts.why + (after ? ' ' + more.text + ': ' + more.link : '')].join('\n') };
 }
 
 export const PARTS = [esc, FONT, reminderEmail];

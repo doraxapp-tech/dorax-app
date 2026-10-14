@@ -51,7 +51,7 @@ const { open, ok, eq, done } = require('./pw.js');
   const doc = await p.evaluate(() => { const d = JSON.parse(JSON.stringify(S)); d.user.notify = { challenges: true }; return d; });
   const msg = logic.messageFor(JSON.parse(JSON.stringify(doc)), '2026-10-02', new Set());
   ok(msg && msg.lines.some(l => l === '52 semanas, semana 1: guarda R$ 5.'), 'the server says it in the same words', msg && msg.lines);
-  eq(logic.messageFor(JSON.parse(JSON.stringify({ ...doc, user: { ...doc.user, notify: { challenges: false } } })), '2026-10-02', new Set()), null, 'its switch off: nothing');
+  eq(logic.messageFor(JSON.parse(JSON.stringify({ ...doc, user: { ...doc.user, notify: { challenges: false, invites: false } } })), '2026-10-02', new Set()), null, 'its switch off: nothing');
   await p.click('#s52 [data-a="s52-put"]'); await p.waitForSelector('#m-amount');
   eq([await kind(), await p.evaluate(() => $('m-amount').value.replace(/[.,]00$/, ''))], ['goal-move', '5'], '“Put aside” opens the goal’s contribution with R$ 5');
   await p.click('[data-a="move-save"]'); await p.waitForTimeout(250);
