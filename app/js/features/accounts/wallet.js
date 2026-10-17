@@ -62,13 +62,13 @@ function cardSay(a) {
   return `${a.name}: ${credit ? t('Owed') : t('Balance')} ${fmt.money(credit ? -bal : bal, a.currency)}${sp ? ` · ${t('Saved@card')} ${fmt.money(accountBalance(S, a.id, S.today), a.currency)}` : ''}${cr ? ` · ${t('Invoice@card')} ${fmt.money(-accountBalance(S, cr.id, S.today), cr.currency)}` : ''}`;
 }
 /** The account as a bank card: the bank's colour (its own ink on it), its mark and the rest of its name, the balance (or what is owed), the chip,
-    the holder's name and the kind of account. The colour of a bank the app does not know is graphite. An account whose card has credit shows its
+    the holder's name and the kind of account. The colour of a bank the app does not know is our forest (ui/bank-mark.js: DX_MARK, v231); an account with no bank (cash) is graphite. An account whose card has credit shows its
     balance large and the invoice under it, and says both functions (owner, 2026-10-09: "balance large, invoice under it"). */
 function cardFace(a) {
   // a savings account with its balance to spend: that balance large, what is saved under it (owner, 2026-10-09)
-  const sp = cardSpend(a), b = BANK_MARKS[a.institution], c = b ? b.bg : '#2B2B2E', ink = b ? b.ink : '#FFFFFF', bal = accountBalance(S, (sp || a).id, S.today), credit = a.type === 'credit', cr = cardCredit(a);
+  const sp = cardSpend(a), b = BANK_MARKS[a.institution], c = b ? b.bg : a.institution ? DX_MARK.card : '#2B2B2E', ink = b ? b.ink : a.institution ? DX_MARK.cardInk : '#FFFFFF', bal = accountBalance(S, (sp || a).id, S.today), credit = a.type === 'credit', cr = cardCredit(a);
   const holder = ((a.scope === 'business' ? (S.company || {}).name : '') || S.user.name || '').trim(), name = b ? (acctRest(a.name, a.institution) || a.name) : a.name;
-  const mark = a.institution && b ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
+  const mark = a.institution ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
   return `<span class="ccard${credit ? ' credit' : ''}${cr || sp ? ' duo' : ''}" style="--cc:${c};--cc-ink:${ink}"><span class="cc-top"><span class="cc-logo">${mark}</span><span class="cc-name">${esc(name)}</span>
       <span class="cc-amt"><small>${credit ? t('Owed') : t('Balance')}</small><b class="num">${fmt.money(credit ? -bal : bal, a.currency)}</b>${sp ? `<span class="cc-inv">${t('Saved@card')} <span class="num">${fmt.money(accountBalance(S, a.id, S.today), a.currency)}</span></span>` : ''}${cr ? `<span class="cc-inv">${t('Invoice@card')} <span class="num">${fmt.money(-accountBalance(S, cr.id, S.today), cr.currency)}</span></span>` : ''}</span></span>
     <span class="cc-mid">${CC_CHIP}${CC_NFC}</span>
@@ -126,7 +126,7 @@ function savingsHead(list, bare) {
 }
 /** A savings account as a row, under the stacked cards of a phone (the stack shows no details): its mark, its name and what it holds. */
 function savingsRow(a) {
-  const mark = a.institution && BANK_MARKS[a.institution] ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
+  const mark = a.institution ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
   return `<div class="sv-row"><div class="sv-row-h">${mark}<b class="grow">${esc(a.name)}</b><b class="num">${fmt.money(accountBalance(S, a.id, S.today), a.currency)}</b></div></div>`;
 }
 /** No savings account yet: where the goals would be kept, and the way to add one. */
@@ -246,7 +246,7 @@ if (typeof document !== 'undefined') document.addEventListener('scroll', e => { 
 /** A panel: every account of the side, the ones shown first in their order with two arrows; a switch shows or hides each, five at most, one at least. */
 function walletPickDrawer() {
   const all = walletList(), chosen = walletChosen(), ids = chosen.map(a => a.id), rest = all.filter(a => !ids.includes(a.id)), full = ids.length >= W_MAX, n = ids.length;
-  const kind = a => (ACCT_TYPES().find(x => x[0] === a.type) || [0, a.type])[1] + (cardCredit(a) ? ' · ' + t('Credit') : ''), mark = a => a.institution && BANK_MARKS[a.institution] ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
+  const kind = a => (ACCT_TYPES().find(x => x[0] === a.type) || [0, a.type])[1] + (cardCredit(a) ? ' · ' + t('Credit') : ''), mark = a => a.institution ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
   const arrow = (a, i, d) => `<button class="wp-btn" data-a="wallet-pick-move" data-id="${a.id}" data-d="${d}" aria-label="${esc(d < 0 ? t('Move {name} up', { name: a.name }) : t('Move {name} down', { name: a.name }))}" ${(d < 0 ? i === 0 : i === n - 1) ? 'disabled' : ''}>${icon(d < 0 ? 'up' : 'down')}</button>`;
   const row = (a, i) => { const on = i >= 0, off = (!on && full) || (on && n === 1);
     return `<li class="wp-row${on ? ' on' : ''}" data-id="${a.id}"><span class="wp-mark">${mark(a)}</span><span class="grow"><b>${esc(a.name)}</b><small>${esc(kind(a))}</small></span>${on ? arrow(a, i, -1) + arrow(a, i, 1) : ''}${sw('wp-' + a.id, on, 'wallet-pick-toggle', `data-id="${a.id}" aria-label="${esc(t('Show {name} on the dashboard', { name: a.name }))}"${off ? ' disabled' : ''}`)}</li>`; };

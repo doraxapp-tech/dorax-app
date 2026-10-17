@@ -33,7 +33,7 @@ function viewAccounts() {
 // Four short blocks, each worked out from the same balances as the cards: the savings one by one with their total and how they moved this month; how
 // many months of spending they cover (the days of freedom of the summary, in months); what the side has, adds up to and owes; and each credit card's
 // next invoice and how much of its limit is used. Nothing estimated is shown as a fact: an invoice still to close says it is an estimate.
-const asideMark = a => a.institution && BANK_MARKS[a.institution] ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
+const asideMark = a => a.institution ? bankMark(a.institution) : `<span class="inst">${icon('wallet')}</span>`;
 function accountsAside(list) {
   const co = UI.space === 'business', cur = co ? ((companyBooks(S)[0] || {}).cur || CUR) : CUR, at = (a, d) => accountBalance(S, a.id, d || S.today);
   const mine = list.filter(a => a.currency === cur), card = (id, title, body) => `<section class="card acc-box" id="${id}"><div class="card-b"><h2>${title}</h2>${body}</div></section>`;

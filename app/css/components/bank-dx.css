@@ -1,0 +1,11 @@
+/* Dorax Finance — Dorax's own mark for a bank the app does not know (v231, ui/bank-mark.js: bankMark, DX_MARK; owner, 2026-10-17: "crea un logo
+   para las cuentas de banco cuando el usuario elige Other… con los colores nuestros"). "Other" wears the site's drawing of a bank, a bank known
+   only by its name its initials, in our colours (set on the badge itself, as every bank's are, so each place that draws a badge keeps its size).
+   A faint lime ring keeps the forest circle from melting into a dark card. */
+.inst.dx { display: inline-grid; place-items: center; box-shadow: inset 0 0 0 1px rgba(159, 209, 130, .32) !important; letter-spacing: .02em; }
+.inst.dx svg { display: block; width: 100% !important; height: 100% !important; }      /* the drawing keeps its room inside (ui/bank-mark.js: dxBank), whatever size a place gives the badge */
+/* in the bank list: "Other" with the same mark, as round as the banks' logos */
+@supports (appearance: base-select) {
+  select.bank-sel .bk-logo.dx { display: inline-grid; place-items: center; box-shadow: inset 0 0 0 1px rgba(159, 209, 130, .32); }
+  select.bank-sel .bk-logo.dx svg { display: block; width: 100%; height: 100%; }
+}

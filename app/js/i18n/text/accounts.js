@@ -157,4 +157,6 @@ addTexts([
   ["Your totals and your plan are counted in {currency} from now on, with the same numbers: check your pay and your fixed costs. Each goal stays in its own account’s currency. Nothing is converted.", "Desde ahora tus totales y tu plan se cuentan en {currency}, con los mismos números: revisa tu sueldo y tus costos fijos. Cada meta sigue en la moneda de su cuenta. No se convierte nada.", "A partir de agora seus totais e seu plano são contados em {currency}, com os mesmos números: revise seu salário e seus custos fixos. Cada meta continua na moeda da conta dela. Nada é convertido."],
   ["{name} is now the main account. Your money is counted in {currency}.", "{name} ahora es la cuenta principal. Tu dinero se cuenta en {currency}.", "{name} agora é a conta principal. Seu dinheiro é contado em {currency}."],
   ["Make it the main account", "Hacerla principal", "Tornar principal"],
+  // v231: Dorax's own mark for a bank not in the list
+  ["Other bank", "Otro banco", "Outro banco"],
 ]);

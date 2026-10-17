@@ -172,7 +172,7 @@ function bankOptions(sel, ...keep) {
   // simply left out; a bank with no logo file keeps an empty circle, so the names line up.
   const logo = b => { const m = BANK_MARKS[b], src = m && typeof BANK_LOGOS !== 'undefined' && BANK_LOGOS[m.id]; return src ? `<img class="bk-logo" src="${esc(src)}" alt="" width="24" height="24" decoding="async">` : '<span class="bk-logo none" aria-hidden="true"></span>'; };
   // sel: the bank, or the bank and its country ("Santander@ES": bankPick) when it is in more than one
-  const all = bankChoices(...keep), other = t('Other'), names = PLACE_NAMES(), now = bankUnpick(sel), opt = (b, p) => { const v = p ? bankPick(b, p) : b, on = b === now.name && (!p || p === now.place); return `<option value="${esc(v)}"${on ? ' selected' : ''}>${b === other ? '' : logo(b)}${esc(b)}</option>`; };
+  const all = bankChoices(...keep), other = t('Other'), names = PLACE_NAMES(), now = bankUnpick(sel), opt = (b, p) => { const v = p ? bankPick(b, p) : b, on = b === now.name && (!p || p === now.place); return `<option value="${esc(v)}"${on ? ' selected' : ''}>${b === other ? `<span class="bk-logo dx" aria-hidden="true" style="background:${DX_MARK.bg};color:${DX_MARK.ink}">${dxBank()}</span>` : logo(b)}${esc(b)}</option>`; };
   const groups = PLACE_ORDER.map(p => [p, all.filter(b => bankPlaces(b).includes(p))]).filter(([, bs]) => bs.length);
   const rest = all.filter(b => b !== other && !bankPlaces(b).length).concat(other);
   return '<button type="button" class="bk-now"><selectedcontent></selectedcontent></button>' + groups.map(([p, bs]) => `<optgroup label="${esc(names[p])}"><legend>${esc(names[p])}</legend>${bs.map(b => opt(b, p)).join('')}</optgroup>`).join('<hr>') + '<hr class="bk-end">' + rest.map(b => opt(b)).join('');

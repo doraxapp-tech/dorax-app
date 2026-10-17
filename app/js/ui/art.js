@@ -26,6 +26,9 @@ function artObj(name, cls) {
   const back = /\bbare\b/.test(cls || '') ? '' : badge ? '<circle class="obj-bg" cx="128" cy="128" r="122"/>' : '<circle class="obj-bg" cx="128" cy="128" r="128"/>';
   return `<svg class="obj${cls ? ' ' + cls : ''}" viewBox="0 0 256 256" aria-hidden="true" focusable="false">${back}<g transform="${badge ? 'translate(45 45) scale(.648)' : 'translate(44 44) scale(.656)'}">${ic[0].map(d => `<path class="of" d="${d}" transform="translate(10 10)"/>`).join('')}${lines.map(d => `<path class="ol" d="${d}"/>`).join('')}</g></svg>`;
 }
+/** Dorax's bank, for an account at a bank the app does not know (v231, ui/bank-mark.js: bankMark): the bank's light line in the badge's ink
+    (currentColor), with its fill layer when one is given; the badge is the circle, so the drawing has none. */
+const artBankMark = fill => { const ic = ART_ICONS.bank; return `<svg viewBox="0 0 256 256" aria-hidden="true" focusable="false"><g transform="translate(40 40) scale(.6875)">${fill ? ic[0].map(d => `<path fill="${fill}" d="${d}" transform="translate(10 10)"/>`).join('') : ''}${(ic[2] || ic[1]).map(d => `<path fill="currentColor" d="${d}"/>`).join('')}</g></svg>`; };
 /** A person, with a thing at its corner when the words next to it are about that thing. cls: its size and place; with 'shadow' it is drawn with
     a lime shadow and no circle (v213, the home page's "Is one of these you?": app/assets/art/people/shadow/). */
 /** v218: a thing in place of a screen's icon, in the light line, only in the look (css/look/look-quick-art.css: .ti); the previous look keeps its icon. */

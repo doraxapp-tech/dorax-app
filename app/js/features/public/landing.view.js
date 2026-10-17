@@ -55,6 +55,9 @@ function l2Moments() {
       <span class="l2-mo-ic">${artObj(thing)}</span><span class="l2-mo-t">${title}</span><span class="l2-mo-p">${text}</span>
       ${i === on ? `<span class="l2-mo-ui">${ui[i]}</span>` : ''}<span class="l2-pill">${i === on ? t('How it looks in Dorax') : t('See how')}</span></button>`).join('');
 }
+/* The spreadsheet's card is "xls", never "sheet" (v231, owner, 2026-10-17: "este bloque desactiva el scroll: si el puntero se para sobre él no
+   puedo hacer scroll hasta que salgo de encima, pasa en todos los dispositivos"): "sheet" is the app's bottom panel (css/components/panels.css), and
+   its rule reached this card: overscroll-behavior: contain kept the wheel and the finger from scrolling the page while over it. */
 /** "What's inside": four cards, each with a piece of the app floating in it and a title in two tones. Its little pictures are Dorax's things
     since v213, the spreadsheet file among them (made for it: "y este icono? si no hay créalo"). */
 function l2Bento() {
@@ -68,7 +71,7 @@ function l2Bento() {
       <span class="l2-pop"><b>${t('Left this month')}</b><span>${t('Income')}<em>${l2Money(6000)}</em></span><span>− ${t('Fixed costs')}<em>${l2Money(4160)}</em></span><span>− ${t('Savings')}<em>${l2Money(600)}</em></span><span class="tot">=<em>${l2Money(1240)}</em></span></span></div>`;
   const fii = `<span class="l2-glow" aria-hidden="true"></span><div class="l2-ill fii" aria-hidden="true"><span class="l2-fb">${[42, 55, 48, 66, 60, 78].map((h, i) => `<i class="${i === 5 ? 'on' : ''}" style="height:${h}%"></i>`).join('')}</span>
       <span class="l2-fc f1"><small>${t('Income received')}</small><b>${l2Amt(312.4)}</b></span><span class="l2-fc f2"><small>${t('Average price')}</small><b>${l2Amt(98.72)}</b></span></div>`;
-  return `<div class="l2-bento"><div class="l2-bcol">${card('sheet tall', sheet, t('Bring your sheet.'), t('Choose your .xlsx or .csv, see what Dorax found and import only what you approve.'))}${card('tip', tip, t('A fact a day.'), t('Ideas from your own numbers, and facts worth knowing.'))}</div>
+  return `<div class="l2-bento"><div class="l2-bcol">${card('xls tall', sheet, t('Bring your sheet.'), t('Choose your .xlsx or .csv, see what Dorax found and import only what you approve.'))}${card('tip', tip, t('A fact a day.'), t('Ideas from your own numbers, and facts worth knowing.'))}</div>
     <div class="l2-bcol">${card('exp', exp, t('Numbers that explain themselves.'), t('Tap any figure and it tells you where it comes from.'))}${card('fii dark tall', fii, t('Your FIIs, in order.'), t('Record purchases, sales and income received. Dorax does not tell you what to buy or sell.'))}</div></div>`;
 }
 /** How it works, in three steps (owner: "reduce a 3"), each a person with the thing it is about. */

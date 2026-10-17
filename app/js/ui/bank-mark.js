@@ -36,13 +36,29 @@ const BANK_MARKS = {
   'Abanca':          { id: 'abanca',          short: 'AB', bg: '#5A84D6', ink: '#111111' },
 };
 
+// ---------- a bank the app does not know: Dorax's own mark (v231) ----------
+// Owner, 2026-10-17: "crea un logo para las cuentas de banco cuando el usuario elige Other a la hora de crear una cuenta; esa Other la quiero con los
+// colores nuestros". "Other" (in the language it was chosen in: the list keeps the word) wears Dorax's bank, the site's own drawing of a bank
+// (js/ui/art.js), in our colours; a bank the app does not know by name (one typed in an imported file) wears its initials in the same colours. So
+// every account has its bank's mark or one of ours, never a grey one, and no bank's artwork is imitated. Its card is ours too.
+const OTHER_BANK = ['Other', 'Otra', 'Outra', 'Otro', 'Outro', 'Otros', 'Outros'];      // the list's word in the three languages (t('Other'): Otra, Outra), and its near forms
+const isOtherBank = name => OTHER_BANK.includes(String(name || '').trim());
+/** Our colours on it: the badge (bg, its line ink, the drawing's fill layer, or none) and the card (card, cardInk). */
+const DX_MARK = { bg: '#163300', ink: '#9FD182', fill: '', card: '#2D6800', cardInk: '#FFFFFF' };      // card: every card is drawn at half its colour (css/screens/wallet.css), so #2D6800 shows as our forest #163300
+/** The drawing of a bank, in the badge's colours (its light line, read at 20 to 40 px). */
+const dxBank = () => typeof artBankMark === 'function' ? artBankMark(DX_MARK.fill) : '';      // the drawing itself is in js/ui/art.js, with the others: this file draws no picture
+/** A name's initials: the first letters of its first two words ("Banco Local": BL), or its first two letters. */
+const bankInitials = name => { const w = String(name || '').replace(/[^\p{L}\p{N}\s]/gu, ' ').trim().split(/\s+/).filter(Boolean); return (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || '').slice(0, 2)).toUpperCase(); };      // letters and digits only: "Sicoob <b>" is SB
+
 /** The badge of an account's bank. The card does not write the bank's name anywhere else, so the badge carries it for screen readers
-    and as a tooltip. A bank the app does not know ("Other", or one typed in an imported file) keeps the plain two letters. */
+    and as a tooltip. A bank the app does not know wears Dorax's mark (above). */
 function bankMark(institution, small) {
   const name = String(institution || ''), b = BANK_MARKS[name], logo = b && typeof BANK_LOGOS !== 'undefined' && BANK_LOGOS[b.id], sm = small ? ' sm' : '', px = small ? 20 : 36;
   if (logo) return `<span class="inst pic${sm}" title="${esc(name)}"><img src="${esc(logo)}" alt="${esc(name)}" width="${px}" height="${px}" decoding="async"></span>`;
   if (b) return `<span class="inst bank${sm}" role="img" aria-label="${esc(name)}" title="${esc(name)}" style="background:${b.bg};color:${b.ink}">${b.short}</span>`;
-  return `<span class="inst"${name ? ` role="img" aria-label="${esc(name)}" title="${esc(name)}"` : ''}>${esc(name.slice(0, 2).toUpperCase())}</span>`;
+  if (!name.trim()) return '<span class="inst"></span>';
+  const other = isOtherBank(name), say = other ? t('Other bank') : name;
+  return `<span class="inst bank dx${sm}" role="img" aria-label="${esc(say)}" title="${esc(say)}" style="background:${DX_MARK.bg};color:${DX_MARK.ink}">${other ? dxBank() : esc(bankInitials(name))}</span>`;
 }
 
 // ---------- an account where a person scans rather than reads ----------

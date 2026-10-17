@@ -43,7 +43,7 @@ const PICTURE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><re
     ok(off.length >= 3 && off.every(([y, x]) => y <= 1.5 && x <= 1.5), where + 'the letters sit in the middle of every badge', off.map(o => o.map(Math.round)));
     eq([nu.cls, nu.text, nu.bg, nu.ink], ['inst bank', 'NU', 'rgb(130, 10, 209)', 'rgb(255, 255, 255)'], where + 'a Nubank account wears Nubank’s colour and letters, and says the bank’s name to a screen reader');
     eq([by('Conta C6').cls, by('Conta C6').text, by('Conta C6').label, by('Conta C6').bg], ['inst bank', 'C6', 'C6 Bank', 'rgb(36, 36, 36)'], where + 'so does a C6 Bank account');
-    eq([by('Cooperativa').cls, by('Cooperativa').text, by('Cooperativa').label, by('Carteira').cls, by('Carteira').text, by('Carteira').label], ['inst', 'SI', 'Sicoob <b>', 'inst', '', null], where + 'a bank the app does not know keeps the plain two letters (its name shown as text, never as markup); no bank, no letters');
+    eq([by('Cooperativa').cls, by('Cooperativa').text, by('Cooperativa').label, by('Carteira').cls, by('Carteira').text, by('Carteira').label], ['inst bank dx', 'SB', 'Sicoob <b>', 'inst', '', null], where + 'a bank the app does not know wears its initials in Dorax’s mark (v231; its name shown as text, never as markup); no bank, no letters');
     eq(new Set(cards.filter(c => c.cls === 'inst bank').map(c => c.bg)).size, new Set(cards.filter(c => c.cls === 'inst bank').map(c => c.label)).size, where + 'different banks have different colours');
     // a logo file is there for one bank: that bank shows the picture, the others keep their colour
     await p.evaluate(pic => { BANK_LOGOS.nubank = 'data:image/svg+xml,' + encodeURIComponent(pic); render(); }, PICTURE);
