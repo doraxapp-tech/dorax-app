@@ -8,11 +8,14 @@
    (user.tours), to someone whose account is under 30 days old, on the household's side, and never over a panel, the Journey's page or the lock.
    Plain black and white like the setup; unlike the Journey, no scene and no steps: one page per screen. */
 const TOUR_DAYS = 30;
+/** The Transactions tour's heading names the money of the side in use (owner, 2026-10-17: "asegúrate que en los textos las monedas escritas en los
+    textos (reales) cambien también dependiendo de la cuenta principal"): “Every real in its place.” in reais, “Every peso…” in Cuban pesos. */
+const TOUR_EVERY = { BRL: 'Every real in its place.', USD: 'Every dollar in its place.', EUR: 'Every euro in its place.', CUP: 'Every peso in its place.' };
 function tourText(route) {
   return ({
     dashboard: { art: 'kpis', title: t('Your money, at a glance.'), lead: t('Summary tells you how you are doing today, and how long you would last if you stopped earning.'),
       does: [['chart-bar', t('What came in, went out and is left this month')], ['shield-check', t('Your days of freedom: how long your savings last')], ['calendar-check', t('What is still to pay, before it is due')]], go: null, fig: 'coffee' },
-    transactions: { art: 'list', title: t('Every real in its place.'), lead: t('Everything that comes into and goes out of your accounts is here.'),
+    transactions: { art: 'list', title: t(TOUR_EVERY[BCUR()] || 'Every cent in its place.'), lead: t('Everything that comes into and goes out of your accounts is here.'),
       does: [['chat-circle-dots', t('Write an expense in one line: “taxi 15”')], ['file-arrow-down', t('Bring your bank statement and Dorax sorts it')], ['sliders-horizontal', t('Filter by category, account or month')]], go: ['new-tx', t('Add a transaction')], thing: 'list-checks' },
     plan: { art: 'bills', title: t('Your month, before it happens.'), lead: t('In the Plan you put what you expect to earn, your fixed costs with their due day, and how much to spend on each category.'),
       does: [['house', t('Fixed costs: rent, internet, cards')], ['sliders-horizontal', t('A spending limit per category, with a warning at 80%')], ['bell-ringing', t('A reminder before each bill is due')]], go: ['plan-guide', t('Plan my month')], thing: 'calendar-dots' },      // 2026-10-10: the guide first (features/limits/plan-guide.view.js)

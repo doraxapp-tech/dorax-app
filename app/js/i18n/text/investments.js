@@ -133,4 +133,7 @@ addTexts([
   ["Distributions received, last 12 months", "Rendimiento recibido, últimos 12 meses", "Rendimentos recebidos, últimos 12 meses"],
   ["Record those of {month}", "Registrar los de {month}", "Registrar os de {month}"],
   ["{n} to record", "{n} por registrar", "{n} a registrar"],
+  // v230: the money named in the words follows the main currency
+  ["Today’s price of {ticker}, in {currency}", "Precio de hoy de {ticker}, en {currency}", "Preço de hoje de {ticker}, em {currency}"],
+  ["Received from {ticker}, in {currency}", "Recibido de {ticker}, en {currency}", "Recebido de {ticker}, em {currency}"],
 ]);

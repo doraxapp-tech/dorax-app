@@ -41,7 +41,7 @@ function dkFiiPosition(f) {
       <ul class="dk-keys">${held.map((r, i) => `<li class="num"><i class="dk-dot g${(i % 4) + 1}"></i>${esc(r.ticker)} <b>${fmt.pct(Math.round(r.value * 100 / total))}</b></li>`).join('')}</ul></div>` : '';
   const row = r => `<tr class="${flashed(r.ticker).trim()}"><td><div class="dk-who">${dkTicker(r.ticker, idx(r.ticker))}<button class="linkbtn dk-name" data-a="fii-open" data-id="${esc(r.ticker)}">${esc(r.ticker)}</button></div></td>
       <td class="r num">${r.qty}</td><td class="r num">${fmt.money(r.avg, CUR)}</td>
-      <td class="r"><input type="text" inputmode="decimal" class="dk-fld num dk-price" id="fp-${esc(r.ticker)}" aria-label="${esc(t('Today’s price of {ticker}, in reais', { ticker: r.ticker }))}" value="${plain(r.price)}" data-c="fii-price" data-id="${esc(r.ticker)}"></td>
+      <td class="r"><input type="text" inputmode="decimal" class="dk-fld num dk-price" id="fp-${esc(r.ticker)}" aria-label="${esc(t('Today’s price of {ticker}, in {currency}', { ticker: r.ticker, currency: curName(CUR) }))}" value="${plain(r.price)}" data-c="fii-price" data-id="${esc(r.ticker)}"></td>
       <td class="r"><b class="num">${fmt.money(r.value, CUR)}</b></td><td class="r">${gain(r.gain, r.gainPct)}</td>
       <td class="r"><b class="num">${fmt.money(r.monthly, CUR)}</b>${r.unit ? `<small class="num">${esc(t('{unit} per quota', { unit: fmt.unit(r.unit) }))}</small>` : ''}</td>
       <td class="r"><button class="dk-go" data-a="fii-open" data-id="${esc(r.ticker)}" aria-label="${esc(t('Open {name}', { name: r.ticker }))}">${icon('right')}</button></td></tr>`;
@@ -57,7 +57,7 @@ function dkFiiIncome(f) {
   if (!rows.length) return '';
   const held = f.held.slice().sort((a, b) => b.value - a.value), idx = tk => held.findIndex(r => r.ticker === tk);
   const line = x => `<div class="dk-inc-row">${dkTicker(x.r.ticker, idx(x.r.ticker))}<div class="dk-inc-t"><b>${esc(x.r.ticker)}</b><small class="num">${x.done ? esc(t('{amount} recorded', { amount: fmt.money(x.done, CUR) })) : x.r.unit ? esc(t('{unit} × {n} quotas', { unit: fmt.unit(x.r.unit), n: x.r.qty })) : esc(tn(x.r.qty, '{n} quota', '{n} quotas'))}</small></div>
-      <input type="text" inputmode="decimal" class="dk-fld num dk-amt ${x.now ? '' : 'z'}" id="iv-${esc(x.r.ticker)}" aria-label="${esc(t('Received from {ticker}, in reais', { ticker: x.r.ticker }))}" value="${esc(x.txt)}" data-c="inc-val" data-id="${esc(x.r.ticker)}"></div>`;
+      <input type="text" inputmode="decimal" class="dk-fld num dk-amt ${x.now ? '' : 'z'}" id="iv-${esc(x.r.ticker)}" aria-label="${esc(t('Received from {ticker}, in {currency}', { ticker: x.r.ticker, currency: curName(CUR) }))}" value="${esc(x.txt)}" data-c="inc-val" data-id="${esc(x.r.ticker)}"></div>`;
   return `<section class="dk-tile dk-box" id="fii-income" aria-labelledby="fii-income-h"><div class="dk-box-h"><div class="dk-sec-t"><div class="dk-h2"><h2 id="fii-income-h">${esc(t('Distributions of {month}', { month: yrMonth(ym) }))}</h2>${hint('fiiMonth')}</div><span class="dk-sub">${t('They come with each fund’s last distribution')}</span></div>${open ? dkPill(esc(tn(open, '{n} to record', '{n} to record')), 'warn') : dkPill(t('All recorded'), 'mint')}</div>
     <div class="dk-inc">${rows.map(line).join('')}<div class="dk-inc-tot"><b>${t('Total')}</b><b class="num">${fmt.money(sum(rows.map(x => x.now)), CUR)}</b></div></div>
     <div class="dk-box-f"><label class="dk-lbl">${t('Date')}<input type="date" class="dk-fld" id="inc-date" value="${esc(d.date)}" data-c="inc-date"></label><button class="btn primary" data-a="inc-register" ${count ? '' : 'disabled'}>${icon('check')}${count ? tn(count, 'Record {n} income', 'Record {n} incomes') : t('Nothing to record')}</button></div></section>`;
@@ -75,8 +75,8 @@ function dkFiiSim(f) {
   return `<section class="dk-tile dk-box" id="fii-sim" aria-labelledby="fii-sim-h"><div class="dk-box-h"><div class="dk-sec-t"><div class="dk-h2"><h2 id="fii-sim-h">${t('Simulate a purchase')}</h2>${hint('fiiSim')}</div><span class="dk-sub">${t('Nothing is recorded until you say so')}</span></div></div>
     <div class="dk-sim-f"><label class="dk-lbl">FII<input type="text" class="dk-fld" id="sim-ticker" list="fii-list" value="${esc(s.ticker)}" placeholder="ABCD11" autocapitalize="characters" data-c="sim" data-k="ticker"><datalist id="fii-list">${fiiTickers(S).map(x => `<option value="${esc(x)}">`).join('')}</datalist></label>
       <label class="dk-lbl">${t('Quotas')}<input type="text" inputmode="numeric" class="dk-fld num" id="sim-qty" value="${esc(s.qtyText)}" data-c="sim" data-k="qtyText"></label>
-      <label class="dk-lbl">${t('Price per quota (R$)')}<input type="text" inputmode="decimal" class="dk-fld num" id="sim-price" value="${esc(s.priceText)}" data-c="sim" data-k="priceText"></label>
-      <label class="dk-lbl">${t('Last yield per quota (R$)')}<input type="text" inputmode="decimal" class="dk-fld num" id="sim-yield" value="${esc(s.yieldText)}" data-c="sim" data-k="yieldText"></label></div>
+      <label class="dk-lbl">${tcur('Price per quota (R$)')}<input type="text" inputmode="decimal" class="dk-fld num" id="sim-price" value="${esc(s.priceText)}" data-c="sim" data-k="priceText"></label>
+      <label class="dk-lbl">${tcur('Last yield per quota (R$)')}<input type="text" inputmode="decimal" class="dk-fld num" id="sim-yield" value="${esc(s.yieldText)}" data-c="sim" data-k="yieldText"></label></div>
     <div class="dk-sim-out">${res}</div></section>`;
 }
 /** The movements, newest first; a day's distributions together in one row that opens into its funds. */

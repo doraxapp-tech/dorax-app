@@ -36,7 +36,7 @@ function whatIfFoot(d) {
   return g && extra > 0 ? `<button class="btn primary" data-a="whatif-apply">${co ? t('Add {amount} a month to this reserve’s plan', v) : t('Add {amount} a month to this goal’s plan', v)}</button>` : '';
 }
 function whatIfDrawer(d) {
-  const co = inCompany(), goals = whatIfGoals(B(), B().today), v = d.draft, sym = BCUR() === 'USD' ? 'US$' : 'R$';
+  const co = inCompany(), goals = whatIfGoals(B(), B().today), v = d.draft, sym = SYMBOL[BCUR()] || BCUR();      // the sign of the side's currency, any of the five (v230)
   return `<div class="body wi">
     ${goals.length > 1 ? `<div class="field inline wi-pick"><label for="wi-goal">${t('Goal')}</label><select id="wi-goal" data-c="wi-goal">${options(goals.map(g => [g.id, g.name]), v.goalId)}</select></div>` : ''}
     ${obSlide('wi-less', co ? t('The company costs less each month') : t('I spend less each month'), 'less', v.less, wiLessMax(), WI_STEP, 'wi', sym)}

@@ -10,7 +10,14 @@
 // 'normal' until the person says otherwise.
 const CURIO_RATES = ['more', 'normal', 'less', 'off'];
 // [id, side]: side 'company' is shown on the company's side only (facts about a MEI); the others on both.
-const CURIOS = [['fgc', ''], ['card', ''], ['savings', ''], ['overdraft', ''], ['thirteenth', ''], ['forgotten', ''], ['mei', 'company'], ['das', 'company']];
+/* [id, side, money]: side "company" for a fact about a company (shown only to someone with one); money "BRL" for a fact that quotes an amount a
+   Brazilian law sets (the FGC's ceiling, the MEI's limit). Owner, 2026-10-17: "asegúrate que en los textos las monedas escritas en los textos
+   (reales) cambien también dependiendo de la cuenta principal": the money in the words follows the main account, but an amount a law sets in reais
+   cannot be put in another currency without becoming false, so those facts are shown only where money is counted in reais (the household's main
+   currency; for a company's fact, a company side in reais). */
+const CURIOS = [['fgc', '', 'BRL'], ['card', ''], ['savings', ''], ['overdraft', ''], ['thirteenth', ''], ['forgotten', ''], ['mei', 'company', 'BRL'], ['das', 'company']];
+/** Whether a curiosity fits this person: its side (company: whether there is one) and, for an amount set in reais, money counted in reais. */
+const curioFits = (state, c, company) => (c[1] !== 'company' || company) && (!c[2] || (c[1] === 'company' ? companyCurrencies(state).includes(c[2]) : currencyOf(state) === c[2]));
 const curioRate = state => { const r = ((state.user || {}).curio || {}).rate; return CURIO_RATES.includes(r) ? r : 'normal'; };
 /** Whether a curiosity may be shown now. today: the account's date; now: the device's clock, in milliseconds. */
 function curioDue(state, today, now) {
@@ -23,7 +30,7 @@ function curioDue(state, today, now) {
 }
 /** The next one for a side: the first never shown; once all were, the one shown longest ago. skip: one not to pick (the one on screen). */
 function curioNext(state, company, skip) {
-  const log = ((state.user || {}).curio || {}).log || [], ids = CURIOS.filter(c => (c[1] !== 'company' || company) && c[0] !== skip).map(c => c[0]);
+  const log = ((state.user || {}).curio || {}).log || [], ids = CURIOS.filter(c => curioFits(state, c, company) && c[0] !== skip).map(c => c[0]);
   const fresh = ids.find(id => !log.some(x => x.id === id)); if (fresh) return fresh;
   const at = id => { let k = -1; log.forEach((x, i) => { if (x.id === id) k = i; }); return k; };
   return ids.slice().sort((a, b) => at(a) - at(b))[0] || null;

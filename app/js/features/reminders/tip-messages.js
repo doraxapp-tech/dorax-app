@@ -142,7 +142,7 @@ function tipPick(state, today, sent, o = {}) {
       const x = oldest('tipi|', insights(state, today, BASE_CURRENCY), y => y.kind), say = x && tipInsight(x);
       if (say) return { kind, keys: ['tip|' + today, 'tipi|' + x.kind + '|' + today], push: { title: t('Insight of the day'), body: say.join(' ') } };
     } else if (kind === 'curio') {
-      const facts = curioFacts(), ids = CURIOS.filter(c => c[1] !== 'company' || !!(state.user || {}).company).map(c => c[0]).filter(id => facts[id]);
+      const facts = curioFacts(), ids = CURIOS.filter(c => curioFits(state, c, !!(state.user || {}).company)).map(c => c[0]).filter(id => facts[id]);
       if (ids.length) { const id = oldest('tipc|', ids, y => y), f = facts[id]; return { kind, keys: ['tip|' + today, 'tipc|' + id + '|' + today], push: { title: t('Did you know?'), body: f[0] + ' ' + t('Source: {name}', { name: f[1] }) } }; }
     } else {
       const all = tipAdvice(), id = oldest('tipa|', Object.keys(all), y => y);

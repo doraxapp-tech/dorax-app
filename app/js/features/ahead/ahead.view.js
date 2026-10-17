@@ -90,7 +90,7 @@ function runwayDrawer(d) {
     <p class="note">${co ? t('The company’s runway is what it keeps divided by what goes out in a month.') : t('Days of freedom are what you have put aside divided by what goes out in a month.')}</p>
     <dl class="kv"><dt>${t('Put aside')}</dt><dd><span class="num">${money(r.cushion.amount)}</span> <span class="muted">· ${where}</span></dd>
       <dt>${t('Goes out a month')}</dt><dd><span class="num">${money(r.burn.amount)}</span> <span class="muted">· ${basis}</span></dd></dl>
-    ${fld('rw-spend', t('What goes out in a month, your estimate ({cur})', { cur: cur === 'USD' ? 'US$' : 'R$' }), inp('rw-spend', 'spendText', d.draft.spendText, 'inputmode="decimal" class="num" placeholder="0,00"'))}
+    ${fld('rw-spend', t('What goes out in a month, your estimate ({cur})', { cur: SYMBOL[cur] || cur }), inp('rw-spend', 'spendText', d.draft.spendText, 'inputmode="decimal" class="num" placeholder="0,00"'))}
     <p class="note">${co ? t('Dorax counts with the highest of three figures: the company’s average costs of the last three months, this month’s planned fixed costs, and this estimate. What you pay yourself is a transfer, not a cost. Leave it empty to use only what is recorded.')
       : t('Dorax counts with the highest of three figures: your average spending of the last three months, this month’s planned fixed costs, and this estimate. That way a month that is only half recorded never makes your money look like it lasts longer. Leave it empty to use only what is recorded.')}</p></div>
   <footer><button class="btn primary" data-a="runway-save">${t('Save')}</button><button class="btn ghost spacer" data-a="close">${t('Cancel')}</button></footer>`;

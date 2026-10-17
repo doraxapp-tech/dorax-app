@@ -39,4 +39,9 @@ addTexts([
   ["In your bank’s app, open the statement and export it as OFX or CSV","En la app de tu banco, abre el extracto y expórtalo en OFX o CSV","No app do seu banco, abra o extrato e exporte em OFX ou CSV"],
   ["It is saved on your phone: in Files on an iPhone, in Downloads on Android","Queda guardado en tu teléfono: en Archivos en un iPhone, en Descargas en Android","Ele fica salvo no seu celular: em Arquivos no iPhone, em Downloads no Android"],
   ["Your statement, in a few taps.","Tu extracto, en pocos toques.","Seu extrato, em poucos toques."],
+  // v230: the Transactions tour names the money of the main account
+  ["Every dollar in its place.", "Cada dólar, en su lugar.", "Cada dólar no seu lugar."],
+  ["Every euro in its place.", "Cada euro, en su lugar.", "Cada euro no seu lugar."],
+  ["Every peso in its place.", "Cada peso, en su lugar.", "Cada peso no seu lugar."],
+  ["Every cent in its place.", "Cada centavo, en su lugar.", "Cada centavo no seu lugar."],
 ]);
